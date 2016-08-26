@@ -1,0 +1,2920 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebDAVSharp.Server</name>
+    </assembly>
+    <members>
+        <member name="T:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter">
+            <summary>
+            This version uses integrated authentication if present,
+            but if the auth is not good it can fallback on a basic
+            authentication scheme.
+            
+            Please check the answer to this post
+            
+            https://social.msdn.microsoft.com/Forums/en-US/c2ba1e1c-3ff8-4c74-874e-2de2bcb1a4c1/httplistener-windows-authentication-fails-for-domain-account?forum=netfxnetcom
+            
+            Negotiate can be used only if the service is running as a 
+            network service or local system. If this condition is not 
+            fulfilled, windows or other client that supports kerberos will try
+            to authenticate with kerberos and the auth will always fail.
+            
+            To diagnose this issue, use fiddler and check auth header
+            if it starts with YII it is a kerberos auth, and will always fail
+            until the code run as a service with local system or network service
+            identity.
+            Authorization: Negotiate YIIGDQYGKwYBB
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListener" /> implementation wraps around a
+            <see cref="T:System.Net.HttpListener" /> instance.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.Prefixes">
+            <summary>
+            Gets the Uniform Resource Identifier (
+            <see cref="T:System.Uri" />) prefixes handled by the
+            adapted 
+            <see cref="T:System.Net.HttpListener" /> object.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter" /> class.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.GetContext(System.Threading.EventWaitHandle)">
+            <summary>
+            Waits for a request to come in to the web server and returns a
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter around it.
+            </summary>
+            <param name="abortEvent">A 
+            <see cref="T:System.Threading.EventWaitHandle" /> to use for aborting the wait. If this
+            event becomes set before a request comes in, this method will return 
+            <c>null</c>.</param>
+            <returns>
+            A 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter object for a request;
+            or 
+            <c>null</c> if the wait for a request was aborted due to 
+            <paramref name="abortEvent" /> being set.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">abortEvent</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="abortEvent" /> is <c>null</c>.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.Start">
+            <summary>
+            Allows the adapted <see cref="T:System.Net.HttpListener" /> to receive incoming requests.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerSmartAdapter.Stop">
+            <summary>
+            Causes the adapted <see cref="T:System.Net.HttpListener" /> to stop receiving incoming requests.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter">
+            <summary>
+            This 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListener" /> implementation wraps around a
+            <see cref="T:System.Net.HttpListener" /> instance.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.Prefixes">
+            <summary>
+            Gets the Uniform Resource Identifier (
+            <see cref="T:System.Uri" />) prefixes handled by the
+            adapted 
+            <see cref="T:System.Net.HttpListener" /> object.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter" /> class.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.GetContext(System.Threading.EventWaitHandle)">
+            <summary>
+            Waits for a request to come in to the web server and returns a
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter around it.
+            </summary>
+            <param name="abortEvent">A 
+            <see cref="T:System.Threading.EventWaitHandle" /> to use for aborting the wait. If this
+            event becomes set before a request comes in, this method will return 
+            <c>null</c>.</param>
+            <returns>
+            A 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter object for a request;
+            or 
+            <c>null</c> if the wait for a request was aborted due to 
+            <paramref name="abortEvent" /> being set.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">abortEvent</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="abortEvent" /> is <c>null</c>.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.Start">
+            <summary>
+            Allows the adapted <see cref="T:System.Net.HttpListener" /> to receive incoming requests.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.AuthenticationTypes.HttpListenerNegotiateAdapter.Stop">
+            <summary>
+            Causes the adapted <see cref="T:System.Net.HttpListener" /> to stop receiving incoming requests.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter">
+            <summary>
+            This 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> implementation wraps around a
+            <see cref="T:System.Net.HttpListenerContext" /> instance.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter.#ctor(System.Net.HttpListenerContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter" /> class.
+            </summary>
+            <param name="context">The <see cref="T:System.Net.HttpListenerContext" /> to adapt for WebDAV#.</param>
+            <exception cref="T:System.ArgumentNullException">context</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="context" /> is <c>null</c>.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter.Request">
+            <summary>
+            Gets the <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest" /> request adapter.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerContextAdapter.Response">
+            <summary>
+            Gets the <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerResponse" /> response adapter.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter">
+            <summary>
+            This 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest" /> implementation wraps around a
+            <see cref="T:System.Net.HttpListenerRequest" /> instance.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.#ctor(System.Net.HttpListenerRequest)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter" /> class.
+            </summary>
+            <param name="request">The <see cref="T:System.Net.HttpListenerRequest" /> to adapt for WebDAV#.</param>
+            <exception cref="T:System.ArgumentNullException">request</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="request" /> is <c>null</c>.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.RemoteEndPoint">
+            <summary>
+            Gets the client IP address and port number from which the request originated.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.Url">
+            <summary>
+            Gets the <see cref="T:System.Uri" /> object requested by the client.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.HttpMethod">
+            <summary>
+            Gets the HTTP method specified by the client.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.Headers">
+            <summary>
+            Gets the collection of header name/value pairs sent in the request.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.InputStream">
+            <summary>
+            Gets a <see cref="T:System.IO.Stream" /> that contains the body data sent by the client.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.ContentEncoding">
+            <summary>
+            Gets the content <see cref="T:System.Text.Encoding" /> that can be used with data sent with the request.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerRequestAdapter.ContentLength64">
+            <summary>
+            Gets the length of the body data included in the request.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter">
+            <summary>
+            This 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerResponse" /> implementation wraps around a
+            <see cref="T:System.Net.HttpListenerResponse" /> instance.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.StatusCode">
+            <summary>
+            Gets or sets the HTTP status code to be returned to the client.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.StatusDescription">
+            <summary>
+            Gets or sets a text description of the HTTP <see cref="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.StatusCode">status code</see> returned to the client.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.OutputStream">
+            <summary>
+            Gets a <see cref="T:System.IO.Stream" /> object to which a response can be written.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.ContentEncoding">
+            <summary>
+            Gets or sets the <see cref="T:System.Text.Encoding" /> for this response's <see cref="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.OutputStream" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.ContentLength64">
+            <summary>
+            Gets or sets the number of bytes in the body data included in the response.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.#ctor(System.Net.HttpListenerResponse)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter" /> class.
+            </summary>
+            <param name="response">The <see cref="T:System.Net.HttpListenerResponse" /> to adapt for WebDAV#.</param>
+            <exception cref="T:System.ArgumentNullException">Response</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="response" /> is <c>null</c>.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.Close">
+            <summary>
+            Sends the response to the client and releases the resources held by the adapted
+            <see cref="T:System.Net.HttpListenerResponse" /> instance.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.HttpListenerResponseAdapter.AppendHeader(System.String,System.String)">
+            <summary>
+            Appends a value to the specified HTTP header to be sent with the response.
+            </summary>
+            <param name="name">The name of the HTTP header to append the <paramref name="value" /> to.</param>
+            <param name="value">The value to append to the <paramref name="name" /> header.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.IAdapter`1">
+            <summary>
+            This interface is implemented by other adapters in the WebDAV#
+            project, to facilitate access to the underlying adapted object.
+            </summary>
+            <typeparam name="T">The type of internal instance that is adapted.</typeparam>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IAdapter`1.AdaptedInstance">
+            <summary>
+            Gets the internal instance that was adapted for WebDAV#.
+            </summary>
+            <value>
+            The adapted instance.
+            </value>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.IHttpListenerContext">
+            <summary>
+            This is an interface-version of the parts of 
+            <see cref="T:System.Net.HttpListenerContext" /> that
+            the 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> requires to operator.
+            </summary>
+            <remarks>
+            The main purpose of this interface is to facilitate unit-testing.
+            </remarks>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerContext.Request">
+            <summary>
+            Gets the <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest" /> request adapter.
+            </summary>
+            <value>
+            The request.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerContext.Response">
+            <summary>
+            Gets the <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerResponse" /> response adapter.
+            </summary>
+            <value>
+            The response.
+            </value>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest">
+            <summary>
+            This is an interface-version of the parts of 
+            <see cref="T:System.Net.HttpListenerRequest" /> that
+            the 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> requires to operator.
+            </summary>
+            <remarks>
+            The main purpose of this interface is to facilitate unit-testing.
+            </remarks>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.RemoteEndPoint">
+            <summary>
+            Gets the client IP address and port number from which the request originated.
+            </summary>
+            <value>
+            The remote end point.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.Url">
+            <summary>
+            Gets the <see cref="T:System.Uri" /> object requested by the client.
+            </summary>
+            <value>
+            The URL.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.HttpMethod">
+            <summary>
+            Gets the HTTP method specified by the client.
+            </summary>
+            <value>
+            The HTTP method.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.Headers">
+            <summary>
+            Gets the collection of header name/value pairs sent in the request.
+            </summary>
+            <value>
+            The headers.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.InputStream">
+            <summary>
+            Gets a <see cref="T:System.IO.Stream" /> that contains the body data sent by the client.
+            </summary>
+            <value>
+            The input stream.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.ContentEncoding">
+            <summary>
+            Gets the content <see cref="T:System.Text.Encoding" /> that can be used with data sent with the request.
+            </summary>
+            <value>
+            The content encoding.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerRequest.ContentLength64">
+            <summary>
+            Gets the length of the body data included in the request.
+            </summary>
+            <value>
+            The content length64.
+            </value>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.IHttpListenerResponse">
+            <summary>
+            This is an interface-version of the parts of 
+            <see cref="T:System.Net.HttpListenerResponse" /> that
+            the 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> requires to operator.
+            </summary>
+            <remarks>
+            The main purpose of this interface is to facilitate unit-testing.
+            </remarks>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.StatusCode">
+            <summary>
+            Gets or sets the HTTP status code to be returned to the client.
+            </summary>
+            <value>
+            The status code.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.StatusDescription">
+            <summary>
+            Gets or sets a text description of the HTTP <see cref="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.StatusCode">status code</see> returned to the client.
+            </summary>
+            <value>
+            The status description.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.OutputStream">
+            <summary>
+            Gets a <see cref="T:System.IO.Stream" /> object to which a response can be written.
+            </summary>
+            <value>
+            The output stream.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.ContentEncoding">
+            <summary>
+            Gets or sets the <see cref="T:System.Text.Encoding" /> for this response's <see cref="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.OutputStream" />.
+            </summary>
+            <value>
+            The content encoding.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListenerResponse.ContentLength64">
+            <summary>
+            Gets or sets the number of bytes in the body data included in the response.
+            </summary>
+            <value>
+            The content length64.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListenerResponse.Close">
+            <summary>
+            Sends the response to the client and releases the resources held by the adapted
+            <see cref="T:System.Net.HttpListenerResponse" /> instance.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListenerResponse.AppendHeader(System.String,System.String)">
+            <summary>
+            Appends a value to the specified HTTP header to be sent with the response.
+            </summary>
+            <param name="name">The name of the HTTP header to append the <paramref name="value" /> to.</param>
+            <param name="value">The value to append to the <paramref name="name" /> header.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListenerResponse.SetEtag(System.String)">
+            <summary>
+            Set the Etag for this specific request.
+            </summary>
+            <param name="etag"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListenerResponse.SetLastModified(System.DateTime)">
+            <summary>
+            Set last-modified header.
+            </summary>
+            <param name="date"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListenerResponse.DumpHeaders">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Adapters.IHttpListener">
+            <summary>
+            This is an interface-version of the parts of 
+            <see cref="T:System.Net.HttpListener" /> that
+            the 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> requires to operator.
+            </summary>
+            <remarks>
+            The main purpose of this interface is to facilitate unit-testing.
+            </remarks>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListener.GetContext(System.Threading.EventWaitHandle)">
+            <summary>
+            Waits for a request to come in to the web server and returns a
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter around it.
+            </summary>
+            <param name="abortEvent">A 
+            <see cref="T:System.Threading.EventWaitHandle" /> to use for aborting the wait. If this
+            event becomes set before a request comes in, this method will return 
+            <c>null</c>.</param>
+            <returns>
+            A 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> adapter object for a request;
+            or 
+            <c>null</c> if the wait for a request was aborted due to 
+            <paramref name="abortEvent" /> being set.
+            </returns>
+        </member>
+        <member name="P:WebDAVSharp.Server.Adapters.IHttpListener.Prefixes">
+            <summary>
+            Gets the Uniform Resource Identifier (
+            <see cref="T:System.Uri" />) prefixes handled by the
+            adapted 
+            <see cref="T:System.Net.HttpListener" /> object.
+            </summary>
+            <value>
+            The prefixes.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListener.Start">
+            <summary>
+            Allows the adapted <see cref="T:System.Net.HttpListener" /> to receive incoming requests.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListener.Stop">
+            <summary>
+            Causes the adapted <see cref="T:System.Net.HttpListener" /> to stop receiving incoming requests.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Adapters.IHttpListener.GetIdentity(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            Returns the windows Idenity to use for the request.
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavBadRequestException">
+            <summary>
+            Exception for bad requests
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavBadRequestException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavBadRequestException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavLockedException">
+            <summary>
+            This exception is thrown when a request cannot be completed due to a conflict with the requested
+            resource.
+            Statuscode: 409 Conflict.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavLockedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavLockedException" /> class.
+            </summary>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+            <param name="errorMessage"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavLockedException.GetResponse(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            https://www.ietf.org/proceedings/49/slides/WEBDAV-1/tsld008.htm
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavLengthRequiredException">
+            <summary>
+            Statuscode: 411 Length Required.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavLengthRequiredException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavLengthRequiredException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavUnsupportedMediaTypeException">
+            <summary>
+            This exception is thrown when the media type is unsupported.
+            Statuscode: 415 Unsupported Media Type
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavUnsupportedMediaTypeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavUnsupportedMediaTypeException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException">
+            <summary>
+            This exception is thrown when one of the preconditions failed.
+            Statuscode: 412 Precondition Failed.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavForbiddenException">
+            <summary>
+            Statuscode: 403 Forbidden.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavForbiddenException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavForbiddenException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">
+            <summary>
+            This exception is thrown when the user is not authorized to execute the request.
+            Statuscode: 401 Unauthorized.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavConflictException">
+            <summary>
+            This exception is thrown when a request cannot be completed due to a conflict with the requested
+            resource.
+            Statuscode: 409 Conflict.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavConflictException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavException">
+            <summary>
+            This exception, or a descendant, is thrown when requests fail, specifying the status code
+            that the server should return back to the client.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> class.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> class.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is null.</exception>
+            <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult" /> is zero (0).</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.#ctor(System.Net.HttpStatusCode,System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> class.
+            </summary>
+            <param name="statusCode">The HTTP status code that this <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> maps to.</param>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="P:WebDAVSharp.Server.Exceptions.WebDavException.StatusCode">
+            <summary>
+            Gets the HTTP status code that this <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> maps to.
+            </summary>
+            <value>
+            The status code.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Exceptions.WebDavException.StatusDescription">
+            <summary>
+            Gets the status description for the HTTP <see cref="P:WebDAVSharp.Server.Exceptions.WebDavException.StatusCode" />.
+            </summary>
+            <value>
+            The status description.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            When overridden in a derived class, sets the <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with information about the exception.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> that holds the serialized object data about the exception being thrown.</param>
+            <param name="context">The <see cref="T:System.Runtime.Serialization.StreamingContext" /> that contains contextual information about the source or destination.</param>
+            <exception cref="T:System.ArgumentNullException">The <paramref name="info" /> parameter is a null reference (Nothing in Visual Basic).</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.GetMessage(System.Net.HttpStatusCode,System.String)">
+            <summary>
+            Gets the message.
+            </summary>
+            <param name="statusCode">The status code.</param>
+            <param name="message">The message.</param>
+            <returns>The message and the status description.</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavException.GetResponse(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            Return the result that should be returned to the caller.
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavInternalServerException">
+            <summary>
+            This exception is thrown when the server throws a different exception than the standard
+            ones that 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> knows how to respond to.
+            Statuscode: 500 Internal Server Error.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavInternalServerException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavInternalServerException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException">
+            <summary>
+            This exception is thrown when a request uses a HTTP method to request or manipulate a resource
+            for which the specified HTTP method is not allowed.
+            Statuscode: 405 Method Not Allowed.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException">
+            <summary>
+            This exception is thrown when a request tries to access a resource that does not exist.
+            Statuscode: 404 Not Found.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavNotFoundException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Exceptions.WebDavNotImplementedException">
+            <summary>
+            This exception is thrown when a request uses a HTTP method or functionality that has yet to
+            be implemented.
+            Statuscode: 501 Not Implemented.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Exceptions.WebDavNotImplementedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Exceptions.WebDavNotImplementedException" /> class.
+            </summary>
+            <param name="message">The exception message stating the reason for the exception being thrown.</param>
+            <param name="innerException">The 
+            <see cref="T:System.Exception" /> that is the cause for this exception;
+            or 
+            <c>null</c> if no inner exception is specified.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.LockProperty">
+            <summary>
+            The property with all the information of a lock
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.LockProperty.#ctor">
+            <summary>
+            The standard constructor
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.LockProperty.#ctor(System.String,System.String,System.String,System.String,System.String,System.String)">
+            <summary>
+            The constructor with all the specific values
+            </summary>
+            <param name="locktype">The locktype of the lock</param>
+            <param name="lockscope">The lockscope of the lock</param>
+            <param name="depth">The depth of the lock</param>
+            <param name="owner">The owner of the lock</param>
+            <param name="timeout">The timeout of the lock</param>
+            <param name="locktoken">The locktoken.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavHeadMethodHandler">
+            <summary>
+            This class implements the <c>PROPFIND</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavHeadMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavHeadMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException"><para>
+              <paramref name="context" /> specifies a request for a store item that does not exist.</para>
+            <para>- or -</para>
+            <para>
+              <paramref name="context" /> specifies a request for a store item that is not a document.</para></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException"><paramref name="context" /> specifies a request for a store item using a collection path that does not exist.</exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavLockMethodHandler">
+            <summary>
+            This class implements the <c>LOCK</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavLockMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavLockMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException"></exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase">
+            <summary>
+            This is the base class for <see cref="T:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler" /> implementations.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetParentCollection(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Stores.IWebDavStore,System.Uri)">
+            <summary>
+            Get the parent collection from the requested
+            <see cref="T:System.Uri" />.
+            <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> 409 Conflict possible.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="childUri">The <see cref="T:System.Uri" /> object containing the specific location of the child</param>
+            <returns>
+            The parrent collection as an <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException"></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException">
+            </exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">When the user is unauthorized and doesn't have access</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException">When the parent collection doesn't exist</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetItemFromCollection(WebDAVSharp.Server.Stores.IWebDavStoreCollection,System.Uri)">
+            <summary>
+            Get the item in the collection from the requested
+            <see cref="T:System.Uri" />.
+            <see cref="T:WebDAVSharp.Server.Exceptions.WebDavException" /> 409 Conflict possible.
+            </summary>
+            <param name="collection">The parent collection as a <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /></param>
+            <param name="childUri">The <see cref="T:System.Uri" /> object containing the specific location of the child</param>
+            <returns>
+            The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> from the <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If user is not authorized to get access to the item</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException">If item not found.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetDepthHeader(WebDAVSharp.Server.Adapters.IHttpListenerRequest)">
+            <summary>
+            Gets the Depth header : 0, 1 or infinity
+            </summary>
+            <param name="request">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> with the response included</param>
+            <returns>
+            The values 0, 1 or -1 (for infinity)
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetOverwriteHeader(WebDAVSharp.Server.Adapters.IHttpListenerRequest)">
+            <summary>
+            Gets the Overwrite header : T or F
+            </summary>
+            <param name="request">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest"/> has the header included</param>
+            <returns>The <see cref="T:System.Boolean"/> true if overwrite, false if no overwrite</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetTimeoutHeader(WebDAVSharp.Server.Adapters.IHttpListenerRequest)">
+            <summary>
+            Gets the Timeout header : Second-number
+            </summary>
+            <param name="request">The request with the request included</param>
+            <returns>The value of the Timeout header as a string</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlerBase.GetDestinationHeader(WebDAVSharp.Server.Adapters.IHttpListenerRequest)">
+            <summary>
+            Gets the Destination header as an URI
+            </summary>
+            <param name="request">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest"/> has the header included</param>
+            <returns>The <see cref="T:System.Uri"/> containing the destination</returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler">
+            <summary>
+            This class implements the <c>PROPFIND</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException"></exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.GetRequestUri(System.String)">
+            <summary>
+            Get the URI to the location
+            If no slash at the end of the URI, this method adds one
+            </summary>
+            <param name="uri">The <see cref="T:System.String" /> that contains the URI</param>
+            <returns>
+            The <see cref="T:System.Uri" /> that contains the given uri
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.GetWebDavStoreItems(WebDAVSharp.Server.Stores.IWebDavStoreItem,System.Int32)">
+            <summary>
+            Convert the given 
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> to a 
+            <see cref="T:System.Collections.Generic.List`1" /> of 
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />
+            This list depends on the "Depth" header
+            </summary>
+            <param name="iWebDavStoreItem">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> that needs to be converted</param>
+            <param name="depth">The "Depth" header</param>
+            <returns>
+            A <see cref="T:System.Collections.Generic.List`1" /> of <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException"></exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.GetXmlDocument(WebDAVSharp.Server.Adapters.IHttpListenerRequest)">
+            <summary>
+            Reads the XML body of the 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest" />
+            and converts it to an 
+            <see cref="T:System.Xml.XmlDocument" />
+            </summary>
+            <param name="request">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerRequest" /></param>
+            <returns>
+            The <see cref="T:System.Xml.XmlDocument" /> that contains the request body
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.GetAllProperties">
+            <summary>
+            Adds the standard properties for an Propfind allprop request to a <see cref="T:System.Collections.Generic.List`1" /> of <see cref="T:WebDAVSharp.Server.WebDavProperty" />
+            </summary>
+            <returns>
+            The list with all the <see cref="T:WebDAVSharp.Server.WebDavProperty" />
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.ResponseDocument(WebDAVSharp.Server.Adapters.IHttpListenerContext,System.Boolean,System.Xml.XmlDocument)">
+            <summary>
+            Builds the <see cref="T:System.Xml.XmlDocument" /> containing the response body
+            </summary>
+            <param name="context">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /></param>
+            <param name="propname">The boolean defining the Propfind propname request</param>
+            <param name="responseDoc"></param>
+            <returns>
+            The <see cref="T:System.Xml.XmlDocument" /> containing the response body
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.PropChildElement(WebDAVSharp.Server.WebDavProperty,System.Xml.XmlDocument,WebDAVSharp.Server.Stores.IWebDavStoreItem,System.Boolean)">
+            <summary>
+            Gives the 
+            <see cref="T:System.Xml.XmlElement" /> of a 
+            <see cref="T:WebDAVSharp.Server.WebDavProperty" />
+            with or without values
+            or with or without child elements
+            </summary>
+            <param name="webDavProperty">The <see cref="T:WebDAVSharp.Server.WebDavProperty" /></param>
+            <param name="xmlDocument">The <see cref="T:System.Xml.XmlDocument" /> containing the response body</param>
+            <param name="iWebDavStoreItem">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /></param>
+            <param name="isPropname">The boolean defining the Propfind propname request</param>
+            <returns>
+            The <see cref="T:System.Xml.XmlElement" /> of the <see cref="T:WebDAVSharp.Server.WebDavProperty" /> containing a value or child elements
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.GetWebDavPropertyValue(WebDAVSharp.Server.Stores.IWebDavStoreItem,WebDAVSharp.Server.WebDavProperty)">
+            <summary>
+            Gets the correct value for a <see cref="T:WebDAVSharp.Server.WebDavProperty" />
+            </summary>
+            <param name="webDavStoreItem">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> defines the values</param>
+            <param name="davProperty">The <see cref="T:WebDAVSharp.Server.WebDavProperty" /> that needs a value</param>
+            <returns>
+            A <see cref="T:System.String" /> containing the value
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.SupportedLocks(System.Xml.XmlDocument@)">
+            <summary>
+            Returns an XML Fragment which details the supported locks on this implementation.
+            15.10 supportedlock Property
+            Name:
+                supportedlock
+            Purpose:
+                To provide a listing of the lock capabilities supported by the resource.
+            Protected:
+                MUST be protected. Servers, not clients, determine what lock mechanisms are supported.
+            COPY/MOVE behavior:
+               This property value is dependent on the kind of locks supported at the destination, not on the value of the property at the source resource. Servers attempting to COPY to a destination should not attempt to set this property at the destination.
+            Description:
+                Returns a listing of the combinations of scope and access types that may be specified in a lock request on the resource. Note that the actual contents are themselves controlled by access controls, so a server is not required to provide information the client is not authorized to see. This property is NOT lockable with respect to write locks (Section 7).
+            </summary>
+            <param name="responsedoc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.LockDiscovery(System.Uri,System.Xml.XmlDocument@)">
+            <summary>
+            Returns the XML Format according to RFC
+            Name:
+               lockdiscovery
+            Purpose:
+                Describes the active locks on a resource
+            Protected:
+                MUST be protected. Clients change the list of locks through LOCK and UNLOCK, not through PROPPATCH.
+            COPY/MOVE behavior:
+                The value of this property depends on the lock state of the destination, not on the locks of the source resource. Recall 
+                that locks are not moved in a MOVE operation.
+            Description:
+                Returns a listing of who has a lock, what type of lock he has, the timeout type and the time remaining on the timeout, 
+                and the associated lock token. Owner information MAY be omitted if it is considered sensitive. If there are no locks, but 
+                the server supports locks, the property will be present but contain zero 'activelock' elements. If there are one or more locks,
+                an 'activelock' element appears for each lock on the resource. This property is NOT lockable with respect to write locks (Section 7).
+            </summary>
+            <param name="path"></param>
+            <param name="responsedoc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPropfindMethodHandler.SendResponse(WebDAVSharp.Server.Adapters.IHttpListenerContext,System.Xml.XmlNode)">
+            <summary>
+            Sends the response
+            </summary>
+            <param name="context">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> containing the response</param>
+            <param name="responseDocument">The <see cref="T:System.Xml.XmlDocument" /> containing the response body</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavCopyMethodHandler">
+            <summary>
+            This class implements the <c>COPY</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavCopyMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavCopyMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="request"></param>
+            <param name="response"></param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException"></exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavCopyMethodHandler.CopyItem(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,WebDAVSharp.Server.Stores.IWebDavStoreItem)">
+            <summary>
+            Copies the item.
+            </summary>
+            <param name="server">The server.</param>
+            <param name="context">The context.</param>
+            <param name="store">The store.</param>
+            <param name="source">The source.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavForbiddenException"></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException"></exception>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavDeleteMethodHandler">
+            <summary>
+            This class implements the <c>DELETE</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavDeleteMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavDeleteMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="response"></param>
+            <param name="request"></param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavMkColMethodHandler">
+            <summary>
+            This class implements the <c>MKCOL</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavMkColMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMkColMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnsupportedMediaTypeException"></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException"></exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavMoveMethodHandler">
+            <summary>
+            This class implements the <c>MOVE</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavMoveMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMoveMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMoveMethodHandler.MoveItem(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,WebDAVSharp.Server.Stores.IWebDavStoreItem)">
+            <summary>
+            Moves the
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="sourceWebDavStoreItem">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> that will be moved</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavForbiddenException">If the source path is the same as the destination path</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavPreconditionFailedException">If one of the preconditions failed</exception>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavOptionsMethodHandler">
+            <summary>
+            This class implements the <c>OPTIONS</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavOptionsMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavOptionsMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavProppatchMethodHandler">
+            <summary>
+            This class implements the <c>PROPPATCH</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavProppatchMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavProppatchMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavPutMethodHandler">
+            <summary>
+            This class implements the <c>PUT</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavPutMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavPutMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException"></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavLengthRequiredException">If the ContentLength header was not found</exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavUnlockMethodHandler">
+            <summary>
+            This class implements the <c>PUT</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavUnlockMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavUnlockMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler">
+            <summary>
+            This interface must be implemented by a class that will respond
+            to requests from a client by handling specific HTTP methods.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the HTTP methods handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler.ProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument@,System.Xml.XmlDocument@)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="request"></param>
+            <param name="response"></param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavGetMethodHandler">
+            <summary>
+            This class implements the <c>GET</c> HTTP method for WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavGetMethodHandler.Names">
+            <summary>
+            Gets the collection of the names of the verbs handled by this instance.
+            </summary>
+            <value>
+            The names.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavGetMethodHandler.OnProcessRequest(WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Adapters.IHttpListenerContext,WebDAVSharp.Server.Stores.IWebDavStore,System.Xml.XmlDocument,System.Xml.XmlDocument)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> through which the request came in from the client.</param>
+            <param name="context">The
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> object containing both the request and response
+            objects to use.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that the <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException"></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException"><para>
+              <paramref name="context" /> specifies a request for a store item that does not exist.</para>
+            <para>- or -</para>
+            <para>
+              <paramref name="context" /> specifies a request for a store item that is not a document.</para></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException"><paramref name="context" /> specifies a request for a store item using a collection path that does not exist.</exception>
+            <param name="response"></param>
+            <param name="request"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlers">
+            <summary>
+            This class contains code to produce the built-in
+            <see cref="T:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler"/> instances known by WebDAV#.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlers.BuiltIn">
+            <summary>
+            Gets the collection of built-in <see cref="T:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler"/>
+            HTTP method handler instances.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.MethodHandlers.WebDavMethodHandlers.ScanAssemblies">
+            <summary>
+            Scans the WebDAV# assemblies for known <see cref="T:WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler"/>
+            types.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.ILockPersister">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Persist(System.Uri,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance})">
+            <summary>
+            Save a lock for a given uri.
+            </summary>
+            <param name="uri"></param>
+            <param name="locks"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Load(System.Uri)">
+            <summary>
+            Reload locks for a given uri
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Clear(System.Uri)">
+            <summary>
+            Clear all locks for given path.
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.NullLockPersister">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Instance">
+            <summary>
+            Singleton
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Clear(System.Uri)">
+            <summary>
+            
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Load(System.Uri)">
+            <summary>
+            
+            </summary>
+            <param name="uri"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Persist(System.Uri,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance})">
+            <summary>
+            
+            </summary>
+            <param name="uri"></param>
+            <param name="locks"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.WebDavLockScope">
+            <summary>
+            Possible scopes for locks.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavLockScope.Exclusive">
+            <summary>
+            Can only have one exclusive Lock
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavLockScope.Shared">
+            <summary>
+            Can be many.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.WebDavLockType">
+            <summary>
+            Specifies the access type of a lock. At present, this specification only defines one lock type, the write lock.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavLockType.Write">
+            <summary>
+            A Write Lock type
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance">
+            <summary>
+            Used to store locks on objects
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.Path">
+            <summary>
+            The Path locked
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.LockScope">
+            <summary>
+            Lock Scope
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.LockType">
+            <summary>
+            Lock Type
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.Owner">
+            <summary>
+            Owner
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.RequestedTimeout">
+            <summary>
+            Requested Timeout
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.Token">
+            <summary>
+            Token Issued
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.RequestDocument">
+            <summary>
+            Request Document
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.ExpirationDate">
+            <summary>
+            If null, it's an infinite checkout.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.LogicalLockKey">
+            <summary>
+            Same document can be returned from different path on webdav if you 
+            use virtual folders, if you use virtual folders you need to return
+            the same LogicalLockKey for all documents that represents the same document
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.UserAgent">
+            <summary>
+            The user agent that requested the lock.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.Depth">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.#ctor(System.Uri,System.String,System.String,WebDAVSharp.Server.Stores.Locks.WebDavLockScope,WebDAVSharp.Server.Stores.Locks.WebDavLockType,System.String,System.String,System.String,System.Xml.XmlDocument,System.Int32,System.Nullable{System.DateTime})">
+            <summary>
+            Constructor used to rebuild the object without passing extra ref info.
+            </summary>
+            <param name="path"></param>
+            <param name="logicalLockKey"></param>
+            <param name="userAgent"></param>
+            <param name="lockscope"></param>
+            <param name="locktype"></param>
+            <param name="owner"></param>
+            <param name="requestedlocktimeout"></param>
+            <param name="token"></param>
+            <param name="requestdocument"></param>
+            <param name="depth"></param>
+            <param name="expirationDate"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.#ctor(System.Uri,System.String,System.String,WebDAVSharp.Server.Stores.Locks.WebDavLockScope,WebDAVSharp.Server.Stores.Locks.WebDavLockType,System.String,System.String@,System.String@,System.Xml.XmlDocument,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="path"></param>
+            <param name="logicalLockKey"></param>
+            <param name="userAgent"></param>
+            <param name="lockscope"></param>
+            <param name="locktype"></param>
+            <param name="owner"></param>
+            <param name="requestedlocktimeout"></param>
+            <param name="token"></param>
+            <param name="requestdocument"></param>
+            <param name="depth"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.RefreshLock(System.String@)">
+            <summary>
+            Refreshes a lock
+            </summary>
+            <param name="requestedlocktimeout"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock">
+            <summary>
+            This class provides the locking functionality.
+            
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.AllowInfiniteCheckouts">
+            <summary>
+            Allow Objects to be checked out forever
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.MaxCheckOutSeconds">
+            <summary>
+            Max amount of seconds a item can be checkout for.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.LockEnabled">
+            <summary>
+            If false, web dav tells client that it does not support lock.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.ObjectLocks">
+            <summary>
+            Used to store the locks per URI
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.SetPersister(WebDAVSharp.Server.Stores.Locks.ILockPersister)">
+            <summary>
+            
+            </summary>
+            <param name="persister"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.LoadAndCleanLocks(System.Uri)">
+            <summary>
+            This function removes any expired locks for the path and if there is no lock in memory it try to use
+            persister to load one
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.RefreshLock(System.Uri,System.String,System.String@,System.Xml.XmlDocument@)">
+            <summary>
+            This function will refresh an existing lock.
+            </summary>
+            <param name="path">Target URI to the file or folder </param>
+            <param name="locktoken">The token issued when the lock was established</param>
+            <param name="requestedlocktimeout">The requested timeout</param>
+            <param name="requestDocument">Output parameter, returns the Request document that was used when the lock was established.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.Lock(System.Uri,System.String,WebDAVSharp.Server.Stores.Locks.WebDavLockScope,WebDAVSharp.Server.Stores.Locks.WebDavLockType,System.String,System.String,System.String@,System.String@,System.Xml.XmlDocument,System.Int32)">
+            <summary>
+            Locks the request Path.
+            </summary>
+            <param name="path">URI to the item to be locked</param>
+            <param name="logicalLockKey">Logical lock key taken from document.</param>
+            <param name="lockscope">The lock Scope used for locking</param>
+            <param name="locktype">The lock Type used for locking</param>
+            <param name="lockowner">The owner of the lock</param>
+            <param name="userAgent">User agent of the request</param>
+            <param name="requestedlocktimeout">The requested timeout</param>
+            <param name="locktoken">Out parameter, returns the issued token</param>
+            <param name="requestDocument">the Request Document</param>
+            <param name="depth">How deep to lock, 0,1, or infinity</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.UnLock(System.Uri,System.String,System.String)">
+            <summary>
+            Unlocks the URI passed if the token matches a lock token in use.
+            </summary>
+            <param name="path">URI to resource</param>
+            <param name="locktoken">Token used to lock.</param>
+            <param name="owner">Owner.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.ClearLocks(System.Uri)">
+            <summary>
+            Clear all locks on a given path, it is usefulf for deleted object.
+            </summary>
+            <param name="path"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.GetLocks(System.Uri)">
+            <summary>
+            Returns all the locks on the path
+            </summary>
+            <param name="path">URI to resource</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.WebDavCustomProperties">
+            <summary>
+            Capture a series of WebDavCustomProperties grouped in the same namespace.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Namespace">
+            <summary>
+            Namespace name, ex:http://ns.example.com/boxschema
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.NamespacePrefix">
+            <summary>
+            Namespace prefix, ex: N
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Properties">
+            <summary>
+            All properties grouped inside this namespace, in this first version we 
+            care only about simple string properties.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.WebDavCustomProperties.#ctor(System.String,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="namespece"></param>
+            <param name="prefix"></param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.WebDavItemInfo">
+            <summary>
+            Grab all information we need on a specific document
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.CreationTime">
+            <summary>
+            Creation time of the document
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastAccessTime">
+            <summary>
+            Last time the document was accessed.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastWriteTime">
+            <summary>
+            Last time document was written.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreDocumentBase">
+            <summary>
+            This is the base class for <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> implementations.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreDocumentBase.#ctor(WebDAVSharp.Server.Stores.IWebDavStoreCollection,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase" /> class.
+            </summary>
+            <param name="parentCollection">The parent <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> that contains this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> implementation.</param>
+            <param name="name">The name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /></param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreDocumentBase.MimeType">
+            <summary>
+            Gets or sets the mime type of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The type of the MIME.
+            </value>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreBase">
+            <summary>
+            This class is a base class for <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> implementations.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreBase.#ctor(WebDAVSharp.Server.Stores.IWebDavStoreCollection)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreBase" /> class.
+            </summary>
+            <param name="root">The root <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />.</param>
+            <exception cref="T:System.ArgumentNullException">root</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="root" /> is <c>null</c>.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreBase.Root">
+            <summary>
+            Gets the root collection of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" />.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase">
+            <summary>
+            This is the base class for <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> implementations.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.#ctor(WebDAVSharp.Server.Stores.IWebDavStoreCollection,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase" /> class.
+            </summary>
+            <param name="parentCollection">The parent <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> that contains this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> implementation.</param>
+            <param name="name">The name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /></param>
+            <exception cref="T:System.ArgumentNullException">name</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name" /> is <c>null</c>.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.ParentCollection">
+            <summary>
+            Gets the parent <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> that owns this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.Name">
+            <summary>
+            Gets or sets the name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavForbiddenException"></exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.CreationDate">
+            <summary>
+            Gets the creation date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.ModificationDate">
+            <summary>
+            Gets the modification date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.ItemPath">
+            <summary>
+            Gets the path to this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.IsCollection">
+            <summary>
+            Gets if this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> is a collection.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.Hidden">
+            <summary>
+            Gets the hidden state of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.LockLogicalKey">
+            <summary>
+            Standard Lock Logical Key is the path of the document.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.OnNameChanging(System.String,System.String)">
+            <summary>
+            Called before the name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> is changing.
+            </summary>
+            <param name="oldName">The old name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.</param>
+            <param name="newName">The new name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.</param>
+            <returns>
+            <c>true</c> if the name change is allowed;
+            otherwise, 
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.OnNameChanged(System.String,System.String)">
+            <summary>
+            Called after the name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> has changed.
+            </summary>
+            <param name="oldName">The old name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.</param>
+            <param name="newName">The new name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.Lock">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.UnLock(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.GetDocumentInfo">
+            <summary>
+            TODO: we need to override this in derived classes to return correct
+            information.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.GetCustomProperties">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.SetProperties(System.Collections.Generic.IEnumerable{WebDAVSharp.Server.WebDavProperty})">
+            <summary>
+            Set properties, it should be implemented by derived classes
+            </summary>
+            <param name="propertiesToSet"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreItemBase.GetProperty(WebDAVSharp.Server.WebDavProperty)">
+            <summary>
+            Set properties, it should be implemented by derived classes
+            </summary>
+            <param name="property">The property we want to retrieve value</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore">
+            <summary>
+            This class implements a disk-based <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" />.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore" /> class.
+            </summary>
+            <param name="rootPath">The root path of a folder on disk to host in this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore" />.</param>
+            <exception cref="T:System.ArgumentNullException"></exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"></exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="rootPath" /> is <c>null</c>.</exception>
+            <exception cref="T:System.IO.DirectoryNotFoundException"><paramref name="rootPath" /> specifies a folder that does not exist.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore.RootPath">
+            <summary>
+            Gets the root path for the folder that is hosted in this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore" />.
+            </summary>
+            <value>
+            The root path.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStore.Root">
+            <summary>
+            Gets the root collection of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" />.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection">
+            <summary>
+            This class implements a disk-based <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> that maps to a folder on disk.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.#ctor(WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" /> class.
+            </summary>
+            <param name="parentCollection">The parent <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" /> that contains this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" />.</param>
+            <param name="path">The path to the folder on this that this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" /> maps to.</param>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.Items">
+            <summary>
+            Gets a collection of all the items in this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />.
+            </summary>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or doesn't have access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CanRead(System.String)">
+            <summary>
+            Checks if the user has access to the path
+            </summary>
+            <param name="path">The path.</param>
+            <returns>
+            True if access, false if not
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CanReadFile(System.String)">
+            <summary>
+            Checks if access to the file is granted.
+            </summary>
+            <param name="path">The path to the file as a <see cref="T:System.String" /></param>
+            <returns>
+            The <see cref="T:System.Boolean" /> true if the user has access, else false
+            </returns>
+            <remarks>
+            Source: <see href="http://stackoverflow.com/questions/17318585/check-if-file-can-be-read" />
+            </remarks>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CanReadDirectory(System.String)">
+            <summary>
+            Checks if access to the directory is granted.
+            </summary>
+            <param name="path">The path to the director as a <see cref="T:System.String" /></param>
+            <returns>
+            The <see cref="T:System.Boolean" /> true if the user has access, else false
+            </returns>
+            <remarks>
+            Source: <see href="http://stackoverflow.com/questions/11709862/check-if-directory-is-accessible-in-c" />
+            </remarks>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.GetItemByName(System.String)">
+            <summary>
+            Retrieves a store item by its name.
+            </summary>
+            <param name="name">The name of the store item to retrieve.</param>
+            <returns>
+            The store item that has the specified 
+            <paramref name="name" />;
+            or 
+            <c>null</c> if there is no store item with that name.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CreateCollection(System.String)">
+            <summary>
+            Creates a new collection with the specified name.
+            </summary>
+            <param name="name">The name of the new collection.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> instance.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">When the user is unauthorized or has no access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.Delete(WebDAVSharp.Server.Stores.IWebDavStoreItem)">
+            <summary>
+            Deletes a store item by its name.
+            </summary>
+            <param name="item">The name of the store item to delete.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException">If the item was not found.</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CreateDocument(System.String)">
+            <summary>
+            Creates a new document with the specified name.
+            </summary>
+            <param name="name">The name of the new document.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreDocument" /> instance.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException">If the item already exists</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.CopyItemHere(WebDAVSharp.Server.Stores.IWebDavStoreItem,System.String,System.Boolean)">
+            <summary>
+            Copies an existing store item into this collection, overwriting any existing items.
+            </summary>
+            <param name="source">The store item to copy from.</param>
+            <param name="destinationName">The name of the copy to create of <paramref name="source" />.</param>
+            <param name="includeContent">The boolean for copying the containing files/folders or not.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> instance.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.DirectoryCopy(System.String,System.String,System.Boolean)">
+            <summary>
+            Directories the copy.
+            </summary>
+            <param name="sourceDirName">Name of the source dir.</param>
+            <param name="destDirName">Name of the dest dir.</param>
+            <param name="copySubDirs">if set to <c>true</c> [copy sub dirs].</param>
+            <exception cref="T:System.IO.DirectoryNotFoundException">Source directory does not exist or could not be found: 
+                                + sourceDirName</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection.MoveItemHere(WebDAVSharp.Server.Stores.IWebDavStoreItem,System.String)">
+            <summary>
+            Moves an existing store item into this collection, overwriting any existing items.
+            </summary>
+            <param name="source">The store item to move.</param>
+            <param name="destinationName">The
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> that refers to the item that was moved,
+            in its new location.</param>
+            <returns>
+            The moved <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> instance.
+            </returns>
+            <exception cref="T:System.Exception">Path to the source item not defined.</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+            <remarks>
+            Note that the method should fail without creating or overwriting content in the
+            target collection if the move cannot go through.
+            </remarks>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument">
+            <summary>
+            This class implements a disk-based <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument" /> mapped to a file.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.#ctor(WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument" /> class.
+            </summary>
+            <param name="parentCollection">The parent 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" /> that contains this 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" />;
+            or 
+            <c>null</c> if this is the root 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" />.</param>
+            <param name="path">The path that this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" /> maps to.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="path" /> is <c>null</c> or empty.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.Size">
+            <summary>
+            Gets the size of the document in bytes.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.MimeType">
+            <summary>
+            Gets the mime type of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.Etag">
+            <summary>
+            Gets the etag of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.OpenReadStream">
+            <summary>
+            Opens a <see cref="T:System.IO.Stream" /> object for the document, in read-only mode.
+            </summary>
+            <returns>
+            The <see cref="T:System.IO.Stream" /> object that can be read from.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.OpenWriteStream(System.Boolean,System.Int64)">
+            <summary>
+            Opens a <see cref="T:System.IO.Stream" /> object for the document, in write-only mode.
+            </summary>
+            <param name="append">A value indicating whether to append to the existing document;
+            if 
+            <c>false</c>, the existing content will be dropped.</param>
+            <param name="size"></param>
+            <returns>
+            The <see cref="T:System.IO.Stream" /> object that can be written to.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument.FinishWriteOperation">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem">
+            <summary>
+            This class implements a disk-based 
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> which can be either
+            a folder on disk (
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" />) or a file on disk
+            (
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreDocument" />).
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.Identity">
+            <summary>
+            Gets the Identity of the person logged on via HTTP Request.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.#ctor(WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" /> class.
+            </summary>
+            <param name="parentCollection">The parent 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" /> that contains this 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" />;
+            or 
+            <c>null</c> if this is the root 
+            <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreCollection" />.</param>
+            <param name="path">The path that this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" /> maps to.</param>
+            <exception cref="T:System.ArgumentNullException">path</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="path" /> is <c>null</c> or empty.</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.ItemPath">
+            <summary>
+            Gets the path to this <see cref="T:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.Name">
+            <summary>
+            Gets or sets the name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">Unable to rename item</exception>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.IsCollection">
+            <summary>
+            Gets if this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> is a collection.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.CreationDate">
+            <summary>
+            Gets the creation date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.ModificationDate">
+            <summary>
+            Gets the modification date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.DiskStore.WebDavDiskStoreItem.Hidden">
+            <summary>
+            Gets the hidden state of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <remarks>
+            Source: <see href="http://stackoverflow.com/questions/3612035/c-sharp-check-if-a-directory-is-hidden" />
+            </remarks>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.IWebDavStore">
+            <summary>
+            This interface must be implemented by classes that serve as stores of collections and
+            documents for the 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" />.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStore.Root">
+            <summary>
+            Gets the root collection of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" />.
+            </summary>
+            <value>
+            The root.
+            </value>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection">
+            <summary>
+            This interface must be implemented by classes that operate as document collections in a store.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreCollection.Items">
+            <summary>
+            Gets a collection of all the items in this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />.
+            </summary>
+            <value>
+            The items.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.GetItemByName(System.String)">
+            <summary>
+            Retrieves a store item by its name.
+            </summary>
+            <param name="name">The name of the store item to retrieve.</param>
+            <returns>
+            The store item that has the specified 
+            <paramref name="name" />;
+            or 
+            <c>null</c> if there is no store item with that name.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.CreateCollection(System.String)">
+            <summary>
+            Creates a new collection with the specified name.
+            </summary>
+            <param name="name">The name of the new collection.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> instance.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.Delete(WebDAVSharp.Server.Stores.IWebDavStoreItem)">
+            <summary>
+            Deletes a store item by its name.
+            </summary>
+            <param name="item">The name of the store item to delete.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.CreateDocument(System.String)">
+            <summary>
+            Creates a new document with the specified name.
+            </summary>
+            <param name="name">The name of the new document.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreDocument" /> instance.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.CopyItemHere(WebDAVSharp.Server.Stores.IWebDavStoreItem,System.String,System.Boolean)">
+            <summary>
+            Copies an existing store item into this collection, overwriting any existing items.
+            </summary>
+            <param name="source">The store item to copy from.</param>
+            <param name="destinationName">The name of the copy to create of <paramref name="source" />.</param>
+            <param name="includeContent">The boolean for copying the containing files/folders or not.</param>
+            <returns>
+            The created <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> instance.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreCollection.MoveItemHere(WebDAVSharp.Server.Stores.IWebDavStoreItem,System.String)">
+            <summary>
+            Moves an existing store item into this collection, overwriting any existing items.
+            </summary>
+            <param name="source">The store item to move.</param>
+            <param name="destinationName">The 
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> that refers to the item that was moved,
+            in its new location.</param>
+            <returns>
+            The moved <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> instance.
+            </returns>
+            <remarks>
+            Note that the method should fail without creating or overwriting content in the
+            target collection if the move cannot go through.
+            </remarks>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.IWebDavStoreDocument">
+            <summary>
+            This interface must be implemented by classes that will function as a store document.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreDocument.Size">
+            <summary>
+            Gets the size of the document in bytes.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreDocument.MimeType">
+            <summary>
+            Gets the mime type of <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The type of the MIME.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreDocument.Etag">
+            <summary>
+            Gets the etag of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The etag.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreDocument.OpenReadStream">
+            <summary>
+            Opens a <see cref="T:System.IO.Stream" /> object for the document, in read-only mode.
+            </summary>
+            <returns>
+            The <see cref="T:System.IO.Stream" /> object that can be read from.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreDocument.OpenWriteStream(System.Boolean,System.Int64)">
+            <summary>
+            Opens a <see cref="T:System.IO.Stream" /> object for the document, in write-only mode.
+            </summary>
+            <param name="append">A value indicating whether to append to the existing document;
+            if 
+            <c>false</c>, the existing content will be dropped.</param>
+            <param name="size"></param>
+            <returns>
+            The <see cref="T:System.IO.Stream" /> object that can be written to.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreDocument.FinishWriteOperation">
+            <summary>
+            Called when the caller finish writing operation 
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.Stores.IWebDavStoreItem">
+            <summary>
+            This interface must be implemented by classes that will function as a store item,
+            which is either a document (
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreDocument" />) or a
+            collection of documents (
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" />.)
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.ParentCollection">
+            <summary>
+            Gets the parent <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreCollection" /> that owns this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The parent collection.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.Name">
+            <summary>
+            Gets or sets the name of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.ItemPath">
+            <summary>
+            Gets the ItemPath of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The item path.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.IsCollection">
+            <summary>
+            Gets if this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" /> is a collection.
+            </summary>
+            <value>
+            <c>true</c> if this instance is collection; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.CreationDate">
+            <summary>
+            Gets the creation date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The creation date.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.ModificationDate">
+            <summary>
+            Gets the modification date of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            The modification date.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.Hidden">
+            <summary>
+            Gets the hidden state of this <see cref="T:WebDAVSharp.Server.Stores.IWebDavStoreItem" />.
+            </summary>
+            <value>
+            1 if hidden, 0 if not.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.IWebDavStoreItem.LockLogicalKey">
+            <summary>
+            Return logical lock key for items, useful if you are using virtual
+            folder where a document can be located in different paths.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.Lock">
+            <summary>
+            Try to lock the resource
+            </summary>
+            <returns>True if the resource is locked, false if the resource was
+            already locked and cannot be unlocked.</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.UnLock(System.String)">
+            <summary>
+            Unlock the resource 
+            </summary>
+            <param name="token"></param>
+            <returns>true if the unlock operation is successful</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.GetDocumentInfo">
+            <summary>
+            return 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.GetCustomProperties">
+            <summary>
+            Returns all custom properties for this object, it can return null 
+            if this object has no custom properties.
+            </summary>
+            <returns>List of properties grouped by namespaces, if the object does not 
+            support custom properties it can return null.</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.SetProperties(System.Collections.Generic.IEnumerable{WebDAVSharp.Server.WebDavProperty})">
+            <summary>
+            Set a series of properties into webdav item
+            </summary>
+            <param name="propertiesToSet">List of properties to set</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.IWebDavStoreItem.GetProperty(WebDAVSharp.Server.WebDavProperty)">
+            <summary>
+            Gets a property from webdav item
+            </summary>
+            <param name="davProperty"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Utilities.LoggingUtils">
+            <summary>
+            Utilities for logging.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Utilities.LoggingUtils.Beautify(System.Xml.XmlDocument)">
+            <summary>
+            Pretty print xml
+            </summary>
+            <param name="doc"></param>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Utilities.Md5Util">
+            <summary>
+            For generating an MD5 hash
+            </summary>
+            <remarks>
+            Source: <see href="https://gist.github.com/kristopherjohnson/3021045" />
+            </remarks>
+        </member>
+        <member name="M:WebDAVSharp.Server.Utilities.Md5Util.Md5HashStringForUtf8String(System.String)">
+            <summary>
+            Compute hash for string encoded as UTF8
+            </summary>
+            <param name="s">String to be hashed</param>
+            <returns>32-character hex string</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.Utilities.Md5Util.HexStringFromBytes(System.Byte[])">
+            <summary>
+            Convert an array of bytes to a string of hex digits
+            </summary>
+            <param name="bytes">Array of bytes</param>
+            <returns>
+            String of hex digits
+            </returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Utilities.WebDavMetrics">
+            <summary>
+            Helper for metrics.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Utilities.WebDavMetrics.GetMetricCallContext(System.String)">
+            <summary>
+            Used to 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.Utilities.WebDavStatusCode">
+            <summary>
+            Contains the values of status codes defined for Http (WebDav).
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.Utilities.WebDavStatusCode.MultiStatus">
+            <summary>
+            Equivalent to Http status 207 (WebDav).
+            WebDAVSharp.Server.Utilities.WebDavStatusCode.MultiStatus provides status for multiple independent operations.
+            </summary>
+            <remarks>
+            For more information, see <see href="http://www.webdav.org/specs/rfc2518.html#STATUS_207" />.
+            </remarks>
+        </member>
+        <member name="F:WebDAVSharp.Server.Utilities.WebDavStatusCode.UnprocessableEntity">
+            <summary>
+            Equivalent to Http status 422 (WebDav).
+            WebDAVSharp.Server.Utilities.WebDavStatusCode.UnprocessableEntity means the server understands the content type of the request entity (hence a 415 (<see cref="F:System.Net.HttpStatusCode.UnsupportedMediaType"/>) status code is inappropriate), and the syntax of the request entity is correct (thus a 400 (<see cref="F:System.Net.HttpStatusCode.BadRequest"/>) status code is inappropriate) but was unable to process the contained instructions.
+            </summary>
+            <remarks>
+            For more information, see <see href="http://www.webdav.org/specs/rfc2518.html#STATUS_422"/>.
+            </remarks>
+        </member>
+        <member name="F:WebDAVSharp.Server.Utilities.WebDavStatusCode.Locked">
+            <summary>
+            Equivalent to Http status 423 (WebDav).
+            WebDAVSharp.Server.Utilities.WebDavStatusCode.Locked means the source or destination resource of a method is locked.
+            </summary>
+            <remarks>
+            For more information, see <see href="http://www.webdav.org/specs/rfc2518.html#STATUS_423"/>.
+            </remarks>
+        </member>
+        <member name="F:WebDAVSharp.Server.Utilities.WebDavStatusCode.FailedDependency">
+            <summary>
+            Equivalent to Http status 424 (WebDav).
+            WebDAVSharp.Server.Utilities.WebDavStatusCode.FailedDependency means that the method could not be performed on the resource because the requested action depended on another action and that action failed.
+            </summary>
+            <remarks>
+            For more information, see <see href="http://www.webdav.org/specs/rfc2518.html#STATUS_424"/>.
+            </remarks>
+        </member>
+        <member name="F:WebDAVSharp.Server.Utilities.WebDavStatusCode.InsufficientStorage">
+            <summary>
+            Equivalent to Http status 507 (WebDav).
+            WebDAVSharp.Server.Utilities.WebDavStatusCode.InsufficientStorage means the method could not be performed on the resource because the server is unable to store the representation needed to successfully complete the request.
+            </summary>
+            <remarks>
+            For more information, see <see href="http://www.webdav.org/specs/rfc2518.html#STATUS_507" />.
+            </remarks>
+        </member>
+        <member name="T:WebDAVSharp.Server.AuthType">
+            <summary>
+            HTTP Authorization Types
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.AuthType.Basic">
+            <summary>
+            Clear Text
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.AuthType.Negotiate">
+            <summary>
+            Negotiate
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.AuthType.Anonymous">
+            <summary>
+            Anonymous
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.AuthType.Smart">
+            <summary>
+            Combine both negotiate and basic, if the connection
+            does not come from an authenticated client it fallback
+            on basic authentication.
+            It check current user, if it is system or network service
+            it can use keberos (negotiate) if not it will support only
+            NTLM and Windows Auth.
+            </summary>
+        </member>
+        <member name="T:WebDAVSharp.Server.WebDavDisposableBase">
+            <summary>
+            This abstract base class implements the <see cref="T:System.IDisposable" /> pattern in a reusable way.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavDisposableBase.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavDisposableBase.EnsureNotDisposed">
+            <summary>
+            This method will ensure that the object has not been disposed of through a call
+            to
+            <see cref="M:WebDAVSharp.Server.WebDavDisposableBase.Dispose" />, and if it has, it will throw
+            <see cref="T:System.ObjectDisposedException" />
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">The object has been disposed of.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavDisposableBase.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="T:WebDAVSharp.Server.WebDavExtensions">
+            <summary>
+            This class holds extension methods for various types related to WebDAV#.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavExtensions.GetParentUri(System.Uri)">
+            <summary>
+            Gets the Uri to the parent object.
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri" /> of a resource, for which the parent Uri should be retrieved.</param>
+            <returns>
+            The parent <see cref="T:System.Uri" />.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">uri</exception>
+            <exception cref="T:System.InvalidOperationException">Cannot get parent of root</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="uri" /> is <c>null</c>.</exception>
+            <exception cref="T:System.InvalidOperationException"><paramref name="uri" /> has no parent, it refers to a root resource.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavExtensions.SendSimpleResponse(WebDAVSharp.Server.Adapters.IHttpListenerContext,System.Int32)">
+            <summary>
+            Sends a simple response with a specified HTTP status code but no content.
+            </summary>
+            <param name="context">The <see cref="T:WebDAVSharp.Server.Adapters.IHttpListenerContext" /> to send the response through.</param>
+            <param name="statusCode">The HTTP status code for the response.</param>
+            <exception cref="T:System.ArgumentNullException">context</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="context" /> is <c>null</c>.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavExtensions.GetPrefixUri(System.Uri,WebDAVSharp.Server.WebDavServer)">
+            <summary>
+            Gets the prefix <see cref="T:System.Uri" /> that matches the specified <see cref="T:System.Uri" />.
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri" /> to find the most specific prefix <see cref="T:System.Uri" /> for.</param>
+            <param name="server">The 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> that hosts the WebDAV server and holds the collection
+            of known prefixes.</param>
+            <returns>
+            The most specific <see cref="T:System.Uri" /> for the given <paramref name="uri" />.
+            </returns>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavInternalServerException">Unable to find correct server root</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavInternalServerException"><paramref name="uri" /> specifies a <see cref="T:System.Uri" /> that is not known to the <paramref name="server" />.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavExtensions.GetItem(System.Uri,WebDAVSharp.Server.WebDavServer,WebDAVSharp.Server.Stores.IWebDavStore)">
+            <summary>
+            Retrieves a store item through the specified
+            <see cref="T:System.Uri" /> from the
+            specified
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> and
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" />.
+            </summary>
+            <param name="uri">The <see cref="T:System.Uri" /> to retrieve the store item for.</param>
+            <param name="server">The <see cref="T:WebDAVSharp.Server.WebDavServer" /> that hosts the <paramref name="store" />.</param>
+            <param name="store">The <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> from which to retrieve the store item.</param>
+            <returns>
+            The retrieved store item.
+            </returns>
+            <exception cref="T:System.ArgumentNullException"><para>
+              <paramref name="uri" /> is <c>null</c>.</para>
+            <para>
+              <paramref name="server" /> is <c>null</c>.</para>
+            <para>
+              <paramref name="store" /> is <c>null</c>.</para></exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException">If the item was not found.</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavConflictException"><paramref name="uri" /> refers to a document in a collection, where the collection does not exist.</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException"><paramref name="uri" /> refers to a document that does not exist.</exception>
+        </member>
+        <member name="T:WebDAVSharp.Server.WebDavProperty">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.WebDavProperty.Name">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.WebDavProperty.Namespace">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.WebDavProperty.Value">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.#ctor">
+            <summary>
+            Standard constructor
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.#ctor(System.String)">
+            <summary>
+            Constructor for the WebDAVProperty class with "DAV:" as namespace and an empty value
+            </summary>
+            <param name="name">The name of the WebDAV property</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.#ctor(System.String,System.String)">
+            <summary>
+            Constructor for the WebDAVProperty class with "DAV:" as namespace
+            </summary>
+            <param name="name">The name of the WebDAV property</param>
+            <param name="value">The value of the WebDAV property</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Constructor for the WebDAVProperty class
+            </summary>
+            <param name="name">The name of the WebDAV property</param>
+            <param name="value">The value of the WebDAV property</param>
+            <param name="ns">The namespace of the WebDAV property</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.ToString">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+            <returns>
+            A <see cref="T:System.String" /> that represents this instance.
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.StartString">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+            <returns>The begin tag of an XML element as a string</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.EmptyString">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+            <returns>An empty XML element as a string</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.EndString">
+            <summary>
+            This class implements the core WebDAV server.
+            </summary>
+            <returns>The closing tag of an XML element as a string</returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.ToXmlDocumentFragment(System.Xml.XmlDocument)">
+            <summary>
+            Creates an XmlDocumentFragment from the current WebDAVProperty
+            </summary>
+            <param name="doc">The XmlDocument where a XmlDocumentFragment is needed</param>
+            <returns>
+            The XmlDocumentFragment of the current WebDAVProperty object
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.ToXmlElement(System.Xml.XmlDocument)">
+            <summary>
+            reates an XmlElement from the current WebDAVProperty
+            </summary>
+            <param name="doc">The XmlDocument where a XmlElement is needed</param>
+            <returns>
+            The XmlElement of the current WebDAVProperty object
+            </returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.ToXmlElement(System.Xml.XmlNamespaceManager,System.Xml.XmlDocument)">
+            <summary>
+            
+            </summary>
+            <param name="namespaceManager"></param>
+            <param name="doc"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavProperty.XmlToXmlElement(System.Xml.XmlDocument)">
+            <summary>
+            reates an XmlElement from the current WebDAVProperty
+            </summary>
+            <param name="doc">The XmlDocument where a XmlElement is needed</param>
+            <returns>
+            The XmlElement of the current WebDAVProperty object
+            </returns>
+        </member>
+        <member name="T:WebDAVSharp.Server.WebDavServer">
+            <summary>
+            This class implements the core WebDAV server.
+            
+            These are the codes allowed by the webdav protocl
+            https://msdn.microsoft.com/en-us/library/aa142868(v=exchg.65).aspx
+            </summary>
+        </member>
+        <member name="F:WebDAVSharp.Server.WebDavServer.HttpUser">
+            <summary>
+            The HTTP user
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.AllowInfiniteCheckouts">
+            <summary>
+            Allow users to have Indefinite Locks
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.LockEnabled">
+            <summary>
+            Allow users to have Indefinite Locks
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.MaxCheckOutSeconds">
+            <summary>
+            The maximum number of seconds a person can check an item out for.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.Log">
+            <summary>
+            Logging Interface
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.Store">
+            <summary>
+            Gets the <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> this <see cref="T:WebDAVSharp.Server.WebDavServer" /> is hosting.
+            </summary>
+            <value>
+            The store.
+            </value>
+        </member>
+        <member name="P:WebDAVSharp.Server.WebDavServer.Listener">
+            <summary>
+            Gets the 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListener" /> that this 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> uses for
+            the web server portion.
+            </summary>
+            <value>
+            The listener.
+            </value>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.#ctor(WebDAVSharp.Server.Stores.IWebDavStore,WebDAVSharp.Server.AuthType,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler})">
+            <summary>
+            
+            </summary>
+            <param name="store"></param>
+            <param name="authtype"></param>
+            <param name="methodHandlers"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.#ctor(WebDAVSharp.Server.Stores.IWebDavStore,WebDAVSharp.Server.Adapters.IHttpListener,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.MethodHandlers.IWebDavMethodHandler})">
+            <summary>
+            This constructor uses a Negotiate Listener if one isn't passed.
+            
+            Initializes a new instance of the <see cref="T:WebDAVSharp.Server.WebDavServer" /> class.
+            </summary>
+            <param name="store">The 
+            <see cref="T:WebDAVSharp.Server.Stores.IWebDavStore" /> store object that will provide
+            collections and documents for this 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" />.</param>
+            <param name="listener">The 
+            <see cref="T:WebDAVSharp.Server.Adapters.IHttpListener" /> object that will handle the web server portion of
+            the WebDAV server; or 
+            <c>null</c> to use a fresh one.</param>
+            <param name="methodHandlers">A collection of HTTP method handlers to use by this 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" />;
+            or 
+            <c>null</c> to use the built-in method handlers.</param>
+            <exception cref="T:System.ArgumentNullException"><para>
+              <paramref name="listener" /> is <c>null</c>.</para>
+            <para>- or -</para>
+            <para>
+              <paramref name="store" /> is <c>null</c>.</para></exception>
+            <exception cref="T:System.ArgumentException"><para>
+              <paramref name="methodHandlers" /> is empty.</para>
+            <para>- or -</para>
+            <para>
+              <paramref name="methodHandlers" /> contains a <c>null</c>-reference.</para></exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.Dispose(System.Boolean)">
+            <summary>
+            Releases unmanaged and - optionally - managed resources
+            </summary>
+            <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.Start(System.String)">
+            <summary>
+            Starts this 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> and returns once it has
+            been started successfully.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">This WebDAVServer instance is already running, call to Start is invalid at this point</exception>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:WebDAVSharp.Server.WebDavServer" /> instance has been disposed of.</exception>
+            <exception cref="T:System.InvalidOperationException">The server is already running.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.Stop">
+            <summary>
+            Starts this 
+            <see cref="T:WebDAVSharp.Server.WebDavServer" /> and returns once it has
+            been stopped successfully.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">This WebDAVServer instance is not running, call to Stop is invalid at this point</exception>
+            <exception cref="T:System.ObjectDisposedException">This <see cref="T:WebDAVSharp.Server.WebDavServer" /> instance has been disposed of.</exception>
+            <exception cref="T:System.InvalidOperationException">The server is not running.</exception>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.BackgroundThreadMethod">
+            <summary>
+            The background thread method.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.OnProcessRequestStarted(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            Called before actual processing is done, useful to do some preliminary 
+            check or whatever the real implementation need to do.
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.OnValidateUser(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            Give to derived class the option to do further filtering of users. Even
+            if user authentication went good at protocol level (NTLM, Basic, Etc) 
+            we can still throw an unhautorized exception.
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.OnProcessRequestCompleted(WebDAVSharp.Server.Adapters.IHttpListenerContext)">
+            <summary>
+            Called after everything was processed, it can be used for doing specific
+            cleanup for the real implementation.
+            </summary>
+            <param name="context"></param>
+        </member>
+        <member name="M:WebDAVSharp.Server.WebDavServer.ProcessRequest(System.Object)">
+            <summary>
+            Processes the request.
+            </summary>
+            <param name="state">The state.</param>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavMethodNotAllowedException">If the method to process is not allowed</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavUnauthorizedException">If the user is unauthorized or has no access</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotFoundException">If the item was not found</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavNotImplementedException">If a method is not yet implemented</exception>
+            <exception cref="T:WebDAVSharp.Server.Exceptions.WebDavInternalServerException">If the server had an internal problem</exception>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WebDAVSharp.Server</RootNamespace>
+    <AssemblyName>WebDAVSharp.Server</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Debug\WebDAVSharp.Server.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>bin\Release\WebDAVSharp.Server.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseBinaries|AnyCPU'">
+    <OutputPath>bin\ReleaseBinaries\</OutputPath>
+    <DefineConstants>TRACE;USE_RELEASE_KEY</DefineConstants>
+    <DocumentationFile>bin\Release\WebDAVSharp.Server.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Lasse V. Karlsen.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Metrics, Version=0.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Metrics.NET.0.4.1-pre\lib\net45\Metrics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Adapters\AuthenticationTypes\HttpListenerAnyonymousAdapter.cs" />
+    <Compile Include="Adapters\AuthenticationTypes\HttpListenerBasicAdapter.cs" />
+    <Compile Include="Adapters\AuthenticationTypes\HttpListenerSmartAdapter.cs" />
+    <Compile Include="Adapters\HttpListenerContextAdapter.cs" />
+    <Compile Include="Adapters\HttpListenerRequestAdapter.cs" />
+    <Compile Include="Adapters\HttpListenerResponseAdapter.cs" />
+    <Compile Include="Adapters\IAdapter.cs" />
+    <Compile Include="Adapters\IHttpListenerContext.cs" />
+    <Compile Include="Adapters\IHttpListenerRequest.cs" />
+    <Compile Include="Adapters\IHttpListenerResponse.cs" />
+    <Compile Include="Exceptions\WebDavBadRequestException.cs" />
+    <Compile Include="Exceptions\WebDavLockedException.cs" />
+    <Compile Include="Exceptions\WebDavLengthRequiredException.cs" />
+    <Compile Include="Exceptions\WebDavUnsupportedMediaTypeException.cs" />
+    <Compile Include="Exceptions\WebDavPreconditionFailedException.cs" />
+    <Compile Include="Exceptions\WebDavForbiddenException.cs" />
+    <Compile Include="Exceptions\WebDavUnauthorizedException.cs" />
+    <Compile Include="Exceptions\WebDavConflictException.cs" />
+    <Compile Include="Exceptions\WebDavException.cs" />
+    <Compile Include="Exceptions\WebDavInternalServerException.cs" />
+    <Compile Include="Exceptions\WebDavMethodNotAllowedException.cs" />
+    <Compile Include="Exceptions\WebDavNotFoundException.cs" />
+    <Compile Include="Exceptions\WebDavNotImplementedException.cs" />
+    <Compile Include="LockProperty.cs" />
+    <Compile Include="MethodHandlers\WebDavHeadMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavLockMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavMethodHandlerBase.cs" />
+    <Compile Include="MethodHandlers\WebDavPropfindMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavCopyMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavDeleteMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavMkColMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavMoveMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavOptionsMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavProppatchMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavPutMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavUnlockMethodHandler.cs" />
+    <Compile Include="Stores\Locks\ILockPersister.cs" />
+    <Compile Include="Stores\WebDavCustomProperties.cs" />
+    <Compile Include="Stores\WebDavItemInfo.cs" />
+    <Compile Include="Stores\Locks\WebDavLockScope.cs" />
+    <Compile Include="Stores\Locks\WebDavLockType.cs" />
+    <Compile Include="Stores\Locks\WebDaveStoreItemLockInstance.cs" />
+    <Compile Include="Stores\Locks\WebDavStoreItemLock.cs" />
+    <Compile Include="Utilities\LoggingUtils.cs" />
+    <Compile Include="Utilities\Md5Util.cs" />
+    <Compile Include="Stores\BaseClasses\WebDavStoreDocumentBase.cs" />
+    <Compile Include="Stores\BaseClasses\WebDavStoreBase.cs" />
+    <Compile Include="Stores\BaseClasses\WebDavStoreItemBase.cs" />
+    <Compile Include="Stores\DiskStore\WebDavDiskStore.cs" />
+    <Compile Include="Stores\DiskStore\WebDavDiskStoreCollection.cs" />
+    <Compile Include="Stores\DiskStore\WebDavDiskStoreDocument.cs" />
+    <Compile Include="Stores\DiskStore\WebDavDiskStoreItem.cs" />
+    <Compile Include="Stores\IWebDavStore.cs" />
+    <Compile Include="Adapters\IHttpListener.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MethodHandlers\IWebDavMethodHandler.cs" />
+    <Compile Include="MethodHandlers\WebDavGetMethodHandler.cs" />
+    <Compile Include="Stores\IWebDavStoreCollection.cs" />
+    <Compile Include="Stores\IWebDavStoreDocument.cs" />
+    <Compile Include="Stores\IWebDavStoreItem.cs" />
+    <Compile Include="Utilities\WebDavMetrics.cs" />
+    <Compile Include="Utilities\WebDavStatusCode.cs" />
+    <Compile Include="WebDavAuthType.cs" />
+    <Compile Include="WebDavDisposableBase.cs" />
+    <Compile Include="WebDavExtensions.cs" />
+    <Compile Include="WebDavProperty.cs" />
+    <Compile Include="WebDavServer.cs" />
+    <Compile Include="Adapters\AuthenticationTypes\HttpListenerNegotiateAdapter.cs" />
+    <Compile Include="MethodHandlers\WebDavMethodHandlers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>rem copy $(TargetDir)*.* C:\Develop\Proximo\Jarvis\src\libs\WebDavServer /y</PostBuildEvent>
+  </PropertyGroup>
+  <!--<Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>-->
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+<<<<<<< HEAD
+  -->
+</Project>
