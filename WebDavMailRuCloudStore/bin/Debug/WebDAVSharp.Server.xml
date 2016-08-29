@@ -1436,60 +1436,53 @@
             types.
             </summary>
         </member>
-        <member name="T:WebDAVSharp.Server.Stores.Locks.ILockPersister">
+        <member name="T:WebDAVSharp.Server.Stores.WebDavCustomProperties">
+            <summary>
+            Capture a series of WebDavCustomProperties grouped in the same namespace.
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Namespace">
+            <summary>
+            Namespace name, ex:http://ns.example.com/boxschema
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.NamespacePrefix">
+            <summary>
+            Namespace prefix, ex: N
+            </summary>
+        </member>
+        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Properties">
+            <summary>
+            All properties grouped inside this namespace, in this first version we 
+            care only about simple string properties.
+            </summary>
+        </member>
+        <member name="M:WebDAVSharp.Server.Stores.WebDavCustomProperties.#ctor(System.String,System.String)">
             <summary>
             
             </summary>
+            <param name="namespece"></param>
+            <param name="prefix"></param>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Persist(System.Uri,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance})">
+        <member name="T:WebDAVSharp.Server.Stores.WebDavItemInfo">
             <summary>
-            Save a lock for a given uri.
-            </summary>
-            <param name="uri"></param>
-            <param name="locks"></param>
-        </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Load(System.Uri)">
-            <summary>
-            Reload locks for a given uri
-            </summary>
-            <param name="uri"></param>
-            <returns></returns>
-        </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.ILockPersister.Clear(System.Uri)">
-            <summary>
-            Clear all locks for given path.
-            </summary>
-            <param name="path"></param>
-        </member>
-        <member name="T:WebDAVSharp.Server.Stores.Locks.NullLockPersister">
-            <summary>
-            
+            Grab all information we need on a specific document
             </summary>
         </member>
-        <member name="F:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Instance">
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.CreationTime">
             <summary>
-            Singleton
+            Creation time of the document
             </summary>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Clear(System.Uri)">
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastAccessTime">
             <summary>
-            
+            Last time the document was accessed.
             </summary>
-            <param name="path"></param>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Load(System.Uri)">
+        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastWriteTime">
             <summary>
-            
+            Last time document was written.
             </summary>
-            <param name="uri"></param>
-            <returns></returns>
-        </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.NullLockPersister.Persist(System.Uri,System.Collections.Generic.IEnumerable{WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance})">
-            <summary>
-            
-            </summary>
-            <param name="uri"></param>
-            <param name="locks"></param>
         </member>
         <member name="T:WebDAVSharp.Server.Stores.Locks.WebDavLockScope">
             <summary>
@@ -1578,22 +1571,6 @@
             
             </summary>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.#ctor(System.Uri,System.String,System.String,WebDAVSharp.Server.Stores.Locks.WebDavLockScope,WebDAVSharp.Server.Stores.Locks.WebDavLockType,System.String,System.String,System.String,System.Xml.XmlDocument,System.Int32,System.Nullable{System.DateTime})">
-            <summary>
-            Constructor used to rebuild the object without passing extra ref info.
-            </summary>
-            <param name="path"></param>
-            <param name="logicalLockKey"></param>
-            <param name="userAgent"></param>
-            <param name="lockscope"></param>
-            <param name="locktype"></param>
-            <param name="owner"></param>
-            <param name="requestedlocktimeout"></param>
-            <param name="token"></param>
-            <param name="requestdocument"></param>
-            <param name="depth"></param>
-            <param name="expirationDate"></param>
-        </member>
         <member name="M:WebDAVSharp.Server.Stores.Locks.WebDaveStoreItemLockInstance.#ctor(System.Uri,System.String,System.String,WebDAVSharp.Server.Stores.Locks.WebDavLockScope,WebDAVSharp.Server.Stores.Locks.WebDavLockType,System.String,System.String@,System.String@,System.Xml.XmlDocument,System.Int32)">
             <summary>
             
@@ -1641,16 +1618,9 @@
             Used to store the locks per URI
             </summary>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.SetPersister(WebDAVSharp.Server.Stores.Locks.ILockPersister)">
+        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.CleanLocks(System.Uri)">
             <summary>
-            
-            </summary>
-            <param name="persister"></param>
-        </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.LoadAndCleanLocks(System.Uri)">
-            <summary>
-            This function removes any expired locks for the path and if there is no lock in memory it try to use
-            persister to load one
+            This function removes any expired locks for the path.
             </summary>
             <param name="path"></param>
         </member>
@@ -1689,66 +1659,12 @@
             <param name="owner">Owner.</param>
             <returns></returns>
         </member>
-        <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.ClearLocks(System.Uri)">
-            <summary>
-            Clear all locks on a given path, it is usefulf for deleted object.
-            </summary>
-            <param name="path"></param>
-        </member>
         <member name="M:WebDAVSharp.Server.Stores.Locks.WebDavStoreItemLock.GetLocks(System.Uri)">
             <summary>
             Returns all the locks on the path
             </summary>
             <param name="path">URI to resource</param>
             <returns></returns>
-        </member>
-        <member name="T:WebDAVSharp.Server.Stores.WebDavCustomProperties">
-            <summary>
-            Capture a series of WebDavCustomProperties grouped in the same namespace.
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Namespace">
-            <summary>
-            Namespace name, ex:http://ns.example.com/boxschema
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.NamespacePrefix">
-            <summary>
-            Namespace prefix, ex: N
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavCustomProperties.Properties">
-            <summary>
-            All properties grouped inside this namespace, in this first version we 
-            care only about simple string properties.
-            </summary>
-        </member>
-        <member name="M:WebDAVSharp.Server.Stores.WebDavCustomProperties.#ctor(System.String,System.String)">
-            <summary>
-            
-            </summary>
-            <param name="namespece"></param>
-            <param name="prefix"></param>
-        </member>
-        <member name="T:WebDAVSharp.Server.Stores.WebDavItemInfo">
-            <summary>
-            Grab all information we need on a specific document
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.CreationTime">
-            <summary>
-            Creation time of the document
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastAccessTime">
-            <summary>
-            Last time the document was accessed.
-            </summary>
-        </member>
-        <member name="P:WebDAVSharp.Server.Stores.WebDavItemInfo.LastWriteTime">
-            <summary>
-            Last time document was written.
-            </summary>
         </member>
         <member name="T:WebDAVSharp.Server.Stores.BaseClasses.WebDavStoreDocumentBase">
             <summary>

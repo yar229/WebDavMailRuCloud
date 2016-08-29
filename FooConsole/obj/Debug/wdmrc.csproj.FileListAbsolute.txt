@@ -1,5 +1,5 @@
-D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.exe.config
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.csprojResolveAssemblyReference.cache
+D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.exe.config
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.exe
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\log4net.dll
