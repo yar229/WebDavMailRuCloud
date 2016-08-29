@@ -1,6 +1,3 @@
 [submodule "MailRuNetCloudClient"]
 	path = MailRuNetCloudClient
 	url = https://github.com/yar229/Mail.Ru-.net-cloud-client.git
-[submodule "WebDAVSharp.Server"]
-	path = WebDAVSharp.Server
-	url = https://github.com/ProximoSrl/WebDAVSharp.Server.git
