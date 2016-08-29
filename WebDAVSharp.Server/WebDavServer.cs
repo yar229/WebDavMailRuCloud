@@ -421,7 +421,7 @@ namespace WebDAVSharp.Server
         private void ProcessRequest(object state)
         {
             IHttpListenerContext context = (IHttpListenerContext)state;
-            using (WebDavMetrics.GetMetricCallContext(context.Request.HttpMethod.ToString()))
+            using (var z = WebDavMetrics.GetMetricCallContext(context.Request.HttpMethod.ToString()))
             {
                 String xLitmusTest = "";
                 var xLitmus = context.Request.Headers["X-litmus"];
@@ -434,6 +434,9 @@ namespace WebDAVSharp.Server
 
                 String callInfo = String.Format("{0} : {1} : {2}", context.Request.HttpMethod, context.Request.RemoteEndPoint, context.Request.Url);
                 //_log.DebugFormat("CALL START: {0}", callInfo);
+                Console.WriteLine(callInfo);
+
+
                 log4net.ThreadContext.Properties["webdav-request"] = callInfo;
                 XmlDocument request = null;
                 XmlDocument response = null;

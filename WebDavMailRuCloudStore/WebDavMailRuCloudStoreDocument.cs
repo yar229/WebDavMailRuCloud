@@ -37,7 +37,7 @@ namespace WebDavMailRuCloudStore
             // Do nothing here
         }
 
-        public WebDavMailRuCloudStoreDocument(WebDavMailRuCloudStoreCollection parentCollection, File file) : this(parentCollection, file.FulPath)
+        public WebDavMailRuCloudStoreDocument(WebDavMailRuCloudStoreCollection parentCollection, File file) : this(parentCollection, file.FullPath)
         {
             _file = file;
         }

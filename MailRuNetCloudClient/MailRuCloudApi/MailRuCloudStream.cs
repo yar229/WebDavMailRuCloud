@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,38 +10,43 @@ namespace MailRuCloudApi
 {
     internal class MailRuCloudStream : Stream
     {
-        private readonly string _fileName;
-        private readonly string _destinationPath;
-        private readonly string _extension;
         private readonly ShardInfo _shard;
         private readonly Account _account;
-        private long _size;
+        
         private readonly CancellationTokenSource _cancelToken;
 
-        public MailRuCloudStream(string fileName, string destinationPath, string extension, ShardInfo shard, Account account, CancellationTokenSource cancelToken, long size)
+
+        private readonly File _file;
+
+        public MailRuCloudStream(string fileName, string destinationPath, ShardInfo shard, Account account, CancellationTokenSource cancelToken, long size)
         {
-            _fileName = fileName;
-            _destinationPath = destinationPath;
-            _extension = extension;
+            _file = new File
+            {
+                Name = fileName,
+                FullPath = destinationPath,
+                Size = new FileSize
+                {
+                    DefaultValue = size
+                }
+            };
+
             _shard = shard;
             _account = account;
             _cancelToken = cancelToken;
-            _size = size;
             Initialize();
         }
 
         private HttpWebRequest _request;
         private byte[] _endBoundaryRequest;
+        private const long MaxFileSize = 2L*1024L*1024L*1024L;
 
 
-        
+
         private void Initialize()
         {
-            //_destinationPath = _destinationPath.EndsWith("/") ? _destinationPath : _destinationPath + "/";
-            var maxFileSize = 2L * 1024L * 1024L * 1024L;
-            if (_size > maxFileSize)
+            if (_file.Size.DefaultValue > MaxFileSize)
             {
-                throw new OverflowException("Not supported file size.", new Exception($"The maximum file size is {maxFileSize} byte. Currently file size is {_size} byte."));
+                throw new OverflowException("Not supported file size.", new Exception($"The maximum file size is {MaxFileSize} byte. Currently file size is {_file.Size.DefaultValue} byte."));
             }
 
             var boundary = Guid.NewGuid();
@@ -53,8 +54,8 @@ namespace MailRuCloudApi
             //// Boundary request building.
             var boundaryBuilder = new StringBuilder();
             boundaryBuilder.AppendFormat("------{0}\r\n", boundary);
-            boundaryBuilder.AppendFormat("Content-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\n",  "/" + _fileName);
-            boundaryBuilder.AppendFormat("Content-Type: {0}\r\n\r\n", ConstSettings.GetContentType(_extension));
+            boundaryBuilder.AppendFormat("Content-Disposition: form-data; name=\"file\"; filename=\"{0}\"\r\n",  HttpUtility.UrlEncode(_file.Name));
+            boundaryBuilder.AppendFormat("Content-Type: {0}\r\n\r\n", ConstSettings.GetContentType(_file.Extension));
 
             var endBoundaryBuilder = new StringBuilder();
             endBoundaryBuilder.AppendFormat("\r\n------{0}--\r\n", boundary);
@@ -68,10 +69,10 @@ namespace MailRuCloudApi
             _request.CookieContainer = _account.Cookies;
             _request.Method = "POST";
 
-            _request.ContentLength = _size + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
+            _request.ContentLength = _file.Size.DefaultValue + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
             //_request.SendChunked = true;
 
-            _request.Referer = $"{ConstSettings.CloudDomain}/home/{HttpUtility.UrlEncode(_destinationPath)}";
+            _request.Referer = $"{ConstSettings.CloudDomain}/home/{HttpUtility.UrlEncode(_file.Path)}";
             _request.Headers.Add("Origin", ConstSettings.CloudDomain);
             _request.Host = url.Host;
             _request.ContentType = $"multipart/form-data; boundary=----{boundary}";
@@ -98,20 +99,10 @@ namespace MailRuCloudApi
                                     var s = t.Result;
                                     WriteBytesInStream(boundaryRequest, s, token, boundaryRequest.Length);
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
                                     return (Stream)null;
                                 }
-                                //finally
-                                //{
-                                //    //t.Wait();
-                                //    //var x = t.Result;
-                                //    //return t.Result;
-                                //    //return x;
-                                //    //x.Dispose();
-                                //}
-
-                                //return true;
                                 return t.Result;
                             },
                         _cancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
@@ -139,15 +130,10 @@ namespace MailRuCloudApi
                                     
                                     WriteBytesInStream(zbuffer, s, token, zcount);
                                 }
-                                catch (Exception ex)
+                                catch (Exception)
                                 {
                                     return (Stream)null;
                                 }
-                                //finally
-                                //{
-                                //    var x = t.Result;
-                                //    //x.Dispose();
-                                //}
 
                                 return t.Result;
                             },
@@ -174,23 +160,17 @@ namespace MailRuCloudApi
                             {
                                 var resp = ReadResponseAsText(response, _cancelToken).Split(';');
                                 var hashResult = resp[0];
-                                var sizeResult = long.Parse(resp[1].Replace("\r\n", string.Empty));
+                                var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
 
-                                return this.AddFileInCloud(new File
-                                {
-                                    Name = _fileName,
-                                    FulPath = HttpUtility.UrlDecode(_destinationPath),
-                                    Hash = hashResult,
-                                    Size = new FileSize
-                                    {
-                                        DefaultValue = sizeResult
-                                    }
-                                }).Result;
+                                _file.Hash = hashResult;
+                                _file.Size.DefaultValue = sizeResult;
+
+                                return AddFileInCloud(_file).Result;
                             }
                         }
 
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         return false;
                     }
@@ -210,31 +190,31 @@ namespace MailRuCloudApi
             base.Close();
         }
 
-        public enum ResolveFileConflictMethod 
+        private enum ResolveFileConflictMethod 
         {
             Rename,
             Rewrite
         }
-        private async Task<bool> AddFileInCloud(File fileInfo, ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
+
+        private string GetConflictSolverParameter(ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
         {
-            fileInfo.FulPath = fileInfo.FulPath.Replace("\\", "/");
-
-
-            var hasFile = fileInfo.Hash != null && fileInfo.Size.DefaultValue != 0;
-            var filePart = hasFile ? $"&hash={fileInfo.Hash}&size={fileInfo.Size.DefaultValue}" : string.Empty;
-
-            //var addFileRequest = Encoding.UTF8.GetBytes($"home={fileInfo.FulPath}&conflict=rename&api={2}&token={_account.AuthToken}" + filePart);
-            string conflictstr;
             switch (conflict)
             {
                 case ResolveFileConflictMethod.Rewrite:
-                    conflictstr = "rewrite"; break;
+                    return "rewrite";
                 case ResolveFileConflictMethod.Rename:
-                    conflictstr = "rename"; break;
+                    return "rename";
                 default: throw new NotImplementedException("File conflict method not implemented");
             }
+        }
 
-            var addFileRequest = Encoding.UTF8.GetBytes($"home={fileInfo.FulPath}&conflict=rewrite&api={2}&token={_account.AuthToken}" + filePart);
+
+        private async Task<bool> AddFileInCloud(File fileInfo, ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
+        {
+            var hasFile = fileInfo.Hash != null && fileInfo.Size.DefaultValue != 0;
+            var filePart = hasFile ? $"&hash={fileInfo.Hash}&size={fileInfo.Size.DefaultValue}" : string.Empty;
+
+            var addFileRequest = Encoding.UTF8.GetBytes($"home={HttpUtility.UrlEncode(fileInfo.FullPath)}&conflict={GetConflictSolverParameter(conflict)}&api=2&token={_account.AuthToken}" + filePart);
 
             var url = new Uri($"{ConstSettings.CloudDomain}/api/v2/{(hasFile ? "file" : "folder")}/add");
             var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
@@ -242,14 +222,14 @@ namespace MailRuCloudApi
             request.CookieContainer = _account.Cookies;
             request.Method = "POST";
             request.ContentLength = addFileRequest.LongLength;
-            request.Referer = string.Format("{0}/home{1}", ConstSettings.CloudDomain, HttpUtility.UrlEncode(fileInfo.FulPath.Substring(0, fileInfo.FulPath.LastIndexOf(fileInfo.Name))));
+            request.Referer = $"{ConstSettings.CloudDomain}/home{HttpUtility.UrlEncode(fileInfo.Path)}";
             request.Headers.Add("Origin", ConstSettings.CloudDomain);
             request.Host = url.Host;
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "*/*";
             request.UserAgent = ConstSettings.UserAgent;
-            var task = Task.Factory.FromAsync(request.BeginGetRequestStream, asyncResult => request.EndGetRequestStream(asyncResult), (object)null);
-            return await task.ContinueWith((t) =>
+            var task = Task.Factory.FromAsync(request.BeginGetRequestStream, asyncResult => request.EndGetRequestStream(asyncResult), null);
+            return await task.ContinueWith(t =>
             {
                 using (var s = t.Result)
                 {
@@ -268,13 +248,13 @@ namespace MailRuCloudApi
         }
 
 
-        internal string ReadResponseAsText(WebResponse resp, CancellationTokenSource cancelToken)
+        private string ReadResponseAsText(WebResponse resp, CancellationTokenSource cancelToken)
         {
             using (var stream = new MemoryStream())
             {
                 try
                 {
-                    this.ReadResponseAsByte(resp, cancelToken.Token, stream);
+                    ReadResponseAsByte(resp, cancelToken.Token, stream);
                     return Encoding.UTF8.GetString(stream.ToArray());
                 }
                 catch
@@ -285,9 +265,12 @@ namespace MailRuCloudApi
             }
         }
 
-        internal void ReadResponseAsByte(WebResponse resp, CancellationToken token, Stream outputStream = null, long contentLength = 0, OperationType operation = OperationType.None)
+        private void ReadResponseAsByte(WebResponse resp, CancellationToken token, Stream outputStream = null, long contentLength = 0, OperationType operation = OperationType.None)
         {
-            if (contentLength != 0 && outputStream.Position == 0)
+            if (!Enum.IsDefined(typeof (OperationType), operation))
+                throw new ArgumentOutOfRangeException(nameof(operation));
+
+            if (outputStream != null && (contentLength != 0 && outputStream.Position == 0))
             {
                 //this.OnChangedProgressPercent(new ProgressChangedEventArgs(
                 //                0,
@@ -314,15 +297,12 @@ namespace MailRuCloudApi
 
             using (var reader = new BinaryReader(resp.GetResponseStream()))
             {
-                int bytesRead = 0;
+                int bytesRead;
                 while ((bytesRead = reader.Read(fileBytes, totalBytesRead, totalBufSize - totalBytesRead)) > 0)
                 {
                     token.ThrowIfCancellationRequested();
 
-                    if (outputStream != null)
-                    {
-                        outputStream.Write(fileBytes, totalBytesRead, bytesRead);
-                    }
+                    outputStream?.Write(fileBytes, totalBytesRead, bytesRead);
 
                     totalBytesRead += bytesRead;
 
@@ -332,9 +312,9 @@ namespace MailRuCloudApi
                         Array.Resize(ref fileBytes, totalBufSize);
                     }
 
-                    if (contentLength != 0 && contentLength >= outputStream.Position)
+                    if (outputStream != null && (contentLength != 0 && contentLength >= outputStream.Position))
                     {
-                        var tempPercentComplete = 100.0 * (double)outputStream.Position / (double)contentLength;
+                        var tempPercentComplete = 100.0 * outputStream.Position / contentLength;
                         if (tempPercentComplete - percentComplete >= 1)
                         {
                             //percentComplete = tempPercentComplete;
@@ -356,7 +336,7 @@ namespace MailRuCloudApi
                     }
                 }
 
-                if (contentLength != 0 && outputStream.Position == contentLength)
+                if (outputStream != null && (contentLength != 0 && outputStream.Position == contentLength))
                 {
                     //this.OnChangedProgressPercent(new ProgressChangedEventArgs(
                     //            100,
@@ -382,13 +362,16 @@ namespace MailRuCloudApi
             {
                 using (var source = new BinaryReader(stream))
                 {
-                    return this.WriteBytesInStream(source, outputStream, token, length, includeProgressEvent, operation);
+                    return WriteBytesInStream(source, outputStream, token, length, includeProgressEvent, operation);
                 }
             }
         }
 
         private long WriteBytesInStream(BinaryReader sourceStream, Stream outputStream, CancellationToken token, long length, bool includeProgressEvent = false, OperationType operation = OperationType.None)
         {
+            if (!Enum.IsDefined(typeof (OperationType), operation))
+                throw new ArgumentOutOfRangeException(nameof(operation));
+
             if (includeProgressEvent && (sourceStream.BaseStream.Length == length || sourceStream.BaseStream.Position == 0))
             {
                 //this.OnChangedProgressPercent(new ProgressChangedEventArgs(
@@ -433,7 +416,7 @@ namespace MailRuCloudApi
 
                     if (includeProgressEvent && length != 0 && sourceStream.BaseStream.Length >= sourceStream.BaseStream.Position)
                     {
-                        double tempPercentComplete = 100.0 * (double)sourceStream.BaseStream.Position / (double)sourceStream.BaseStream.Length;
+                        double tempPercentComplete = 100.0 * sourceStream.BaseStream.Position / sourceStream.BaseStream.Length;
                         if (tempPercentComplete - percentComplete >= 1)
                         {
                             percentComplete = tempPercentComplete;
@@ -491,7 +474,7 @@ namespace MailRuCloudApi
 
         public override void SetLength(long value)
         {
-            _size = value;
+            _file.Size.DefaultValue = value;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -499,27 +482,10 @@ namespace MailRuCloudApi
             throw new NotImplementedException();
         }
 
-
-
-
-
-
-
         public override bool CanRead => true;
         public override bool CanSeek => true;
         public override bool CanWrite => true;
-        public override long Length => _size;
+        public override long Length => _file.Size.DefaultValue;
         public override long Position { get; set; }
-
-
-        protected override void Dispose(bool disposing)
-        {
-
-           
-
-            base.Dispose(disposing);
-        }
-
-
     }
 }

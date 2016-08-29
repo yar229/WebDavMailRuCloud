@@ -105,7 +105,7 @@ namespace WebDavMailRuCloudStore
                 }
                 foreach (var fle in files)
                 {
-                    string name = Path.GetFileName(fle.FulPath);
+                    string name = Path.GetFileName(fle.FullPath);
                     WebDavMailRuCloudStoreDocument document = null;
 
                     WeakReference wr;
@@ -239,7 +239,7 @@ namespace WebDavMailRuCloudStore
                 {
                     _cloud.Remove(new MailRuCloudApi.File
                     {
-                        FulPath = item.ItemPath,
+                        FullPath = item.ItemPath,
                         Name = item.Name
                     }).Wait();
                 }
@@ -296,7 +296,7 @@ namespace WebDavMailRuCloudStore
                 }
                 else
                 {
-                    _cloud.Copy(new MailRuCloudApi.File { FulPath = source.ItemPath, Name = source.Name }, destinationName).Wait();
+                    _cloud.Copy(new MailRuCloudApi.File { FullPath = source.ItemPath, Name = source.Name }, destinationName).Wait();
                     res = new WebDavMailRuCloudStoreDocument(this, destinationItemPath);
                 }
                 wic.Undo();
@@ -356,7 +356,7 @@ namespace WebDavMailRuCloudStore
                 }
                 else
                 {
-                    _cloud.Move(new MailRuCloudApi.File { FulPath = source.ItemPath, Name = source.Name }, destinationItemPath).Wait();
+                    _cloud.Move(new MailRuCloudApi.File { FullPath = source.ItemPath, Name = source.Name }, destinationItemPath).Wait();
                     res = new WebDavMailRuCloudStoreDocument(this, destinationItemPath);
                 }
                 wic.Undo();

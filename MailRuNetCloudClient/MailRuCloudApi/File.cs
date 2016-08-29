@@ -5,6 +5,9 @@
 // <author>Korolev Erast.</author>
 //-----------------------------------------------------------------------
 
+using System;
+using System.ComponentModel;
+
 namespace MailRuCloudApi
 {
     /// <summary>
@@ -28,11 +31,24 @@ namespace MailRuCloudApi
     /// </summary>
     public class File
     {
+        private string _fullPath;
+        private string _name;
+
         /// <summary>
         /// Gets file name.
         /// </summary>
         /// <value>File name.</value>
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                if (value.Contains("/") || value.Contains("\\")) throw new InvalidEnumArgumentException(nameof(Name));
+                _name = value;
+            }
+        }
+
+        public string Extension => System.IO.Path.GetExtension(Name);
 
         /// <summary>
         /// Gets file hash value.
@@ -50,7 +66,29 @@ namespace MailRuCloudApi
         /// Gets full file path with name in server.
         /// </summary>
         /// <value>Full file path.</value>
-        public string FulPath { get; set; }
+        public string FullPath
+        {
+            get
+            {
+                return _fullPath;
+            }
+            set
+            {
+                _fullPath = value.Replace("\\", "/");
+                if (!string.IsNullOrEmpty(Name) && !_fullPath.EndsWith("/" + Name)) _fullPath = _fullPath.TrimEnd('/') + "/" + Name;
+            }
+        }
+
+        public string Path
+        {
+            get
+            {
+                int index = FullPath.LastIndexOf(Name, StringComparison.Ordinal);
+                string s = index >= 0 ? FullPath.Substring(0, index) : FullPath;
+                //if (s.Length > 1 && s.EndsWith("/")) s = s.Remove(s.Length - 1, 1);
+                return s;
+            }
+        }
 
         /// <summary>
         /// Gets public file link.

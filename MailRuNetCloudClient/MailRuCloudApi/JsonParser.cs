@@ -127,7 +127,7 @@ namespace MailRuCloudApi
                                 {
                                     DefaultValue = size
                                 },
-                                FulPath = path,
+                                FullPath = path,
                                 Name = name,
                                 Hash = (string)item["hash"],
                                 PublicLink = weblink,
