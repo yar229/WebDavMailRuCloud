@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wdmrc", "FooConsole\wdmrc.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailRuCloudApi", "MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj", "{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDAVSharp.Server", "WebDAVSharp.Server\WebDAVSharp.Server.csproj", "{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDAVSharp.Server", "WebDAVSharpServer\WebDAVSharp.Server.csproj", "{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDavMailRuCloudStore", "WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj", "{F8FA91A5-466D-4072-8D7B-7791831F520D}"
 EndProject

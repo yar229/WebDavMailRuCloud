@@ -56,7 +56,7 @@
       <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
       <Name>MailRuCloudApi</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebDAVSharp.Server\WebDAVSharp.Server.csproj">
+    <ProjectReference Include="..\WebDAVSharpServer\WebDAVSharp.Server.csproj">
       <Project>{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}</Project>
       <Name>WebDAVSharp.Server</Name>
     </ProjectReference>

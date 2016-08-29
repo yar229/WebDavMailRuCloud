@@ -75,7 +75,7 @@
       <Project>{F8FA91A5-466D-4072-8D7B-7791831F520D}</Project>
       <Name>WebDavMailRuCloudStore</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebDAVSharp.Server\WebDAVSharp.Server.csproj">
+    <ProjectReference Include="..\WebDAVSharpServer\WebDAVSharp.Server.csproj">
       <Project>{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}</Project>
       <Name>WebDAVSharp.Server</Name>
     </ProjectReference>

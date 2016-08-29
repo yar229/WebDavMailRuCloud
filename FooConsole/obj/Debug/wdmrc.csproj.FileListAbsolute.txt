@@ -1,4 +1,5 @@
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.exe.config
+D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.csprojResolveAssemblyReference.cache
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.exe
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\wdmrc.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\log4net.dll
@@ -16,6 +17,5 @@ D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\MailRuCloudApi.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Metrics.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Metrics.xml
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Newtonsoft.Json.xml
-D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.csprojResolveAssemblyReference.cache
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.exe
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.pdb
