@@ -19,3 +19,5 @@ D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Metrics.xml
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Newtonsoft.Json.xml
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.exe
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.pdb
+D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Common.Logging.Core.pdb
+D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Common.Logging.Core.xml
