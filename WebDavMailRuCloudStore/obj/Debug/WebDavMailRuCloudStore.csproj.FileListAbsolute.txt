@@ -15,3 +15,9 @@ D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Metrics.pdb
 D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Metrics.xml
 D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\obj\Debug\WebDavMailRuCloudStore.dll
 D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\obj\Debug\WebDavMailRuCloudStore.pdb
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.Core.dll
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.dll
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.pdb
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.xml
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.Core.pdb
+D:\Works\WebDAVMailRuCloud\WebDavMailRuCloudStore\bin\Debug\Common.Logging.Core.xml
