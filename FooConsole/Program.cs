@@ -18,7 +18,7 @@ namespace FooConsole
             //var store = new WebDavDiskStore("d:\\5");
 
             
-            WebDavServer wds = new WebDavServer(store, AuthType.Anonymous);
+            WebDavServer wds = new WebDavServer(store, AuthType.Anonymous); //
             
             wds.Start("http://localhost:3333/");
 
