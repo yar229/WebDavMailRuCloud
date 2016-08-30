@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using CommandLine;
 using WebDAVSharp.Server;
 
 namespace FooConsole
@@ -7,21 +9,21 @@ namespace FooConsole
     {
         static void Main(string[] args)
         {
-            int port;
-            int.TryParse(args[0], out port);
+            var result = CommandLine.Parser.Default.ParseArguments<CommandLineOptions>(args);
 
-            string login = args[1].Trim('\"');
-            string password = args[2].Trim('\"');
+            var exitCode = result
+              .MapResult(
+                options => 
+                {
 
-            //IWebDavStoreItemLock lockSystem = new WebDavStoreItemLock();
-            var store = new WebDavMailRuCloudStore.WebDavMailRuCloudStore(login, password);
-            //var store = new WebDavDiskStore("d:\\5");
+                    var store = new WebDavMailRuCloudStore.WebDavMailRuCloudStore(options.Login, options.Password);
+                    var wds = new WebDavServer(store, AuthType.Anonymous);
+                    wds.Start($"http://localhost:{options.Port}/");
+                    return 0;
+                },
+                errors => 1);
 
-            
-            WebDavServer wds = new WebDavServer(store, AuthType.Anonymous); //
-            
-            wds.Start("http://localhost:3333/");
-
+            if (exitCode > 0) Environment.Exit(exitCode);
         }
     }
 }

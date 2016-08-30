@@ -21,3 +21,5 @@ D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.exe
 D:\Works\WebDAVMailRuCloud\FooConsole\obj\Debug\wdmrc.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Common.Logging.Core.pdb
 D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\Common.Logging.Core.xml
+D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\CommandLine.dll
+D:\Works\WebDAVMailRuCloud\FooConsole\bin\Debug\CommandLine.xml
