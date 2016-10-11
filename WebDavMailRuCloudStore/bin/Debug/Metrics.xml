@@ -1356,7 +1356,7 @@
             Collection of tags that can be attached to a metric.
             </summary>
         </member>
-        <member name="M:Metrics.Reports.MetricsEndpointReports.WithEndpointReport(System.String,System.Func{Metrics.MetricData.MetricsData,System.Func{Metrics.HealthStatus},System.Net.HttpListenerContext,Metrics.Visualization.MetricsEndpointResponse})">
+        <member name="M:Metrics.Reports.MetricsEndpointReports.WithEndpointReport(System.String,System.Func{Metrics.MetricData.MetricsData,System.Func{Metrics.HealthStatus},Metrics.Endpoints.MetricsEndpointRequest,Metrics.Endpoints.MetricsEndpointResponse})">
             <summary>
             Register a report at the specified endpoint.
             </summary>
