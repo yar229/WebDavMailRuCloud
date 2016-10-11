@@ -345,19 +345,40 @@ namespace WebDavMailRuCloudStore
 
             // We get the path of
             string destinationItemPath = ItemPath; //Path.Combine(ItemPath, destinationName).Replace("\\", "/"); ;
+            //string destinationItemPath = Path.Combine(ItemPath, destinationName).Replace("\\", "/"); ;
 
             try
             {
                 WindowsImpersonationContext wic = Identity.Impersonate();
-                if (source.IsCollection)
+
+                //TODO: shame on me, refact this
+                if (source.ParentCollection.ItemPath == destinationItemPath)
                 {
-                    _cloud.Move(new Folder { FulPath = source.ItemPath, Name = source.Name }, destinationItemPath).Wait();
-                    res = new WebDavMailRuCloudStoreCollection(_cloud, this, destinationItemPath);
+                    if (source.IsCollection)
+                    {
+                        _cloud.Rename(new Folder { FulPath = source.ItemPath, Name = source.Name }, destinationName).Wait();
+                        res = new WebDavMailRuCloudStoreCollection(_cloud, this, destinationItemPath);
+                    }
+                    else
+                    {
+                        _cloud.Rename(new MailRuCloudApi.File { FullPath = source.ItemPath, Name = source.Name }, destinationName).Wait();
+                        res = new WebDavMailRuCloudStoreDocument(this, destinationItemPath);
+                    }
                 }
                 else
                 {
-                    _cloud.Move(new MailRuCloudApi.File { FullPath = source.ItemPath, Name = source.Name }, destinationItemPath).Wait();
-                    res = new WebDavMailRuCloudStoreDocument(this, destinationItemPath);
+                    if (source.IsCollection)
+                    {
+                        _cloud.Move(new Folder {FulPath = source.ItemPath, Name = source.Name}, destinationItemPath)
+                            .Wait();
+                        res = new WebDavMailRuCloudStoreCollection(_cloud, this, destinationItemPath);
+                    }
+                    else
+                    {
+                        _cloud.Move(new MailRuCloudApi.File {FullPath = source.ItemPath, Name = source.Name},
+                            destinationItemPath).Wait();
+                        res = new WebDavMailRuCloudStoreDocument(this, destinationItemPath);
+                    }
                 }
                 wic.Undo();
 
