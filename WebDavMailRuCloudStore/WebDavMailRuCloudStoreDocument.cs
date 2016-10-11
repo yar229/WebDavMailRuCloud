@@ -85,7 +85,7 @@ namespace WebDavMailRuCloudStore
             {
                 throw new WebDavUnauthorizedException();
             }
-
+            stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
 
