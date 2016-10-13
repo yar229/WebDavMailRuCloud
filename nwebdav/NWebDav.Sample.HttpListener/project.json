@@ -1,0 +1,23 @@
+{
+  "version": "0.1.10-*",
+
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+
+  "frameworks": {
+    "net45": {
+      "frameworkAssemblies": {
+      	"System.Configuration": "4.0.0.0",
+        "System.Xml": "4.0.0.0",
+        "System.Xml.Linq": "4.0.0.0",
+        "System.Xml.XDocument": "4.0.0.0"
+      }
+    }
+  },
+  "dependencies": {
+    "NWebDav.Server.HttpListener": "0.1.*",
+    "NWebDav.Server": "0.1.*",
+    "log4net": "1.2.10"
+  }
+}

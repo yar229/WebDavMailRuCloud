@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NWebDav.Server.HttpListener</id>
+    <version>0.1.13.0</version>
+    <title>NWebDav server library for HttpListener</title>
+    <authors>Ramon de Klein &lt;mail@ramondeklein.nl&gt;</authors>
+    <description>NWebDav.Server.HttpListener is a flexible WebDAV server library that can be used to expose files or other data using WebDAV.</description>
+    <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
+    <projectUrl>https://github.com/ramondeklein/nwebdav</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright 2016 Ramon de Klein &lt;mail@ramondeklein.nl&gt;</copyright>
+    <tags>C# .NET WebDAV Server HttpListener</tags>
+    <dependencies>
+      <dependency id="NWebDav.Server" version="0.1.13.0" />
+    </dependencies>
+    <language>en-US</language>
+  </metadata>
+  <files>
+    <file src="bin\Release\net45\NWebDav.Server.HttpListener.*" target="lib\net45" />
+  </files>
+</package>

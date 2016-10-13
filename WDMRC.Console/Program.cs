@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using CommandLine;
-using WebDAVSharp.Server;
 
 namespace FooConsole
 {
@@ -16,9 +15,9 @@ namespace FooConsole
                 options => 
                 {
 
-                    var store = new WebDavMailRuCloudStore.WebDavMailRuCloudStore(options.Login, options.Password);
-                    var wds = new WebDavServer(store, AuthType.Anonymous);
-                    wds.Start($"http://localhost:{options.Port}/");
+                    //var store = new WebDavMailRuCloudStore.WebDavMailRuCloudStore(options.Login, options.Password);
+                    //var wds = new WebDavServer(store, AuthType.Anonymous);
+                    //wds.Start($"http://localhost:{options.Port}/");
                     return 0;
                 },
                 errors => 1);
