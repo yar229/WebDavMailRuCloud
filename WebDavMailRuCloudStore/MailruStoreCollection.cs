@@ -21,7 +21,7 @@ namespace NWebDav.Server.Stores
         private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
         private readonly Folder _directoryInfo;
 
-        public MailruStoreCollection(ILockingManager lockingManager, MailRuCloudApi.Folder directoryInfo, bool isWritable)
+        public MailruStoreCollection(ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
             LockingManager = lockingManager;
             _directoryInfo = directoryInfo;
@@ -65,7 +65,15 @@ namespace NWebDav.Server.Stores
             // Hopmann/Lippert collection properties
             new DavExtCollectionChildCount<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.EnumerateFiles().Count() + collection._directoryInfo.EnumerateDirectories().Count()
+                Getter = (context, collection) =>
+                {
+                    //collection._directoryInfo.EnumerateFiles().Count() + collection._directoryInfo.EnumerateDirectories().Count()
+                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
+                    int cnt = data.NumberOfItems;
+                    return cnt;
+                }
+                
+                
             },
             new DavExtCollectionIsFolder<MailruStoreCollection>
             {
@@ -73,7 +81,7 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionIsHidden<MailruStoreCollection>
             {
-                Getter = (context, collection) => (collection._directoryInfo.Attributes & FileAttributes.Hidden) != 0
+                Getter = (context, collection) => false //(collection._directoryInfo.Attributes & FileAttributes.Hidden) != 0
             },
             new DavExtCollectionIsStructuredDocument<MailruStoreCollection>
             {
@@ -81,7 +89,14 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionHasSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.EnumerateDirectories().Any()
+                Getter = (context, collection) =>
+                {
+                    //collection._directoryInfo.EnumerateDirectories().Any()
+
+                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
+                    return data.NumberOfFolders > 0;
+                }
+                
             },
             new DavExtCollectionNoSubs<MailruStoreCollection>
             {
@@ -89,7 +104,13 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionObjectCount<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.EnumerateFiles().Count()
+                Getter = (context, collection) =>
+                {
+                    //collection._directoryInfo.EnumerateFiles().Count()
+                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
+                    int cnt = data.NumberOfFiles;
+                    return cnt;
+                }
             },
             new DavExtCollectionReserved<MailruStoreCollection>
             {
@@ -98,8 +119,12 @@ namespace NWebDav.Server.Stores
             new DavExtCollectionVisibleCount<MailruStoreCollection>
             {
                 Getter = (context, collection) =>
-                    collection._directoryInfo.EnumerateDirectories().Count(di => (di.Attributes & FileAttributes.Hidden) == 0) +
-                    collection._directoryInfo.EnumerateFiles().Count(fi => (fi.Attributes & FileAttributes.Hidden) == 0)
+                {
+                    //collection._directoryInfo.EnumerateDirectories().Count(di => (di.Attributes & FileAttributes.Hidden) == 0) +
+                    //collection._directoryInfo.EnumerateFiles().Count(fi => (fi.Attributes & FileAttributes.Hidden) == 0)
+                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
+                    return data.NumberOfItems;
+                }
             },
 
             // Win32 extensions
@@ -143,8 +168,8 @@ namespace NWebDav.Server.Stores
 
         public bool IsWritable { get; }
         public string Name => _directoryInfo.Name;
-        public string UniqueKey => _directoryInfo.FullName;
-        public string FullPath => _directoryInfo.FullName;
+        public string UniqueKey => _directoryInfo.FullPath;
+        public string FullPath => _directoryInfo.FullPath;
 
         // Disk collections (a.k.a. directories don't have their own data)
         public Stream GetReadableStream(IHttpContext httpContext) => null;
@@ -156,31 +181,29 @@ namespace NWebDav.Server.Stores
         public Task<IStoreItem> GetItemAsync(string name, IHttpContext httpContext)
         {
             // Determine the full path
-            var fullPath = Path.Combine(_directoryInfo.FullName, name);
-
+            var fullPath = Path.Combine(_directoryInfo.FullPath, name);
             // Check if the item is a file
-            if (File.Exists(fullPath))
-                return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, new FileInfo(fullPath), IsWritable));
+            //if (File.Exists(fullPath))
+            //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, new FileInfo(fullPath), IsWritable));
 
             // Check if the item is a directory
-            if (Directory.Exists(fullPath))
-                return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, new DirectoryInfo(fullPath), IsWritable));
+            //if (Directory.Exists(fullPath))
+            return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, new Folder {FullPath = fullPath}, IsWritable));
 
             // Item not found
-            return Task.FromResult<IStoreItem>(null);
+            //return Task.FromResult<IStoreItem>(null);
         }
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var items = new List<IStoreItem>();
+            var item = Cloud._cloud.GetItems(_directoryInfo).Result;
 
             // Add all directories
-            foreach (var subDirectory in _directoryInfo.GetDirectories())
-                items.Add(new MailruStoreCollection(LockingManager, subDirectory, IsWritable));
+            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(LockingManager, subDirectory, IsWritable)).Cast<IStoreItem>().ToList();
 
             // Add all files
-            foreach (var file in _directoryInfo.GetFiles())
-                items.Add(new MailruStoreItem(LockingManager, file, IsWritable));
+            items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
+
 
             // Return the items
             return Task.FromResult<IList<IStoreItem>>(items);
@@ -224,7 +247,8 @@ namespace NWebDav.Server.Stores
             }
 
             // Return result
-            return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable)));
+            //return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new File(destinationPath), IsWritable)));
+            return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new MailRuCloudApi.File(), IsWritable)));
         }
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -266,7 +290,8 @@ namespace NWebDav.Server.Stores
             }
 
             // Return the collection
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new DirectoryInfo(destinationPath), IsWritable)));
+            //return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new DirectoryInfo(destinationPath), IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder(), IsWritable)));
         }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
@@ -300,8 +325,8 @@ namespace NWebDav.Server.Stores
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
                     // Determine source and destination paths
-                    var sourcePath = Path.Combine(_directoryInfo.FullName, sourceName);
-                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullName, destinationName);
+                    var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName);
+                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName);
 
                     // Check if the file already exists
                     DavStatusCode result;
@@ -323,7 +348,8 @@ namespace NWebDav.Server.Stores
 
                     // Move the file
                     File.Move(sourcePath, destinationPath);
-                    return new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable));
+                    //return new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable));
+                    return new StoreItemResult(result, new MailruStoreItem(LockingManager, new MailRuCloudApi.File(), IsWritable));
                 }
                 else
                 {
@@ -351,8 +377,10 @@ namespace NWebDav.Server.Stores
             if (!IsWritable)
                 return Task.FromResult(DavStatusCode.PreconditionFailed);
 
+            //Cloud._cloud.Remove()
+
             // Determine the full path
-            var fullPath = Path.Combine(_directoryInfo.FullName, name);
+            var fullPath = Path.Combine(_directoryInfo.FullPath, name);
             try
             {
                 // Check if the file exists
@@ -386,7 +414,7 @@ namespace NWebDav.Server.Stores
 
         public override int GetHashCode()
         {
-            return _directoryInfo.FullName.GetHashCode();
+            return _directoryInfo.FullPath.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -394,7 +422,7 @@ namespace NWebDav.Server.Stores
             var storeCollection = obj as MailruStoreCollection;
             if (storeCollection == null)
                 return false;
-            return storeCollection._directoryInfo.FullName.Equals(_directoryInfo.FullName, StringComparison.CurrentCultureIgnoreCase);
+            return storeCollection._directoryInfo.FullPath.Equals(_directoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

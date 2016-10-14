@@ -1,7 +1,8 @@
 ﻿using System;
-
+using System.IO;
 using System.Security;
 using System.Threading.Tasks;
+using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using WebDavMailRuCloudStore;
@@ -44,7 +45,7 @@ namespace NWebDav.Server.Stores
             //    return Task.FromResult<IStoreCollection>(null);
 
             // Return the item
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new DirectoryInfo(path), IsWritable));
+            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new Folder() {FullPath = path}, IsWritable));
         }
 
         private string GetPathFromUri(Uri uri)
