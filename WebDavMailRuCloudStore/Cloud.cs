@@ -10,7 +10,7 @@ using File = MailRuCloudApi.File;
 
 namespace WebDavMailRuCloudStore
 {
-    static class Cloud
+    public static class Cloud
     {
         static Cloud()
         {

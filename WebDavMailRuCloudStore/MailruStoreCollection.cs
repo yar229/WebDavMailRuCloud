@@ -42,7 +42,8 @@ namespace NWebDav.Server.Stores
             },
             new DavDisplayName<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.Name
+                Getter = (context, collection) => 
+                collection._directoryInfo.Name
             },
             new DavGetLastModified<MailruStoreCollection>
             {
@@ -157,7 +158,8 @@ namespace NWebDav.Server.Stores
             },
             new Win32FileAttributes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.Attributes,
+                Getter = (context, collection) => 
+                    collection._directoryInfo.Attributes,
                 Setter = (context, collection, value) =>
                 {
                     collection._directoryInfo.Attributes = value;

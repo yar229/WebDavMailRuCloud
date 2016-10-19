@@ -31,10 +31,10 @@ namespace WebDavMailRuCloudStore
             // RFC-2518 properties
             new DavCreationDate<MailruStoreItem>
             {
-                Getter = (context, item) => DateTime.Now, //item._fileInfo.CreationTimeUtc,
+                Getter = (context, item) => item._fileInfo.CreationTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    //item._fileInfo.CreationTimeUtc = value;
+                    item._fileInfo.CreationTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
@@ -44,7 +44,7 @@ namespace WebDavMailRuCloudStore
             },
             new DavGetContentLength<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.Size.DefaultValue
+                Getter = (context, item) => item._fileInfo.Size?.DefaultValue ?? 0
             },
             new DavGetContentType<MailruStoreItem>
             {
@@ -59,10 +59,10 @@ namespace WebDavMailRuCloudStore
             },
             new DavGetLastModified<MailruStoreItem>
             {
-                Getter = (context, item) => DateTime.Now, //item._fileInfo.LastWriteTimeUtc,
+                Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    //item._fileInfo.LastWriteTimeUtc = value;
+                    item._fileInfo.LastWriteTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
@@ -85,28 +85,28 @@ namespace WebDavMailRuCloudStore
             // Win32 extensions
             new Win32CreationTime<MailruStoreItem>
             {
-                Getter = (context, item) => DateTime.Now, // item._fileInfo.CreationTimeUtc,
+                Getter = (context, item) => item._fileInfo.CreationTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    //item._fileInfo.CreationTimeUtc = value;
+                    item._fileInfo.CreationTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
             new Win32LastAccessTime<MailruStoreItem>
             {
-                Getter = (context, item) => DateTime.Now, //item._fileInfo.LastAccessTimeUtc,
+                Getter = (context, item) => item._fileInfo.LastAccessTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    //item._fileInfo.LastAccessTimeUtc = value;
+                    item._fileInfo.LastAccessTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
             new Win32LastModifiedTime<MailruStoreItem>
             {
-                Getter = (context, item) => DateTime.Now, //item._fileInfo.LastWriteTimeUtc,
+                Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    //item._fileInfo.LastWriteTimeUtc = value;
+                    item._fileInfo.LastWriteTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },

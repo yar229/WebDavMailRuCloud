@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace FooConsole.Properties {
+namespace YaR.WebDavMail.ru.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
