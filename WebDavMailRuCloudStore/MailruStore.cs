@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using WebDavMailRuCloudStore;
+using File = MailRuCloudApi.File;
 
 
 namespace NWebDav.Server.Stores
@@ -26,13 +28,37 @@ namespace NWebDav.Server.Stores
             // Determine the path from the uri
             var path = GetPathFromUri(uri);
 
-            //var z = Cloud._cloud. GetItems(path);
-
-            if (path.EndsWith("/"))
+            var item = Cloud._cloud.GetItems(path).Result;
+            if (item.FullPath == path)
             {
-                var d = new Folder {FullPath = path};
-                return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, d, IsWritable));
+                var dir = new Folder { FullPath = path };
+                return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
             }
+            else
+            {
+                var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+                return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
+            }
+
+            //try
+            //{
+            //    var z = Cloud._cloud.GetItems(path).Result;
+            //    if (z.FullPath != path) throw new Exception();
+            //    var d = new Folder {FullPath = path};
+            //    return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, d, IsWritable));
+
+            //}
+            //catch (Exception e)
+            //{
+            //    var f = new File() {FullPath = path};
+            //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
+            //}
+
+            //if (path.EndsWith("/"))
+            //{
+            //    var d = new Folder {FullPath = path};
+            //    return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, d, IsWritable));
+            //}
 
 
             
@@ -65,6 +91,8 @@ namespace NWebDav.Server.Stores
         {
             // Determine the path
             var requestedPath = uri.LocalPath; //.Substring(1).Replace('/', Path.DirectorySeparatorChar);
+            requestedPath = requestedPath.TrimEnd('/');
+
 
             // Determine the full path
             //var fullPath = Path.GetFullPath(Path.Combine(BaseDirectory, requestedPath));

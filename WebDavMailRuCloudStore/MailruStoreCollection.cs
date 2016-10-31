@@ -206,8 +206,6 @@ namespace NWebDav.Server.Stores
             // Add all files
             items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
 
-
-            // Return the items
             return Task.FromResult<IList<IStoreItem>>(items);
         }
 
@@ -218,7 +216,8 @@ namespace NWebDav.Server.Stores
                 return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
 
             // Determine the destination path
-            var destinationPath = Path.Combine(FullPath, name);
+            var destinationPath = FullPath + "/" + name; //Path.Combine(FullPath, name);  
+
 
             // Determine result
             DavStatusCode result;
