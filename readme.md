@@ -11,7 +11,7 @@ Usage:
 
 
 Use as Windows disk:
-	net use http://127.0.0.1:<port>
+	net use http://127.0.0.1:&lt;port&gt;
 
 Windows 7 client might perform very bad when connecting to any WebDAV server. This is caused, because it tries to auto-detect any proxy server before any request. Refer to KB2445570 for more information.
 
