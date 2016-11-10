@@ -7,7 +7,7 @@
     <ProjectGuid>{9E1B53CF-F6CD-4861-A177-E06DBC95CD7D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FooConsole</RootNamespace>
+    <RootNamespace>YaR.WebDavMail.ru</RootNamespace>
     <AssemblyName>wdmrc</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -52,6 +52,14 @@
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NWebDav.Server, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.0.1.13.0\lib\net45\NWebDav.Server.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NWebDav.Server.HttpListener, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.HttpListener.0.1.13.0\lib\net45\NWebDav.Server.HttpListener.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -81,13 +89,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
+      <Project>{75bf5eac-81a8-4e00-a82e-0bcbd17ac50b}</Project>
+      <Name>MailRuCloudApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj">
       <Project>{F8FA91A5-466D-4072-8D7B-7791831F520D}</Project>
       <Name>WebDavMailRuCloudStore</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WebDAVSharpServer\WebDAVSharp.Server.csproj">
-      <Project>{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}</Project>
-      <Name>WebDAVSharp.Server</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

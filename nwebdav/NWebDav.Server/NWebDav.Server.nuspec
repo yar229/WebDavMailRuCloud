@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NWebDav.Server</id>
+    <version>0.1.13.0</version>
+    <title>NWebDav server library</title>
+    <authors>Ramon de Klein &lt;mail@ramondeklein.nl&gt;</authors>
+    <description>NWebDav.Server is a flexible WebDAV server library that can be used to expose files or other data using WebDAV.</description>
+    <licenseUrl>http://www.gnu.org/licenses/lgpl.html</licenseUrl>
+    <projectUrl>https://github.com/ramondeklein/nwebdav</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <copyright>Copyright 2016 Ramon de Klein &lt;mail@ramondeklein.nl&gt;</copyright>
+    <tags>C# .NET WebDAV Server</tags>
+    <language>en-US</language>
+  </metadata>
+  <files>
+    <file src="bin\Release\net45\NWebDav.Server.*" target="lib\net45" />
+    <file src="bin\Release\netstandard1.6\NWebDav.Server.*" target="lib\dotnet" />
+  </files>
+</package>
