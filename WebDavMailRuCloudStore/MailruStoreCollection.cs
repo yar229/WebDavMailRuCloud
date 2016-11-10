@@ -326,13 +326,23 @@ namespace NWebDav.Server.Stores
             catch (Exception exc)
             {
                 // Log exception
-                s_log.Log(LogLevel.Error, $"Unable to create '{destinationPath}' directory.", exc);
+                s_log.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
                 return null;
             }
 
             // Return the collection
             //return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new DirectoryInfo(destinationPath), IsWritable)));
             return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder() {FullPath = destinationPath }, IsWritable)));
+        }
+
+        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext)
+        {
+            return new Task<Stream>(null);
+        }
+
+        public Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream source)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
@@ -462,10 +472,12 @@ namespace NWebDav.Server.Stores
             catch (Exception exc)
             {
                 // Log exception
-                s_log.Log(LogLevel.Error, $"Unable to delete '{fullPath}' directory.", exc);
+                s_log.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
                 return Task.FromResult(DavStatusCode.InternalServerError);
             }
         }
+
+        public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
 
         public bool AllowInfiniteDepthProperties => false;
 

@@ -41,7 +41,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommandLine, Version=2.0.275.0, Culture=neutral, PublicKeyToken=de6f01bd326f8c32, processorArchitecture=MSIL">
-      <HintPath>..\packages\CommandLineParser.2.0.275-beta\lib\net45\CommandLine.dll</HintPath>
+      <HintPath>..\packages\CommandLineParser.2.1.1-beta\lib\net45\CommandLine.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Common.Logging, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.0-Beta2\lib\net40\Common.Logging.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Common.Logging.Core, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
@@ -52,12 +56,12 @@
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NWebDav.Server, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.0.1.13.0\lib\net45\NWebDav.Server.dll</HintPath>
+    <Reference Include="NWebDav.Server, Version=0.1.16.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.0.1.16.0\lib\net45\NWebDav.Server.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NWebDav.Server.HttpListener, Version=0.1.13.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.HttpListener.0.1.13.0\lib\net45\NWebDav.Server.HttpListener.dll</HintPath>
+    <Reference Include="NWebDav.Server.HttpListener, Version=0.1.16.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.HttpListener.0.1.16.0\lib\net45\NWebDav.Server.HttpListener.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

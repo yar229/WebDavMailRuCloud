@@ -133,7 +133,7 @@ namespace WebDavMailRuCloudStore
         public string Name => _fileInfo.Name;
         public string UniqueKey => _fileInfo.FullPath;
         public string FullPath => _fileInfo.FullPath;
-        public Stream GetReadableStream(IHttpContext httpContext) => OpenReadStream();
+        //public Stream GetReadableStream(IHttpContext httpContext) => OpenReadStream();
         public Stream GetWritableStream(IHttpContext httpContext) => IsWritable ? Cloud._cloud.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null;
         public IPropertyManager PropertyManager => DefaultPropertyManager;
         public ILockingManager LockingManager { get; }
@@ -148,6 +148,34 @@ namespace WebDavMailRuCloudStore
         }
 
 
+        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => 
+            Task.FromResult(OpenReadStream());
+        //{
+        //    return new Task<Stream>(OpenReadStream);
+        //}
+
+        public async Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream inputStream)
+        {
+            // Check if the item is writable
+            if (!IsWritable)
+                return DavStatusCode.Conflict;
+
+            // Copy the stream
+            try
+            {
+                // Copy the information to the destination stream
+                using (var outputStream = GetWritableStream(httpContext))
+                {
+                    await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
+                }
+                return DavStatusCode.Ok;
+            }
+            catch (IOException ioException) when (ioException.IsDiskFull())
+            {
+                return DavStatusCode.InsufficientStorage;
+            }
+
+        }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destination, string name, bool overwrite, IHttpContext httpContext)
         {
@@ -182,15 +210,26 @@ namespace WebDavMailRuCloudStore
                     // Create the item in the destination collection
                     var result = await destination.CreateItemAsync(name, overwrite, httpContext).ConfigureAwait(false);
 
-                    // Check if the item could be created
-                    //if (result.Item != null)
-                    //{
-                        using (var destinationStream = result.Item.GetWritableStream(httpContext))
-                        using (var sourceStream = GetReadableStream(httpContext))
+
+                    if (result.Item != null)
+                    {
+                        using (var sourceStream = await GetReadableStreamAsync(httpContext).ConfigureAwait(false))
                         {
-                            await sourceStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                            var copyResult = await result.Item.UploadFromStreamAsync(httpContext, sourceStream).ConfigureAwait(false);
+                            if (copyResult != DavStatusCode.Ok)
+                                return new StoreItemResult(copyResult, result.Item);
                         }
-                    //}
+                    }
+
+                    // Check if the item could be created
+                    ////if (result.Item != null)
+                    ////{
+                    //    using (var destinationStream = result.Item.GetWritableStream(httpContext))
+                    //    using (var sourceStream = GetReadableStream(httpContext))
+                    //    {
+                    //        await sourceStream.CopyToAsync(destinationStream).ConfigureAwait(false);
+                    //    }
+                    ////}
 
                     // Return result
                     return new StoreItemResult(result.Result, result.Item);
@@ -198,12 +237,12 @@ namespace WebDavMailRuCloudStore
             }
             catch (IOException ioException) when (ioException.IsDiskFull())
             {
-                s_log.Log(LogLevel.Error, "Out of disk space while copying data.", ioException);
+                s_log.Log(LogLevel.Error, () => "Out of disk space while copying data.", ioException);
                 return new StoreItemResult(DavStatusCode.InsufficientStorage);
             }
             catch (Exception exc)
             {
-                s_log.Log(LogLevel.Error, "Unexpected exception while copying data.", exc);
+                s_log.Log(LogLevel.Error, () => "Unexpected exception while copying data.", exc);
                 return new StoreItemResult(DavStatusCode.InternalServerError);
             }
         }
