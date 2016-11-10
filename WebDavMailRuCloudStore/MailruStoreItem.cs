@@ -20,6 +20,13 @@ namespace WebDavMailRuCloudStore
         private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreItem));
         private readonly MailRuCloudApi.File _fileInfo;
 
+        public MailRuCloudApi.File FileInfo => _fileInfo;
+
+        private MailruStoreItem()
+        {
+            
+        }
+
         public MailruStoreItem(ILockingManager lockingManager, MailRuCloudApi.File fileInfo, bool isWritable)
         {
             LockingManager = lockingManager;
@@ -176,14 +183,14 @@ namespace WebDavMailRuCloudStore
                     var result = await destination.CreateItemAsync(name, overwrite, httpContext).ConfigureAwait(false);
 
                     // Check if the item could be created
-                    if (result.Item != null)
-                    {
+                    //if (result.Item != null)
+                    //{
                         using (var destinationStream = result.Item.GetWritableStream(httpContext))
                         using (var sourceStream = GetReadableStream(httpContext))
                         {
                             await sourceStream.CopyToAsync(destinationStream).ConfigureAwait(false);
                         }
-                    }
+                    //}
 
                     // Return result
                     return new StoreItemResult(result.Result, result.Item);

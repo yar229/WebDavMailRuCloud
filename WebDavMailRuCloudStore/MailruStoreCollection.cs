@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace NWebDav.Server.Stores
     {
         private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
         private readonly Folder _directoryInfo;
+        public Folder DirectoryInfo => _directoryInfo;
 
         public MailruStoreCollection(ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
@@ -180,20 +182,49 @@ namespace NWebDav.Server.Stores
         public IPropertyManager PropertyManager => DefaultPropertyManager;
         public ILockingManager LockingManager { get; }
 
+
+        public IList<IStoreItem> Items
+        {
+            get
+            {
+                if (null == _items)
+                {
+                    lock (_itemsLocker)
+                    {
+                        if (null == _items)
+                        {
+                            _items = GetItemsAsync(null).Result;
+                        }
+                    }
+                }
+                return _items;
+            }
+        }
+
+        private IList<IStoreItem> _items;
+        private readonly object _itemsLocker = new object();
+
+
         public Task<IStoreItem> GetItemAsync(string name, IHttpContext httpContext)
         {
-            // Determine the full path
-            var fullPath = Path.Combine(_directoryInfo.FullPath, name);
-            // Check if the item is a file
-            //if (File.Exists(fullPath))
-            //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, new FileInfo(fullPath), IsWritable));
+            var res = name == string.Empty 
+                ? this
+                : Items.FirstOrDefault(i => i.Name == name);
 
-            // Check if the item is a directory
-            //if (Directory.Exists(fullPath))
-            return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, new Folder {FullPath = fullPath}, IsWritable));
+            return Task.FromResult(res);
 
-            // Item not found
-            //return Task.FromResult<IStoreItem>(null);
+            //////// Determine the full path
+            //////var fullPath = Path.Combine(_directoryInfo.FullPath, name);
+            //////// Check if the item is a file
+            ////////if (File.Exists(fullPath))
+            ////////    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, new FileInfo(fullPath), IsWritable));
+
+            //////// Check if the item is a directory
+            ////////if (Directory.Exists(fullPath))
+            //////return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, new Folder {FullPath = fullPath}, IsWritable));
+
+            //////// Item not found
+            ////////return Task.FromResult<IStoreItem>(null);
         }
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
@@ -220,36 +251,42 @@ namespace NWebDav.Server.Stores
 
 
             // Determine result
-            DavStatusCode result;
+            DavStatusCode result = DavStatusCode.Created;
 
-            // Check if the file can be overwritten
-            if (File.Exists(name))
-            {
-                if (!overwrite)
-                    return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
+            //// Check if the file can be overwritten
+            //if (File.Exists(name))
+            //{
+            //    if (!overwrite)
+            //        return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
 
-                result = DavStatusCode.NoContent;
-            }
-            else
-            {
-                result = DavStatusCode.Created;
-            }
+            //    result = DavStatusCode.NoContent;
+            //}
+            //else
+            //{
+            //    result = DavStatusCode.Created;
+            //}
 
-            try
-            {
-                // Create a new file
-                File.Create(destinationPath).Dispose();
-            }
-            catch (Exception exc)
-            {
-                // Log exception
-                s_log.Log(LogLevel.Error, $"Unable to create '{destinationPath}' file.", exc);
-                return Task.FromResult(new StoreItemResult(DavStatusCode.InternalServerError));
-            }
+            //try
+            //{
+            //    // Create a new file
+            //    File.Create(destinationPath).Dispose();
+            //}
+            //catch (Exception exc)
+            //{
+            //    // Log exception
+            //    s_log.Log(LogLevel.Error, $"Unable to create '{destinationPath}' file.", exc);
+            //    return Task.FromResult(new StoreItemResult(DavStatusCode.InternalServerError));
+            //}
 
             // Return result
             //return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new File(destinationPath), IsWritable)));
-            return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new MailRuCloudApi.File(), IsWritable)));
+            var size = long.Parse(httpContext.Request.GetHeaderValue("Content-Length"));
+            var f = new MailRuCloudApi.File(destinationPath, size, FileType.SingleFile, null);
+            //{
+            //    FullPath = destinationPath
+            //};
+
+            return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -259,11 +296,13 @@ namespace NWebDav.Server.Stores
                 return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
 
             // Determine the destination path
-            var destinationPath = Path.Combine(FullPath, name);
+            var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
 
             // Check if the directory can be overwritten
             DavStatusCode result;
-            if (Directory.Exists(destinationPath))
+
+
+            if (Items.FirstOrDefault(i => i.Name == name) != null)
             {
                 // Check if overwrite is allowed
                 if (!overwrite)
@@ -281,7 +320,8 @@ namespace NWebDav.Server.Stores
             try
             {
                 // Attempt to create the directory
-                Directory.CreateDirectory(destinationPath);
+                //Directory.CreateDirectory(destinationPath);
+                Cloud._cloud.CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
@@ -292,7 +332,7 @@ namespace NWebDav.Server.Stores
 
             // Return the collection
             //return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new DirectoryInfo(destinationPath), IsWritable)));
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder(), IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder() {FullPath = destinationPath }, IsWritable)));
         }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
@@ -326,31 +366,46 @@ namespace NWebDav.Server.Stores
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
                     // Determine source and destination paths
-                    var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName);
-                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName);
+                    var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName).Replace("\\", "/");
+                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName).Replace("\\", "/");
 
                     // Check if the file already exists
                     DavStatusCode result;
-                    if (File.Exists(destinationPath))
+                    var itemexist = Items.FirstOrDefault(it => it.Name == destinationName);
+                    if (itemexist != null)  //(File.Exists(destinationPath))
                     {
                         // Remove the file if it already exists (if allowed)
                         if (!overwrite)
                             return new StoreItemResult(DavStatusCode.Forbidden);
 
                         // The file will be overwritten
-                        File.Delete(destinationPath);
+                        if (itemexist is MailruStoreItem)
+                            Cloud._cloud.Remove((itemexist as MailruStoreItem).FileInfo).Wait();
+                        else
+                            Cloud._cloud.Remove((itemexist as MailruStoreCollection).DirectoryInfo).Wait();
+
                         result = DavStatusCode.NoContent;
                     }
                     else
                     {
-                        // The file will be "created"
                         result = DavStatusCode.Created;
                     }
 
                     // Move the file
-                    File.Move(sourcePath, destinationPath);
+                    var itemfrom = Items.FirstOrDefault(it => it.Name == sourceName);
+                    if (itemfrom is MailruStoreItem)
+                    {
+                        Cloud._cloud.Rename((itemfrom as MailruStoreItem).FileInfo, destinationName).Wait();
+                    }
+                    else
+                    {
+                        Cloud._cloud.Rename((itemfrom as MailruStoreCollection).DirectoryInfo, destinationName).Wait();
+                    }
+                    
+                    //File.Move(sourcePath, destinationPath);
                     //return new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable));
-                    return new StoreItemResult(result, new MailruStoreItem(LockingManager, new MailRuCloudApi.File(), IsWritable));
+                    return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
+                    
                 }
                 else
                 {
@@ -381,26 +436,27 @@ namespace NWebDav.Server.Stores
             //Cloud._cloud.Remove()
 
             // Determine the full path
-            var fullPath = Path.Combine(_directoryInfo.FullPath, name);
+            var fullPath = Path.Combine(_directoryInfo.FullPath, name).Replace("\\", "/");
             try
             {
-                // Check if the file exists
-                if (File.Exists(fullPath))
+                var item = string.IsNullOrEmpty(name) 
+                    ? this
+                    : Items.FirstOrDefault(it => it.Name == name);
+
+                if (null == item) return Task.FromResult(DavStatusCode.NotFound);
+
+                if (item is MailruStoreItem)
                 {
-                    // Delete the file
-                    File.Delete(fullPath);
+                    Cloud._cloud.Remove((item as MailruStoreItem).FileInfo).Wait();
                     return Task.FromResult(DavStatusCode.Ok);
                 }
 
-                // Check if the directory exists
-                if (Directory.Exists(fullPath))
+                if (item is MailruStoreCollection)
                 {
-                    // Delete the directory
-                    Directory.Delete(fullPath);
+                    Cloud._cloud.Remove((item as MailruStoreCollection).DirectoryInfo).Wait();
                     return Task.FromResult(DavStatusCode.Ok);
                 }
 
-                // Item not found
                 return Task.FromResult(DavStatusCode.NotFound);
             }
             catch (Exception exc)

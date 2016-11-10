@@ -55,7 +55,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cloud.cs" />
-    <Compile Include="CloudMailRuStream.cs" />
     <Compile Include="MailruStore.cs" />
     <Compile Include="MailruStoreCollection.cs" />
     <Compile Include="MailruStoreItem.cs" />
