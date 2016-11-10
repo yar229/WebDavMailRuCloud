@@ -136,7 +136,7 @@ namespace YaR.WebDavMailRu.CloudStore
         private Stream OpenReadStream()
         {
 
-            Stream stream = Cloud._cloud.GetFileStream(_fileInfo).Result;
+            Stream stream = Cloud.Instance.GetFileStream(_fileInfo).Result;
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
@@ -158,7 +158,7 @@ namespace YaR.WebDavMailRu.CloudStore
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = IsWritable ? Cloud._cloud.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
+                using (var outputStream = IsWritable ? Cloud.Instance.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
                 }
@@ -193,7 +193,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
                     // Copy the file
                     //File.Copy(_fileInfo.FullName, destinationPath, true);
-                    Cloud._cloud.Copy(_fileInfo, destinationPath).Wait();
+                    Cloud.Instance.Copy(_fileInfo, destinationPath).Wait();
 
                     // Return the appropriate status
                     //return new StoreItemResult(fileExists ? DavStatusCode.NoContent : DavStatusCode.Created);

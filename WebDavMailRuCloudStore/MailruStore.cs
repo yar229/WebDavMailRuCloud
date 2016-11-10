@@ -27,7 +27,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
             try
             {
-                var item = Cloud._cloud.GetItems(path).Result;
+                var item = Cloud.Instance.GetItems(path).Result;
                 if (item.FullPath == path)
                 {
                     var dir = new Folder { FullPath = path };

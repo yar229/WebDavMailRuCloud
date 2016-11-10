@@ -19,7 +19,7 @@ namespace WebDavMailRuCloudStore
 
         public static void Init(string login, string password)
         {
-            _cloud = new MailRuCloud(login, password);
+            Instance = new MailRuCloud(login, password);
         }
 
         //public static async Task<Stream> GetFileStream(File file, bool includeProgressEvent = true)
@@ -28,7 +28,7 @@ namespace WebDavMailRuCloudStore
         //    return z;
         //}
 
-        public static  MailRuCloud _cloud;
+        public static  MailRuCloud Instance;
 
     }
 }
