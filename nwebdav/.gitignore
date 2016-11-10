@@ -1,0 +1,11 @@
+.vs
+packages/
+*/obj/
+*/bin/
+*.suo
+*.nupkg
+**/*.lock.json
+**/*.user
+**/*.userprefs
+.vscode
+Help/

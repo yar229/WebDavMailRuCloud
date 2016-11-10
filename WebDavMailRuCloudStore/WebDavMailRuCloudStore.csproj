@@ -31,12 +31,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=2.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.2.2.0\lib\net40\Common.Logging.dll</HintPath>
+    <Reference Include="Common.Logging, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.3.4.0-Beta2\lib\net40\Common.Logging.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Common.Logging.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.Core.2.2.0\lib\net40\Common.Logging.Core.dll</HintPath>
+    <Reference Include="Common.Logging.Core, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Common.Logging.Core.3.4.0-Beta2\lib\net40\Common.Logging.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NWebDav.Server, Version=0.1.16.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.0.1.16.0\lib\net45\NWebDav.Server.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -50,21 +54,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CloudMailRuStream.cs" />
-    <Compile Include="WebDavMailRuCloudStoreDocument.cs" />
-    <Compile Include="WebDavMailRuCloudStore.cs" />
+    <Compile Include="Cloud.cs" />
+    <Compile Include="MailruStore.cs" />
+    <Compile Include="MailruStoreCollection.cs" />
+    <Compile Include="MailruStoreItem.cs" />
+    <Compile Include="IMailruStoreCollection.cs" />
+    <Compile Include="IMailruStoreItem.cs" />
+    <Compile Include="MultiStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StoreItem.cs" />
-    <Compile Include="WebDavMailRuCloudStoreCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
       <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
       <Name>MailRuCloudApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\WebDAVSharpServer\WebDAVSharp.Server.csproj">
-      <Project>{BE8A04DD-C704-40B2-8AD2-3655B429FAE1}</Project>
-      <Name>WebDAVSharp.Server</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
