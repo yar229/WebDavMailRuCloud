@@ -7,7 +7,7 @@
     <ProjectGuid>{F8FA91A5-466D-4072-8D7B-7791831F520D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebDavMailRuCloudStore</RootNamespace>
+    <RootNamespace>YaR.WebDavMailRu.CloudStore</RootNamespace>
     <AssemblyName>WebDavMailRuCloudStore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -60,7 +60,6 @@
     <Compile Include="MailruStoreItem.cs" />
     <Compile Include="IMailruStoreCollection.cs" />
     <Compile Include="IMailruStoreItem.cs" />
-    <Compile Include="MultiStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

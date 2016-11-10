@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
+using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
+using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
-using File = System.IO.File;
 
-namespace NWebDav.Server.Stores
+namespace YaR.WebDavMailRu.CloudStore
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
-        private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
+        private static readonly ILogger SLog = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
         private readonly Folder _directoryInfo;
-        public Folder DirectoryInfo => _directoryInfo;
+        //public Folder DirectoryInfo => _directoryInfo;
 
         public MailruStoreCollection(ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
@@ -175,10 +175,6 @@ namespace NWebDav.Server.Stores
         public string UniqueKey => _directoryInfo.FullPath;
         public string FullPath => _directoryInfo.FullPath;
 
-        // Disk collections (a.k.a. directories don't have their own data)
-        public Stream GetReadableStream(IHttpContext httpContext) => null;
-        public Stream GetWritableStream(IHttpContext httpContext) => null;
-
         public IPropertyManager PropertyManager => DefaultPropertyManager;
         public ILockingManager LockingManager { get; }
 
@@ -326,7 +322,7 @@ namespace NWebDav.Server.Stores
             catch (Exception exc)
             {
                 // Log exception
-                s_log.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
+                SLog.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
                 return null;
             }
 
@@ -376,13 +372,13 @@ namespace NWebDav.Server.Stores
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
                     // Determine source and destination paths
-                    var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName).Replace("\\", "/");
-                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName).Replace("\\", "/");
+                    //var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName).Replace("\\", "/");
+                    //var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName).Replace("\\", "/");
 
                     // Check if the file already exists
                     DavStatusCode result;
                     var itemexist = Items.FirstOrDefault(it => it.Name == destinationName);
-                    if (itemexist != null)  //(File.Exists(destinationPath))
+                    if (itemexist != null)
                     {
                         // Remove the file if it already exists (if allowed)
                         if (!overwrite)
@@ -392,7 +388,7 @@ namespace NWebDav.Server.Stores
                         if (itemexist is MailruStoreItem)
                             Cloud._cloud.Remove((itemexist as MailruStoreItem).FileInfo).Wait();
                         else
-                            Cloud._cloud.Remove((itemexist as MailruStoreCollection).DirectoryInfo).Wait();
+                            Cloud._cloud.Remove((itemexist as MailruStoreCollection)._directoryInfo).Wait();
 
                         result = DavStatusCode.NoContent;
                     }
@@ -409,7 +405,7 @@ namespace NWebDav.Server.Stores
                     }
                     else
                     {
-                        Cloud._cloud.Rename((itemfrom as MailruStoreCollection).DirectoryInfo, destinationName).Wait();
+                        Cloud._cloud.Rename((itemfrom as MailruStoreCollection)._directoryInfo, destinationName).Wait();
                     }
                     
                     //File.Move(sourcePath, destinationPath);
@@ -463,7 +459,7 @@ namespace NWebDav.Server.Stores
 
                 if (item is MailruStoreCollection)
                 {
-                    Cloud._cloud.Remove((item as MailruStoreCollection).DirectoryInfo).Wait();
+                    Cloud._cloud.Remove((item as MailruStoreCollection)._directoryInfo).Wait();
                     return Task.FromResult(DavStatusCode.Ok);
                 }
 
@@ -472,14 +468,14 @@ namespace NWebDav.Server.Stores
             catch (Exception exc)
             {
                 // Log exception
-                s_log.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
+                SLog.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
                 return Task.FromResult(DavStatusCode.InternalServerError);
             }
         }
 
         public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
 
-        public bool AllowInfiniteDepthProperties => false;
+        //public bool AllowInfiniteDepthProperties => false;
 
         public override int GetHashCode()
         {

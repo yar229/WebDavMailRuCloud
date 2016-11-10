@@ -1,16 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
-using System.Security;
 using System.Threading.Tasks;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
+using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
-using File = MailRuCloudApi.File;
 
-
-namespace NWebDav.Server.Stores
+namespace YaR.WebDavMailRu.CloudStore
 {
     public sealed class MailruStore : IStore
     {
@@ -20,8 +17,8 @@ namespace NWebDav.Server.Stores
             IsWritable = isWritable;
         }
 
-        public bool IsWritable { get; private set; }
-        public ILockingManager LockingManager { get; }
+        private bool IsWritable { get; }
+        private ILockingManager LockingManager { get; }
 
         public Task<IStoreItem> GetItemAsync(Uri uri, IHttpContext httpContext)
         {

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using MailRuCloudApi;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -11,13 +10,14 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
+using WebDavMailRuCloudStore;
 
-namespace WebDavMailRuCloudStore
+namespace YaR.WebDavMailRu.CloudStore
 {
     [DebuggerDisplay("{_fileInfo.FullPath}")]
     public sealed class MailruStoreItem : IMailruStoreItem
     {
-        private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreItem));
+        private static readonly ILogger SLog = LoggerFactory.CreateLogger(typeof(MailruStoreItem));
         private readonly MailRuCloudApi.File _fileInfo;
 
         public MailRuCloudApi.File FileInfo => _fileInfo;
@@ -121,11 +121,7 @@ namespace WebDavMailRuCloudStore
             new Win32FileAttributes<MailruStoreItem>
             {
                 Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
-                Setter = (context, item, value) =>
-                {
-                    //item._fileInfo.Attributes = value;
-                    return DavStatusCode.Ok;
-                }
+                Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
 
@@ -133,8 +129,6 @@ namespace WebDavMailRuCloudStore
         public string Name => _fileInfo.Name;
         public string UniqueKey => _fileInfo.FullPath;
         public string FullPath => _fileInfo.FullPath;
-        //public Stream GetReadableStream(IHttpContext httpContext) => OpenReadStream();
-        public Stream GetWritableStream(IHttpContext httpContext) => IsWritable ? Cloud._cloud.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null;
         public IPropertyManager PropertyManager => DefaultPropertyManager;
         public ILockingManager LockingManager { get; }
 
@@ -164,7 +158,7 @@ namespace WebDavMailRuCloudStore
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = GetWritableStream(httpContext))
+                using (var outputStream = IsWritable ? Cloud._cloud.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
                 }
@@ -237,12 +231,12 @@ namespace WebDavMailRuCloudStore
             }
             catch (IOException ioException) when (ioException.IsDiskFull())
             {
-                s_log.Log(LogLevel.Error, () => "Out of disk space while copying data.", ioException);
+                SLog.Log(LogLevel.Error, () => "Out of disk space while copying data.", ioException);
                 return new StoreItemResult(DavStatusCode.InsufficientStorage);
             }
             catch (Exception exc)
             {
-                s_log.Log(LogLevel.Error, () => "Unexpected exception while copying data.", exc);
+                SLog.Log(LogLevel.Error, () => "Unexpected exception while copying data.", exc);
                 return new StoreItemResult(DavStatusCode.InternalServerError);
             }
         }
@@ -276,7 +270,7 @@ namespace WebDavMailRuCloudStore
         static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length * sizeof(char)];
-            System.Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
             return bytes;
         }
     }
