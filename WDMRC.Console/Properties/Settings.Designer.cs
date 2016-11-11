@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace YaR.WebDavMail.ru.Properties {
+namespace YaR.WebDavMailRu.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

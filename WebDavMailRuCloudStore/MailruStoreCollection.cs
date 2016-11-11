@@ -1,25 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
+using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
+using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
-using File = System.IO.File;
 
-namespace NWebDav.Server.Stores
+namespace YaR.WebDavMailRu.CloudStore
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
-        private static readonly ILogger s_log = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
+        private static readonly ILogger Logger = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
         private readonly Folder _directoryInfo;
         public Folder DirectoryInfo => _directoryInfo;
 
@@ -71,7 +71,7 @@ namespace NWebDav.Server.Stores
                 Getter = (context, collection) =>
                 {
                     //collection._directoryInfo.EnumerateFiles().Count() + collection._directoryInfo.EnumerateDirectories().Count()
-                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
+                    var data = Cloud.Instance.GetItems(collection.DirectoryInfo).Result;
                     int cnt = data.NumberOfItems;
                     return cnt;
                 }
@@ -84,7 +84,7 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionIsHidden<MailruStoreCollection>
             {
-                Getter = (context, collection) => false //(collection._directoryInfo.Attributes & FileAttributes.Hidden) != 0
+                Getter = (context, collection) => false
             },
             new DavExtCollectionIsStructuredDocument<MailruStoreCollection>
             {
@@ -92,28 +92,15 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionHasSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) =>
-                {
-                    //collection._directoryInfo.EnumerateDirectories().Any()
-
-                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
-                    return data.NumberOfFolders > 0;
-                }
-                
+                Getter = (context, collection) => collection.Folders.Any()
             },
             new DavExtCollectionNoSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) => false
+                Getter = (context, collection) => false //TODO: WTF?
             },
             new DavExtCollectionObjectCount<MailruStoreCollection>
             {
-                Getter = (context, collection) =>
-                {
-                    //collection._directoryInfo.EnumerateFiles().Count()
-                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
-                    int cnt = data.NumberOfFiles;
-                    return cnt;
-                }
+                Getter = (context, collection) => collection.Files.Count()
             },
             new DavExtCollectionReserved<MailruStoreCollection>
             {
@@ -121,13 +108,7 @@ namespace NWebDav.Server.Stores
             },
             new DavExtCollectionVisibleCount<MailruStoreCollection>
             {
-                Getter = (context, collection) =>
-                {
-                    //collection._directoryInfo.EnumerateDirectories().Count(di => (di.Attributes & FileAttributes.Hidden) == 0) +
-                    //collection._directoryInfo.EnumerateFiles().Count(fi => (fi.Attributes & FileAttributes.Hidden) == 0)
-                    var data = Cloud._cloud.GetItems(collection._directoryInfo).Result;
-                    return data.NumberOfItems;
-                }
+                Getter = (context, collection) => collection.Items.Count
             },
 
             // Win32 extensions
@@ -136,13 +117,13 @@ namespace NWebDav.Server.Stores
                 Getter = (context, collection) => collection._directoryInfo.CreationTimeUtc,
                 Setter = (context, collection, value) =>
                 {
-                    collection._directoryInfo.CreationTimeUtc = value;
+                    collection.DirectoryInfo.CreationTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
             new Win32LastAccessTime<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.LastAccessTimeUtc,
+                Getter = (context, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
                 Setter = (context, collection, value) =>
                 {
                     collection._directoryInfo.LastAccessTimeUtc = value;
@@ -151,33 +132,28 @@ namespace NWebDav.Server.Stores
             },
             new Win32LastModifiedTime<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
+                Getter = (context, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
                 Setter = (context, collection, value) =>
                 {
-                    collection._directoryInfo.LastWriteTimeUtc = value;
+                    collection.DirectoryInfo.LastWriteTimeUtc = value;
                     return DavStatusCode.Ok;
                 }
             },
             new Win32FileAttributes<MailruStoreCollection>
             {
-                Getter = (context, collection) => 
-                    collection._directoryInfo.Attributes,
+                Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
                 Setter = (context, collection, value) =>
                 {
-                    collection._directoryInfo.Attributes = value;
+                    collection.DirectoryInfo.Attributes = value;
                     return DavStatusCode.Ok;
                 }
             }
         });
 
         public bool IsWritable { get; }
-        public string Name => _directoryInfo.Name;
-        public string UniqueKey => _directoryInfo.FullPath;
-        public string FullPath => _directoryInfo.FullPath;
-
-        // Disk collections (a.k.a. directories don't have their own data)
-        public Stream GetReadableStream(IHttpContext httpContext) => null;
-        public Stream GetWritableStream(IHttpContext httpContext) => null;
+        public string Name => DirectoryInfo.Name;
+        public string UniqueKey => DirectoryInfo.FullPath;
+        public string FullPath => DirectoryInfo.FullPath;
 
         public IPropertyManager PropertyManager => DefaultPropertyManager;
         public ILockingManager LockingManager { get; }
@@ -204,6 +180,9 @@ namespace NWebDav.Server.Stores
         private IList<IStoreItem> _items;
         private readonly object _itemsLocker = new object();
 
+        public IEnumerable<MailruStoreCollection> Folders => Items.Where(it => it is MailruStoreCollection).Cast<MailruStoreCollection>();
+        public IEnumerable<MailruStoreItem> Files => Items.Where(it => it is MailruStoreItem).Cast<MailruStoreItem>();
+
 
         public Task<IStoreItem> GetItemAsync(string name, IHttpContext httpContext)
         {
@@ -212,29 +191,14 @@ namespace NWebDav.Server.Stores
                 : Items.FirstOrDefault(i => i.Name == name);
 
             return Task.FromResult(res);
-
-            //////// Determine the full path
-            //////var fullPath = Path.Combine(_directoryInfo.FullPath, name);
-            //////// Check if the item is a file
-            ////////if (File.Exists(fullPath))
-            ////////    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, new FileInfo(fullPath), IsWritable));
-
-            //////// Check if the item is a directory
-            ////////if (Directory.Exists(fullPath))
-            //////return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, new Folder {FullPath = fullPath}, IsWritable));
-
-            //////// Item not found
-            ////////return Task.FromResult<IStoreItem>(null);
         }
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var item = Cloud._cloud.GetItems(_directoryInfo).Result;
+            var item = Cloud.Instance.GetItems(_directoryInfo).Result;
 
-            // Add all directories
             var items = item.Folders.Select(subDirectory => new MailruStoreCollection(LockingManager, subDirectory, IsWritable)).Cast<IStoreItem>().ToList();
 
-            // Add all files
             items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
 
             return Task.FromResult<IList<IStoreItem>>(items);
@@ -242,49 +206,15 @@ namespace NWebDav.Server.Stores
 
         public Task<StoreItemResult> CreateItemAsync(string name, bool overwrite, IHttpContext httpContext)
         {
-            // Return error
             if (!IsWritable)
                 return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
 
-            // Determine the destination path
-            var destinationPath = FullPath + "/" + name; //Path.Combine(FullPath, name);  
+            var destinationPath = FullPath + "/" + name;
 
-
-            // Determine result
             DavStatusCode result = DavStatusCode.Created;
 
-            //// Check if the file can be overwritten
-            //if (File.Exists(name))
-            //{
-            //    if (!overwrite)
-            //        return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
-
-            //    result = DavStatusCode.NoContent;
-            //}
-            //else
-            //{
-            //    result = DavStatusCode.Created;
-            //}
-
-            //try
-            //{
-            //    // Create a new file
-            //    File.Create(destinationPath).Dispose();
-            //}
-            //catch (Exception exc)
-            //{
-            //    // Log exception
-            //    s_log.Log(LogLevel.Error, $"Unable to create '{destinationPath}' file.", exc);
-            //    return Task.FromResult(new StoreItemResult(DavStatusCode.InternalServerError));
-            //}
-
-            // Return result
-            //return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, new File(destinationPath), IsWritable)));
-            var size = long.Parse(httpContext.Request.GetHeaderValue("Content-Length"));
+            var size = httpContext.Request.ContentLength();
             var f = new MailRuCloudApi.File(destinationPath, size, FileType.SingleFile, null);
-            //{
-            //    FullPath = destinationPath
-            //};
 
             return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }
@@ -298,41 +228,33 @@ namespace NWebDav.Server.Stores
             // Determine the destination path
             var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
 
-            // Check if the directory can be overwritten
             DavStatusCode result;
 
 
-            if (Items.FirstOrDefault(i => i.Name == name) != null)
+            if (FindSubItem(name) != null)
             {
-                // Check if overwrite is allowed
                 if (!overwrite)
                     return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
 
-                // Overwrite existing
                 result = DavStatusCode.NoContent;
             }
             else
-            {
-                // Created new directory
                 result = DavStatusCode.Created;
-            }
 
             try
             {
                 // Attempt to create the directory
                 //Directory.CreateDirectory(destinationPath);
-                Cloud._cloud.CreateFolder(name, FullPath).Wait();
+                Cloud.Instance.CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
                 // Log exception
-                s_log.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
+                Logger.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
                 return null;
             }
 
-            // Return the collection
-            //return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new DirectoryInfo(destinationPath), IsWritable)));
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder() {FullPath = destinationPath }, IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder {FullPath = destinationPath }, IsWritable)));
         }
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext)
@@ -364,58 +286,36 @@ namespace NWebDav.Server.Stores
                 return new StoreItemResult(DavStatusCode.NotFound);
 
             // Check if the item is actually a file
-            var diskStoreItem = item as MailruStoreItem;
-            if (diskStoreItem != null)
+            var storeItem = item as MailruStoreItem;
+            if (storeItem != null)
             {
                 // If the destination collection is a directory too, then we can simply move the file
-                var destinationDiskStoreCollection = destinationCollection as MailruStoreCollection;
-                if (destinationDiskStoreCollection != null)
+                var destinationStoreCollection = destinationCollection as MailruStoreCollection;
+                if (destinationStoreCollection != null)
                 {
-                    // Return error
-                    if (!destinationDiskStoreCollection.IsWritable)
+                    if (!destinationStoreCollection.IsWritable)
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
-
-                    // Determine source and destination paths
-                    var sourcePath = Path.Combine(_directoryInfo.FullPath, sourceName).Replace("\\", "/");
-                    var destinationPath = Path.Combine(destinationDiskStoreCollection._directoryInfo.FullPath, destinationName).Replace("\\", "/");
 
                     // Check if the file already exists
                     DavStatusCode result;
-                    var itemexist = Items.FirstOrDefault(it => it.Name == destinationName);
-                    if (itemexist != null)  //(File.Exists(destinationPath))
+                    var itemexist = FindSubItem(destinationName);
+                    if (itemexist != null)
                     {
-                        // Remove the file if it already exists (if allowed)
                         if (!overwrite)
                             return new StoreItemResult(DavStatusCode.Forbidden);
 
-                        // The file will be overwritten
-                        if (itemexist is MailruStoreItem)
-                            Cloud._cloud.Remove((itemexist as MailruStoreItem).FileInfo).Wait();
-                        else
-                            Cloud._cloud.Remove((itemexist as MailruStoreCollection).DirectoryInfo).Wait();
+                        await Cloud.Instance.Remove(itemexist);
 
                         result = DavStatusCode.NoContent;
                     }
                     else
-                    {
                         result = DavStatusCode.Created;
-                    }
 
                     // Move the file
-                    var itemfrom = Items.FirstOrDefault(it => it.Name == sourceName);
-                    if (itemfrom is MailruStoreItem)
-                    {
-                        Cloud._cloud.Rename((itemfrom as MailruStoreItem).FileInfo, destinationName).Wait();
-                    }
-                    else
-                    {
-                        Cloud._cloud.Rename((itemfrom as MailruStoreCollection).DirectoryInfo, destinationName).Wait();
-                    }
+                    await Cloud.Instance.Rename(FindSubItem(sourceName), destinationName);
                     
-                    //File.Move(sourcePath, destinationPath);
                     //return new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable));
                     return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
-                    
                 }
                 else
                 {
@@ -437,53 +337,42 @@ namespace NWebDav.Server.Stores
             throw new InvalidOperationException("Collections should never be moved directly.");
         }
 
+        private IStoreItem FindSubItem(string name)
+        {
+            return string.IsNullOrEmpty(name) ? this : Items.FirstOrDefault(it => it.Name == name);
+        }
+
         public Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext)
         {
-            // Return error
             if (!IsWritable)
                 return Task.FromResult(DavStatusCode.PreconditionFailed);
 
-            //Cloud._cloud.Remove()
 
             // Determine the full path
             var fullPath = Path.Combine(_directoryInfo.FullPath, name).Replace("\\", "/");
             try
             {
-                var item = string.IsNullOrEmpty(name) 
-                    ? this
-                    : Items.FirstOrDefault(it => it.Name == name);
+                var item = FindSubItem(name);
 
                 if (null == item) return Task.FromResult(DavStatusCode.NotFound);
 
-                if (item is MailruStoreItem)
-                {
-                    Cloud._cloud.Remove((item as MailruStoreItem).FileInfo).Wait();
-                    return Task.FromResult(DavStatusCode.Ok);
-                }
-
-                if (item is MailruStoreCollection)
-                {
-                    Cloud._cloud.Remove((item as MailruStoreCollection).DirectoryInfo).Wait();
-                    return Task.FromResult(DavStatusCode.Ok);
-                }
-
-                return Task.FromResult(DavStatusCode.NotFound);
+                Cloud.Instance.Remove(item).Wait();
+                return Task.FromResult(DavStatusCode.Ok);
             }
             catch (Exception exc)
             {
-                // Log exception
-                s_log.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
+                Logger.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
                 return Task.FromResult(DavStatusCode.InternalServerError);
             }
         }
 
         public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
 
-        public bool AllowInfiniteDepthProperties => false;
+        //public bool AllowInfiniteDepthProperties => false;
 
         public override int GetHashCode()
         {
-            return _directoryInfo.FullPath.GetHashCode();
+            return DirectoryInfo.FullPath.GetHashCode();
         }
 
         public override bool Equals(object obj)

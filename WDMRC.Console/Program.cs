@@ -1,66 +1,46 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Xml;
 using CommandLine;
 using NWebDav.Server;
 using NWebDav.Server.Handlers;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
-using NWebDav.Server.Logging;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
+using YaR.WebDavMailRu.CloudStore;
 
-namespace FooConsole
+namespace YaR.WebDavMailRu
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
-            var result = CommandLine.Parser.Default.ParseArguments<CommandLineOptions>(args);
+            var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
             var exitCode = result
               .MapResult(
                 options => 
                 {
-
-                    //var store = new WebDavMailRuCloudStore.WebDavMailRuCloudStore(options.Login, options.Password);
-                    //var wds = new WebDavServer(store, AuthType.Anonymous);
-                    //wds.Start($"http://localhost:{options.Port}/");
-                    //return 0;
-
-                    // Use the Log4NET adapter for logging
-                    //LoggerFactory.Factory = new Log4NetAdapter();
-
                     Cloud.Init(options.Login, options.Password);
 
-
-                    // Obtain the HTTP binding settings
-                    var webdavProtocol = "http"; //ConfigurationManager.AppSettings["webdav.protocol"] ?? "http";
-                    var webdavIp = "127.0.0.1"; //ConfigurationManager.AppSettings["webdav.ip"] ?? "127.0.0.1";
-                    var webdavPort = options.Port; //ConfigurationManager.AppSettings["webdav.port"] ?? "11111";
+                    var webdavProtocol = "http";
+                    var webdavIp = "127.0.0.1";
+                    var webdavPort = options.Port;
 
                     using (var httpListener = new HttpListener())
                     {
-                        // Add the prefix
                         httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
 
                         // Use basic authentication if requested
-                        var webdavUseAuthentication = false; //XmlConvert.ToBoolean(ConfigurationManager.AppSettings["webdav-authentication"] ?? "false");
+                        var webdavUseAuthentication = false;
                         if (webdavUseAuthentication)
                         {
-                            //// Check if HTTPS is enabled
-                            //if (webdavProtocol != "https" && s_log.IsWarnEnabled)
-                            //    s_log.Warn("Most WebDAV clients cannot use authentication on a non-HTTPS connection");
-
-                            // Set the authentication scheme and realm
                             httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
                             httpListener.Realm = "WebDAV server";
                         }
                         else
                         {
-                            // Allow anonymous access
                             httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
                         }
 
@@ -93,13 +73,13 @@ namespace FooConsole
             var requestHandlerFactory = new RequestHandlerFactory();
 
             // Create WebDAV dispatcher
-            var homeFolder = new MailruStore(true);//Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var homeFolder = new MailruStore(true);
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
             // Determine the WebDAV username/password for authorization
             // (only when basic authentication is enabled)
-            var webdavUsername = "test"; //ConfigurationManager.AppSettings["webdav.username"] ?? "test";
-            var webdavPassword = "test"; //ConfigurationManager.AppSettings["webdav.password"] ?? "test";
+            var webdavUsername = "test";
+            var webdavPassword = "test";
 
             HttpListenerContext httpListenerContext;
             while (!cancellationToken.IsCancellationRequested && (httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false)) != null)
