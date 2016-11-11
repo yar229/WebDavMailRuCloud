@@ -9,7 +9,6 @@ Usage:
 	--version         Display version information.
 
 
-
 Use as Windows disk:
 	net use http://127.0.0.1: &lt;port&gt;
 
@@ -23,3 +22,5 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 
 
 Bad news: Total Commander WebDAV plugin (http://www.ghisler.com/plugins.htm) does not work...
+
+You can find latest release binaries here - https://github.com/yar229/WebDavMailRuCloud/releases/latest
