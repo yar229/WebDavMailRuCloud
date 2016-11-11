@@ -11,7 +11,7 @@ Usage:
 
 
 Use as Windows disk:
-	net use http://127.0.0.1:&lt;port&gt;
+	net use http://127.0.0.1: &lt;port&gt;
 
 Windows 7 client might perform very bad when connecting to any WebDAV server. This is caused, because it tries to auto-detect any proxy server before any request. Refer to KB2445570 for more information.
 
@@ -20,3 +20,6 @@ HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 	Right click on the FileSizeLimitInBytes and click Modify
 	Click on Decimal
 	In the Value data box, type 4294967295, and then click OK.
+
+
+Bad news: Total Commander WebDAV plugin (http://www.ghisler.com/plugins.htm) does not work...
