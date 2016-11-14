@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using MailRuCloudApi;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -137,7 +138,7 @@ namespace YaR.WebDavMailRu.CloudStore
         {
 
             Stream stream = Cloud.Instance.GetFileStream(_fileInfo).Result;
-            stream.Seek(0, SeekOrigin.Begin);
+            //stream.Seek(0, SeekOrigin.Begin);
             return stream;
         }
 
