@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -56,12 +57,12 @@
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NWebDav.Server, Version=0.1.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.0.1.16.0\lib\net45\NWebDav.Server.dll</HintPath>
+    <Reference Include="NWebDav.Server, Version=0.1.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.0.1.17.0\lib\net45\NWebDav.Server.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NWebDav.Server.HttpListener, Version=0.1.16.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.HttpListener.0.1.16.0\lib\net45\NWebDav.Server.HttpListener.dll</HintPath>
+    <Reference Include="NWebDav.Server.HttpListener, Version=0.1.17.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NWebDav.Server.HttpListener.0.1.17.0\lib\net45\NWebDav.Server.HttpListener.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
