@@ -6,7 +6,6 @@ using NWebDav.Server;
 using NWebDav.Server.Handlers;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
-using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore;
 
@@ -14,8 +13,12 @@ namespace YaR.WebDavMailRu
 {
     static class Program
     {
+        //private static readonly ILog Log = LogManager.GetLogger<Parser>();
+
         static void Main(string[] args)
         {
+            //Log.Info("asdasdadasdasd");
+
             var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
             var exitCode = result
@@ -94,7 +97,8 @@ namespace YaR.WebDavMailRu
                     httpContext = new HttpContext(httpListenerContext);
 
                 // Dispatch the request
-                await webDavDispatcher.DispatchRequestAsync(httpContext).ConfigureAwait(false);
+                //await webDavDispatcher.DispatchRequestAsync(httpContext).ConfigureAwait(false);
+                webDavDispatcher.DispatchRequestAsync(httpContext).ConfigureAwait(false);
             }
         }
     }
