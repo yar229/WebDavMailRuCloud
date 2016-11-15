@@ -257,10 +257,12 @@ namespace YaR.WebDavMailRu.CloudStore
             return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder {FullPath = destinationPath }, IsWritable)));
         }
 
-        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext)
-        {
-            return new Task<Stream>(null);
-        }
+        //public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext)
+        //{
+        //    return new Task<Stream>(null);
+        //}
+
+        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
 
         public Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream source)
         {
