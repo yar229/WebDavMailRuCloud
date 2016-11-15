@@ -6,6 +6,7 @@ using NWebDav.Server;
 using NWebDav.Server.Handlers;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
+using NWebDav.Server.Logging;
 using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore;
 
@@ -13,11 +14,18 @@ namespace YaR.WebDavMailRu
 {
     static class Program
     {
-        //private static readonly ILog Log = LogManager.GetLogger<Parser>();
+        private static readonly log4net.ILog Logger;
+
+        static Program()
+        {
+            log4net.Config.XmlConfigurator.Configure();
+            Logger = log4net.LogManager.GetLogger(typeof(Program));
+        }
+
 
         static void Main(string[] args)
         {
-            //Log.Info("asdasdadasdasd");
+            LoggerFactory.Factory = new Log4NetAdapter();
 
             var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
