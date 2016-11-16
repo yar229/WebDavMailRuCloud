@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
@@ -53,8 +54,10 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private string GetPathFromUri(Uri uri)
         {
-            var requestedPath = uri.LocalPath;
-            requestedPath = requestedPath.TrimEnd('/');
+            //can't use uri.LocalPath and so on cause of "#" sign
+
+            var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
+            requestedPath = "/" + requestedPath.TrimEnd('/');
 
             if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
