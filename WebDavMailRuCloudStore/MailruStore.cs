@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -34,11 +35,9 @@ namespace YaR.WebDavMailRu.CloudStore
                     var dir = new Folder { FullPath = path };
                     return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
                 }
-                else
-                {
-                    var f = item.Files.FirstOrDefault(k => k.FullPath == path);
-                    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
-                }
+
+                var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+                return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
             }
             catch (Exception)
             {
@@ -60,6 +59,8 @@ namespace YaR.WebDavMailRu.CloudStore
             requestedPath = "/" + requestedPath.TrimEnd('/');
 
             if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+
+            requestedPath = HttpUtility.UrlDecode(requestedPath);
 
             return requestedPath;
         }
