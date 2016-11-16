@@ -33,4 +33,4 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 
 Remarks
-* beware of names contains "#"
+* I dunno wtf, but avoid using # and % in names
