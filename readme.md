@@ -33,4 +33,4 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 
 Remarks
-* I dunno wtf, but avoid using # and % in names
+* Do not use #, % and ? in file and folder names

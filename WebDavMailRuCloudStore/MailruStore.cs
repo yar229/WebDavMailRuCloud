@@ -53,14 +53,23 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private string GetPathFromUri(Uri uri)
         {
-            //can't use uri.LocalPath and so on cause of "#" sign
+            ////can't use uri.LocalPath and so on cause of "#" sign
 
-            var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
-            requestedPath = "/" + requestedPath.TrimEnd('/');
+            //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
+            //requestedPath = "/" + requestedPath.TrimEnd('/');
 
-            if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+            //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+
+            //requestedPath = HttpUtility.UrlDecode(requestedPath);
+
+            //return requestedPath;
+
+            var requestedPath = uri.LocalPath;
+            requestedPath = requestedPath.TrimEnd('/');
 
             requestedPath = HttpUtility.UrlDecode(requestedPath);
+
+            if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
             return requestedPath;
         }
