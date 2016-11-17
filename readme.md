@@ -6,6 +6,7 @@ Usage:
 	-p, --port        Required. WebDAV server port
 	-l, --login       Required. Login to Mail.ru Cloud
 	-s, --password    Required. Password to Mail.ru Cloud
+	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--help            Display this help screen.
 	--version         Display version information.
 ```

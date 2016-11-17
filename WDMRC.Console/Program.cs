@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using CommandLine;
 using NWebDav.Server;
 using NWebDav.Server.Handlers;
@@ -60,7 +61,7 @@ namespace YaR.WebDavMailRu
 
                         // Start dispatching requests
                         var cancellationTokenSource = new CancellationTokenSource();
-                        DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token);
+                        DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
 
                         // Wait until somebody presses return
                         Console.WriteLine("WebDAV server running. Press 'x' to quit.");
@@ -78,7 +79,7 @@ namespace YaR.WebDavMailRu
         }
 
 
-        private static async void DispatchHttpRequestsAsync(System.Net.HttpListener httpListener, CancellationToken cancellationToken)
+        private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new RequestHandlerFactory();
@@ -92,22 +93,39 @@ namespace YaR.WebDavMailRu
             var webdavUsername = "test";
             var webdavPassword = "test";
 
-            HttpListenerContext httpListenerContext;
-            while (!cancellationToken.IsCancellationRequested && (httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false)) != null)
+
+            using (var sem = new SemaphoreSlim(maxThreadCount))
             {
-                // Determine the proper HTTP context
-                IHttpContext httpContext;
-                if (httpListenerContext.Request.IsAuthenticated)
-                    httpContext = new HttpBasicContext(httpListenerContext, checkIdentity: i => i.Name == webdavUsername && i.Password == webdavPassword);
-                    //httpContext = new HttpBasicContext(httpListenerContext, checkIdentity: i => i == null || (i.Name == webdavUsername && i.Password == webdavPassword));
+                var semclo = sem;
+                HttpListenerContext httpListenerContext;
+                while (
+                        !cancellationToken.IsCancellationRequested &&
+                        (httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false)) != null
+                      )
+                {
+                    IHttpContext httpContext;
+                    if (httpListenerContext.Request.IsAuthenticated) httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
+                    else httpContext = new HttpContext(httpListenerContext);
 
-                else
-                    httpContext = new HttpContext(httpListenerContext);
+                    await semclo.WaitAsync(cancellationToken);
+                    await Task
+                        .Run(() =>
+                        {
+                            try
+                            {
+                                webDavDispatcher.DispatchRequestAsync(httpContext).Wait(cancellationToken);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error("Exception", ex);
+                            }
 
-                // Dispatch the request
-                //await webDavDispatcher.DispatchRequestAsync(httpContext).ConfigureAwait(false);
-                webDavDispatcher.DispatchRequestAsync(httpContext).ConfigureAwait(false);
+                        }, cancellationToken)
+                        .ContinueWith(t => semclo.Release(), cancellationToken);
+                }
             }
+
+
         }
     }
 }
