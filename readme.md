@@ -1,15 +1,18 @@
 **WebDAV emulator for Mail.ru Cloud**<br>
 [download latest release binaries](https://github.com/yar229/WebDavMailRuCloud/releases/latest)
 
-Usage:
+**Requirements:**
+* Microsoft .NET Framework 4.5
+
+**Usage:**
 ``` 	
 	-p, --port        Required. WebDAV server port
 	-l, --login       Required. Login to Mail.ru Cloud
 	-s, --password    Required. Password to Mail.ru Cloud
+	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--help            Display this help screen.
 	--version         Display version information.
 ```
-
 Use as Windows disk: <br>
 ``` 
 	net use z: http://127.0.0.1:<port>
@@ -24,7 +27,7 @@ By default, Windows limits file size to 5000000 bytes, you can increase it up to
 * In the Value data box, type 4294967295, and then click OK.
 
 
-Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) does not work...
+Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) does not work... ([sources](http://ghisler.fileburst.com/fsplugins/webdav_src.zip) found occasionally, but no time...)
 
 **Big thanks** to
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
@@ -32,5 +35,5 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 * [C-A-T](https://github.com/C-A-T9LIFE) for help with testing
 
 
-Remarks
-* Do not use #, % and ? in file and folder names
+**Remarks**
+* Do not use #, %, + and ? in file and folder names
