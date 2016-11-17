@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("wdmrc")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("WebDAVCloudMailRu")]
+[assembly: AssemblyDescription("WebDAV emulator for Cloud.Mail.ru")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("wdmrc")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("")]
+[assembly: AssemblyCopyright("yar229@yandex.ru")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
