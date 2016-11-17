@@ -134,17 +134,20 @@ namespace YaR.WebDavMailRu.CloudStore
         public ILockingManager LockingManager { get; }
 
 
-        private Stream OpenReadStream()
+        private Stream OpenReadStream(long? start, long? end)
         {
 
-            Stream stream = Cloud.Instance.GetFileStream(_fileInfo).Result;
-            //stream.Seek(0, SeekOrigin.Begin);
+            Stream stream = Cloud.Instance.GetFileStream(_fileInfo, start, end).Result;
             return stream;
         }
 
 
-        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => 
-            Task.FromResult(OpenReadStream());
+        public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) //=> 
+        {
+            var range = httpContext.Request.GetRange();
+            return Task.FromResult(OpenReadStream(range?.Start, range?.End));
+        }
+
         //{
         //    return new Task<Stream>(OpenReadStream);
         //}
