@@ -108,12 +108,12 @@ namespace YaR.WebDavMailRu
                     else httpContext = new HttpContext(httpListenerContext);
 
                     await semclo.WaitAsync(cancellationToken);
-                    await Task
-                        .Run(() =>
+                    Task tsk = Task
+                        .Run(async () =>
                         {
                             try
                             {
-                                webDavDispatcher.DispatchRequestAsync(httpContext).Wait(cancellationToken);
+                                await webDavDispatcher.DispatchRequestAsync(httpContext);
                             }
                             catch (Exception ex)
                             {
