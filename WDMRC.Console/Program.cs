@@ -107,13 +107,26 @@ namespace YaR.WebDavMailRu
                     if (httpListenerContext.Request.IsAuthenticated) httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
                     else httpContext = new HttpContext(httpListenerContext);
 
+                    //var r = httpContext.Request;
+                    //var range = r.GetRange();
+                    //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
+                    //await webDavDispatcher.DispatchRequestAsync(httpContext);
+
                     await semclo.WaitAsync(cancellationToken);
                     Task tsk = Task
                         .Run(async () =>
                         {
                             try
                             {
+                                //var r = httpContext.Request;
+                                //var range = r.GetRange();
+                                //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
+                                //if (null != range) Logger.Info($"Range {range.Start} / {range.End} {range.If}");
+                                //Logger.Info($"-------awail {semclo.CurrentCount}");
+
                                 await webDavDispatcher.DispatchRequestAsync(httpContext);
+
+                                //Logger.Info($"-------awail {semclo.CurrentCount}");
                             }
                             catch (Exception ex)
                             {
