@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cloud.cs" />
+    <Compile Include="DavExtCollectionQuota.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="MailruStore.cs" />
     <Compile Include="MailruStoreCollection.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
@@ -32,6 +33,13 @@ namespace YaR.WebDavMailRu.CloudStore
 
         public static PropertyManager<MailruStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreCollection>(new DavProperty<MailruStoreCollection>[]
         {
+
+            new DavExtCollectionQuotaAvailableBytes<MailruStoreCollection>
+            {
+                Getter = (context, collection) =>
+                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : Int64.MaxValue
+            },
+
             // RFC-2518 properties
             new DavCreationDate<MailruStoreCollection>
             {
