@@ -20,7 +20,7 @@ namespace YaR.WebDavMailRu.CloudStore
     [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
-        private static readonly ILogger Logger = LoggerFactory.CreateLogger(typeof(MailruStoreCollection));
+        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
         private readonly Folder _directoryInfo;
         public Folder DirectoryInfo => _directoryInfo;
 

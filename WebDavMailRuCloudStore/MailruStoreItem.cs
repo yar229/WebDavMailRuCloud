@@ -18,7 +18,7 @@ namespace YaR.WebDavMailRu.CloudStore
     [DebuggerDisplay("{_fileInfo.FullPath}")]
     public sealed class MailruStoreItem : IMailruStoreItem
     {
-        private static readonly ILogger SLog = LoggerFactory.CreateLogger(typeof(MailruStoreItem));
+        private static readonly ILogger SLog = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreItem));
         private readonly MailRuCloudApi.File _fileInfo;
 
         public MailRuCloudApi.File FileInfo => _fileInfo;
