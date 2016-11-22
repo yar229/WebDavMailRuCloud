@@ -284,23 +284,23 @@ namespace YaR.WebDavMailRu.CloudStore
             return new StoreItemResult(result.Result, result.Collection);
         }
 
-        private static async Task<bool> Move(IStoreItem item, IStoreCollection destinationCollection)
-        {
-            var destPlace = destinationCollection as MailruStoreCollection;
+        //private static async Task<bool> Move(IStoreItem item, IStoreCollection destinationCollection)
+        //{
+        //    var destPlace = destinationCollection as MailruStoreCollection;
 
-            if (item is MailruStoreItem)
-            {
-                var f = item as MailruStoreItem;
-                await Cloud.Instance.Move(f.FileInfo, destPlace.DirectoryInfo);
-            }
-            else if (item is MailruStoreCollection)
-            {
-                var co = item as MailruStoreCollection;
-                await Cloud.Instance.Move(co.DirectoryInfo, destPlace.DirectoryInfo);
-            }
+        //    if (item is MailruStoreItem)
+        //    {
+        //        var f = item as MailruStoreItem;
+        //        await Cloud.Instance.Move(f.FileInfo, destPlace.DirectoryInfo);
+        //    }
+        //    else if (item is MailruStoreCollection)
+        //    {
+        //        var co = item as MailruStoreCollection;
+        //        await Cloud.Instance.Move(co.DirectoryInfo, destPlace.DirectoryInfo);
+        //    }
 
-            throw new NotImplementedException();
-        }
+        //    throw new NotImplementedException();
+        //}
 
         public async Task<StoreItemResult> MoveItemAsync(string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext)
         {
@@ -341,9 +341,15 @@ namespace YaR.WebDavMailRu.CloudStore
 
                     // Move the file
                     //await Cloud.Instance.Rename(FindSubItem(sourceName), destinationName);
-                    await Cloud.Instance.Move(storeItem.FileInfo, destinationStoreCollection.FullPath);
+                    if (destinationStoreCollection.FullPath == FullPath)
+                    {
+                        await Cloud.Instance.Rename(storeItem.FileInfo, destinationName);
+                    }
+                    else
+                    {
+                        await Cloud.Instance.Move(storeItem.FileInfo, destinationStoreCollection.FullPath);
+                    }
 
-                    //return new StoreItemResult(result, new MailruStoreItem(LockingManager, new FileInfo(destinationPath), IsWritable));
                     return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
                 }
                 else
