@@ -37,3 +37,5 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 **Remarks**
 * Do not use #, %, + and ? in file and folder names
+
+Contact me [@telegram](https://telegram.me/joinchat/AMLaOQldCqyRcHT1sdll_Q)
