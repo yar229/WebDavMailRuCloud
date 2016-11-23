@@ -34,10 +34,15 @@ namespace YaR.WebDavMailRu.CloudStore
         public static PropertyManager<MailruStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreCollection>(new DavProperty<MailruStoreCollection>[]
         {
 
-            new DavExtCollectionQuotaAvailableBytes<MailruStoreCollection>
+            new DavQuotaAvailableBytes<MailruStoreCollection>
             {
                 Getter = (context, collection) =>
-                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : Int64.MaxValue
+                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue
+            },
+            new DavQuotaUsedBytes<MailruStoreCollection>
+            {
+                Getter = (context, collection) =>
+                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue
             },
 
             // RFC-2518 properties
