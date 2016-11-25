@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
@@ -34,10 +33,15 @@ namespace YaR.WebDavMailRu.CloudStore
         public static PropertyManager<MailruStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreCollection>(new DavProperty<MailruStoreCollection>[]
         {
 
-            new DavExtCollectionQuotaAvailableBytes<MailruStoreCollection>
+            new DavQuotaAvailableBytes<MailruStoreCollection>
             {
                 Getter = (context, collection) =>
-                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : Int64.MaxValue
+                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue
+            },
+            new DavQuotaUsedBytes<MailruStoreCollection>
+            {
+                Getter = (context, collection) =>
+                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue
             },
 
             // RFC-2518 properties
@@ -239,7 +243,7 @@ namespace YaR.WebDavMailRu.CloudStore
             DavStatusCode result;
 
 
-            if (FindSubItem(name) != null)
+            if (name != string.Empty && FindSubItem(name) != null)
             {
                 if (!overwrite)
                     return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
@@ -265,11 +269,6 @@ namespace YaR.WebDavMailRu.CloudStore
             return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder {FullPath = destinationPath }, IsWritable)));
         }
 
-        //public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext)
-        //{
-        //    return new Task<Stream>(null);
-        //}
-
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
 
         public Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream source)
@@ -283,24 +282,6 @@ namespace YaR.WebDavMailRu.CloudStore
             var result = await destinationCollection.CreateCollectionAsync(name, overwrite, httpContext);
             return new StoreItemResult(result.Result, result.Collection);
         }
-
-        //private static async Task<bool> Move(IStoreItem item, IStoreCollection destinationCollection)
-        //{
-        //    var destPlace = destinationCollection as MailruStoreCollection;
-
-        //    if (item is MailruStoreItem)
-        //    {
-        //        var f = item as MailruStoreItem;
-        //        await Cloud.Instance.Move(f.FileInfo, destPlace.DirectoryInfo);
-        //    }
-        //    else if (item is MailruStoreCollection)
-        //    {
-        //        var co = item as MailruStoreCollection;
-        //        await Cloud.Instance.Move(co.DirectoryInfo, destPlace.DirectoryInfo);
-        //    }
-
-        //    throw new NotImplementedException();
-        //}
 
         public async Task<StoreItemResult> MoveItemAsync(string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext)
         {
@@ -402,8 +383,6 @@ namespace YaR.WebDavMailRu.CloudStore
         }
 
         public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
-
-        //public bool AllowInfiniteDepthProperties => false;
 
         public override int GetHashCode()
         {
