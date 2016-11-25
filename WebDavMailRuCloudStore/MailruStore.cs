@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -53,25 +52,22 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private string GetPathFromUri(Uri uri)
         {
-            ////can't use uri.LocalPath and so on cause of "#" sign
+            ////can't use uri.LocalPath and so on cause of special signs
 
-            //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
-            //requestedPath = "/" + requestedPath.TrimEnd('/');
-
-            //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
-
-            //requestedPath = HttpUtility.UrlDecode(requestedPath);
-
-            //return requestedPath;
-
-            var requestedPath = uri.LocalPath;
-            requestedPath = requestedPath.TrimEnd('/');
-
-            requestedPath = HttpUtility.UrlDecode(requestedPath);
+            var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
+            requestedPath = "/" + requestedPath.TrimEnd('/');
 
             if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
+            requestedPath = Uri.UnescapeDataString(requestedPath);
+
             return requestedPath;
+
+            //var requestedPath = uri.LocalPath;
+            //requestedPath = requestedPath.TrimEnd('/');
+            //requestedPath = HttpUtility.UrlDecode(requestedPath);
+            //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+            //return requestedPath;
         }
     }
 }
