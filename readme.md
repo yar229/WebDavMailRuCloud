@@ -10,6 +10,7 @@
 	-l, --login       Required. Login to Mail.ru Cloud
 	-s, --password    Required. Password to Mail.ru Cloud
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
+	--user-agent      "browser" user-agent
 	--help            Display this help screen.
 	--version         Display version information.
 ```
@@ -36,4 +37,5 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 
 **Remarks**
-* Do not use #, %, + and ? in file and folder names
+* Avoid using #, %, +  in file and folder names
+* If you have paid account - you can remove 2Gb file limitation using --user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)" (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees)
