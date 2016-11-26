@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.SessionState;
-using MailRuCloudApi;
-using File = MailRuCloudApi.File;
+﻿using MailRuCloudApi;
 
 namespace WebDavMailRuCloudStore
 {
@@ -17,16 +9,13 @@ namespace WebDavMailRuCloudStore
             
         }
 
-        public static void Init(string login, string password)
+        public static void Init(string login, string password, string userAgent = "")
         {
+            if (!string.IsNullOrEmpty(userAgent))
+                ConstSettings.UserAgent = userAgent;
+
             Instance = new MailRuCloud(login, password);
         }
-
-        //public static async Task<Stream> GetFileStream(File file, bool includeProgressEvent = true)
-        //{
-        //    var stream = await _cloud.GetFileStream(file, includeProgressEvent);
-        //    return z;
-        //}
 
         public static  MailRuCloud Instance;
 

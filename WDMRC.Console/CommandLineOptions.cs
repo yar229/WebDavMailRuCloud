@@ -16,5 +16,9 @@ namespace YaR.WebDavMailRu
         [Option("maxthreads", Default = 5, HelpText = "Maximum concurrent connections to cloud.mail.ru")]
         public int MaxThreadCount { get; set; }
 
+        [Option("user-agent", HelpText = "\"browser\" user-agent")]
+        public string UserAgent { get; set; }
+
+
     }
 }

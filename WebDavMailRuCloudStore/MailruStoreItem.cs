@@ -162,7 +162,7 @@ namespace YaR.WebDavMailRu.CloudStore
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = IsWritable ? Cloud.Instance.GetUploadStream(Name, _fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
+                using (var outputStream = IsWritable ? Cloud.Instance.GetUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
                 }

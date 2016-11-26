@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using NWebDav.Server;
-using NWebDav.Server.Handlers;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
@@ -85,7 +84,7 @@ namespace YaR.WebDavMailRu
             var requestHandlerFactory = new RequestHandlerFactory();
 
             // Create WebDAV dispatcher
-            var homeFolder = new MailruStore(true);
+            var homeFolder = new MailruStore();
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
             // Determine the WebDAV username/password for authorization
