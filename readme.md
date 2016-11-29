@@ -33,7 +33,7 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 **Big thanks** to
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
 * [Erast Korolev](https://github.com/erastmorgan) for [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
-* [C-A-T](https://github.com/C-A-T9LIFE) for help with testing
+* [C-A-T](https://github.com/C-A-T9LIFE) for testing and essential information
 
 
 **Remarks**
