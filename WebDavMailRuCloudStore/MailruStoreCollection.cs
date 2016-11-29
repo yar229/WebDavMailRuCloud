@@ -38,11 +38,11 @@ namespace YaR.WebDavMailRu.CloudStore
                 Getter = (context, collection) =>
                     collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue
             },
-            new DavQuotaUsedBytes<MailruStoreCollection>
-            {
-                Getter = (context, collection) =>
-                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue
-            },
+            //new DavQuotaUsedBytes<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) =>
+            //        collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue
+            //},
 
             // RFC-2518 properties
             new DavCreationDate<MailruStoreCollection>
