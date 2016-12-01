@@ -1,4 +1,4 @@
-**WebDAV emulator for Mail.ru Cloud**<br>
+## **WebDAV emulator for Mail.ru Cloud**<br>
 [download latest release binaries](https://github.com/yar229/WebDavMailRuCloud/releases/latest)
 
 **Requirements:**
@@ -38,4 +38,7 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 **Remarks**
 * Avoid using #, %, +  in file and folder names
-* If you have paid account - you can remove 2Gb file limitation using --user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)" (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limits may exits)
+* If you have paid account - you can remove 2Gb file limitation using <br>--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"<br>
+######(taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limits may exits)
+
+
