@@ -52,11 +52,11 @@
   <ItemGroup>
     <Compile Include="Cloud.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="MailruStore.cs" />
-    <Compile Include="MailruStoreCollection.cs" />
-    <Compile Include="MailruStoreItem.cs" />
-    <Compile Include="IMailruStoreCollection.cs" />
-    <Compile Include="IMailruStoreItem.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStore.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStoreCollection.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStoreItem.cs" />
+    <Compile Include="Mailru\StoreBase\IMailruStoreCollection.cs" />
+    <Compile Include="Mailru\StoreBase\IMailruStoreItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using MailRuCloudApi;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -13,7 +12,7 @@ using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
     [DebuggerDisplay("{_fileInfo.FullPath}")]
     public sealed class MailruStoreItem : IMailruStoreItem

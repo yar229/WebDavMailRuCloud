@@ -14,7 +14,7 @@ using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
     public sealed class MailruStoreCollection : IMailruStoreCollection

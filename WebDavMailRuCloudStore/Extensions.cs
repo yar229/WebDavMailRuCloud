@@ -7,6 +7,7 @@ using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
+using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
