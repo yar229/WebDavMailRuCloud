@@ -59,6 +59,14 @@
     <Compile Include="Mailru\StoreBase\IMailruStoreItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeekableAesStream.cs" />
+    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
+    <Compile Include="XTSSharp\SectorStream.cs" />
+    <Compile Include="XTSSharp\Xts.cs" />
+    <Compile Include="XTSSharp\XtsAes128.cs" />
+    <Compile Include="XTSSharp\XtsAes256.cs" />
+    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
+    <Compile Include="XTSSharp\XtsSectorStream.cs" />
+    <Compile Include="XTSSharp\XtsStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
@@ -68,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="XTSSharp\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
