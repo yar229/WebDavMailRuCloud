@@ -37,6 +37,7 @@ Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) do
 
 
 **Remarks**
+* [How to compile for Linux](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) (yep, I'm lazy ass...)
 * Avoid using #, %, +  in file and folder names
 * If you have paid account - you can remove 2Gb filesize limitation using `--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"` (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limit may exist)
 
