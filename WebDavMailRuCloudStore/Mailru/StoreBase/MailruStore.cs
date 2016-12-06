@@ -8,7 +8,7 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
     public sealed class MailruStore : IStore
     {

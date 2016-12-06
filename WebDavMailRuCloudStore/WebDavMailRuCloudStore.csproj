@@ -31,14 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Common.Logging, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.3.4.0-Beta2\lib\net40\Common.Logging.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Common.Logging.Core, Version=3.4.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Common.Logging.Core.3.4.0-Beta2\lib\net40\Common.Logging.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -60,12 +52,21 @@
   <ItemGroup>
     <Compile Include="Cloud.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="MailruStore.cs" />
-    <Compile Include="MailruStoreCollection.cs" />
-    <Compile Include="MailruStoreItem.cs" />
-    <Compile Include="IMailruStoreCollection.cs" />
-    <Compile Include="IMailruStoreItem.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStore.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStoreCollection.cs" />
+    <Compile Include="Mailru\StoreBase\MailruStoreItem.cs" />
+    <Compile Include="Mailru\StoreBase\IMailruStoreCollection.cs" />
+    <Compile Include="Mailru\StoreBase\IMailruStoreItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeekableAesStream.cs" />
+    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
+    <Compile Include="XTSSharp\SectorStream.cs" />
+    <Compile Include="XTSSharp\Xts.cs" />
+    <Compile Include="XTSSharp\XtsAes128.cs" />
+    <Compile Include="XTSSharp\XtsAes256.cs" />
+    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
+    <Compile Include="XTSSharp\XtsSectorStream.cs" />
+    <Compile Include="XTSSharp\XtsStream.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
@@ -75,6 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="XTSSharp\readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
