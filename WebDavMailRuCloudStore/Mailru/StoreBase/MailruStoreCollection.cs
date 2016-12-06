@@ -35,16 +35,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) =>
-                    collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue,
+                IsExpensive = true  //folder listing performance
             },
 
-            //folder listing performance 
-            //new DavQuotaUsedBytes<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) =>
-            //        collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue
-            //},
+            new DavQuotaUsedBytes<MailruStoreCollection>
+            {
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue,
+                IsExpensive = true  //folder listing performance
+            },
 
             // RFC-2518 properties
             new DavCreationDate<MailruStoreCollection>
@@ -79,16 +78,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             new DavLockDiscoveryDefault<MailruStoreCollection>(),
             new DavSupportedLockDefault<MailruStoreCollection>(),
 
-            // Hopmann/Lippert collection properties
-            //new DavExtCollectionChildCount<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) =>
-            //    {
-            //        var data = Cloud.Instance.GetItems(collection.DirectoryInfo).Result;
-            //        int cnt = data.NumberOfItems;
-            //        return cnt;
-            //    }
-            //},
+            //Hopmann/Lippert collection properties
+            new DavExtCollectionChildCount<MailruStoreCollection>
+            {
+                Getter = (context, collection) =>
+                {
+                    var data = Cloud.Instance.GetItems(collection.DirectoryInfo).Result;
+                    int cnt = data.NumberOfItems;
+                    return cnt;
+                },
+                IsExpensive = true  //folder listing performance
+            },
             new DavExtCollectionIsFolder<MailruStoreCollection>
             {
                 Getter = (context, collection) => true
@@ -102,33 +102,34 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 Getter = (context, collection) => false
             },
 
-            //folder listing performance 
-            //new DavExtCollectionHasSubs<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) => collection.Folders.Any()
-            //},
+            new DavExtCollectionHasSubs<MailruStoreCollection>
+            {
+                Getter = (context, collection) => collection.Folders.Any(),
+                IsExpensive = true  //folder listing performance
+            },
 
             new DavExtCollectionNoSubs<MailruStoreCollection>
             {
                 Getter = (context, collection) => false //TODO: WTF?
             },
 
-            //folder listing performance 
-            //new DavExtCollectionObjectCount<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) => collection.Files.Count()
-            //},
+            new DavExtCollectionObjectCount<MailruStoreCollection>
+            {
+                Getter = (context, collection) => collection.Files.Count(),
+                IsExpensive = true  //folder listing performance
+            },
 
             new DavExtCollectionReserved<MailruStoreCollection>
             {
                 Getter = (context, collection) => !collection.IsWritable
             },
 
-            //folder listing performance 
-            //new DavExtCollectionVisibleCount<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) => collection.Items.Count
-            //},
+            //folder listing performance
+            new DavExtCollectionVisibleCount<MailruStoreCollection>
+            {
+                Getter = (context, collection) => collection.Items.Count,
+                IsExpensive = true  //folder listing performance
+            },
 
             // Win32 extensions
             new Win32CreationTime<MailruStoreCollection>
