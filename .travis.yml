@@ -1,14 +1,10 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
-script:
-  # This command generates a release.zip file.x
-  - make dist
 deploy:
   provider: releases
-  api_key: "9fe124990da734fa20cdb2b7d73ce92bcfa019e3"
+  api_key: "GITHUB OAUTH TOKEN"
   file:
-    - "release.zip"
-    - "/home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/release.zip"
+    - "FILE TO UPLOAD"
   skip_cleanup: true
   on:
     tags: true
