@@ -1,7 +1,7 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
 script:
-  # This command generates a release.zip file.
+  # This command generates a release.zip file.x
   - make dist
 deploy:
   provider: releases
