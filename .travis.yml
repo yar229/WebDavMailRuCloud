@@ -1,6 +1,7 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
 deploy:
+#z
   provider: releases
   api_key: "GITHUB OAUTH TOKEN"
   file:
