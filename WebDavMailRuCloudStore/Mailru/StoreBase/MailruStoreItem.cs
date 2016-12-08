@@ -157,6 +157,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (!IsWritable)
                 return DavStatusCode.Conflict;
 
+            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - _fileInfo.Name.Length * 2;
+            if (_fileInfo.Size.DefaultValue > allowedSize)
+            {
+                //inputStream.Close();
+                return DavStatusCode.Conflict;
+            }
+
             // Copy the stream
             try
             {
