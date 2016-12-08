@@ -49,5 +49,10 @@ namespace YaR.WebDavMailRu.CloudStore
 
             return res;
         }
+
+        public static long BytesCount(this string value)
+        {
+            return Encoding.UTF8.GetByteCount(value);
+        }
     }
 }
