@@ -55,7 +55,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             ////can't use uri.LocalPath and so on cause of special signs
 
             //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
-            var requestedPath = Regex.Replace(uri.OriginalString, @"^http?://.*?/", string.Empty);
+            var requestedPath = Regex.Replace(uri.OriginalString, @"^http?://.*?(/|\Z)", string.Empty);
             requestedPath = "/" + requestedPath.TrimEnd('/');
 
             if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
@@ -63,12 +63,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             requestedPath = Uri.UnescapeDataString(requestedPath);
 
             return requestedPath;
-
-            //var requestedPath = uri.LocalPath;
-            //requestedPath = requestedPath.TrimEnd('/');
-            //requestedPath = HttpUtility.UrlDecode(requestedPath);
-            //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
-            //return requestedPath;
         }
     }
 }
