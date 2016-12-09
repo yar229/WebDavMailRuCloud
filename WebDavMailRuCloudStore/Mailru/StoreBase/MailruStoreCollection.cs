@@ -253,7 +253,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
 
             // Determine the destination path
-            var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
+            //var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
+            var destinationPath = WebDAVPath.Combine(FullPath, name);
+
+
+            var cmd = new SpecialCommand(destinationPath);
+            if (cmd.IsCommand)
+            {
+                bool k = Cloud.Instance.CloneItem(cmd.Path, cmd.Value).Result;
+                return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+            }
+
 
             DavStatusCode result;
 
