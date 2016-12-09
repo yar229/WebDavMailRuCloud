@@ -28,6 +28,9 @@ By default, Windows limits file size to 5000000 bytes, you can increase it up to
 * Click on Decimal
 * In the Value data box, type 4294967295, and then click OK.
 
+[Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)
+Microsoft says - "It's not a bug, it's by design"
+
 
 Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) does not work... ([sources](http://ghisler.fileburst.com/fsplugins/webdav_src.zip) found occasionally, but no time...)
 
