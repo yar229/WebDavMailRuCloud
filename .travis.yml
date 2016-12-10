@@ -1,5 +1,10 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
+before_deploy:
+- test $TRAVIS_TEST_RESULT = 0 \# check that build passed successfully
+  && cd dist \
+  && cd $TRAVIS_BUILD_DIR \
+  && tar -cf wdmrc-$TRAVIS_BRANCH.tar.gz /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/*.*
 deploy:
   provider: releases
   api_key:
