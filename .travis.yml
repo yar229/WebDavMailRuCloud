@@ -9,3 +9,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: yar229/WebDavMailRuCloud
+	tags: true
