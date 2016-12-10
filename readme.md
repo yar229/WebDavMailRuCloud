@@ -16,7 +16,7 @@
 ```
 
 Clone shared cloud.mail.ru file/folder to your account:<br>
-	make folder with name '>>SHARED_FOLDER_LINK'
+	make folder with name `>>SHARED_FOLDER_LINK`
 
 **Windows**
 
