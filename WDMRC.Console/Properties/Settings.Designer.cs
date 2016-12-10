@@ -22,14 +22,5 @@ namespace YaR.WebDavMailRu.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("z")]
-        public string z {
-            get {
-                return ((string)(this["z"]));
-            }
-        }
     }
 }
