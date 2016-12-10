@@ -4,7 +4,7 @@ deploy:
   provider: releases
   api_key:
     secure: exmPJoDjRwHVSDW2TyKI97zpddGEbrVOv6apNgngbdOjWLIgtH+TVMsO69SrY9YIJHoQPlgoGCaDMIps38jvbayF1It7E48nEkMA24TkpTLNEJyUQnD5+U59hFOEvw8VOb8DPpLHY97rC8V5OckRIiEYEn76pWvGiqe4uH9fOeAJzjqSQHJaYW8fDAgSK5MOSRHX0tOfiJ5hRIESgDFu6VA20ffl1y1WbvHw3vBadUwVlUjHiu787snKLYmrPLtKPmeSasfOREM+IRel07Hz6OM80Imz0nmDjgJt3BSuGoO6+v6TAWD24+K4iG9VGSfJMxb5ApEbUIU8cLjAylJGlgBqu9WFHmmt0CAPnMHBFkQJvE7JTpnSfI+G2Q7wRzgTLpGQvoad7XpudoN6SOXZR2Dg45Htdb9cUlZnXOMpczNpuZlO8GWPj/wqwDwZ0PUR83FYZbTCke1XVdQlLibz8TvPaK3SFTmYC7qxcSEkeqryyDmP8kqdL+T5UmI0IWlkuBwO97rjWVK5DkAF3eqrHufggCwWUaogTdtOZcXErkosyxgwrFWBN18U630xjSmu3VqNFlCs3nqdtlI7S3LElY5F3cPDXFQr7jbHbX9y+YvfkU1WNGwpEGRZ66gJoz2a4dmbfFCi6TAhUWNetwHfeBkqP9lgZcvi88mMc/MJCyQ=
-  file: ".\\WDMRC.Console\\bin\\Release\\wdmrc.exe"
+  file: "\\home\\travis\\build\\yar229\\WebDavMailRuCloud\\WDMRC.Console\\bin\\Release\\wdmrc.exe"
   skip_cleanup: true
   on:
     repo: yar229/WebDavMailRuCloud
