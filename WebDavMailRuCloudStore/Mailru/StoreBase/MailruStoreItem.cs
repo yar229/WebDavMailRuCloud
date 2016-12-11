@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -11,6 +12,7 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
+using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
@@ -122,8 +124,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
                 Setter = (context, item, value) => DavStatusCode.Ok
+            },
+            new DavSharedLink<MailruStoreItem>
+            {
+                Getter = (context, item) => item._fileInfo.PublicLink,
+                Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
+
+
+
+
 
         public bool IsWritable { get; }
         public string Name => _fileInfo.Name;

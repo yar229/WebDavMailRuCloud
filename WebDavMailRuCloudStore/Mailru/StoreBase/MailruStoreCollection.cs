@@ -13,6 +13,7 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using WebDavMailRuCloudStore;
+using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
@@ -167,6 +168,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     collection.DirectoryInfo.Attributes = value;
                     return DavStatusCode.Ok;
                 }
+            },
+            new DavSharedLink<MailruStoreCollection>
+            {
+                Getter = (context, item) => item.DirectoryInfo.PublicLink,
+                Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
 
