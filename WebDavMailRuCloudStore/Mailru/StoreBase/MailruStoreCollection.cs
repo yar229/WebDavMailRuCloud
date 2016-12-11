@@ -173,7 +173,12 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 Getter = (context, item) => item.DirectoryInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok
-            }
+            },
+
+            new DavGetContentLength<MailruStoreCollection>
+            {
+                Getter = (context, item) => item.DirectoryInfo.Size?.DefaultValue ?? 0
+            },
         });
 
         public bool IsWritable { get; }
