@@ -7,7 +7,6 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 

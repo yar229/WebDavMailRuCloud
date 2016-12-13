@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace YaR.WebDavMailRu.CloudStore
+﻿namespace YaR.WebDavMailRu.CloudStore
 {
-    public static class WebDAVPath
+    public static class WebDavPath
     {
         public static string Combine(string a, string b)
         {

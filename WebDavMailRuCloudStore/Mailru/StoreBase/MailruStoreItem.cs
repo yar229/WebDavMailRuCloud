@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -11,7 +10,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
@@ -23,11 +21,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         private readonly MailRuCloudApi.File _fileInfo;
 
         public MailRuCloudApi.File FileInfo => _fileInfo;
-
-        private MailruStoreItem()
-        {
-            
-        }
 
         public MailruStoreItem(ILockingManager lockingManager, MailRuCloudApi.File fileInfo, bool isWritable)
         {

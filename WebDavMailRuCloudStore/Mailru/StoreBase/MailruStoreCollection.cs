@@ -12,7 +12,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
@@ -246,7 +245,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var size = httpContext.Request.ContentLength();
 
-            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - name.BytesCount(); ;
+            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - name.BytesCount(); 
             if (size > allowedSize)
             {
                 return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
@@ -259,13 +258,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
         {
-            // Return error
             if (!IsWritable)
                 return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
 
-            // Determine the destination path
-            //var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
-            var destinationPath = WebDAVPath.Combine(FullPath, name);
+            var destinationPath = WebDavPath.Combine(FullPath, name);
 
 
             var cmd = new SpecialCommand(destinationPath);
@@ -291,18 +287,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                // Attempt to create the directory
-                //Directory.CreateDirectory(destinationPath);
                 Cloud.Instance.CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
-                // Log exception
                 Logger.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder {FullPath = destinationPath }, IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder(destinationPath), IsWritable)));
         }
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
@@ -357,7 +350,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         result = DavStatusCode.Created;
 
                     // Move the file
-                    //await Cloud.Instance.Rename(FindSubItem(sourceName), destinationName);
                     if (destinationStoreCollection.FullPath == FullPath)
                     {
                         await Cloud.Instance.Rename(storeItem.FileInfo, destinationName);

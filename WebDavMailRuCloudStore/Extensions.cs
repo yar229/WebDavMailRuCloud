@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.WebDavMailRu.CloudStore
