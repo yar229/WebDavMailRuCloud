@@ -46,6 +46,6 @@ Microsoft says - "It's not a bug, it's by design"
 
 **Remarks**
 * [How to compile for Linux](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) (yep, I'm lazy ass...)
-* Bad news: Total Commander [WebDAV plugin](http://www.ghisler.com/plugins.htm) does not work... ([sources](http://ghisler.fileburst.com/fsplugins/webdav_src.zip) found occasionally, but no time...)
+* Using within [**Total Commander**](http://www.ghisler.com/) requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
 * Avoid using #, %, +  in file and folder names
 * If you have paid account - you can remove 2Gb filesize limitation using `--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"` (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limit may exist)
