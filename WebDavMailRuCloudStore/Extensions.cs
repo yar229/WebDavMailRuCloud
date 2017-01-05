@@ -38,6 +38,20 @@ namespace YaR.WebDavMailRu.CloudStore
             throw new ArgumentException(string.Empty, nameof(item));
         }
 
+        public static Task<bool> Move(this MailRuCloud cloud, IStoreItem item, string destinationName)
+        {
+            if (null == item) return Task.FromResult(false);
+
+            var storeItem = item as MailruStoreItem;
+            if (storeItem != null)
+                return cloud.Move(storeItem.FileInfo, destinationName);
+            var storeCollection = item as MailruStoreCollection;
+            if (storeCollection != null)
+                return cloud.Move(storeCollection.DirectoryInfo, destinationName);
+
+            throw new ArgumentException(string.Empty, nameof(item));
+        }
+
 
         public static long ContentLength(this IHttpRequest request)
         {

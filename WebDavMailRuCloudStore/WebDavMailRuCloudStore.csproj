@@ -53,6 +53,8 @@
     <Compile Include="Cloud.cs" />
     <Compile Include="DavCustomProperty\DavSharedLink.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Mailru\MoveHandler.cs" />
+    <Compile Include="Mailru\RequestHandlerFactory.cs" />
     <Compile Include="Mailru\StoreBase\MailruStore.cs" />
     <Compile Include="Mailru\StoreBase\MailruStoreCollection.cs" />
     <Compile Include="Mailru\StoreBase\MailruStoreItem.cs" />
