@@ -12,7 +12,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
@@ -246,7 +245,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var size = httpContext.Request.ContentLength();
 
-            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - name.BytesCount(); ;
+            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - name.BytesCount(); 
             if (size > allowedSize)
             {
                 return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
@@ -259,13 +258,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
         {
-            // Return error
             if (!IsWritable)
                 return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
 
-            // Determine the destination path
-            //var destinationPath = Path.Combine(FullPath, name).Replace("\\", "/");
-            var destinationPath = WebDAVPath.Combine(FullPath, name);
+            var destinationPath = WebDavPath.Combine(FullPath, name);
 
 
             var cmd = new SpecialCommand(destinationPath);
@@ -291,18 +287,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                // Attempt to create the directory
-                //Directory.CreateDirectory(destinationPath);
                 Cloud.Instance.CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
-                // Log exception
                 Logger.Log(LogLevel.Error, () => $"Unable to create '{destinationPath}' directory.", exc);
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder {FullPath = destinationPath }, IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder(destinationPath), IsWritable)));
         }
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
@@ -330,63 +323,47 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (item == null)
                 return new StoreItemResult(DavStatusCode.NotFound);
 
-            // Check if the item is actually a file
-            var storeItem = item as MailruStoreItem;
-            if (storeItem != null)
+
+            var destinationStoreCollection = destinationCollection as MailruStoreCollection;
+
+            if (destinationStoreCollection != null)
             {
-                // If the destination collection is a directory too, then we can simply move the file
-                var destinationStoreCollection = destinationCollection as MailruStoreCollection;
-                if (destinationStoreCollection != null)
+                if (!destinationStoreCollection.IsWritable)
+                    return new StoreItemResult(DavStatusCode.PreconditionFailed);
+
+                var itemexist = destinationStoreCollection.FindSubItem(destinationName);
+
+                DavStatusCode result;
+
+                if (itemexist != null)
                 {
-                    if (!destinationStoreCollection.IsWritable)
-                        return new StoreItemResult(DavStatusCode.PreconditionFailed);
+                    if (!overwrite)
+                        return new StoreItemResult(DavStatusCode.Forbidden);
 
-                    // Check if the file already exists
-                    DavStatusCode result;
-                    var itemexist = destinationStoreCollection.FindSubItem(destinationName);
-                    if (itemexist != null)
-                    {
-                        if (!overwrite)
-                            return new StoreItemResult(DavStatusCode.Forbidden);
+                    await Cloud.Instance.Remove(itemexist);
 
-                        await Cloud.Instance.Remove(itemexist);
-
-                        result = DavStatusCode.NoContent;
-                    }
-                    else
-                        result = DavStatusCode.Created;
-
-                    // Move the file
-                    //await Cloud.Instance.Rename(FindSubItem(sourceName), destinationName);
-                    if (destinationStoreCollection.FullPath == FullPath)
-                    {
-                        await Cloud.Instance.Rename(storeItem.FileInfo, destinationName);
-                    }
-                    else
-                    {
-                        await Cloud.Instance.Move(storeItem.FileInfo, destinationStoreCollection.FullPath);
-                    }
-
-                    return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
+                    result = DavStatusCode.NoContent;
                 }
                 else
-                {
-                    // Attempt to copy the item to the destination collection
-                    var result = await item.CopyAsync(destinationCollection, destinationName, overwrite, httpContext);
-                    if (result.Result == DavStatusCode.Created || result.Result == DavStatusCode.NoContent)
-                        await DeleteItemAsync(sourceName, httpContext);
+                    result = DavStatusCode.Created;
 
-                    // Return the result
-                    return result;
-                }
+
+                if (destinationStoreCollection.FullPath == FullPath)
+                    await Cloud.Instance.Rename(item, destinationName);
+                else
+                    await Cloud.Instance.Move(item, destinationStoreCollection.FullPath);
+
+                return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
             }
+            else
+            {
+                // Attempt to copy the item to the destination collection
+                var result = await item.CopyAsync(destinationCollection, destinationName, overwrite, httpContext);
+                if (result.Result == DavStatusCode.Created || result.Result == DavStatusCode.NoContent)
+                    await DeleteItemAsync(sourceName, httpContext);
 
-            // If it's not a plain item, then it's a collection
-            Debug.Assert(item is MailruStoreCollection);
-
-            // Collections will never be moved, but always be created
-            // (we always move the individual items to make sure locking is checked properly)
-            throw new InvalidOperationException("Collections should never be moved directly.");
+                return result;
+            }
         }
 
         private IStoreItem FindSubItem(string name)

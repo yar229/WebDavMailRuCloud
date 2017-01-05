@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.WebDavMailRu.CloudStore
@@ -37,6 +34,20 @@ namespace YaR.WebDavMailRu.CloudStore
             var storeCollection = item as MailruStoreCollection;
             if (storeCollection != null)
                 return cloud.Rename(storeCollection.DirectoryInfo, destinationName);
+
+            throw new ArgumentException(string.Empty, nameof(item));
+        }
+
+        public static Task<bool> Move(this MailRuCloud cloud, IStoreItem item, string destinationName)
+        {
+            if (null == item) return Task.FromResult(false);
+
+            var storeItem = item as MailruStoreItem;
+            if (storeItem != null)
+                return cloud.Move(storeItem.FileInfo, destinationName);
+            var storeCollection = item as MailruStoreCollection;
+            if (storeCollection != null)
+                return cloud.Move(storeCollection.DirectoryInfo, destinationName);
 
             throw new ArgumentException(string.Empty, nameof(item));
         }

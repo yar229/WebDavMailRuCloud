@@ -6,7 +6,6 @@ using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
-using WebDavMailRuCloudStore;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
@@ -31,7 +30,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var item = Cloud.Instance.GetItems(path).Result;
                 if (item.FullPath == path)
                 {
-                    var dir = new Folder { FullPath = path };
+                    var dir = new Folder(path);
                     return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
                 }
 
@@ -47,7 +46,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         public Task<IStoreCollection> GetCollectionAsync(Uri uri, IHttpContext httpContext)
         {
             var path = GetPathFromUri(uri);
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new Folder() {FullPath = path}, IsWritable));
+            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new Folder(path), IsWritable));
         }
 
         private string GetPathFromUri(Uri uri)

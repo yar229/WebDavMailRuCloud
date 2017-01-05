@@ -7,15 +7,9 @@ namespace YaR.WebDavMailRu.CloudStore.DavCustomProperty
 {
     public class DavSharedLink<TEntry> : DavString<TEntry> where TEntry : IStoreItem
     {
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "SharedLink";
+        private static readonly XName PropertyName = WebDavNamespaces.DavNs + "SharedLink";
 
-        public override XName Name
-        {
-            get
-            {
-                return DavSharedLink<TEntry>.PropertyName;
-            }
-        }
+        public override XName Name => PropertyName;
     }
 
 }

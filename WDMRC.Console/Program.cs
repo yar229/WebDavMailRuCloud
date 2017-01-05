@@ -7,7 +7,6 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
-using WebDavMailRuCloudStore;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
@@ -82,7 +81,7 @@ namespace YaR.WebDavMailRu
         private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
-            var requestHandlerFactory = new RequestHandlerFactory();
+            var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
 
             // Create WebDAV dispatcher
             var homeFolder = new MailruStore();
