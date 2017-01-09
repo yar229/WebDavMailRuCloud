@@ -45,7 +45,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             }
 
             // Obtain the destination
-            var destinationUri = request.GetDestinationUri();
+            //var destinationUri = request.GetDestinationUri();
+            var destinationUri = GetDestinationUri(request);
             if (destinationUri == null)
             {
                 // Bad request
@@ -99,6 +100,24 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
             return true;
         }
+
+        private static Uri GetDestinationUri(IHttpRequest request)
+        {
+            // Obtain the destination
+            string destinationHeader = request.GetHeaderValue("Destination");
+            
+            if (destinationHeader == null)
+                return null;
+
+            // Create the destination URI
+            var uri = destinationHeader.StartsWith("/")
+                ? new Uri(request.Url, destinationHeader)
+                : new Uri(destinationHeader);
+
+            return uri;
+        }
+
+
 
         private async Task MoveAsync(IStoreCollection sourceCollection, string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext, Uri baseUri, UriResultCollection errors)
         {

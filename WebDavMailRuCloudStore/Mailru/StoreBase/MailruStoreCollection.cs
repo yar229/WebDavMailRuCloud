@@ -35,13 +35,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Free : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.Account.GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
             new DavQuotaUsedBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetQuota().Result.Used : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.Account.GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
