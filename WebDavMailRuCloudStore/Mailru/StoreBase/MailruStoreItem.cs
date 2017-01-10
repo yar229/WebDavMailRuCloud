@@ -47,7 +47,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavGetContentLength<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.Size?.DefaultValue ?? 0
+                Getter = (context, item) => item._fileInfo.Size.DefaultValue
             },
             new DavGetContentType<MailruStoreItem>
             {
