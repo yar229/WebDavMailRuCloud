@@ -93,48 +93,58 @@ namespace YaR.WebDavMailRu
             var webdavPassword = "test";
 
 
-            using (var sem = new SemaphoreSlim(maxThreadCount))
+            try
             {
-                var semclo = sem;
-                HttpListenerContext httpListenerContext;
-                while (
+
+                using (var sem = new SemaphoreSlim(maxThreadCount))
+                {
+                    var semclo = sem;
+                    HttpListenerContext httpListenerContext;
+                    while (
                         !cancellationToken.IsCancellationRequested &&
                         (httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false)) != null
-                      )
-                {
-                    IHttpContext httpContext;
-                    if (httpListenerContext.Request.IsAuthenticated) httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
-                    else httpContext = new HttpContext(httpListenerContext);
+                    )
+                    {
+                        IHttpContext httpContext;
+                        if (httpListenerContext.Request.IsAuthenticated)
+                            httpContext = new HttpBasicContext(httpListenerContext,
+                                i => i.Name == webdavUsername && i.Password == webdavPassword);
+                        else httpContext = new HttpContext(httpListenerContext);
 
-                    //var r = httpContext.Request;
-                    //var range = r.GetRange();
-                    //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
-                    //await webDavDispatcher.DispatchRequestAsync(httpContext);
+                        //var r = httpContext.Request;
+                        //var range = r.GetRange();
+                        //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
+                        //await webDavDispatcher.DispatchRequestAsync(httpContext);
 
-                    await semclo.WaitAsync(cancellationToken);
-                    Task tsk = Task
-                        .Run(async () =>
-                        {
-                            try
+                        await semclo.WaitAsync(cancellationToken);
+                        Task tsk = Task
+                            .Run(async () =>
                             {
-                                //var r = httpContext.Request;
-                                //var range = r.GetRange();
-                                //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
-                                //if (null != range) Logger.Info($"Range {range.Start} / {range.End} {range.If}");
-                                //Logger.Info($"-------awail {semclo.CurrentCount}");
+                                try
+                                {
+                                    //var r = httpContext.Request;
+                                    //var range = r.GetRange();
+                                    //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
+                                    //if (null != range) Logger.Info($"Range {range.Start} / {range.End} {range.If}");
+                                    //Logger.Info($"-------awail {semclo.CurrentCount}");
 
-                                await webDavDispatcher.DispatchRequestAsync(httpContext);
+                                    await webDavDispatcher.DispatchRequestAsync(httpContext);
 
-                                //Logger.Info($"-------awail {semclo.CurrentCount}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error("Exception", ex);
-                            }
+                                    //Logger.Info($"-------awail {semclo.CurrentCount}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.Error("Exception", ex);
+                                }
 
-                        }, cancellationToken)
-                        .ContinueWith(t => semclo.Release(), cancellationToken);
+                            }, cancellationToken)
+                            .ContinueWith(t => semclo.Release(), cancellationToken);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Global exception", e);
             }
 
 
