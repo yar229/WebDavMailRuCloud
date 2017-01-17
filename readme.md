@@ -28,6 +28,13 @@ Use as Windows disk: <br>
 
 Windows 7 client might perform very bad when connecting to any WebDAV server. This is caused, because it tries to auto-detect any proxy server before any request. Refer to KB2445570 for more information.
 
+Faster WebDAV Performance in Windows 7
+1. In Internet Explorer, open the Tools menu, then click Internet Options.
+2. Select the Connections tab.
+3. Click the LAN Settings button.
+4. Uncheck the “Automatically detect settings” box.
+5. Click OK until you’re out of dialog.
+
 By default, Windows limits file size to 5000000 bytes, you can increase it up to 4Gb:
 * Press Win+R, type `regedit`, click OK
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
