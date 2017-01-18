@@ -251,7 +251,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
             }
 
-            var f = new MailRuCloudApi.File(destinationPath, size, FileType.SingleFile, null);
+            var f = new MailRuCloudApi.File(destinationPath, size, null);
 
             return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }
