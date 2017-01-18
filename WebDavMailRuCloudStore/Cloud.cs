@@ -1,4 +1,5 @@
 ﻿using MailRuCloudApi;
+using MailRuCloudApi.Api;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
@@ -10,6 +11,8 @@ namespace YaR.WebDavMailRu.CloudStore
                 ConstSettings.UserAgent = userAgent;
 
             Instance = new MailRuCloud(login, password);
+            
+
         }
 
         public static  MailRuCloud Instance;

@@ -37,7 +37,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var f = item.Files.FirstOrDefault(k => k.FullPath == path);
                 return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Task.FromResult<IStoreItem>(null);
             }
