@@ -28,7 +28,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var path = GetPathFromUri(uri);
             var dirpath = httpContext.Request.HttpMethod == "GET"
-                ? path.Substring(0, path.LastIndexOf("/"))
+                ? WebDavPath.Parent(path) 
                 : path;
 
 
