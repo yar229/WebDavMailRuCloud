@@ -35,13 +35,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.Account.GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
             new DavQuotaUsedBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.Account.GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -176,7 +176,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavGetContentLength<MailruStoreCollection>
             {
-                Getter = (context, item) => item.DirectoryInfo.Size?.DefaultValue ?? 0
+                Getter = (context, item) => item.DirectoryInfo.Size.DefaultValue
             },
         });
 
@@ -245,13 +245,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var size = httpContext.Request.ContentLength();
 
-            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - name.BytesCount(); 
-            if (size > allowedSize)
-            {
-                return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
-            }
+            //long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - name.BytesCount(); 
+            //if (size > allowedSize)
+            //{
+            //    return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
+            //}
 
-            var f = new MailRuCloudApi.File(destinationPath, size, FileType.SingleFile, null);
+            var f = new MailRuCloudApi.File(destinationPath, size, null);
 
             return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }

@@ -22,25 +22,42 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IStoreItem> GetItemAsync(Uri uri, IHttpContext httpContext)
         {
-            // Determine the path from the uri
+            
+            //TODO: Refact
+            // if GET - suggest file, PROPFIND - suggest folder
+
             var path = GetPathFromUri(uri);
+            var dirpath = httpContext.Request.HttpMethod == "GET"
+                ? WebDavPath.Parent(path) 
+                : path;
 
-            try
+
+            if (httpContext.Request.HttpMethod == "GET")
             {
-                var item = Cloud.Instance.GetItems(path).Result;
-                if (item.FullPath == path)
-                {
-                    var dir = new Folder(path);
-                    return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
-                }
-
-                var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+                var dir = Cloud.Instance.GetItems(dirpath).Result;
+                var f = dir.Files.FirstOrDefault(k => k.FullPath == path);
                 return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
             }
-            catch (Exception)
-            {
-                return Task.FromResult<IStoreItem>(null);
-            }
+
+            var dire = new Folder(dirpath);
+            return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dire, IsWritable));
+
+            //try
+            //{
+            //        var item = Cloud.Instance.GetItems(path).Result;
+            //        if (item.FullPath == path)
+            //        {
+            //            var dir = new Folder(path);
+            //            return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
+            //        }
+
+            //    var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+            //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
+            //}
+            //catch (Exception ex)
+            //{
+            //    return Task.FromResult<IStoreItem>(null);
+            //}
         }
 
         public Task<IStoreCollection> GetCollectionAsync(Uri uri, IHttpContext httpContext)

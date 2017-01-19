@@ -47,7 +47,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavGetContentLength<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.Size?.DefaultValue ?? 0
+                Getter = (context, item) => item._fileInfo.Size.DefaultValue
             },
             new DavGetContentType<MailruStoreItem>
             {
@@ -140,7 +140,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         private Stream OpenReadStream(long? start, long? end)
         {
 
-            Stream stream = Cloud.Instance.GetFileStream(_fileInfo, start, end).Result;
+            Stream stream = Cloud.Instance.GetFileDownloadStream(_fileInfo, start, end).Result;
             return stream;
         }
 
@@ -161,7 +161,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (!IsWritable)
                 return DavStatusCode.Conflict;
 
-            long allowedSize = Cloud.Instance.Account.Info.FileSizeLimit - _fileInfo.Name.BytesCount();
+            long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - _fileInfo.Name.BytesCount();
             if (_fileInfo.Size.DefaultValue > allowedSize)
             {
                 //inputStream.Close();
@@ -172,8 +172,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = IsWritable ? Cloud.Instance.GetUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
+                using (var outputStream = IsWritable ? Cloud.Instance.GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
                 {
+                    //var str = await outputStream;
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
                 }
                 return DavStatusCode.Ok;

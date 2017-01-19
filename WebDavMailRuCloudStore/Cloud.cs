@@ -1,4 +1,5 @@
 ﻿using MailRuCloudApi;
+using MailRuCloudApi.Api;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
@@ -9,7 +10,9 @@ namespace YaR.WebDavMailRu.CloudStore
             if (!string.IsNullOrEmpty(userAgent))
                 ConstSettings.UserAgent = userAgent;
 
-            Instance = new MailRuCloud(login, password);
+            //Instance = new MailRuCloud(login, password);
+            Instance = new SplittedCloud(login, password);
+
         }
 
         public static  MailRuCloud Instance;
