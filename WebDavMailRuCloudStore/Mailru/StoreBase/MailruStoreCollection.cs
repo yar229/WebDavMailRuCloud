@@ -245,13 +245,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var size = httpContext.Request.ContentLength();
 
-            long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - name.BytesCount(); 
-            if (size > allowedSize)
-            {
-                return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
-            }
+            //long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - name.BytesCount(); 
+            //if (size > allowedSize)
+            //{
+            //    return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
+            //}
 
-            var f = new MailRuCloudApi.File(destinationPath, size, FileType.SingleFile, null);
+            var f = new MailRuCloudApi.File(destinationPath, size, null);
 
             return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }

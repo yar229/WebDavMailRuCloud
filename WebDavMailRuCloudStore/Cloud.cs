@@ -10,8 +10,8 @@ namespace YaR.WebDavMailRu.CloudStore
             if (!string.IsNullOrEmpty(userAgent))
                 ConstSettings.UserAgent = userAgent;
 
-            Instance = new MailRuCloud(login, password);
-            
+            //Instance = new MailRuCloud(login, password);
+            Instance = new SplittedCloud(login, password);
 
         }
 
