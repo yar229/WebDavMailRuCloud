@@ -39,38 +39,31 @@ namespace YaR.WebDavMailRu
                     var webdavIp = "127.0.0.1";
                     var webdavPort = options.Port;
 
-                    using (var httpListener = new HttpListener())
+
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    //using (var httpListener = new HttpListener())
+                    var httpListener = new HttpListener();
+                    try
                     {
                         httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
-
-                        // Use basic authentication if requested
-                        //var webdavUseAuthentication = false;
-                        //if (webdavUseAuthentication)
-                        //{
-                        //    httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
-                        //    httpListener.Realm = "WebDAV server";
-                        //}
-                        //else
-                        //{
-                        //    httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-                        //}
                         httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-
-                        // Start the HTTP listener
                         httpListener.Start();
 
                         // Start dispatching requests
-                        var cancellationTokenSource = new CancellationTokenSource();
                         DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
 
                         // Wait until somebody presses return
                         Console.WriteLine("WebDAV server running. Press 'x' to quit.");
                         while (Console.ReadKey().KeyChar != 'x') {}
 
-                        cancellationTokenSource.Cancel();
-
-                        return 0;
                     }
+                    finally
+                    {
+                        cancellationTokenSource.Cancel();
+                        httpListener.Stop();
+                        httpListener.Close();
+                    }
+                    return 0;
 
                 },
                 errors => 1);
@@ -88,51 +81,36 @@ namespace YaR.WebDavMailRu
             var homeFolder = new MailruStore();
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
-            // Determine the WebDAV username/password for authorization
-            // (only when basic authentication is enabled)
+            // Determine the WebDAV username/password for authorization (only when basic authentication is enabled)
             var webdavUsername = "test";
             var webdavPassword = "test";
 
 
             try
             {
-
                 using (var sem = new SemaphoreSlim(maxThreadCount))
                 {
                     var semclo = sem;
-                    HttpListenerContext httpListenerContext;
-                    while (
-                        !cancellationToken.IsCancellationRequested &&
-                        (httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false)) != null
-                    )
+                    while (!cancellationToken.IsCancellationRequested)
                     {
+                        var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
+                        if (httpListenerContext == null)
+                            break;
+
                         IHttpContext httpContext;
                         if (httpListenerContext.Request.IsAuthenticated)
-                            httpContext = new HttpBasicContext(httpListenerContext,
-                                i => i.Name == webdavUsername && i.Password == webdavPassword);
+                            httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
                         else httpContext = new HttpContext(httpListenerContext);
 
-                        //var r = httpContext.Request;
-                        //var range = r.GetRange();
-                        //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
-                        //await webDavDispatcher.DispatchRequestAsync(httpContext);
-
                         await semclo.WaitAsync(cancellationToken);
+
                         // ReSharper disable once UnusedVariable
                         Task tsk = Task
                             .Run(async () =>
                             {
                                 try
                                 {
-                                    //var r = httpContext.Request;
-                                    //var range = r.GetRange();
-                                    //Logger.Info($"HTTP {r.Url} {r.HttpMethod} ");
-                                    //if (null != range) Logger.Info($"Range {range.Start} / {range.End} {range.If}");
-                                    //Logger.Info($"-------awail {semclo.CurrentCount}");
-
                                     await webDavDispatcher.DispatchRequestAsync(httpContext);
-
-                                    //Logger.Info($"-------awail {semclo.CurrentCount}");
                                 }
                                 catch (Exception ex)
                                 {
@@ -144,12 +122,21 @@ namespace YaR.WebDavMailRu
                     }
                 }
             }
+            catch (HttpListenerException excListener)
+            {
+                if (excListener.ErrorCode != ERROR_OPERATION_ABORTED)
+                    throw;
+            }
             catch (Exception e)
             {
                 Logger.Error("Global exception", e);
             }
 
 
+
         }
+
+        // ReSharper disable once InconsistentNaming
+        private const int ERROR_OPERATION_ABORTED = 995;
     }
 }
