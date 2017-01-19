@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
@@ -26,6 +27,8 @@ namespace YaR.WebDavMailRu
         static void Main(string[] args)
         {
             LoggerFactory.Factory = new Log4NetAdapter();
+
+            ShowInfo();
 
             var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
@@ -134,6 +137,25 @@ namespace YaR.WebDavMailRu
 
 
 
+        }
+
+
+        private static void ShowInfo()
+        {
+            string title = GetAssemblyAttribute<AssemblyTitleAttribute>(a => a.Title);
+            string description = GetAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
+            string copyright = GetAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
+            string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            Console.WriteLine($"{title}: {description}");
+            Console.WriteLine($"v.{version}");
+            Console.WriteLine(copyright);
+        }
+
+        private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
+        {
+            T attribute = (T)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(T));
+            return value.Invoke(attribute);
         }
 
         // ReSharper disable once InconsistentNaming
