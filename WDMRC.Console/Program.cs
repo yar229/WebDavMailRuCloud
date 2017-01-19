@@ -44,16 +44,17 @@ namespace YaR.WebDavMailRu
                         httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
 
                         // Use basic authentication if requested
-                        var webdavUseAuthentication = false;
-                        if (webdavUseAuthentication)
-                        {
-                            httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
-                            httpListener.Realm = "WebDAV server";
-                        }
-                        else
-                        {
-                            httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-                        }
+                        //var webdavUseAuthentication = false;
+                        //if (webdavUseAuthentication)
+                        //{
+                        //    httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
+                        //    httpListener.Realm = "WebDAV server";
+                        //}
+                        //else
+                        //{
+                        //    httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
+                        //}
+                        httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
 
                         // Start the HTTP listener
                         httpListener.Start();
@@ -117,6 +118,7 @@ namespace YaR.WebDavMailRu
                         //await webDavDispatcher.DispatchRequestAsync(httpContext);
 
                         await semclo.WaitAsync(cancellationToken);
+                        // ReSharper disable once UnusedVariable
                         Task tsk = Task
                             .Run(async () =>
                             {
