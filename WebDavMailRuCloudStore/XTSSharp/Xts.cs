@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace XTSSharp
+namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 {
 	/// <summary>
 	/// Xts. See <see cref="XtsAes128"/> and <see cref="XtsAes256"/>.
@@ -46,11 +46,11 @@ namespace XTSSharp
 		protected Xts(Func<SymmetricAlgorithm> create, byte[] key1, byte[] key2)
 		{
 			if (create == null)
-				throw new ArgumentNullException("create");
+				throw new ArgumentNullException(nameof(create));
 			if (key1 == null)
-				throw new ArgumentNullException("key1");
+				throw new ArgumentNullException(nameof(key1));
 			if (key2 == null)
-				throw new ArgumentNullException("key2");
+				throw new ArgumentNullException(nameof(key2));
 
 			_key1 = create();
 			_key2 = create();
@@ -106,10 +106,10 @@ namespace XTSSharp
 		protected static byte[] VerifyKey(int expectedSize, byte[] key)
 		{
 			if (key == null)
-				throw new ArgumentNullException("key");
+				throw new ArgumentNullException(nameof(key));
 
 			if (key.Length*8 != expectedSize)
-				throw new ArgumentException(string.Format("Expected key length of {0} bits, got {1}", expectedSize, key.Length*8));
+				throw new ArgumentException($"Expected key length of {expectedSize} bits, got {key.Length * 8}");
 
 			return key;
 		}

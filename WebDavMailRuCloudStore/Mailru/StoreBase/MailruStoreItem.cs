@@ -161,12 +161,12 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (!IsWritable)
                 return DavStatusCode.Conflict;
 
-            long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - _fileInfo.Name.BytesCount();
-            if (_fileInfo.Size.DefaultValue > allowedSize)
-            {
-                //inputStream.Close();
-                return DavStatusCode.PreconditionFailed;
-            }
+            //long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - _fileInfo.Name.BytesCount();
+            //if (_fileInfo.Size.DefaultValue > allowedSize)
+            //{
+            //    //inputStream.Close();
+            //    return DavStatusCode.PreconditionFailed;
+            //}
 
             // Copy the stream
             try

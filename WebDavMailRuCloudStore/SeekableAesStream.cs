@@ -35,7 +35,9 @@ namespace YaR.WebDavMailRu.CloudStore
         private readonly ICryptoTransform _encryptor;
         public bool AutoDisposeBaseStream { get; set; } = true;
 
+        /// <param name="password"></param>
         /// <param name="salt">//** WARNING **: MUST be unique for each stream otherwise there is NO security</param>
+        /// <param name="baseStream"></param>
         public SeekableAesStream(Stream baseStream, string password, byte[] salt)
         {
             _baseStream = baseStream;

@@ -1,4 +1,0 @@
-﻿namespace YaR.WebDavMailRu.CloudStore
-{
-
-}

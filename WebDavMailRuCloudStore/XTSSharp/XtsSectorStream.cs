@@ -24,10 +24,9 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-using System;
 using System.IO;
 
-namespace XTSSharp
+namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 {
 	/// <summary>
 	/// Xts sector-based
@@ -37,7 +36,7 @@ namespace XTSSharp
 		/// <summary>
 		/// The default sector size
 		/// </summary>
-		public const int DEFAULT_SECTOR_SIZE = 512;
+		public const int DefaultSectorSize = 512;
 
 		private readonly byte[] _tempBuffer;
 		private readonly Xts _xts;
@@ -50,7 +49,7 @@ namespace XTSSharp
 		/// <param name="baseStream">The base stream</param>
 		/// <param name="xts">The xts transform</param>
 		public XtsSectorStream(Stream baseStream, Xts xts)
-			: this(baseStream, xts, DEFAULT_SECTOR_SIZE)
+			: this(baseStream, xts, DefaultSectorSize)
 		{
 		}
 
@@ -87,11 +86,8 @@ namespace XTSSharp
 		{
 			base.Dispose(disposing);
 
-			if (_encryptor != null)
-				_encryptor.Dispose();
-
-			if (_decryptor != null)
-				_decryptor.Dispose();
+		    _encryptor?.Dispose();
+		    _decryptor?.Dispose();
 		}
 
 		/// <summary>
