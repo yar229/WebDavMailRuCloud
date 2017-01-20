@@ -1,7 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -22,52 +25,49 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IStoreItem> GetItemAsync(Uri uri, IHttpContext httpContext)
         {
-
             //TODO: Refact
-            // if GET - suggest file, PROPFIND - suggest folder
 
             var path = GetPathFromUri(uri);
-            //var dirpath = httpContext.Request.HttpMethod == "GET"
-            //    ? WebDavPath.Parent(path) 
-            //    : path;
-
-
-            //if (httpContext.Request.HttpMethod == "GET")
-            //{
-            //    var dir = Cloud.Instance.GetItems(dirpath).Result;
-            //    var f = dir.Files.FirstOrDefault(k => k.FullPath == path);
-            //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
-            //}
-
-            //var dire = new Folder(dirpath);
-            //return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dire, IsWritable));
-
+            
+            //TODO: clean this trash
+            Entry item = null;
             try
             {
-                var item = Cloud.Instance.GetItems(path).Result;
-                if (item.FullPath == path)
-                {
-                    var dir = new Folder(path);
-                    return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
-                }
-
-                var f = item.Files.FirstOrDefault(k => k.FullPath == path);
-                return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
+                item = Cloud.Instance(httpContext).GetItems(path).Result;
             }
-            catch (Exception ex)
+            catch (WebException e)
             {
-                return Task.FromResult<IStoreItem>(null);
+                if (e.Status != WebExceptionStatus.ProtocolError) throw;
             }
+            catch (AggregateException e)
+            {
+                var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
+                if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
+            }
+
+            if (item?.FullPath == path)
+            {
+                var dir = new Folder(path);
+                return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
+            }
+
+            var f = item?.Files?.FirstOrDefault(k => k.FullPath == path);
+
+            if (null == f)
+                throw new FileNotFoundException();
+            return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
         }
 
         public Task<IStoreCollection> GetCollectionAsync(Uri uri, IHttpContext httpContext)
         {
             var path = GetPathFromUri(uri);
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new Folder(path), IsWritable));
+            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, new Folder(path), IsWritable));
         }
 
         private string GetPathFromUri(Uri uri)
         {
+            
+
             ////can't use uri.LocalPath and so on cause of special signs
 
             //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);

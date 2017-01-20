@@ -36,7 +36,7 @@ namespace YaR.WebDavMailRu
               .MapResult(
                 options => 
                 {
-                    Cloud.Init(options.Login, options.Password);
+                    Cloud.Init(options.UserAgent);
 
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
@@ -49,7 +49,7 @@ namespace YaR.WebDavMailRu
                     try
                     {
                         httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
-                        httpListener.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
+                        httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
                         httpListener.Start();
 
                         // Start dispatching requests
@@ -77,6 +77,9 @@ namespace YaR.WebDavMailRu
 
         private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
+
+
+
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
 
@@ -100,10 +103,12 @@ namespace YaR.WebDavMailRu
                         if (httpListenerContext == null)
                             break;
 
-                        IHttpContext httpContext;
-                        if (httpListenerContext.Request.IsAuthenticated)
-                            httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
-                        else httpContext = new HttpContext(httpListenerContext);
+                        //if (httpListenerContext.Request.IsAuthenticated)
+                        //    httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
+                        //else httpContext = new HttpContext(httpListenerContext);
+
+                        HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)httpListenerContext.User.Identity;
+                        IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
 
                         await semclo.WaitAsync(cancellationToken);
 

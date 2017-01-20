@@ -137,18 +137,19 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         public ILockingManager LockingManager { get; }
 
 
-        private Stream OpenReadStream(long? start, long? end)
+        private Stream OpenReadStream(MailRuCloudApi.MailRuCloud cloud, long? start, long? end)
         {
 
-            Stream stream = Cloud.Instance.GetFileDownloadStream(_fileInfo, start, end).Result;
+            Stream stream = cloud.GetFileDownloadStream(_fileInfo, start, end).Result;
             return stream;
         }
 
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) //=> 
         {
+            var cloud = Cloud.Instance(httpContext);
             var range = httpContext.Request.GetRange();
-            return Task.FromResult(OpenReadStream(range?.Start, range?.End));
+            return Task.FromResult(OpenReadStream(cloud, range?.Start, range?.End));
         }
 
         //{
@@ -172,7 +173,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = IsWritable ? Cloud.Instance.GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
+                using (var outputStream = IsWritable ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
                 {
                     //var str = await outputStream;
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
@@ -208,7 +209,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
                     // Copy the file
                     //File.Copy(_fileInfo.FullName, destinationPath, true);
-                    Cloud.Instance.Copy(_fileInfo, destinationPath).Wait();
+                    Cloud.Instance(httpContext).Copy(_fileInfo, destinationPath).Wait();
 
                     // Return the appropriate status
                     //return new StoreItemResult(fileExists ? DavStatusCode.NoContent : DavStatusCode.Created);

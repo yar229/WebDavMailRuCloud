@@ -20,12 +20,14 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
+        private readonly IHttpContext _context;
         private readonly Folder _directoryInfo;
         public Folder DirectoryInfo => _directoryInfo;
 
-        public MailruStoreCollection(ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
+        public MailruStoreCollection(IHttpContext context, ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
             LockingManager = lockingManager;
+            _context = context;
             _directoryInfo = directoryInfo;
             IsWritable = isWritable;
         }
@@ -35,13 +37,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
             new DavQuotaUsedBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance.GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -83,7 +85,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 Getter = (context, collection) =>
                 {
-                    var data = Cloud.Instance.GetItems(collection.DirectoryInfo).Result;
+                    var data = Cloud.Instance(context).GetItems(collection.DirectoryInfo).Result;
                     int cnt = data.NumberOfItems;
                     return cnt;
                 },
@@ -199,7 +201,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     {
                         if (null == _items)
                         {
-                            _items = GetItemsAsync(null).Result;
+                            _items = GetItemsAsync(_context).Result;
                         }
                     }
                 }
@@ -225,9 +227,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var item = Cloud.Instance.GetItems(_directoryInfo).Result;
+            var item = Cloud.Instance(httpContext).GetItems(_directoryInfo).Result;
 
-            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(LockingManager, subDirectory, IsWritable)).Cast<IStoreItem>().ToList();
+            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable)).Cast<IStoreItem>().ToList();
 
             items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
 
@@ -267,7 +269,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             var cmd = new SpecialCommand(destinationPath);
             if (cmd.IsCommand)
             {
-                bool k = Cloud.Instance.CloneItem(cmd.Path, cmd.Value).Result;
+                bool k = Cloud.Instance(httpContext).CloneItem(cmd.Path, cmd.Value).Result;
                 return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
             }
 
@@ -287,7 +289,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                Cloud.Instance.CreateFolder(name, FullPath).Wait();
+                Cloud.Instance(httpContext).CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
@@ -295,7 +297,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(LockingManager, new Folder(destinationPath), IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(httpContext, LockingManager, new Folder(destinationPath), IsWritable)));
         }
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
@@ -340,7 +342,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     if (!overwrite)
                         return new StoreItemResult(DavStatusCode.Forbidden);
 
-                    await Cloud.Instance.Remove(itemexist);
+                    await Cloud.Instance(httpContext).Remove(itemexist);
 
                     result = DavStatusCode.NoContent;
                 }
@@ -349,9 +351,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
 
                 if (destinationStoreCollection.FullPath == FullPath)
-                    await Cloud.Instance.Rename(item, destinationName);
+                    await Cloud.Instance(httpContext).Rename(item, destinationName);
                 else
-                    await Cloud.Instance.Move(item, destinationStoreCollection.FullPath);
+                    await Cloud.Instance(httpContext).Move(item, destinationStoreCollection.FullPath);
 
                 return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
             }
@@ -385,7 +387,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
                 if (null == item) return Task.FromResult(DavStatusCode.NotFound);
 
-                Cloud.Instance.Remove(item).Wait();
+                Cloud.Instance(httpContext).Remove(item).Wait();
                 return Task.FromResult(DavStatusCode.Ok);
             }
             catch (Exception exc)
