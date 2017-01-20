@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System;
+using CommandLine;
 
 namespace YaR.WebDavMailRu
 {
@@ -7,11 +8,13 @@ namespace YaR.WebDavMailRu
         [Option('p', "port", Required = true, HelpText = "WebDAV server port")]
         public int Port { get; set; }
 
-        //[Option('l', "login", Required = true, HelpText = "Login to Mail.ru Cloud")]
-        //public string Login { get; set; }
+        [Obsolete]
+        [Option('l', "login", Required = false, HelpText = "Login to Mail.ru Cloud", Hidden = true)]
+        public string Login { get; set; }
 
-        //[Option('s', "password", Required = true, HelpText = "Password to Mail.ru Cloud")]
-        //public string Password { get; set; }
+        [Obsolete]
+        [Option('s', "password", Required = false, HelpText = "Password to Mail.ru Cloud", Hidden = true)]
+        public string Password { get; set; }
 
         [Option("maxthreads", Default = 5, HelpText = "Maximum concurrent connections to cloud.mail.ru")]
         public int MaxThreadCount { get; set; }
