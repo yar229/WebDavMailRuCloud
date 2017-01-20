@@ -8,23 +8,30 @@
 **Usage:**
 ``` 	
 	-p, --port        Required. WebDAV server port
-	-l, --login       Required. Login to Mail.ru Cloud
-	-s, --password    Required. Password to Mail.ru Cloud
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--user-agent      "browser" user-agent
 	--help            Display this help screen.
 	--version         Display version information.
 ```
+Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe because connection can be established only locally)
 
-Clone shared cloud.mail.ru file/folder to your account:<br>
-	make folder with name `>>SHARED_FOLDER_LINK`
+***Hints***
+* Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
+* Automatic split/join when uploading/downloading files large than cloud allows
 
 **Windows**
 
+Using from explorer requires enabled Basic Auth for WebDAV:
+* Press Win+R, type `regedit`, click OK
+* HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
+* Right click on the BasicAuthLevel and click Modify
+* In the Value data box, type 2, and then click OK.
+
 Use as Windows disk: <br>
 ``` 
-	net use <disk>: http://127.0.0.1:<port>
-``` 	
+	net use <disk>: http://127.0.0.1:<port> <your password for cloud.mail.ru> /USER:<your_email@mail.ru>
+``` 
+
 
 Windows 7 client might perform very bad when connecting to any WebDAV server. This is caused, because it tries to auto-detect any proxy server before any request. Refer to KB2445570 for more information.
 
