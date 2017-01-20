@@ -22,7 +22,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IStoreItem> GetItemAsync(Uri uri, IHttpContext httpContext)
         {
-
             //TODO: Refact
             // if GET - suggest file, PROPFIND - suggest folder
 
@@ -42,32 +41,27 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //var dire = new Folder(dirpath);
             //return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dire, IsWritable));
 
-            try
+            var item = Cloud.Instance(httpContext).GetItems(path).Result;
+            if (item.FullPath == path)
             {
-                var item = Cloud.Instance.GetItems(path).Result;
-                if (item.FullPath == path)
-                {
-                    var dir = new Folder(path);
-                    return Task.FromResult<IStoreItem>(new MailruStoreCollection(LockingManager, dir, IsWritable));
-                }
+                var dir = new Folder(path);
+                return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
+            }
 
-                var f = item.Files.FirstOrDefault(k => k.FullPath == path);
-                return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
-            }
-            catch (Exception ex)
-            {
-                return Task.FromResult<IStoreItem>(null);
-            }
+            var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+            return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable));
         }
 
         public Task<IStoreCollection> GetCollectionAsync(Uri uri, IHttpContext httpContext)
         {
             var path = GetPathFromUri(uri);
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(LockingManager, new Folder(path), IsWritable));
+            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, new Folder(path), IsWritable));
         }
 
         private string GetPathFromUri(Uri uri)
         {
+            
+
             ////can't use uri.LocalPath and so on cause of special signs
 
             //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
