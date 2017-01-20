@@ -8,6 +8,9 @@ namespace YaR.WebDavMailRu
         [Option('p', "port", Required = true, HelpText = "WebDAV server port")]
         public int Port { get; set; }
 
+        [Option('h', "host", Required = false, HelpText = "WebDAV server host, including protocol")]
+        public string Host { get; set; }
+
         [Obsolete]
         [Option('l', "login", Required = false, HelpText = "Login to Mail.ru Cloud", Hidden = true)]
         public string Login { get; set; }
