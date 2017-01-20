@@ -41,14 +41,16 @@ namespace YaR.WebDavMailRu
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
                     var webdavPort = options.Port;
-
+                    var webdavHost = string.IsNullOrWhiteSpace(options.Host) 
+                        ? $"{webdavProtocol}://{webdavIp}" 
+                        : options.Host.TrimEnd('/');
 
                     var cancellationTokenSource = new CancellationTokenSource();
                     //using (var httpListener = new HttpListener())
                     var httpListener = new HttpListener();
                     try
                     {
-                        httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
+                        httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
                         httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
                         httpListener.Start();
 
