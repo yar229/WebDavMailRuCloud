@@ -8,6 +8,7 @@
 **Usage:**
 ``` 	
 	-p, --port        Required. WebDAV server port
+	-h, --host		  (Default: "http://127.0.0.1") WebDAV server host with protocol
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--user-agent      "browser" user-agent
 	--help            Display this help screen.
