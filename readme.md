@@ -56,7 +56,7 @@ Microsoft says - "It's not a bug, it's by design"
 
 **Linux**
 <br>I've tested it only under [Elementary OS](https://elementary.io)
-* download latest `wdmrc-mono-*.tar.gz`
+* download [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) `wdmrc-mono-*.tar.gz`
 * `sudo apt install apt mono-complete`
 * `mono wdmrc.exe -p <port>`
 
