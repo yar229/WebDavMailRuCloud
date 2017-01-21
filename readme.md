@@ -27,6 +27,7 @@ Using from explorer requires enabled Basic Auth for WebDAV:
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 * Right click on the BasicAuthLevel and click Modify
 * In the Value data box, type 2, and then click OK.
+* Reset computer (or run `cmd` with admin rights and then `net stop webclient`, `net start webclient`)
 
 Use as Windows disk: <br>
 ``` 
@@ -49,6 +50,7 @@ By default, Windows limits file size to 5000000 bytes, you can increase it up to
 * Right click on the FileSizeLimitInBytes and click Modify
 * Click on Decimal
 * In the Value data box, type 4294967295, and then click OK.
+* Reset computer (or run `cmd` with admin rights and then `net stop webclient`, `net start webclient`)
 
 [Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)<br>
 Microsoft says - "It's not a bug, it's by design"
