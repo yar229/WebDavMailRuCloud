@@ -27,6 +27,7 @@ Using from explorer requires enabled Basic Auth for WebDAV:
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 * Right click on the BasicAuthLevel and click Modify
 * In the Value data box, type 2, and then click OK.
+* Reset computer (or run `cmd` with admin rights and then `net stop webclient`, `net start webclient`)
 
 Use as Windows disk: <br>
 ``` 
