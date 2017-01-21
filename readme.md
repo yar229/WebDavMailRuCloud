@@ -21,7 +21,7 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 * Automatic split/join when uploading/downloading files large than cloud allows
 
 **Windows**
-Using from explorer requires enabled Basic Auth for WebDAV:
+<br>Using from explorer requires enabled Basic Auth for WebDAV:
 * Press Win+R, type `regedit`, click OK
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 * Right click on the BasicAuthLevel and click Modify
