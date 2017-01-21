@@ -55,7 +55,8 @@ By default, Windows limits file size to 5000000 bytes, you can increase it up to
 Microsoft says - "It's not a bug, it's by design"
 
 **Linux**
-I've tested it only under [Elementary OS](https://elementary.io)
+<br>I've tested it only under [Elementary OS](https://elementary.io)
+* download latest `wdmrc-mono-*.tar.gz`
 * `sudo apt install apt mono-complete`
 * `mono wdmrc.exe -p <port>`
 
