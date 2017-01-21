@@ -3,7 +3,7 @@
 
 **Requirements:**
 * Windows - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
-* Linux - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz) - really dunno if it's working... (or take a look [here](https://toster.ru/q/375448))
+* Linux - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz)
 
 **Usage:**
 ``` 	
@@ -21,7 +21,6 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 * Automatic split/join when uploading/downloading files large than cloud allows
 
 **Windows**
-
 Using from explorer requires enabled Basic Auth for WebDAV:
 * Press Win+R, type `regedit`, click OK
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
@@ -55,6 +54,10 @@ By default, Windows limits file size to 5000000 bytes, you can increase it up to
 [Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)<br>
 Microsoft says - "It's not a bug, it's by design"
 
+**Linux**
+I've tested it only under [Elementary OS](https://elementary.io)
+* `sudo apt install apt mono-complete`
+* `mono wdmrc.exe -p <port>`
 
 **Big thanks** to
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
