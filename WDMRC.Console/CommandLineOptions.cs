@@ -8,7 +8,7 @@ namespace YaR.WebDavMailRu
         [Option('p', "port", Required = true, HelpText = "WebDAV server port")]
         public int Port { get; set; }
 
-        [Option('h', "host", Required = false, HelpText = "WebDAV server host, including protocol")]
+        [Option('h', "host", Required = false, Default = "http://127.0.0.1", HelpText = "WebDAV server host, including protocol")]
         public string Host { get; set; }
 
         [Obsolete]
