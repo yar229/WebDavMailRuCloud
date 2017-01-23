@@ -58,7 +58,7 @@ namespace YaR.WebDavMailRu
                         DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
 
                         // Wait until somebody presses return
-                        Console.WriteLine("WebDAV server running. Press 'x' to quit.");
+                        Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
                         while (Console.ReadKey().KeyChar != 'x') {}
 
                     }
@@ -154,9 +154,9 @@ namespace YaR.WebDavMailRu
             string copyright = GetAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            Console.WriteLine($"{title}: {description}");
-            Console.WriteLine($"v.{version}");
-            Console.WriteLine(copyright);
+            Console.WriteLine($"  {title}: {description}");
+            Console.WriteLine($"  v.{version}");
+            Console.WriteLine($"  {copyright}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
