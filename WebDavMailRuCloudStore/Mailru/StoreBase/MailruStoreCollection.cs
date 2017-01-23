@@ -43,8 +43,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaUsedBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
-                IsExpensive = true  //folder listing performance
+                Getter = (context, collection) => 
+                    collection.DirectoryInfo.Size.DefaultValue // collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
+                //IsExpensive = true  //folder listing performance
             },
 
             // RFC-2518 properties
@@ -59,8 +60,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavDisplayName<MailruStoreCollection>
             {
-                Getter = (context, collection) => 
-                collection._directoryInfo.Name
+                Getter = (context, collection) => collection._directoryInfo.Name
             },
             new DavGetLastModified<MailruStoreCollection>
             {
@@ -83,13 +83,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //Hopmann/Lippert collection properties
             new DavExtCollectionChildCount<MailruStoreCollection>
             {
-                Getter = (context, collection) =>
-                {
-                    var data = Cloud.Instance(context).GetItems(collection.DirectoryInfo).Result;
-                    int cnt = data.NumberOfItems;
-                    return cnt;
-                },
-                IsExpensive = true  //folder listing performance
+                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders + collection.DirectoryInfo.NumberOfFiles
             },
             new DavExtCollectionIsFolder<MailruStoreCollection>
             {
@@ -106,8 +100,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavExtCollectionHasSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.Folders.Any(),
-                IsExpensive = true  //folder listing performance
+                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders > 0 
             },
 
             new DavExtCollectionNoSubs<MailruStoreCollection>
@@ -117,8 +110,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavExtCollectionObjectCount<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.Files.Count(),
-                IsExpensive = true  //folder listing performance
+                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles
             },
 
             new DavExtCollectionReserved<MailruStoreCollection>
@@ -126,11 +118,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 Getter = (context, collection) => !collection.IsWritable
             },
 
-            //folder listing performance
             new DavExtCollectionVisibleCount<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.Items.Count,
-                IsExpensive = true  //folder listing performance
+                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles + collection.DirectoryInfo.NumberOfFolders
             },
 
             // Win32 extensions
@@ -179,7 +169,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             new DavGetContentLength<MailruStoreCollection>
             {
                 Getter = (context, item) => item.DirectoryInfo.Size.DefaultValue
-            },
+            }
         });
 
         public bool IsWritable { get; }
@@ -246,12 +236,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             DavStatusCode result = DavStatusCode.Created;
 
             var size = httpContext.Request.ContentLength();
-
-            //long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - name.BytesCount(); 
-            //if (size > allowedSize)
-            //{
-            //    return Task.FromResult(new StoreItemResult(DavStatusCode.PreconditionFailed));
-            //}
 
             var f = new MailRuCloudApi.File(destinationPath, size, null);
 
@@ -380,7 +364,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
 
             // Determine the full path
-            var fullPath = Path.Combine(_directoryInfo.FullPath, name).Replace("\\", "/");
+            var fullPath = WebDavPath.Combine(_directoryInfo.FullPath, name);
             try
             {
                 var item = FindSubItem(name);
