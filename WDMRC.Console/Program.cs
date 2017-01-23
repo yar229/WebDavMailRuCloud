@@ -46,7 +46,6 @@ namespace YaR.WebDavMailRu
                         : options.Host.TrimEnd('/');
 
                     var cancellationTokenSource = new CancellationTokenSource();
-                    //using (var httpListener = new HttpListener())
                     var httpListener = new HttpListener();
                     try
                     {
@@ -79,20 +78,12 @@ namespace YaR.WebDavMailRu
 
         private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
-
-
-
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
 
             // Create WebDAV dispatcher
             var homeFolder = new MailruStore();
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
-
-            // Determine the WebDAV username/password for authorization (only when basic authentication is enabled)
-            var webdavUsername = "test";
-            var webdavPassword = "test";
-
 
             try
             {
