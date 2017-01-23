@@ -7,14 +7,14 @@
 
 **Usage:**
 ``` 	
-	-p, --port        Required. WebDAV server port
+	-p, --port        (Default: 801) WebDAV server port
 	-h, --host		  (Default: "http://127.0.0.1") WebDAV server host with protocol
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--user-agent      "browser" user-agent
 	--help            Display this help screen.
 	--version         Display version information.
 ```
-Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe because connection can be established only locally)
+Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe when you opens server on 127.0.0.1)
 
 ***Hints***
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
