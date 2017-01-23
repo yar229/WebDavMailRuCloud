@@ -1,10 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.UI.WebControls;
 using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -37,7 +35,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 {
                     if (item.FullPath == path)
                     {
-                        var dir = new Folder(path);
+                        var dir = new Folder(path) {Size = item.Size};
                         return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
                     }
                     var fa = item.Files.FirstOrDefault(k => k.FullPath == path);
@@ -73,11 +71,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         private string GetPathFromUri(Uri uri)
         {
-            
-
             ////can't use uri.LocalPath and so on cause of special signs
-
-            //var requestedPath = Regex.Replace(uri.AbsoluteUri, @"^http?://.*?/", string.Empty);
             var requestedPath = Regex.Replace(uri.OriginalString, @"^http?://.*?(/|\Z)", string.Empty);
             requestedPath = "/" + requestedPath.TrimEnd('/');
 
