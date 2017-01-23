@@ -25,11 +25,18 @@ namespace YaR.WebDavMailRu.CloudStore
             string key = identity.Name + identity.Password;
 
             MailRuCloud cloud;
-            if (CloudCache.TryGetValue(key, out cloud)) return cloud;
+            if (CloudCache.TryGetValue(key, out cloud))
+            {
+                if (cloud.CloudApi.Account.Expires <= DateTime.Now)
+                    CloudCache.TryRemove(key, out cloud);
+                else
+                    return cloud;
+            }
 
             cloud = new SplittedCloud(identity.Name, identity.Password);
             if (!CloudCache.TryAdd(key, cloud))
                 CloudCache.TryGetValue(key, out cloud);
+
 
             return cloud;
         }
