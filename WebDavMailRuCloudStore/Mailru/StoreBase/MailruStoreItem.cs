@@ -139,7 +139,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         private Stream OpenReadStream(MailRuCloudApi.MailRuCloud cloud, long? start, long? end)
         {
-
             Stream stream = cloud.GetFileDownloadStream(_fileInfo, start, end).Result;
             return stream;
         }
@@ -152,30 +151,19 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             return Task.FromResult(OpenReadStream(cloud, range?.Start, range?.End));
         }
 
-        //{
-        //    return new Task<Stream>(OpenReadStream);
-        //}
-
         public async Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream inputStream)
         {
-            // Check if the item is writable
             if (!IsWritable)
                 return DavStatusCode.Conflict;
-
-            //long allowedSize = Cloud.Instance.CloudApi.Account.Info.FileSizeLimit - _fileInfo.Name.BytesCount();
-            //if (_fileInfo.Size.DefaultValue > allowedSize)
-            //{
-            //    //inputStream.Close();
-            //    return DavStatusCode.PreconditionFailed;
-            //}
 
             // Copy the stream
             try
             {
                 // Copy the information to the destination stream
-                using (var outputStream = IsWritable ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) : null)  //GetWritableStream(httpContext))
+                using (var outputStream = IsWritable 
+                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) 
+                    : null)
                 {
-                    //var str = await outputStream;
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
                 }
                 return DavStatusCode.Ok;
@@ -196,9 +184,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var diskCollection = destination as MailruStoreCollection;
                 if (diskCollection != null)
                 {
-                    // Check if the collection is writable
-                    //if (!diskCollection.IsWritable)
-                    //    return new StoreItemResult(DavStatusCode.PreconditionFailed);
+                    if (!diskCollection.IsWritable)
+                        return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
                     var destinationPath = Path.Combine(diskCollection.FullPath, name);
 
@@ -208,42 +195,27 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     //    return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
                     // Copy the file
-                    //File.Copy(_fileInfo.FullName, destinationPath, true);
                     Cloud.Instance(httpContext).Copy(_fileInfo, destinationPath).Wait();
 
                     // Return the appropriate status
-                    //return new StoreItemResult(fileExists ? DavStatusCode.NoContent : DavStatusCode.Created);
                     return new StoreItemResult(DavStatusCode.Created);
                 }
-                else
+
+
+                // Create the item in the destination collection
+                var result = await destination.CreateItemAsync(name, overwrite, httpContext).ConfigureAwait(false);
+
+                if (result.Item != null)
                 {
-                    // Create the item in the destination collection
-                    var result = await destination.CreateItemAsync(name, overwrite, httpContext).ConfigureAwait(false);
-
-
-                    if (result.Item != null)
+                    using (var sourceStream = await GetReadableStreamAsync(httpContext).ConfigureAwait(false))
                     {
-                        using (var sourceStream = await GetReadableStreamAsync(httpContext).ConfigureAwait(false))
-                        {
-                            var copyResult = await result.Item.UploadFromStreamAsync(httpContext, sourceStream).ConfigureAwait(false);
-                            if (copyResult != DavStatusCode.Ok)
-                                return new StoreItemResult(copyResult, result.Item);
-                        }
+                        var copyResult = await result.Item.UploadFromStreamAsync(httpContext, sourceStream).ConfigureAwait(false);
+                        if (copyResult != DavStatusCode.Ok)
+                            return new StoreItemResult(copyResult, result.Item);
                     }
-
-                    // Check if the item could be created
-                    ////if (result.Item != null)
-                    ////{
-                    //    using (var destinationStream = result.Item.GetWritableStream(httpContext))
-                    //    using (var sourceStream = GetReadableStream(httpContext))
-                    //    {
-                    //        await sourceStream.CopyToAsync(destinationStream).ConfigureAwait(false);
-                    //    }
-                    ////}
-
-                    // Return result
-                    return new StoreItemResult(result.Result, result.Item);
                 }
+
+                return new StoreItemResult(result.Result, result.Item);
             }
             catch (IOException ioException) when (ioException.IsDiskFull())
             {

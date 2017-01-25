@@ -5,8 +5,11 @@ namespace YaR.WebDavMailRu
 {
     class CommandLineOptions
     {
-        [Option('p', "port", Required = true, HelpText = "WebDAV server port")]
+        [Option('p', "port", Required = false, Default = 801, HelpText = "WebDAV server port")]
         public int Port { get; set; }
+
+        [Option('h', "host", Required = false, Default = "http://127.0.0.1", HelpText = "WebDAV server host, including protocol")]
+        public string Host { get; set; }
 
         [Obsolete]
         [Option('l', "login", Required = false, HelpText = "Login to Mail.ru Cloud", Hidden = true)]

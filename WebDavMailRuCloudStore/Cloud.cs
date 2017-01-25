@@ -21,15 +21,22 @@ namespace YaR.WebDavMailRu.CloudStore
 
         public static MailRuCloud Instance(IHttpContext context)
         {
-            HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity; //Console.WriteLine(identity.Name); //Console.WriteLine(identity.Password);
+            HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
             string key = identity.Name + identity.Password;
 
             MailRuCloud cloud;
-            if (!CloudCache.TryGetValue(key, out cloud))
+            if (CloudCache.TryGetValue(key, out cloud))
             {
-                cloud = new SplittedCloud(identity.Name, identity.Password);
-                CloudCache.TryAdd(key, cloud);
+                if (cloud.CloudApi.Account.Expires <= DateTime.Now)
+                    CloudCache.TryRemove(key, out cloud);
+                else
+                    return cloud;
             }
+
+            cloud = new SplittedCloud(identity.Name, identity.Password);
+            if (!CloudCache.TryAdd(key, cloud))
+                CloudCache.TryGetValue(key, out cloud);
+
 
             return cloud;
         }

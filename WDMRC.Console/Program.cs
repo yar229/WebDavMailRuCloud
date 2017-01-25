@@ -41,14 +41,15 @@ namespace YaR.WebDavMailRu
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
                     var webdavPort = options.Port;
-
+                    var webdavHost = string.IsNullOrWhiteSpace(options.Host) 
+                        ? $"{webdavProtocol}://{webdavIp}" 
+                        : options.Host.TrimEnd('/');
 
                     var cancellationTokenSource = new CancellationTokenSource();
-                    //using (var httpListener = new HttpListener())
                     var httpListener = new HttpListener();
                     try
                     {
-                        httpListener.Prefixes.Add($"{webdavProtocol}://{webdavIp}:{webdavPort}/");
+                        httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
                         httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
                         httpListener.Start();
 
@@ -56,7 +57,7 @@ namespace YaR.WebDavMailRu
                         DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
 
                         // Wait until somebody presses return
-                        Console.WriteLine("WebDAV server running. Press 'x' to quit.");
+                        Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
                         while (Console.ReadKey().KeyChar != 'x') {}
 
                     }
@@ -77,20 +78,12 @@ namespace YaR.WebDavMailRu
 
         private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
-
-
-
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
 
             // Create WebDAV dispatcher
             var homeFolder = new MailruStore();
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
-
-            // Determine the WebDAV username/password for authorization (only when basic authentication is enabled)
-            var webdavUsername = "test";
-            var webdavPassword = "test";
-
 
             try
             {
@@ -152,9 +145,9 @@ namespace YaR.WebDavMailRu
             string copyright = GetAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            Console.WriteLine($"{title}: {description}");
-            Console.WriteLine($"v.{version}");
-            Console.WriteLine(copyright);
+            Console.WriteLine($"  {title}: {description}");
+            Console.WriteLine($"  v.{version}");
+            Console.WriteLine($"  {copyright}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
