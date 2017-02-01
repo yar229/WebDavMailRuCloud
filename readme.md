@@ -1,5 +1,6 @@
 ## **WebDAV emulator for Mail.ru Cloud**<br>
 [download latest release binaries](https://github.com/yar229/WebDavMailRuCloud/releases/latest) <a href="https://ci.appveyor.com/project/yar229/webdavmailrucloud-k21bq/branch/master"><img src="https://ci.appveyor.com/api/projects/status/3gejunv39gqed3tp/branch/master?svg=true" align="right"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://github-basic-badges.herokuapp.com/release/yar229/WebDavMailRuCloud.svg" align="right"></a>
 
 **Requirements:**
 * Windows - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
