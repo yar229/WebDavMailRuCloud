@@ -22,38 +22,47 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 * Automatic split/join when uploading/downloading files large than cloud allows
 
 ####Windows
-<br>Using from explorer requires enabled Basic Auth for WebDAV:
+<details> 
+<summary>Using from explorer requires enabled Basic Auth for WebDAV </summary>
 * Press Win+R, type `regedit`, click OK
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 * Right click on the BasicAuthLevel and click Modify
 * In the Value data box, type 2, and then click OK.
 * Reset computer (or run `cmd` with admin rights and then `net stop webclient`, `net start webclient`)
+</details>
 
-Use as Windows disk: <br>
+<details> 
+<summary>Use as Windows disk</summary>
 ``` 
 	net use <disk>: http://127.0.0.1:<port> <your password for cloud.mail.ru> /USER:<your_email@mail.ru>
-``` 
+```
+</details>
 
-
+<details>
+<summary>Faster WebDAV Performance in Windows 7</summary>
 Windows 7 client might perform very bad when connecting to any WebDAV server. This is caused, because it tries to auto-detect any proxy server before any request. Refer to KB2445570 for more information.
 
-Faster WebDAV Performance in Windows 7<br>
 * In Internet Explorer, open the Tools menu, then click Internet Options.
 * Select the Connections tab.
 * Click the LAN Settings button.
 * Uncheck the “Automatically detect settings” box.
 * Click OK until you’re out of dialog.
+</details>
 
-By default, Windows limits file size to 5000000 bytes, you can increase it up to 4Gb:
+<details>
+<summary>By default, Windows limits file size to 5000000 bytes, you can increase it up to 4Gb</summary>
 * Press Win+R, type `regedit`, click OK
 * HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WebClient\Parameters
 * Right click on the FileSizeLimitInBytes and click Modify
 * Click on Decimal
 * In the Value data box, type 4294967295, and then click OK.
 * Reset computer (or run `cmd` with admin rights and then `net stop webclient`, `net start webclient`)
+</details>
 
-[Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)<br>
+<details>
+<summary>[Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)</summary>
 Microsoft says - "It's not a bug, it's by design"
+</details>
 
 ####Linux
 <br>Tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/)
