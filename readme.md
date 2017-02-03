@@ -21,9 +21,9 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
 * Automatic split/join when uploading/downloading files larger than cloud allows
 
-<br>
-####Windows
 ======
+####Windows
+
 <details> 
 <summary>Using from explorer requires enabled Basic Auth for WebDAV </summary>
 * Press Win+R, type `regedit`, click OK
@@ -66,10 +66,8 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 Microsoft says - "It's not a bug, it's by design"
 </details>
 
-<br>
-<br>
-####Linux
 ======
+####Linux
 Tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/)
 * download [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) `wdmrc-mono-*.tar.gz`  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
 * `sudo apt install apt mono-complete`
@@ -81,7 +79,7 @@ Mount with davfs2
 * `sudo mount --rw -t davfs http://<address>:<port> /mnt/<folder>/ -o uid=<current_linux_user>`
 
 
-<br>
+======
 ####Big thanks
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
 * [Erast Korolev](https://github.com/erastmorgan) for [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
