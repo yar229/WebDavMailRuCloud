@@ -62,8 +62,8 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 </details>
 
 <details>
-<summary>[Wrong disk size when mapped as Windows drive](https://support.microsoft.com/en-us/kb/2386902)</summary>
-Microsoft says - "It's not a bug, it's by design"
+<summary>Wrong disk size when mapped as Windows drive</summary>
+[Microsoft says - "It's not a bug, it's by design"](https://support.microsoft.com/en-us/kb/2386902)
 </details>
 
 ======
