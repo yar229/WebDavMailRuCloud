@@ -5,6 +5,7 @@
 ####Requirements
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
 * [Linux](#linux) - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz)
+* OS X - never heard what a hell is it, but buddy sad it works (wdmrc-mono-*.tar.gz)
 
 ####Usage
 ``` 	
