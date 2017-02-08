@@ -5,6 +5,7 @@
 ####Requirements
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
 * [Linux](#linux) - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz)
+* OS X - never heard what a hell is it, but buddy sad it works (wdmrc-mono-*.tar.gz)
 
 ####Usage
 ``` 	
@@ -87,6 +88,7 @@ Mount with davfs2
 
 <br>
 ####Remarks
+* [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 * Using within [**Total Commander**](http://www.ghisler.com/) requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
 * Avoid using #, %, +  in file and folder names
 * If you have paid account - you can remove 2Gb filesize limitation using `--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"` (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limit may exist)
