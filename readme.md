@@ -1,4 +1,4 @@
-## **WebDAV emulator for Mail.ru Cloud**<br>
+﻿## **WebDAV emulator for Mail.ru Cloud**<br>
 [download latest release binaries](https://github.com/yar229/WebDavMailRuCloud/releases/latest) <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://img.shields.io/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a> <a href="https://ci.appveyor.com/project/yar229/webdavmailrucloud-k21bq/branch/master"><img src="https://ci.appveyor.com/api/projects/status/3gejunv39gqed3tp/branch/master?svg=true" align="right"></a>
 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://github-basic-badges.herokuapp.com/release/yar229/WebDavMailRuCloud.svg" align="right"></a>
 
@@ -74,11 +74,25 @@ Tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu
 * `sudo apt install apt mono-complete`
 * `mono wdmrc.exe -p <port>`
 
-Mount with davfs2
+<details>
+<summary>Mount with davfs2</summary>
 * `mkdir /mnt/<folder>`
 * edit `/etc/davfs2/davfs2.conf` set `use_locks       0`
 * `sudo mount --rw -t davfs http://<address>:<port> /mnt/<folder>/ -o uid=<current_linux_user>`
+</details>
 
+<details>
+<summary>CERTIFICATE_VERIFY_FAILED exception</summary>
+[Issue 56](https://github.com/yar229/WebDavMailRuCloud/issues/56)
+[default installation of Mono doesn’t trust anyone](http://www.mono-project.com/docs/faq/security/)
+
+In short:
+```
+# cat /etc/ssl/certs/* >ca-bundle.crt
+# cert-sync ca-bundle.crt
+# rm ca-bundle.crt
+```
+</details>
 
 ======
 ####Big thanks
