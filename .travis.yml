@@ -1,5 +1,8 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
+before_script:
+  - sed -ie 's/\[assembly: AssemblyFileVersion("1.0.0.0")\]/\[assembly: AssemblyFileVersion("$TRAVIS_TAG")\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs
+  - sed -ie 's/\[assembly: AssemblyVersion("1.0.0.0")\]/\[assembly: AssemblyVersion("$TRAVIS_TAG")\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs
 before_deploy: tar -czpvf wdmrc-mono-$TRAVIS_TAG.tar.gz -C /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release .
 deploy:
   provider: releases
