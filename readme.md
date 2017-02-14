@@ -1,11 +1,11 @@
-﻿## **WebDAV emulator for Mail.ru Cloud**<br>
-[download latest release binaries](https://github.com/yar229/WebDavMailRuCloud/releases/latest) <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://img.shields.io/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a> <a href="https://ci.appveyor.com/project/yar229/webdavmailrucloud-k21bq/branch/master"><img src="https://ci.appveyor.com/api/projects/status/3gejunv39gqed3tp/branch/master?svg=true" align="right"></a>
-<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://github-basic-badges.herokuapp.com/release/yar229/WebDavMailRuCloud.svg" align="right"></a>
+## **WebDAV emulator for Mail.ru Cloud**<br>
 
-####Requirements
-* [Windows](#windows)  - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
-* [Linux](#linux) - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz)
-* OS X - never heard what a hell is it, but buddy sad it works (wdmrc-mono-*.tar.gz)
+ <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a> <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a> <a href="https://ci.appveyor.com/project/yar229/webdavmailrucloud-k21bq/branch/master"><img src="https://ci.appveyor.com/api/projects/status/3gejunv39gqed3tp/branch/master?svg=true" align="right"></a>
+
+####Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
+* [Windows](#windows)  - Microsoft .NET Framework 4.5 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/file/WebDavMailRuCloud__version_.zip%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+* [Linux](#linux) - Mono Stable 4.6.2.16 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/file/wdmrc-mono-_version_.tar.gz%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+* OS X - buddy said it works <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/file/wdmrc-mono-_version_.tar.gz%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
 
 ####Usage
 ``` 	
