@@ -7,7 +7,7 @@
 ####Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 (WebDavMailRuCloud_*.zip)
 * [Linux](#linux) - Mono Stable 4.6.2.16 (wdmrc-mono-*.tar.gz)
-* OS X - never heard what a hell is it, but buddy sad it works (wdmrc-mono-*.tar.gz)
+* OS X - never heard what a hell is it, but buddy said it works (wdmrc-mono-*.tar.gz)
 
 ####Usage
 ``` 	
