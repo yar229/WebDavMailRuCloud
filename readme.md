@@ -70,9 +70,9 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 ======
 ####Linux
 
-[Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
+You can simply use [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
 
-Tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/)
+...or by hands (tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/))
 * download [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) `wdmrc-mono-*.tar.gz`  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
 * `sudo apt install apt mono-complete`
 * `mono wdmrc.exe -p <port>`
