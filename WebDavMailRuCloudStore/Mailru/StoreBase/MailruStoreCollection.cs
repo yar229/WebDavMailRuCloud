@@ -337,7 +337,18 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 if (destinationStoreCollection.FullPath == FullPath)
                     await Cloud.Instance(httpContext).Rename(item, destinationName);
                 else
-                    await Cloud.Instance(httpContext).Move(item, destinationStoreCollection.FullPath);
+                {
+                    if (sourceName == destinationName || string.IsNullOrEmpty(destinationName))
+                    {
+                        await Cloud.Instance(httpContext).Move(item, destinationStoreCollection.FullPath);
+                    }
+                    else
+                    {
+                        await Cloud.Instance(httpContext).Rename(item, destinationName);
+                        string path = WebDavPath.Combine(WebDavPath.Parent(item.GetFullPath()), destinationName);
+                        await Cloud.Instance(httpContext).MoveOrCopy(path, destinationStoreCollection.FullPath, true);
+                    }
+                }
 
                 return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
             }

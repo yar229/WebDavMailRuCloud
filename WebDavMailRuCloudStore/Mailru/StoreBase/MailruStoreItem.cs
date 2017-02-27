@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using MailRuCloudApi;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -156,12 +157,38 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (!IsWritable)
                 return DavStatusCode.Conflict;
 
+
+            // dirty hack! HIGH MEMORY CONSUME
+            // mail.ru needs size of file, but some clients does not send it
+            // so we'll cache file in memory
+            // TODO: rewrite
+            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size.DefaultValue == 0)
+            {
+                SLog.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
+                var memStream = new MemoryStream();
+                await inputStream.CopyToAsync(memStream).ConfigureAwait(false);
+
+                _fileInfo.Size = new FileSize(memStream.Length);
+
+                using (var outputStream = IsWritable
+                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size.DefaultValue)
+                    : null)
+                {
+                    memStream.Seek(0, SeekOrigin.Begin);
+                    await memStream.CopyToAsync(outputStream).ConfigureAwait(false);
+                }
+                return DavStatusCode.Ok;
+            }
+
+
+
+
             // Copy the stream
             try
             {
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, ".bin", _fileInfo.Size.DefaultValue) 
+                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size.DefaultValue) 
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
