@@ -52,6 +52,20 @@ namespace YaR.WebDavMailRu.CloudStore
             throw new ArgumentException(string.Empty, nameof(item));
         }
 
+        public static string GetFullPath(this IStoreItem item)
+        {
+            if (null == item) return string.Empty;
+
+            var storeItem = item as MailruStoreItem;
+            if (storeItem != null)
+                return storeItem.FullPath;
+            var storeCollection = item as MailruStoreCollection;
+            if (storeCollection != null)
+                return storeCollection.FullPath;
+
+            throw new ArgumentException(string.Empty, nameof(item));
+        }
+
 
         public static long ContentLength(this IHttpRequest request)
         {
