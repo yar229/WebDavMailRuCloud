@@ -161,7 +161,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             // dirty hack! HIGH MEMORY CONSUME
             // mail.ru needs size of file, but some clients does not send it
             // so we'll cache file in memory
-            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked")
+            // TODO: rewrite
+            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size.DefaultValue == 0)
             {
                 SLog.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
                 var memStream = new MemoryStream();
