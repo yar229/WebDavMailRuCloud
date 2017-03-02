@@ -138,7 +138,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         public ILockingManager LockingManager { get; }
 
 
-        private Stream OpenReadStream(MailRuCloudApi.MailRuCloud cloud, long? start, long? end)
+        private Stream OpenReadStream(MailRuCloud cloud, long? start, long? end)
         {
             Stream stream = cloud.GetFileDownloadStream(_fileInfo, start, end).Result;
             return stream;

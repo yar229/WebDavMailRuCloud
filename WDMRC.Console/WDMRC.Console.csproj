@@ -63,12 +63,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLineOptions.cs" />
@@ -91,10 +85,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
-      <Project>{75bf5eac-81a8-4e00-a82e-0bcbd17ac50b}</Project>
-      <Name>MailRuCloudApi</Name>
-    </ProjectReference>
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj">
       <Project>{F8FA91A5-466D-4072-8D7B-7791831F520D}</Project>
       <Name>WebDavMailRuCloudStore</Name>
