@@ -344,20 +344,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     }
                     else
                     {
-                        await Cloud.Instance(httpContext).Rename(item, destinationName);
-                        string path = WebDavPath.Combine(WebDavPath.Parent(item.GetFullPath()), destinationName);
                         var fi = ((MailruStoreItem)item).FileInfo;
 
+                        string tmpName = Guid.NewGuid().ToString();
+                        await Cloud.Instance(httpContext).Rename(item, tmpName);
+                        fi.SetName(tmpName);
 
-
-                        fi.FullPath = path;
-                        if (fi.Files.Count > 1)
-                            foreach (var fiFile in fi.Files)
-                            {
-                                fiFile.FullPath = WebDavPath.Combine(fiFile.Path, fi.Name + ".wdmrc" + fiFile.Extension); //TODO: refact
-                            }
-                        //await Cloud.Instance(httpContext).MoveOrCopy(path, destinationStoreCollection.FullPath, true);
                         await Cloud.Instance(httpContext).Move(fi, destinationStoreCollection.FullPath);
+
+                        fi.SetPath(destinationStoreCollection.FullPath);
+
+                        await Cloud.Instance(httpContext).Rename(fi, destinationName);
                     }
                 }
 
