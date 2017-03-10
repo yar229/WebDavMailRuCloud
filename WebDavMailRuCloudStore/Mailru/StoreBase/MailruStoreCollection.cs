@@ -71,6 +71,18 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
+
+            new DavLastAccessed<MailruStoreCollection>
+            {
+                Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
+                Setter = (context, collection, value) =>
+                {
+                    collection._directoryInfo.LastWriteTimeUtc = value;
+                    return DavStatusCode.Ok;
+                }
+            },
+
+
             new DavGetResourceType<MailruStoreCollection>
             {
                 Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
