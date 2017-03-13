@@ -31,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nwebdav.server, Version=0.1.24.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.0.1.24.0\lib\net45\nwebdav.server.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -69,9 +65,10 @@
       <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
       <Name>MailRuCloudApi</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\NWebDAV\NWebDav.Server\NWebDav.Server.csproj">
+      <Project>{695b7314-009e-42a9-bbdf-223f298622d1}</Project>
+      <Name>NWebDav.Server</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="XTSSharp\readme.txt" />
