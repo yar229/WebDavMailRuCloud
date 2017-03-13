@@ -65,7 +65,6 @@ namespace YaR.WebDavMailRu
                     {
                         cancellationTokenSource.Cancel();
                         httpListener.Stop();
-                        httpListener.Close();
                     }
                     return 0;
 

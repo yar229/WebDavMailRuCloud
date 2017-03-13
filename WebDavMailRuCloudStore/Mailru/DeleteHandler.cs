@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Xml.Linq;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
@@ -78,7 +77,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             }
 
             // Delete item
-            var status = await DeleteItemAsync(parentCollection, splitUri.Name, httpContext, splitUri.CollectionUri, errors).ConfigureAwait(false);
+            var status = await DeleteItemAsync(parentCollection, splitUri.Name, httpContext).ConfigureAwait(false);
             if (status == DavStatusCode.Ok && errors.HasItems)
             {
                 // Obtain the status document
@@ -97,7 +96,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             return true;
         }
 
-        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext, Uri baseUri, UriResultCollection errors)
+        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext)
         {
             // Attempt to delete the item
             return await collection.DeleteItemAsync(name, httpContext).ConfigureAwait(false);

@@ -31,27 +31,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="nwebdav.server, Version=0.1.24.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\NWebDav.Server.0.1.24.0\lib\net45\nwebdav.server.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cloud.cs" />
+    <Compile Include="DavCustomProperty\DavBsiisreadonly.cs" />
+    <Compile Include="DavCustomProperty\DavCollection.cs" />
+    <Compile Include="DavCustomProperty\DavHref.cs" />
+    <Compile Include="DavCustomProperty\DavIsreadonly.cs" />
+    <Compile Include="DavCustomProperty\DavLastAccessed.cs" />
+    <Compile Include="DavCustomProperty\DavLoctoken.cs" />
     <Compile Include="DavCustomProperty\DavSharedLink.cs" />
+    <Compile Include="DavCustomProperty\DavSrtfileattributes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Mailru\DeleteHandler.cs" />
     <Compile Include="Mailru\MoveHandler.cs" />
@@ -77,9 +71,10 @@
       <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
       <Name>MailRuCloudApi</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\NWebDAV\NWebDav.Server\NWebDav.Server.csproj">
+      <Project>{695b7314-009e-42a9-bbdf-223f298622d1}</Project>
+      <Name>NWebDav.Server</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="XTSSharp\readme.txt" />
