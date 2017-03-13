@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
@@ -32,8 +33,63 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             IsWritable = isWritable;
         }
 
+        private string CalculateEtag()
+        {
+            string h = _directoryInfo.FullPath;
+            var hash = SHA256.Create().ComputeHash(GetBytes(h));
+            return BitConverter.ToString(hash).Replace("-", string.Empty);
+        }
+
+        static byte[] GetBytes(string str)
+        {
+            byte[] bytes = new byte[str.Length * sizeof(char)];
+            Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
+            return bytes;
+        }
+
         public static PropertyManager<MailruStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreCollection>(new DavProperty<MailruStoreCollection>[]
         {
+            //// was added to to make WebDrive work, but no success
+            //new DavHref<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) => collection._directoryInfo.Name
+            //},
+
+            //new DavLoctoken<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) => ""
+            //},
+
+            //new DavCollection<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) => true
+            //},
+
+            //new DavGetEtag<MailruStoreCollection>
+            //{
+            //    Getter = (context, item) => item.CalculateEtag()
+            //},
+
+            //new DavIsreadonly<MailruStoreCollection>
+            //{
+            //    Getter = (context, item) => false
+            //},
+
+            //new DavBsiisreadonly<MailruStoreCollection>
+            //{
+            //    Getter = (context, item) => false
+            //},
+
+            //new DavSrtfileattributes<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
+            //    Setter = (context, collection, value) =>
+            //    {
+            //        collection.DirectoryInfo.Attributes = value;
+            //        return DavStatusCode.Ok;
+            //    }
+            //},
+            ////====================================================================================================
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {

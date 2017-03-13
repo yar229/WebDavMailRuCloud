@@ -11,7 +11,6 @@ namespace YaR.WebDavMailRu.CloudStore.DavCustomProperty
         public static readonly XName PropertyName = WebDavNamespaces.DavNs + "lastaccessed";
 
         /// <summary>Name of the property.</summary>
-        public override XName Name => DavLastAccessed<TEntry>.PropertyName;
+        public override XName Name => PropertyName;
     }
-
 }
