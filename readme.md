@@ -1,13 +1,14 @@
 ## **WebDAV emulator for Mail.ru Cloud**<br>
 
- <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=Latest%20binaries%20%20%20%20&style=social"></a> <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a> <a href="https://ci.appveyor.com/project/yar229/webdavmailrucloud-k21bq/branch/master"><img src="https://ci.appveyor.com/api/projects/status/3gejunv39gqed3tp/branch/master?svg=true" align="right"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/windows-logo-silhouette/WebDavMailRuCloud__version_.zip%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+ <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a>
 
-####Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - Microsoft .NET Framework 4.5 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/windows-logo-silhouette/WebDavMailRuCloud__version_.zip%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
-* [Linux](#linux) - Mono Stable 4.6.2.16 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/linux-logo/wdmrc-mono-_version_.tar.gz%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
-* OS X - buddy said it works <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/linux-logo/wdmrc-mono-_version_.tar.gz%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+#### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
+* [Windows](#windows)  - Microsoft .NET Framework 4.5 
+* [Linux](#linux) - Mono 4.6 +
+* OS X - Mono 4.6 + (buddy said it works)
 
-####Usage
+#### Usage
 ``` 	
 	-p, --port        (Default: 801) WebDAV server port
 	-h, --host		  (Default: "http://127.0.0.1") WebDAV server host with protocol
@@ -22,8 +23,8 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
 * Automatic split/join when uploading/downloading files larger than cloud allows
 
-======
-####Windows
+
+#### Windows
 
 <details> 
 <summary>Using from explorer requires enabled Basic Auth for WebDAV </summary>
@@ -67,8 +68,8 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 [Microsoft says - "It's not a bug, it's by design"](https://support.microsoft.com/en-us/kb/2386902)
 </details>
 
-======
-####Linux
+
+#### Linux
 
 You can simply use [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
 
@@ -97,21 +98,22 @@ In short:
 ```
 </details>
 
-======
-####Big thanks
+
+#### Big thanks
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
 * [Erast Korolev](https://github.com/erastmorgan) for [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
 * [C-A-T](https://github.com/C-A-T9LIFE) for testing and essential information
 
 <br>
-####Remarks
+#### Remarks
 * [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 * Using within [**Total Commander**](http://www.ghisler.com/) requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
 * Avoid using #, %, +  in file and folder names
 * If you have paid account - you can remove 2Gb filesize limitation using `--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"` (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limit may exist)
 
 <br>
-####See also
+#### See also
+
 * [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
 * [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)
 * [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)
