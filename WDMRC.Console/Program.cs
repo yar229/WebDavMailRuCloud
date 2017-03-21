@@ -53,13 +53,13 @@ namespace YaR.WebDavMailRu
                         httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
                         httpListener.Start();
 
-                        // Start dispatching requests
-                        DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
-
-                        // Wait until somebody presses return
                         Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
-                        while (Console.ReadKey().KeyChar != 'x') {}
 
+                        // Start dispatching requests
+                        var t =  DispatchHttpRequestsAsync(httpListener, cancellationTokenSource.Token, options.MaxThreadCount);
+                        t.Wait(cancellationTokenSource.Token);
+
+                        //do not use console input - it uses 100% CPU when running mono-service in ubuntu
                     }
                     finally
                     {
@@ -75,7 +75,7 @@ namespace YaR.WebDavMailRu
         }
 
 
-        private static async void DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
+        private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
