@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using MailRuCloudApi;
@@ -34,7 +35,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             new DavIsreadonly<MailruStoreItem>
             {
-                Getter = (context, item) => false
+                Getter = (context, item) => item.IsWritable
             },
 
             // RFC-2518 properties
@@ -222,25 +223,18 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             try
             {
-                // If the destination is also a disk-store, then we can use the FileCopy API
-                // (it's probably a bit more efficient than copying in C#)
-                var diskCollection = destination as MailruStoreCollection;
-                if (diskCollection != null)
+                var collection = destination as MailruStoreCollection;
+                if (collection != null)
                 {
-                    if (!diskCollection.IsWritable)
+                    if (!collection.IsWritable)
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
-                    var destinationPath = Path.Combine(diskCollection.FullPath, name);
+                    var destinationPath = WebDavPath.Combine(collection.FullPath, name);
 
-                    // Check if the file already exists
-                    //var fileExists = File.Exists(destinationPath);
-                    //if (fileExists && !overwrite)
-                    //    return new StoreItemResult(DavStatusCode.PreconditionFailed);
+                    // check if the file already exists??
 
-                    // Copy the file
-                    Cloud.Instance(httpContext).Copy(_fileInfo, destinationPath).Wait();
+                    await Cloud.Instance(httpContext).Copy(_fileInfo, destinationPath);
 
-                    // Return the appropriate status
                     return new StoreItemResult(DavStatusCode.Created);
                 }
 

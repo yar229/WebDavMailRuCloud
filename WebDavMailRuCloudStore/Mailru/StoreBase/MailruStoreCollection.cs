@@ -89,7 +89,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavIsreadonly<MailruStoreCollection>
             {
-                Getter = (context, item) => false
+                Getter = (context, item) => item.IsWritable
             },
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
