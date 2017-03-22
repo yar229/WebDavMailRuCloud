@@ -70,11 +70,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //    Getter = (context, item) => item.CalculateEtag()
             //},
 
-            //new DavIsreadonly<MailruStoreCollection>
-            //{
-            //    Getter = (context, item) => false
-            //},
-
             //new DavBsiisreadonly<MailruStoreCollection>
             //{
             //    Getter = (context, item) => false
@@ -90,6 +85,12 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //    }
             //},
             ////====================================================================================================
+            
+
+            new DavIsreadonly<MailruStoreCollection>
+            {
+                Getter = (context, item) => false
+            },
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {

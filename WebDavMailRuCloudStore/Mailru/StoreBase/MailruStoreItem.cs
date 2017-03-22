@@ -32,6 +32,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public static PropertyManager<MailruStoreItem> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreItem>(new DavProperty<MailruStoreItem>[]
         {
+            new DavIsreadonly<MailruStoreItem>
+            {
+                Getter = (context, item) => false
+            },
+
             // RFC-2518 properties
             new DavCreationDate<MailruStoreItem>
             {
