@@ -44,6 +44,8 @@ namespace YaR.WebDavMailRu
                     var webdavHost = string.IsNullOrWhiteSpace(options.Host) 
                         ? $"{webdavProtocol}://{webdavIp}" 
                         : options.Host.TrimEnd('/');
+                    if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
+
 
                     var cancellationTokenSource = new CancellationTokenSource();
                     var httpListener = new HttpListener();
