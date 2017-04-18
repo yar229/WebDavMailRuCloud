@@ -9,6 +9,8 @@ namespace YaR.WebDavMailRu.CloudStore
 {
     public static class Cloud
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(SplittedCloud));
+
         public static void Init(string userAgent = "")
         {
             if (!string.IsNullOrEmpty(userAgent))
@@ -30,6 +32,9 @@ namespace YaR.WebDavMailRu.CloudStore
                 else
                     return cloud;
             }
+
+            if (!identity.Name.Contains("@mail."))
+                Logger.Warn("Missing domain part (@mail.*) in login, file and folder deleting will be denied");
 
             cloud = new SplittedCloud(identity.Name, identity.Password);
             if (!CloudCache.TryAdd(key, cloud))
