@@ -6,7 +6,7 @@
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 
 * [Linux](#linux) - Mono 4.6 +
-* OS X - Mono 4.6 + (buddy said it works)
+* [OS X](#mac-os-x) - Mono 4.6 + (buddy said it works)
 
 #### Usage
 ``` 	
@@ -102,6 +102,14 @@ In short:
 ```
 </details>
 
+#### Mac OS X
+
+* download and unzip [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) release  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
+* `brew install mono` (how to install [brew](https://brew.sh/))
+* `mono wdmrc.exe -p <port>`
+
+Use any ftp client for connection to webdav.
+
 
 #### Big thanks
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
@@ -120,5 +128,3 @@ In short:
 *  [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)<br>
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
-
-
