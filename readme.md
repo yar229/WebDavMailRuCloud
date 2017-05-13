@@ -6,7 +6,7 @@
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 
 * [Linux](#linux) - Mono 4.6 +
-* [OS X](#mac) - Mono 4.6 + (buddy said it works)
+* [OS X](#mac-os-x) - Mono 4.6 + (buddy said it works)
 
 #### Usage
 ``` 	
