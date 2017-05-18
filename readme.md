@@ -6,18 +6,20 @@
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 
 * [Linux](#linux) - Mono 4.6 +
-* OS X - Mono 4.6 + (buddy said it works)
+* [OS X](#mac-os-x) - Mono 4.6 + (buddy said it works)
 
 #### Usage
 ``` 	
 	-p, --port        (Default: 801) WebDAV server port
-	-h, --host		  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for htpp://0.0.0.0)
+	-h, --host	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for htpp://0.0.0.0)
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--user-agent      "browser" user-agent
 	--help            Display this help screen.
 	--version         Display version information.
 ```
 Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe when you opens server on 127.0.0.1)
+
+[Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27)
 
 ***Hints***
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
@@ -71,12 +73,14 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 
 #### Linux
 
-You can simply use [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
-
-...or by hands (tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/))
-* download [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) `wdmrc-mono-*.tar.gz`  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
+(tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/))
+* download and unzip [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) release  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
 * `sudo apt install apt mono-complete`
 * `mono wdmrc.exe -p <port>`
+
+See also 
+* [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
+* [Docker image](https://hub.docker.com/r/monster1025/mailru-webdav-docker/) by [monster1025](https://hub.docker.com/u/monster1025/)
 
 <details>
 <summary>Mount with davfs2</summary>
@@ -98,23 +102,29 @@ In short:
 ```
 </details>
 
+#### Mac OS X
+
+* download and unzip [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) release  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
+* `brew install mono` (how to install [brew](https://brew.sh/))
+* `mono wdmrc.exe -p <port>`
+
+Use any ftp client for connection to webdav.
+
 
 #### Big thanks
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
 * [Erast Korolev](https://github.com/erastmorgan) for [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
 * [C-A-T](https://github.com/C-A-T9LIFE) for testing and essential information
 
-<br>
+
 #### Remarks
 * [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 * Using within [**Total Commander**](http://www.ghisler.com/) requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
 * Avoid using #, %, +  in file and folder names
 * If you have paid account - you can remove 2Gb filesize limitation using `--user-agent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.57 Safari/537.17/TCWFX(x64)"` (taken from [pozitronik/CloudMailRu]( https://github.com/pozitronik/CloudMailRu), no any guarantees, speed limit may exist)
 
-<br>
+
 #### See also<br>
 *  [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)<br>
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
-
-

@@ -35,7 +35,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             new DavIsreadonly<MailruStoreItem>
             {
-                Getter = (context, item) => item.IsWritable
+                Getter = (context, item) => !item.IsWritable
             },
 
             // RFC-2518 properties
@@ -136,7 +136,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
                 Setter = (context, item, value) => DavStatusCode.Ok
             },
-            new DavHref<MailruStoreItem>
+            new DavSharedLink<MailruStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok

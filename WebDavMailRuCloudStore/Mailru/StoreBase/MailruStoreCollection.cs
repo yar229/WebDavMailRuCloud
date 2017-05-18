@@ -89,7 +89,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavIsreadonly<MailruStoreCollection>
             {
-                Getter = (context, item) => item.IsWritable
+                Getter = (context, item) => !item.IsWritable
             },
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
@@ -229,7 +229,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavHref<MailruStoreCollection>()
+            new DavSharedLink<MailruStoreCollection>()
             {
                 Getter = (context, item) => item.DirectoryInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok
