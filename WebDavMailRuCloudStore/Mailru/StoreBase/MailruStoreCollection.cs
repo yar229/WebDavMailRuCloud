@@ -229,7 +229,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavHref<MailruStoreCollection>()
+            new DavSharedLink<MailruStoreCollection>()
             {
                 Getter = (context, item) => item.DirectoryInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok

@@ -47,6 +47,7 @@
     <Compile Include="DavCustomProperty\DavIsreadonly.cs" />
     <Compile Include="DavCustomProperty\DavLastAccessed.cs" />
     <Compile Include="DavCustomProperty\DavLoctoken.cs" />
+    <Compile Include="DavCustomProperty\DavSharedLink.cs" />
     <Compile Include="DavCustomProperty\DavSrtfileattributes.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Mailru\DeleteHandler.cs" />
