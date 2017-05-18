@@ -35,7 +35,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             new DavIsreadonly<MailruStoreItem>
             {
-                Getter = (context, item) => item.IsWritable
+                Getter = (context, item) => !item.IsWritable
             },
 
             // RFC-2518 properties
