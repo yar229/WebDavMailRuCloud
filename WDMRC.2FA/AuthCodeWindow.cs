@@ -12,17 +12,17 @@ namespace MailRuCloudApi.TwoFA
         public AuthCodeWindow()
         { }
 
-        public string Get(string login)
+        public string Get(string login, bool isAutoRelogin)
         {
             Form prompt = new Form
             {
                 Width = 500,
                 Height = 150,
                 FormBorderStyle = FormBorderStyle.FixedDialog,
-                Text = login,
+                Text = "WebDAVMailRuCloud 2-factor authentification",
                 StartPosition = FormStartPosition.CenterScreen
             };
-            Label textLabel = new Label() { Left = 50, Top = 20, Text = login };
+            Label textLabel = new Label() { Left = 50, Top = 20, Text = isAutoRelogin ? "Auto relogin " : "Login " + login };
             TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
             Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
             confirmation.Click += (sender, e) => { prompt.Close(); };

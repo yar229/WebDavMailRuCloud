@@ -10,6 +10,7 @@ using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
+using YaR.WebDavMailRu.Properties;
 
 namespace YaR.WebDavMailRu
 {
@@ -37,6 +38,7 @@ namespace YaR.WebDavMailRu
                 options => 
                 {
                     Cloud.Init(options.UserAgent);
+                    Cloud.TwoFactorHandlerName = Settings.Default.TwoFactorAuthHandlerName;
 
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
