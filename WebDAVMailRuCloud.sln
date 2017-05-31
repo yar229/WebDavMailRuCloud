@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26430.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDMRC.Console", "WDMRC.Console\WDMRC.Console.csproj", "{9E1B53CF-F6CD-4861-A177-E06DBC95CD7D}"
 EndProject
@@ -19,6 +19,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NWebDav.Server", "NWebDAV\NWebDav.Server\NWebDav.Server.csproj", "{695B7314-009E-42A9-BBDF-223F298622D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NWebDav.Server.HttpListener", "NWebDAV\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj", "{985FBDF1-1E48-4283-98DF-1457F621C979}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailRuCloudApi.TwoFA", "WDMRC.2FA\MailRuCloudApi.TwoFA.csproj", "{8610E230-A53A-4309-A1F3-028B9A829522}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -156,6 +158,30 @@ Global
 		{985FBDF1-1E48-4283-98DF-1457F621C979}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
 		{985FBDF1-1E48-4283-98DF-1457F621C979}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
 		{985FBDF1-1E48-4283-98DF-1457F621C979}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|ARM.Build.0 = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|x64.Build.0 = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Debug|x86.Build.0 = Debug|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|ARM.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|ARM.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|x64.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|x64.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|x86.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.Release|x86.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|Any CPU.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|Any CPU.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|ARM.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|ARM.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|x64.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
+		{8610E230-A53A-4309-A1F3-028B9A829522}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
