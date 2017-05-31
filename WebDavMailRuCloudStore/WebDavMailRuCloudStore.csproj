@@ -60,6 +60,7 @@
     <Compile Include="Mailru\StoreBase\IMailruStoreItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeekableAesStream.cs" />
+    <Compile Include="TwoFaHandlers.cs" />
     <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
     <Compile Include="XTSSharp\SectorStream.cs" />
     <Compile Include="XTSSharp\Xts.cs" />

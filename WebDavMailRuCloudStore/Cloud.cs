@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using MailRuCloudApi;
 using MailRuCloudApi.Api;
@@ -49,40 +45,6 @@ namespace YaR.WebDavMailRu.CloudStore
 
 
             return cloud;
-        }
-    }
-
-
-    public static class TwoFaHandlers
-    {
-        static TwoFaHandlers()
-        {
-            _handlerTypes = GetHandlers().ToList();
-        }
-
-        private static List<Type> _handlerTypes;
-
-
-        public static ITwoFaHandler Get(string name)
-        {
-            var type = _handlerTypes.FirstOrDefault(t => t.Name == name);
-            if (null == type) return null;
-
-            var inst = (ITwoFaHandler)Activator.CreateInstance(type);
-            return inst;
-        }
-
-        private static IEnumerable<Type> GetHandlers()
-        {
-            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(typeof(TwoFaHandlers).Assembly.Location), "MailRuCloudApi.TwoFA*.dll", SearchOption.TopDirectoryOnly))
-            {
-                Assembly assembly = Assembly.LoadFile(file);
-                foreach (var type in assembly.ExportedTypes)
-                {
-                    if (type.GetInterfaces().Contains(typeof(ITwoFaHandler)))
-                        yield return type;
-                }
-            }
         }
     }
 }
