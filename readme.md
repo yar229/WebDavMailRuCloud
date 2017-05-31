@@ -38,9 +38,9 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 </details>
 
 <details> 
-<summary>Use as Windows disk</summary>
-``` 
-	net use <disk>: http://127.0.0.1:<port> <your password for cloud.mail.ru> /USER:<your_email@mail.ru>
+<summary>Use as Windows disk </summary>
+```
+net use ^disk^: http://^address^:^port^ ^your_mailru_password^ /USER:^your_mailru_email^
 ```
 </details>
 
