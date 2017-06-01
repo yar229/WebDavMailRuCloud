@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,6 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthCodeConsole.cs" />
+    <Compile Include="AuthCodeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AuthCodeForm.Designer.cs">
+      <DependentUpon>AuthCodeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="AuthCodeWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -51,6 +58,11 @@
       <Project>{75bf5eac-81a8-4e00-a82e-0bcbd17ac50b}</Project>
       <Name>MailRuCloudApi</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AuthCodeForm.resx">
+      <DependentUpon>AuthCodeForm.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
