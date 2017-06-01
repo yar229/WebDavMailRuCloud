@@ -29,38 +29,17 @@ namespace MailRuCloudApi.TwoFA
                 notify.BalloonTipText = $"Auth code required for {login}";
                 notify.BalloonTipIcon = ToolTipIcon.Info;
 
+                notify.Click += (sender, args) => 
+                    prompt?.Activate();
+                notify.BalloonTipClicked += (sender, args) => 
+                    prompt?.Activate();
+
                 notify.ShowBalloonTip(30000);
 
                 var res = prompt.ShowAuthDialog(login, isAutoRelogin);
 
                 return res.AuthCode;
-
-                //CancellationTokenSource cancelWait = new CancellationTokenSource();
-                //notify.Click += (o, eventArgs) =>
-                //{
-                //    result = prompt.ShowDialog() == DialogResult.OK ? textBox.Text : "";
-                //    cancelWait.Cancel();
-                //};
-
-                //notify.ShowBalloonTip(30000);
-
-                //var t =  new Task(() =>
-                //{
-                //    while (!cancelWait.IsCancellationRequested)
-                //    {
-                //        Thread.Sleep(100);
-                //    }
-
-                //});
-                //t.Start();
-                //t.Wait(cancelWait.Token);
             }
-            
-            //return result;
-        }
-
-        private async Task Handle(CancellationToken cancellationToken)
-        {
         }
     }
 }

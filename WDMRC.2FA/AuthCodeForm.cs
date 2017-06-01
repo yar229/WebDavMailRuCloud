@@ -21,8 +21,8 @@ namespace MailRuCloudApi.TwoFA
         {
             txtLogin.Text = login;
             lblInfo.Text = isRelogin
-                ? "Login request"
-                : "Auto relogin request";
+                ? "Auto relogin request"
+                : "Login request";
             txtAuthCode.Focus();
 
             var res = ShowDialog();

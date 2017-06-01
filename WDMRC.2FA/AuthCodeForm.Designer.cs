@@ -44,7 +44,8 @@
             this.txtLogin.Location = new System.Drawing.Point(66, 32);
             this.txtLogin.Name = "txtLogin";
             this.txtLogin.Size = new System.Drawing.Size(215, 20);
-            this.txtLogin.TabIndex = 0;
+            this.txtLogin.TabIndex = 4;
+            this.txtLogin.TabStop = false;
             // 
             // lblInfo
             // 
@@ -61,7 +62,7 @@
             this.btnOk.Location = new System.Drawing.Point(61, 94);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
-            this.btnOk.TabIndex = 2;
+            this.btnOk.TabIndex = 1;
             this.btnOk.Text = "Ok";
             this.btnOk.UseVisualStyleBackColor = true;
             // 
@@ -71,7 +72,7 @@
             this.btnCancel.Location = new System.Drawing.Point(159, 94);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 3;
+            this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             // 
@@ -98,7 +99,7 @@
             this.txtAuthCode.Location = new System.Drawing.Point(66, 58);
             this.txtAuthCode.Name = "txtAuthCode";
             this.txtAuthCode.Size = new System.Drawing.Size(215, 20);
-            this.txtAuthCode.TabIndex = 5;
+            this.txtAuthCode.TabIndex = 0;
             // 
             // AuthCodeForm
             // 
