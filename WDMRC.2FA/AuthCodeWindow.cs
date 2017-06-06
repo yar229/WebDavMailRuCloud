@@ -14,10 +14,8 @@ namespace MailRuCloudApi.TwoFA
         public AuthCodeWindow()
         { }
 
-        public string Get(string login, bool isAutoRelogin)
+        public TwoFaCodeResult Get(string login, bool isAutoRelogin)
         {
-            string result = string.Empty;
-
             Application.EnableVisualStyles();
 
             using (NotifyIcon notify = new NotifyIcon())
@@ -29,6 +27,7 @@ namespace MailRuCloudApi.TwoFA
                 notify.BalloonTipText = $"Auth code required for {login}";
                 notify.BalloonTipIcon = ToolTipIcon.Info;
 
+                //TODO: Refact disposed closure
                 notify.Click += (sender, args) => 
                     prompt?.Activate();
                 notify.BalloonTipClicked += (sender, args) => 
@@ -38,7 +37,11 @@ namespace MailRuCloudApi.TwoFA
 
                 var res = prompt.ShowAuthDialog(login, isAutoRelogin);
 
-                return res.AuthCode;
+                return new TwoFaCodeResult
+                {
+                    Code = res.AuthCode,
+                    DoNotAskAgainForThisDevice = res.DoNotAskAgainForThisDevice
+                };
             }
         }
     }
