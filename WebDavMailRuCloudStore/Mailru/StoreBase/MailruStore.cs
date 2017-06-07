@@ -35,7 +35,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 {
                     if (item.FullPath == path)
                     {
-                        var dir = new Folder(item.NumberOfFolders, item.NumberOfFiles, item.Size, path);
+                        var dir = new Folder(item.NumberOfFolders, item.NumberOfFiles, item.Size, path, item.WebLink);
                         return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
                     }
                     var fa = item.Files.FirstOrDefault(k => k.FullPath == path);
