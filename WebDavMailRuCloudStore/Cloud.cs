@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
+using System.Runtime.Serialization.Formatters.Soap;
 using MailRuCloudApi;
 using MailRuCloudApi.Api;
 using NWebDav.Server.Http;
+using File = MailRuCloudApi.File;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
@@ -54,13 +57,49 @@ namespace YaR.WebDavMailRu.CloudStore
                         Logger.Error($"Cannot load two-factor auth handler {TwoFactorHandlerName}");
                 }
 
-                cloud = new SplittedCloud(identity.Name, identity.Password, twoFaHandler);
+                CookieContainer cc = LoadCoockies(identity.Name);
+                cloud = new SplittedCloud(identity.Name, identity.Password, twoFaHandler, cc);
                 if (!CloudCache.TryAdd(key, cloud))
                     CloudCache.TryGetValue(key, out cloud);
             
 
                 return cloud;
             }
+        }
+
+        private static string _appdatapath {
+            get
+            {
+                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WDMRC\\Cookies");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                return path;
+            }
+        }
+            
+
+        public static void SaveCoockies()
+        {
+            foreach (var cloud in CloudCache.Values)
+            {
+
+                var formatter = new SoapFormatter();
+                string file = Path.Combine(_appdatapath, $"{cloud.CloudApi.Account.LoginName}.coockie.dat");
+
+                using (Stream s = System.IO.File.Create(file))
+                    formatter.Serialize(s, cloud.CloudApi.Account.Cookies);
+            }
+        }
+
+        private static CookieContainer LoadCoockies(string login)
+        {
+            var formatter = new SoapFormatter();
+            CookieContainer retrievedCookies = null;
+            string file = Path.Combine(_appdatapath, $"{login}.coockie.dat");
+            if (System.IO.File.Exists(file))
+                using (Stream s = System.IO.File.OpenRead(file))
+                    retrievedCookies = (CookieContainer)formatter.Deserialize(s);
+
+            return retrievedCookies;
         }
     }
 }
