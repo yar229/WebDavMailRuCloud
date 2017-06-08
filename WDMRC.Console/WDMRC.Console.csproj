@@ -76,6 +76,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
+      <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
+      <Name>MailRuCloudApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NWebDAV\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj">
       <Project>{985fbdf1-1e48-4283-98df-1457f621c979}</Project>
       <Name>NWebDav.Server.HttpListener</Name>
