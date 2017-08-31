@@ -36,7 +36,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtAuthCode = new System.Windows.Forms.TextBox();
-            this.chkDoNotAsk = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // txtLogin
@@ -60,7 +59,7 @@
             // btnOk
             // 
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(66, 128);
+            this.btnOk.Location = new System.Drawing.Point(61, 94);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 1;
@@ -70,7 +69,7 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(153, 128);
+            this.btnCancel.Location = new System.Drawing.Point(159, 94);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -102,24 +101,13 @@
             this.txtAuthCode.Size = new System.Drawing.Size(215, 20);
             this.txtAuthCode.TabIndex = 0;
             // 
-            // chkDoNotAsk
-            // 
-            this.chkDoNotAsk.AutoSize = true;
-            this.chkDoNotAsk.Location = new System.Drawing.Point(66, 93);
-            this.chkDoNotAsk.Name = "chkDoNotAsk";
-            this.chkDoNotAsk.Size = new System.Drawing.Size(176, 17);
-            this.chkDoNotAsk.TabIndex = 7;
-            this.chkDoNotAsk.Text = "Do not ask again for this device";
-            this.chkDoNotAsk.UseVisualStyleBackColor = true;
-            // 
             // AuthCodeForm
             // 
             this.AcceptButton = this.btnOk;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(299, 158);
-            this.Controls.Add(this.chkDoNotAsk);
+            this.ClientSize = new System.Drawing.Size(299, 131);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtAuthCode);
             this.Controls.Add(this.label2);
@@ -146,6 +134,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtAuthCode;
-        private System.Windows.Forms.CheckBox chkDoNotAsk;
     }
 }

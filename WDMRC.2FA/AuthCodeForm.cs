@@ -30,16 +30,15 @@ namespace MailRuCloudApi.TwoFA
             return new AuthDialogResult
             {
                 DialogResult = res,
-                AuthCode = txtAuthCode.Text,
-                DoNotAskAgainForThisDevice = chkDoNotAsk.Checked
+                AuthCode = txtAuthCode.Text
             };
         }
+
     }
 
     public class AuthDialogResult
     {
         public DialogResult DialogResult { get; set; }
         public string AuthCode { get; set; }
-        public bool DoNotAskAgainForThisDevice { get; set; }
     }
 }
