@@ -292,12 +292,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
 
-            if (!string.IsNullOrEmpty(_directoryInfo.PublicLink))
-            {
-                //TODO: prepare for shared info file
-                items.Add(new MailruStoreItem(LockingManager, new MailRuCloudApi.File(".info.wdmrc", 0, string.Empty), IsWritable));
-            }
-
             return Task.FromResult<IList<IStoreItem>>(items);
         }
 
