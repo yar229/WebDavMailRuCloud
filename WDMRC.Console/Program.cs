@@ -50,14 +50,6 @@ namespace YaR.WebDavMailRu
 
 
                     var cancellationTokenSource = new CancellationTokenSource();
-                    //cancellationTokenSource.Token.Register(Cloud.SaveCoockies);
-                    Console.CancelKeyPress += (sender, eventArgs) =>
-                    {
-                        Cloud.SaveCoockies();
-                        cancellationTokenSource.Cancel();
-                        eventArgs.Cancel = true;
-                    };
-
                     var httpListener = new HttpListener();
                     try
                     {
@@ -75,10 +67,8 @@ namespace YaR.WebDavMailRu
                     }
                     finally
                     {
-                        //cancellationTokenSource.Cancel();
+                        cancellationTokenSource.Cancel();
                         httpListener.Stop();
-
-                        //Cloud.SaveCoockies();
                     }
                     return 0;
 
@@ -145,10 +135,6 @@ namespace YaR.WebDavMailRu
             {
                 Logger.Error("Global exception", e);
             }
-            //finally
-            //{
-            //    Cloud.SaveCoockies();
-            //}
 
 
 
