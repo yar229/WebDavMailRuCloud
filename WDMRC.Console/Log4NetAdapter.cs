@@ -35,27 +35,37 @@ namespace YaR.WebDavMailRu
 
             public void Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
+                string msg;
+                try
+                {
+                    msg = messageFunc();
+                }
+                catch (Exception e)
+                {
+                    msg = "Failed to get error message: " + e.Message;
+                }
+
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         if (_log.IsDebugEnabled)
-                            _log.Debug(messageFunc(), exception);
+                            _log.Debug(msg, exception);
                         break;
                     case LogLevel.Info:
                         if (_log.IsInfoEnabled)
-                            _log.Info(messageFunc(), exception);
+                            _log.Info(msg, exception);
                         break;
                     case LogLevel.Warning:
                         if (_log.IsWarnEnabled)
-                            _log.Warn(messageFunc(), exception);
+                            _log.Warn(msg, exception);
                         break;
                     case LogLevel.Error:
                         if (_log.IsErrorEnabled)
-                            _log.Error(messageFunc(), exception);
+                            _log.Error(msg, exception);
                         break;
                     case LogLevel.Fatal:
                         if (_log.IsFatalEnabled)
-                            _log.Fatal(messageFunc(), exception);
+                            _log.Fatal(msg, exception);
                         break;
                     default:
                         throw new ArgumentException($"Log level '{logLevel}' is not supported.", nameof(logLevel));
