@@ -1,12 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
-using MailRuCloudApi;
-using MailRuCloudApi.CookieManager;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
@@ -38,13 +35,10 @@ namespace YaR.WebDavMailRu
 
             var exitCode = result
               .MapResult(
-                options =>
+                options => 
                 {
                     Cloud.Init(options.UserAgent);
                     Cloud.TwoFactorHandlerName = Settings.Default.TwoFactorAuthHandlerName;
-                    Cloud.CookieManager = new DiskCookieManager(Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                        "WDMRC\\Cookies"));
 
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
@@ -56,10 +50,10 @@ namespace YaR.WebDavMailRu
 
 
                     var cancellationTokenSource = new CancellationTokenSource();
-                    //cancellationTokenSource.Token.Register(Cloud.SaveCookies);
+                    //cancellationTokenSource.Token.Register(Cloud.SaveCoockies);
                     Console.CancelKeyPress += (sender, eventArgs) =>
                     {
-                        Cloud.SaveCookies();
+                        Cloud.SaveCoockies();
                         cancellationTokenSource.Cancel();
                         eventArgs.Cancel = true;
                     };
@@ -84,7 +78,7 @@ namespace YaR.WebDavMailRu
                         //cancellationTokenSource.Cancel();
                         httpListener.Stop();
 
-                        //Cloud.SaveCookies();
+                        //Cloud.SaveCoockies();
                     }
                     return 0;
 
@@ -153,7 +147,7 @@ namespace YaR.WebDavMailRu
             }
             //finally
             //{
-            //    Cloud.SaveCookies();
+            //    Cloud.SaveCoockies();
             //}
 
 
