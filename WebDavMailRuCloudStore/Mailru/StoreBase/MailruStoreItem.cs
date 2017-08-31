@@ -185,7 +185,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var memStream = new MemoryStream();
                 await inputStream.CopyToAsync(memStream).ConfigureAwait(false);
 
-                _fileInfo.Size = memStream.Length;
+                _fileInfo.Size = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
                     ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size.DefaultValue)
