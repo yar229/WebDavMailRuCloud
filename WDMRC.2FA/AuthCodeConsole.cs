@@ -11,9 +11,9 @@ namespace MailRuCloudApi.TwoFA
         public AuthCodeConsole()
         { }
 
-        public TwoFaCodeResult Get(string login, string phone, bool isAutoRelogin)
+        public TwoFaCodeResult Get(string login, bool isAutoRelogin)
         {
-            Console.Write($"Auth code for {login} ({phone}) required {(isAutoRelogin ? "(auto relogin)" : string.Empty)}:");
+            Console.Write($"Auth code for {login} required {(isAutoRelogin ? "(auto relogin)" : string.Empty)}:");
             string code = Console.ReadLine();
 
             Console.Write($"Remember this device? (y/n, 1/0, true/false): ");

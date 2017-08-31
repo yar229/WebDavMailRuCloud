@@ -14,7 +14,7 @@ namespace MailRuCloudApi.TwoFA
         public AuthCodeWindow()
         { }
 
-        public TwoFaCodeResult Get(string login, string phone, bool isAutoRelogin)
+        public TwoFaCodeResult Get(string login, bool isAutoRelogin)
         {
             Application.EnableVisualStyles();
 
@@ -35,7 +35,7 @@ namespace MailRuCloudApi.TwoFA
 
                 notify.ShowBalloonTip(30000);
 
-                var res = prompt.ShowAuthDialog(login, phone, isAutoRelogin);
+                var res = prompt.ShowAuthDialog(login, isAutoRelogin);
 
                 return new TwoFaCodeResult
                 {

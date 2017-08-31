@@ -1,4 +1,12 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace MailRuCloudApi.TwoFA
 {
@@ -9,10 +17,9 @@ namespace MailRuCloudApi.TwoFA
             InitializeComponent();
         }
 
-        public AuthDialogResult ShowAuthDialog(string login, string phone, bool isRelogin)
+        public AuthDialogResult ShowAuthDialog(string login, bool isRelogin)
         {
             txtLogin.Text = login;
-            txtPhone.Text = phone;
             lblInfo.Text = isRelogin
                 ? "Auto relogin request"
                 : "Login request";
