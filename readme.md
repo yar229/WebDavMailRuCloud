@@ -1,6 +1,6 @@
 ## **WebDAV emulator for Mail.ru Cloud**<br>
 
-<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/windows-logo-silhouette/WebDavMailRuCloud__version_.zip%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a>
  <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a>
  
  ```diff
