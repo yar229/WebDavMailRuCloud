@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MailRuCloudApi;
+using MailRuCloudApi.SpecialCommands;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -318,17 +319,20 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
-
-            var cmd = new SpecialCommand(destinationPath);
-            if (cmd.IsCommand)
+            var cmd = SpecialCommandFabric.Build(Cloud.Instance(httpContext), destinationPath);
+            if (cmd != null)
             {
-                bool k = Cloud.Instance(httpContext).CloneItem(cmd.Path, cmd.Value).Result;
-                return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+                return cmd.Execute();
             }
 
+            //var cmd = new SpecialCommand(destinationPath);
+            //if (cmd.IsCommand)
+            //{
+            //    bool k = Cloud.Instance(httpContext).CloneItem(cmd.Path, cmd.Value).Result;
+            //    return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+            //}
 
             DavStatusCode result;
-
 
             if (name != string.Empty && FindSubItem(name) != null)
             {
