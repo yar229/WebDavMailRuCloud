@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using MailRuCloudApi;
@@ -38,8 +39,11 @@ namespace YaR.WebDavMailRu.CloudStore
                     return cloud;
             }
 
-            if (!identity.Name.Contains("@mail."))
-                Logger.Warn("Missing domain part (@mail.*) in login, file and folder deleting will be denied");
+            if (!ConstSettings.AvailDomains.Any(d => identity.Name.Contains($"@{d}.")))
+            {
+                string domains = ConstSettings.AvailDomains.Aggregate((c, n) => c + ", @" + n);
+                Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
+            }
 
 
             //2FA
