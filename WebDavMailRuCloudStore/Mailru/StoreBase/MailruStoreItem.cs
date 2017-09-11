@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using MailRuCloudApi;
@@ -223,8 +222,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             try
             {
-                var collection = destination as MailruStoreCollection;
-                if (collection != null)
+                if (destination is MailruStoreCollection collection)
                 {
                     if (!collection.IsWritable)
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
@@ -273,8 +271,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public override bool Equals(object obj)
         {
-            var storeItem = obj as MailruStoreItem;
-            if (storeItem == null)
+            if (!(obj is MailruStoreItem storeItem))
                 return false;
             return storeItem._fileInfo.FullPath.Equals(_fileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }

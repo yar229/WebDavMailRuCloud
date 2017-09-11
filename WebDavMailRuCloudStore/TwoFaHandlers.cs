@@ -11,15 +11,15 @@ namespace YaR.WebDavMailRu.CloudStore
     {
         static TwoFaHandlers()
         {
-            _handlerTypes = GetHandlers().ToList();
+            HandlerTypes = GetHandlers().ToList();
         }
 
-        private static List<Type> _handlerTypes;
+        private static readonly List<Type> HandlerTypes;
 
 
         public static ITwoFaHandler Get(string name)
         {
-            var type = _handlerTypes.FirstOrDefault(t => t.Name == name);
+            var type = HandlerTypes.FirstOrDefault(t => t.Name == name);
             if (null == type) return null;
 
             var inst = (ITwoFaHandler)Activator.CreateInstance(type);
@@ -28,7 +28,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private static IEnumerable<Type> GetHandlers()
         {
-            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(typeof(TwoFaHandlers).Assembly.Location), "MailRuCloudApi.TwoFA*.dll", SearchOption.TopDirectoryOnly))
+            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(typeof(TwoFaHandlers).Assembly.Location) ?? throw new InvalidOperationException(), "MailRuCloudApi.TwoFA*.dll", SearchOption.TopDirectoryOnly))
             {
                 Assembly assembly = Assembly.LoadFile(file);
                 foreach (var type in assembly.ExportedTypes)

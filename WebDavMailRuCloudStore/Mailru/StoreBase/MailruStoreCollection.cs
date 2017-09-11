@@ -383,9 +383,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return new StoreItemResult(DavStatusCode.NotFound);
 
 
-            var destinationStoreCollection = destinationCollection as MailruStoreCollection;
-
-            if (destinationStoreCollection != null)
+            if (destinationCollection is MailruStoreCollection destinationStoreCollection)
             {
                 if (!destinationStoreCollection.IsWritable)
                     return new StoreItemResult(DavStatusCode.PreconditionFailed);
@@ -482,8 +480,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public override bool Equals(object obj)
         {
-            var storeCollection = obj as MailruStoreCollection;
-            if (storeCollection == null)
+            if (!(obj is MailruStoreCollection storeCollection))
                 return false;
             return storeCollection._directoryInfo.FullPath.Equals(_directoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
