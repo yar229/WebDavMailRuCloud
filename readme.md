@@ -1,7 +1,14 @@
 ## **WebDAV emulator for Mail.ru Cloud**<br>
 
-<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/filewlogo/windows-logo-silhouette/WebDavMailRuCloud__version_.zip%20%20%20%20%20/yar229/WebDavMailRuCloud.svg?colorA=abcdef&colorB=cccdce&style=social"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a>
  <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a>
+
+* You don't need this program if you have [paid account](https://help.mail.ru/cloud_web/app/webdav)  
+* UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
+
+
+
+
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 
@@ -55,9 +62,9 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 </details>
 
 <details> 
-<summary>Use as Windows disk</summary>
-``` 
-	net use <disk>: http://127.0.0.1:<port> <your password for cloud.mail.ru> /USER:<your_email@mail.ru>
+<summary>Use as Windows disk </summary>
+```
+net use ^disk^: http://^address^:^port^ ^your_mailru_password^ /USER:^your_mailru_email^
 ```
 </details>
 
