@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Configuration;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
 using MailRuCloudApi;
 using MailRuCloudApi.Api;
-using NWebDav.Server.Handlers;
 using NWebDav.Server.Http;
 
 namespace YaR.WebDavMailRu.CloudStore
@@ -30,8 +27,7 @@ namespace YaR.WebDavMailRu.CloudStore
             HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
             string key = identity.Name + identity.Password;
 
-            MailRuCloud cloud;
-            if (CloudCache.TryGetValue(key, out cloud))
+            if (CloudCache.TryGetValue(key, out var cloud))
             {
                 if (cloud.CloudApi.Account.Expires <= DateTime.Now)
                     CloudCache.TryRemove(key, out cloud);

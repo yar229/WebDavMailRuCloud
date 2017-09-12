@@ -24,8 +24,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
         public IRequestHandler GetRequestHandler(IHttpContext httpContext)
         {
-            IRequestHandler requestHandler;
-            if (!RequestHandlers.TryGetValue(httpContext.Request.HttpMethod, out requestHandler))
+            if (!RequestHandlers.TryGetValue(httpContext.Request.HttpMethod, out var requestHandler))
                 return null;
 
             return requestHandler;

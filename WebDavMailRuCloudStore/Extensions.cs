@@ -14,11 +14,9 @@ namespace YaR.WebDavMailRu.CloudStore
         {
             if (null == item) return Task.FromResult(false);
 
-            var storeItem = item as MailruStoreItem;
-            if (storeItem != null)
+            if (item is MailruStoreItem storeItem)
                 return cloud.Remove(storeItem.FileInfo);
-            var storeCollection = item as MailruStoreCollection;
-            if (storeCollection != null)
+            if (item is MailruStoreCollection storeCollection)
                 return cloud.Remove(storeCollection.DirectoryInfo);
 
             throw new ArgumentException(string.Empty, nameof(item));
@@ -28,11 +26,9 @@ namespace YaR.WebDavMailRu.CloudStore
         {
             if (null == item) return Task.FromResult(false);
 
-            var storeItem = item as MailruStoreItem;
-            if (storeItem != null)
+            if (item is MailruStoreItem storeItem)
                 return cloud.Rename(storeItem.FileInfo, destinationName);
-            var storeCollection = item as MailruStoreCollection;
-            if (storeCollection != null)
+            if (item is MailruStoreCollection storeCollection)
                 return cloud.Rename(storeCollection.DirectoryInfo, destinationName);
 
             throw new ArgumentException(string.Empty, nameof(item));
@@ -42,11 +38,9 @@ namespace YaR.WebDavMailRu.CloudStore
         {
             if (null == item) return Task.FromResult(false);
 
-            var storeItem = item as MailruStoreItem;
-            if (storeItem != null)
+            if (item is MailruStoreItem storeItem)
                 return cloud.Move(storeItem.FileInfo, destinationName);
-            var storeCollection = item as MailruStoreCollection;
-            if (storeCollection != null)
+            if (item is MailruStoreCollection storeCollection)
                 return cloud.Move(storeCollection.DirectoryInfo, destinationName);
 
             throw new ArgumentException(string.Empty, nameof(item));
@@ -56,11 +50,9 @@ namespace YaR.WebDavMailRu.CloudStore
         {
             if (null == item) return string.Empty;
 
-            var storeItem = item as MailruStoreItem;
-            if (storeItem != null)
+            if (item is MailruStoreItem storeItem)
                 return storeItem.FullPath;
-            var storeCollection = item as MailruStoreCollection;
-            if (storeCollection != null)
+            if (item is MailruStoreCollection storeCollection)
                 return storeCollection.FullPath;
 
             throw new ArgumentException(string.Empty, nameof(item));
@@ -69,9 +61,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
         public static long ContentLength(this IHttpRequest request)
         {
-            long res;
-            long.TryParse(request.GetHeaderValue("Content-Length"), out res);
-
+            long.TryParse(request.GetHeaderValue("Content-Length"), out var res);
             return res;
         }
 
