@@ -102,7 +102,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             new DavQuotaUsedBytes<MailruStoreCollection>
             {
                 Getter = (context, collection) => 
-                    collection.DirectoryInfo.Size.DefaultValue // collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Used.DefaultValue : long.MaxValue,
+                    collection.DirectoryInfo.Size
                 //IsExpensive = true  //folder listing performance
             },
 
@@ -238,7 +238,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavGetContentLength<MailruStoreCollection>
             {
-                Getter = (context, item) => item.DirectoryInfo.Size.DefaultValue
+                Getter = (context, item) => item.DirectoryInfo.Size
             }
         });
 

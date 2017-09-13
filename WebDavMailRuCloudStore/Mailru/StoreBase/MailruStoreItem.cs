@@ -53,7 +53,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavGetContentLength<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.Size.DefaultValue
+                Getter = (context, item) => item._fileInfo.Size
             },
             new DavGetContentType<MailruStoreItem>
             {
@@ -178,7 +178,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             // mail.ru needs size of file, but some clients does not send it
             // so we'll cache file in memory
             // TODO: rewrite
-            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size.DefaultValue == 0)
+            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size == 0)
             {
                 SLog.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
                 var memStream = new MemoryStream();
@@ -187,7 +187,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 _fileInfo.Size = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size.DefaultValue)
+                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -204,7 +204,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size.DefaultValue) 
+                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size) 
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
