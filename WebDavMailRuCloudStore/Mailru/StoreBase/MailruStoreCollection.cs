@@ -289,9 +289,26 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             var item = Cloud.Instance(httpContext).GetItems(_directoryInfo).Result;
 
-            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable)).Cast<IStoreItem>().ToList();
+            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable))
+                .Cast<IStoreItem>().ToList();
 
             items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
+
+            //var shares = item.Folders
+            //    .Where(dir => !string.IsNullOrEmpty(dir.PublicLink))
+            //    .Select(dir => dir.FullPath + "\t" + dir.PublicLink)
+            //    .ToList();
+            //if (shares.Any())
+            //{
+            //    string sharestr = shares
+            //        .Aggregate((c, n) => c + "\r\n" + n);
+
+            //    items.Add(new MailruStoreItem(
+            //        LockingManager,
+            //        new MailRuCloudApi.File(_directoryInfo.FullPath + "/folder.info.wdmrc", sharestr.Length,
+            //            string.Empty),
+            //        false));
+            //}
 
             return Task.FromResult<IList<IStoreItem>>(items);
         }
