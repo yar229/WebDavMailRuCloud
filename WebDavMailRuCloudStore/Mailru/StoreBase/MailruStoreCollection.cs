@@ -342,13 +342,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return cmd.Execute();
             }
 
-            //var cmd = new SpecialCommand(destinationPath);
-            //if (cmd.IsCommand)
-            //{
-            //    bool k = Cloud.Instance(httpContext).CloneItem(cmd.Path, cmd.Value).Result;
-            //    return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
-            //}
-
             DavStatusCode result;
 
             if (name != string.Empty && FindSubItem(name) != null)
