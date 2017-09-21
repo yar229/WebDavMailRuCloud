@@ -59,6 +59,12 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
                 if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
             }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+
 
             return Task.FromResult<IStoreItem>(null);
         }
@@ -73,6 +79,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             ////can't use uri.LocalPath and so on cause of special signs
             var requestedPath = Regex.Replace(uri.OriginalString, @"^http?://.*?(/|\Z)", string.Empty);
+            //TODO: use WebDavPath
             requestedPath = "/" + requestedPath.TrimEnd('/');
 
             if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";

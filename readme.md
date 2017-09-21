@@ -1,7 +1,8 @@
-## **WebDAV emulator for Mail.ru Cloud**<br>
+﻿## **WebDAV emulator for Mail.ru Cloud**<br>
 
 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a>
  <a href="https://github.com/yar229/WebDavMailRuCloud/releases"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right"></a>
+
 
 * You don't need this program if you have [paid account](https://help.mail.ru/cloud_web/app/webdav)  
 * UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
@@ -46,16 +47,15 @@ Settings in `wdmrc.exe.config`
 	Be careful, this methods does not usable when application started as a service/daemon. <br>
 	You can make your own 2FA handlers inherited from `ITwoFaHandler` and put it in separate dll which name starts with `MailRuCloudApi.TwoFA`
 	
-
-
 Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe when you opens server on 127.0.0.1)
+
+Automatically split/join when uploading/downloading files larger than cloud allows.
 
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27)
 
-***Hints***
+***Commands***
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
-* Automatic split/join when uploading/downloading files larger than cloud allows
-
+* Link shared folder without wasting your space: make folder with name `>>link SHARED_FOLDER_LINK [linkname]`
 
 #### Windows
 
