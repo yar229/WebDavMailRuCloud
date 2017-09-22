@@ -8,16 +8,6 @@
 * UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
 
 
-
-
-
-* You don't need this program if you have [paid account](https://help.mail.ru/cloud_web/app/webdav)  
-* UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
-
-
-
-
-
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - Microsoft .NET Framework 4.5 
 * [Linux](#linux) - Mono 4.6 +
