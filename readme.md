@@ -55,7 +55,7 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 
 ***Commands***
 * Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
-* Link shared folder without wasting your space: make folder with name `>>link SHARED_FOLDER_LINK [linkname]`
+* Link shared folder without wasting your space: make folder with name `>>link SHARED_FOLDER_LINK [linkname]` or manually edit file /item.links.wdmrc
 
 #### Windows
 
