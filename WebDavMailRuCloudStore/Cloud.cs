@@ -29,7 +29,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
             if (CloudCache.TryGetValue(key, out var cloud))
             {
-                if (cloud.CloudApi.Account.Expires <= DateTime.Now)
+                if (cloud.CloudApi.Account.TokenExpiresAt <= DateTime.Now)
                     CloudCache.TryRemove(key, out cloud);
                 else
                     return cloud;
