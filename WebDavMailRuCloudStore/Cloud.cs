@@ -35,6 +35,24 @@ namespace YaR.WebDavMailRu.CloudStore
                     return cloud;
             }
 
+            lock (Locker)
+            {
+                if (!CloudCache.TryGetValue(key, out cloud))
+                {
+                    cloud = CreateCloud(identity);
+
+                    if (!CloudCache.TryAdd(key, cloud))
+                        CloudCache.TryGetValue(key, out cloud);
+                }
+            }
+
+            return cloud;
+        }
+
+        private static readonly object Locker = new object();
+
+        private static MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
+        {
             if (!ConstSettings.AvailDomains.Any(d => identity.Name.Contains($"@{d}.")))
             {
                 string domains = ConstSettings.AvailDomains.Aggregate((c, n) => c + ", @" + n);
@@ -52,11 +70,7 @@ namespace YaR.WebDavMailRu.CloudStore
                     Logger.Error($"Cannot load two-factor auth handler {TwoFactorHandlerName}");
             }
 
-            cloud = new SplittedCloud(identity.Name, identity.Password, twoFaHandler);
-            if (!CloudCache.TryAdd(key, cloud))
-                CloudCache.TryGetValue(key, out cloud);
-
-
+            var cloud = new SplittedCloud(identity.Name, identity.Password, twoFaHandler);
             return cloud;
         }
     }
