@@ -61,15 +61,16 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //    Getter = (context, collection) => ""
             //},
 
+            //// ?? required for WebDrive
             //new DavCollection<MailruStoreCollection>
             //{
-            //    Getter = (context, collection) => true
+            //    Getter = (context, collection) => string.Empty
             //},
 
-            //new DavGetEtag<MailruStoreCollection>
-            //{
-            //    Getter = (context, item) => item.CalculateEtag()
-            //},
+            new DavGetEtag<MailruStoreCollection>
+            {
+                Getter = (context, item) => item.CalculateEtag()
+            },
 
             //new DavBsiisreadonly<MailruStoreCollection>
             //{
@@ -230,15 +231,18 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavSharedLink<MailruStoreCollection>()
+            new DavSharedLink<MailruStoreCollection>
             {
                 Getter = (context, item) => item.DirectoryInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok
             },
-
             new DavGetContentLength<MailruStoreCollection>
             {
                 Getter = (context, item) => item.DirectoryInfo.Size
+            },
+            new DavGetContentType<MailruStoreCollection>
+            {
+                Getter = (context, item) => "httpd/unix-directory" //"application/octet-stream"
             }
         });
 

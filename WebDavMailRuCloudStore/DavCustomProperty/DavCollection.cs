@@ -5,7 +5,7 @@ using NWebDav.Server.Stores;
 
 namespace YaR.WebDavMailRu.CloudStore.DavCustomProperty
 {
-    public class DavCollection<TEntry> : DavBoolean<TEntry> where TEntry : IStoreItem
+    public class DavCollection<TEntry> : DavString<TEntry> where TEntry : IStoreItem
     {
         /// <summary>
         /// Name of the property (static).
