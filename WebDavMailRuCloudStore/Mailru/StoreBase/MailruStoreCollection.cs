@@ -61,10 +61,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //    Getter = (context, collection) => ""
             //},
 
-            //new DavCollection<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) => true
-            //},
+            new DavCollection<MailruStoreCollection>
+            {
+                Getter = (context, collection) => string.Empty
+            },
 
             new DavGetEtag<MailruStoreCollection>
             {
