@@ -135,7 +135,9 @@ Use any client supports webdav.
 
 #### Client remarks
 * [**Total Commander**](http://www.ghisler.com/): requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
-* [**WebDrive**](https://southrivertech.com/products/webdrive/): check on option (disk properties) -> HTTP Settings -> Use /allprop on PROPFIND's (slower performance)
+* [**WebDrive**](https://southrivertech.com/products/webdrive/): 
+  - check on option `(disk properties) -> HTTP Settings -> Use /allprop on PROPFIND's (slower performance)`
+  - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`
 
 
 #### Big thanks
