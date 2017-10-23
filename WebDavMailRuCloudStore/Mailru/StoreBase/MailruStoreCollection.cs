@@ -18,7 +18,7 @@ using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
-    [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
+    [DebuggerDisplay("{_directoryInfo.FullPath}")]
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
