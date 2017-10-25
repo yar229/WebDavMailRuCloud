@@ -1,0 +1,36 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+stages:
+  - build
+
+buildNet45:
+ stage: build
+ image :  mono:latest
+ script:
+  - cd /builds/yar229/WebDavMailRuCloud/
+  - nuget restore
+  - MONO_IOMAP=case msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
+ artifacts:
+  name: "WebDAVCloudMailRu_${CI_COMMIT_TAG}_dotNet45"
+  when: on_success
+  paths:
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.exe
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.dll
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.config
+  - /builds/yar229/WebDavMailRuCloud/readme.md
+  
+buildCore20:
+ stage: build
+ image : microsoft/dotnet:latest
+ script:
+  - 'dotnet restore'
+  - 'dotnet publish -c Release -f netcoreapp2.0'
+ artifacts:
+  name: "WebDAVCloudMailRu_${CI_COMMIT_TAG}_dotNetCore20"
+  when: on_success
+  paths:
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.exe
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.dll
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.config
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.json  
+  - /builds/yar229/WebDavMailRuCloud/readme.md

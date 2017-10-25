@@ -1,97 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F8FA91A5-466D-4072-8D7B-7791831F520D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YaR.WebDavMailRu.CloudStore</RootNamespace>
-    <AssemblyName>WebDavMailRuCloudStore</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Cloud.cs" />
-    <Compile Include="DavCustomProperty\DavBsiisreadonly.cs" />
-    <Compile Include="DavCustomProperty\DavCollection.cs" />
-    <Compile Include="DavCustomProperty\DavHref.cs" />
-    <Compile Include="DavCustomProperty\DavIsreadonly.cs" />
-    <Compile Include="DavCustomProperty\DavLastAccessed.cs" />
-    <Compile Include="DavCustomProperty\DavLoctoken.cs" />
-    <Compile Include="DavCustomProperty\DavSharedLink.cs" />
-    <Compile Include="DavCustomProperty\DavSrtfileattributes.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Mailru\DeleteHandler.cs" />
-    <Compile Include="Mailru\MoveHandler.cs" />
-    <Compile Include="Mailru\RequestHandlerFactory.cs" />
-    <Compile Include="Mailru\StoreBase\MailruStore.cs" />
-    <Compile Include="Mailru\StoreBase\MailruStoreCollection.cs" />
-    <Compile Include="Mailru\StoreBase\MailruStoreItem.cs" />
-    <Compile Include="Mailru\StoreBase\IMailruStoreCollection.cs" />
-    <Compile Include="Mailru\StoreBase\IMailruStoreItem.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SeekableAesStream.cs" />
-    <Compile Include="TwoFaHandlers.cs" />
-    <Compile Include="XTSSharp\RandomAccessSectorStream.cs" />
-    <Compile Include="XTSSharp\SectorStream.cs" />
-    <Compile Include="XTSSharp\Xts.cs" />
-    <Compile Include="XTSSharp\XtsAes128.cs" />
-    <Compile Include="XTSSharp\XtsAes256.cs" />
-    <Compile Include="XTSSharp\XtsCryptoTransform.cs" />
-    <Compile Include="XTSSharp\XtsSectorStream.cs" />
-    <Compile Include="XTSSharp\XtsStream.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MailRuNetCloudClient\MailRuCloudApi\MailRuCloudApi.csproj">
-      <Project>{75BF5EAC-81A8-4E00-A82E-0BCBD17AC50B}</Project>
-      <Name>MailRuCloudApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NWebDAV\NWebDav.Server\NWebDav.Server.csproj">
-      <Project>{695b7314-009e-42a9-bbdf-223f298622d1}</Project>
-      <Name>NWebDav.Server</Name>
-    </ProjectReference>
-  </ItemGroup>
+
   <ItemGroup>
     <Content Include="XTSSharp\readme.txt" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="packages.config" />
+    <PackageReference Include="log4net" Version="2.0.8" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\MailRuCloudApi\MailRuCloudApi.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using CommandLine;
 using NWebDav.Server;
 using NWebDav.Server.Http;
@@ -10,18 +12,27 @@ using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
-using YaR.WebDavMailRu.Properties;
+//using YaR.WebDavMailRu.Properties;
 
 namespace YaR.WebDavMailRu
 {
     static class Program
     {
-        private static readonly log4net.ILog Logger;
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
         static Program()
         {
-            log4net.Config.XmlConfigurator.Configure();
-            Logger = log4net.LogManager.GetLogger(typeof(Program));
+            //log4net.Config.XmlConfigurator.Configure()
+            //Logger = log4net.LogManager.GetLogger(typeof(Program));
+
+            XmlDocument log4netConfig = new XmlDocument();
+            log4netConfig.Load(File.OpenRead("wdmrc.config"));
+
+            var repo = log4net.LogManager.CreateRepository(
+                Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
+
+            log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
+
         }
 
 
@@ -38,7 +49,7 @@ namespace YaR.WebDavMailRu
                 options => 
                 {
                     Cloud.Init(options.UserAgent);
-                    Cloud.TwoFactorHandlerName = Settings.Default.TwoFactorAuthHandlerName;
+                    //Cloud.TwoFactorHandlerName = Settings.Default.TwoFactorAuthHandlerName;
 
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
@@ -143,7 +154,7 @@ namespace YaR.WebDavMailRu
 
         private static void ShowInfo()
         {
-            string title = GetAssemblyAttribute<AssemblyTitleAttribute>(a => a.Title);
+            string title = GetAssemblyAttribute<AssemblyProductAttribute>(a => a.Product);
             string description = GetAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
             string copyright = GetAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -156,7 +167,7 @@ namespace YaR.WebDavMailRu
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
         {
             T attribute = (T)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(T));
-            return value.Invoke(attribute);
+            return null == attribute ? null : value.Invoke(attribute);
         }
 
         // ReSharper disable once InconsistentNaming
