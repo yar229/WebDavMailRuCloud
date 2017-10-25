@@ -3,7 +3,8 @@ solution: WebDAVMailRuCloud.sln
 install:
   - nuget restore WebDAVMailRuCloud.sln
 script:
-  - msbuild /t:"Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
+  - nuget restore
+  - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
 
 #before_script: 
 #    - |
