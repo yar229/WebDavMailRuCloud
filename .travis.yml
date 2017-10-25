@@ -1,10 +1,12 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
+dotnet: latest
 install:
   - nuget restore WebDAVMailRuCloud.sln
 script:
   - nuget restore
   - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
+  - dotnet publish -c Release -f netcoreapp2.0
 
 #before_script: 
 #    - |
@@ -18,7 +20,9 @@ script:
   #- "sed -ie 's/\\[assembly: AssemblyFileVersion(\"1.0.0.0\")\\]/\\[assembly: AssemblyFileVersion(\"$TRAVIS_TAG\")\\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs"
   #- "sed -ie 's/\\[assembly: AssemblyVersion(\"1.0.0.0\")\\]/\\[assembly: AssemblyVersion(\"$TRAVIS_TAG\")\\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs"
 before_deploy: 
-  - tar -czpvf WebDAVCloudMailRu-$TRAVIS_TAG-dotNet45.tar.gz -C /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45 .
+  - rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.pdb
+    && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/*.pdb
+    && tar -czpvf WebDAVCloudMailRu-$TRAVIS_TAG-dotNet45.tar.gz -C /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45 .
     && tar -czpvf WebDAVCloudMailRu-$TRAVIS_TAG-dotNetCore20.tar.gz -C /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0 .
 deploy:
   provider: releases
