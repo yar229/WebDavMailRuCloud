@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text;
 using System.Threading.Tasks;
-using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
@@ -10,7 +9,7 @@ namespace YaR.WebDavMailRu.CloudStore
 {
     internal static class Extensions
     {
-        public static Task<bool> Remove(this MailRuCloud cloud, IStoreItem item)
+        public static Task<bool> Remove(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item)
         {
             if (null == item) return Task.FromResult(false);
 
@@ -22,7 +21,7 @@ namespace YaR.WebDavMailRu.CloudStore
             throw new ArgumentException(string.Empty, nameof(item));
         }
 
-        public static Task<bool> Rename(this MailRuCloud cloud, IStoreItem item, string destinationName)
+        public static Task<bool> Rename(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item, string destinationName)
         {
             if (null == item) return Task.FromResult(false);
 
@@ -34,7 +33,7 @@ namespace YaR.WebDavMailRu.CloudStore
             throw new ArgumentException(string.Empty, nameof(item));
         }
 
-        public static Task<bool> Move(this MailRuCloud cloud, IStoreItem item, string destinationName)
+        public static Task<bool> Move(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item, string destinationName)
         {
             if (null == item) return Task.FromResult(false);
 

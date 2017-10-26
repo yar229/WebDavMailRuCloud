@@ -31,9 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MailRuCloudApi.TwoFA\MailRuCloudApi.TwoFA.csproj" />
-    <ProjectReference Include="..\MailRuCloudApi\MailRuCloudApi.csproj" />
+    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
+    <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj" />
   </ItemGroup>
 

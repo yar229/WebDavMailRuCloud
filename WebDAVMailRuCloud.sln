@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8950FA45-4F13-42FE-B32D-736C1426E0EF}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,17 +10,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NWebDAV", "NWebDAV", "{BDE6F8E2-9F7F-4ADF-8972-4589485E3FCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailRuCloudApi", "MailRuCloudApi\MailRuCloudApi.csproj", "{B9238166-0CEC-45F2-AFA2-CAA8F7EBA067}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailRuCloudApi", "MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj", "{B9238166-0CEC-45F2-AFA2-CAA8F7EBA067}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDavMailRuCloudStore", "WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj", "{DBA33EF9-3F32-4EC9-ABE0-8D377DEA87E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebDavMailRuCloudStore", "WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj", "{DBA33EF9-3F32-4EC9-ABE0-8D377DEA87E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDMRC.Console", "WDMRC.Console\WDMRC.Console.csproj", "{06970A38-9602-4A7A-885E-EC0EA3422F5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WDMRC.Console", "WDMRC.Console\WDMRC.Console.csproj", "{06970A38-9602-4A7A-885E-EC0EA3422F5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailRuCloudApi.TwoFA", "MailRuCloudApi.TwoFA\MailRuCloudApi.TwoFA.csproj", "{52F89731-C80A-4D0D-ADA2-8C65F1A8997F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailRuCloudApi.TwoFA.Console", "MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj", "{52F89731-C80A-4D0D-ADA2-8C65F1A8997F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebDav.Server.HttpListener", "NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj", "{304D6DB3-D47E-40D1-9AAC-2B33AC82B44D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NWebDav.Server.HttpListener", "NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj", "{304D6DB3-D47E-40D1-9AAC-2B33AC82B44D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebDav.Server", "NWebDav\NWebDav.Server\NWebDav.Server.csproj", "{F0E2D22B-D913-422F-B409-A9A8611CB0D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NWebDav.Server", "NWebDav\NWebDav.Server\NWebDav.Server.csproj", "{F0E2D22B-D913-422F-B409-A9A8611CB0D3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MailRuCloud", "MailRuCloud", "{5AB56772-AA33-481C-8CD6-A8D16C0C16C2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TwoFA", "TwoFA", "{BE0C36C2-6D4A-4F48-B91A-36CC75707984}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{8CA26109-56B3-420E-A1B6-0A2D22FF619F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,8 +193,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{B9238166-0CEC-45F2-AFA2-CAA8F7EBA067} = {5AB56772-AA33-481C-8CD6-A8D16C0C16C2}
+		{52F89731-C80A-4D0D-ADA2-8C65F1A8997F} = {8CA26109-56B3-420E-A1B6-0A2D22FF619F}
 		{304D6DB3-D47E-40D1-9AAC-2B33AC82B44D} = {BDE6F8E2-9F7F-4ADF-8972-4589485E3FCB}
 		{F0E2D22B-D913-422F-B409-A9A8611CB0D3} = {BDE6F8E2-9F7F-4ADF-8972-4589485E3FCB}
+		{BE0C36C2-6D4A-4F48-B91A-36CC75707984} = {5AB56772-AA33-481C-8CD6-A8D16C0C16C2}
+		{8CA26109-56B3-420E-A1B6-0A2D22FF619F} = {BE0C36C2-6D4A-4F48-B91A-36CC75707984}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59A703E3-F9FA-4E67-98D2-514511B4105C}

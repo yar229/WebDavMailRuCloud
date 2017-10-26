@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using MailRuCloudApi;
+using YaR.MailRuCloud.Api;
 
 namespace YaR.WebDavMailRu.CloudStore
 {

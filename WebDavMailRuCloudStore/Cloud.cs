@@ -2,9 +2,9 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
-using MailRuCloudApi;
-using MailRuCloudApi.Api;
 using NWebDav.Server.Http;
+using YaR.MailRuCloud.Api;
+using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
@@ -18,11 +18,11 @@ namespace YaR.WebDavMailRu.CloudStore
                 ConstSettings.UserAgent = userAgent;
         }
 
-        private static readonly ConcurrentDictionary<string, MailRuCloud> CloudCache = new ConcurrentDictionary<string, MailRuCloud>();
+        private static readonly ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud> CloudCache = new ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud>();
 
         public static string TwoFactorHandlerName { get; set; }
 
-        public static MailRuCloud Instance(IHttpContext context)
+        public static MailRuCloud.Api.MailRuCloud Instance(IHttpContext context)
         {
             HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
             string key = identity.Name + identity.Password;
@@ -51,7 +51,7 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private static readonly object Locker = new object();
 
-        private static MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
+        private static MailRuCloud.Api.MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
         {
             if (!ConstSettings.AvailDomains.Any(d => identity.Name.Contains($"@{d}.")))
             {
