@@ -4,7 +4,6 @@
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
-    <StartupObject>YaR.WebDavMailRu.Program</StartupObject>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
