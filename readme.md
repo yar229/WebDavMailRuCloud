@@ -10,9 +10,11 @@
 
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - Microsoft .NET Framework 4.5 
-* [Linux](#linux) - Mono 4.6 +
-* [OS X](#mac-os-x) - Mono 4.6 + (buddy said it works)
+* [Windows](#windows)  - .NET Framework 4.5 / .NET Core 2.0
+* [Linux](#linux) - Mono 4.6 / .NET Core 2.0
+* [OS X](#mac-os-x) - Mono 4.6 / .NET Core 2.0
+
+`WebDAVCloudMailRu-*-dotNet45.zip` / `WebDAVCloudMailRu-*-dotNetCore20.zip` respectively
 
 #### Usage
 ``` 	
@@ -32,7 +34,7 @@ Settings in `wdmrc.exe.config`
 	`<configuration>/<applicationSettings>/<YaR.WebDavMailRu.Properties.Settings>/<setting name="TwoFactorAuthHandlerName">/<value>`
 	
 	At this time you can use
-	* `AuthCodeWindow` - asks for authcode in GUI window
+	* `AuthCodeWindow` - asks for authcode in GUI window (only for .NET Framework releases)
 	* `AuthCodeConsole` - asks for authcode in application console
 	
 	Be careful, this methods does not usable when application started as a service/daemon. <br>
@@ -42,7 +44,7 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 
 Automatically split/join when uploading/downloading files larger than cloud allows.
 
-[Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27)
+[Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
 [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 
 ***Commands***
@@ -98,8 +100,12 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 
 (tested under [Elementary OS](https://elementary.io) and [Lubuntu](http://lubuntu.net/))
 * download and unzip [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) release  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
-* `sudo apt install apt mono-complete`
-* `mono wdmrc.exe -p <port>`
+* .Net Framework (WebDAVCloudMailRu-*-dotNet45.zip)
+  * `sudo apt install apt mono-complete`
+  * `mono wdmrc.exe -p <port>`
+* .Net Core (WebDAVCloudMailRu-*-dotNetCore20.zip)
+  * (i dunno)
+
 
 See also 
 * [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
@@ -128,8 +134,11 @@ In short:
 #### Mac OS X
 
 * download and unzip [latest](https://github.com/yar229/WebDavMailRuCloud/releases/latest) release  <sub><sup>([obsolete alternative way](https://toster.ru/q/375448) from [Алексей Немиро](https://toster.ru/user/AlekseyNemiro) )</sup></sub>
-* `brew install mono` (how to install [brew](https://brew.sh/))
-* `mono wdmrc.exe -p <port>`
+* .Net Framework (WebDAVCloudMailRu-*-dotNet45.zip)
+  * `brew install mono` (how to install [brew](https://brew.sh/))
+  * `mono wdmrc.exe -p <port>`
+* .Net Core (WebDAVCloudMailRu-*-dotNetCore20.zip)
+  * (i dunno)
 
 Use any client supports webdav.
 
