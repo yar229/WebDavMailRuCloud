@@ -19,10 +19,6 @@ namespace YaR.CloudMailRu.Console
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
-        static Program()
-        {
-        }
-
         static void Main(string[] args)
         {
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));

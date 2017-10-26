@@ -15,7 +15,7 @@
     <FileVersion>1.7.1.5</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
-    <StartupObject>YaR.CloudMailRu.Console.Program</StartupObject>
+    <StartupObject></StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
