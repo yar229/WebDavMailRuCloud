@@ -1,6 +1,9 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
 dotnet: 2.0.0
+branches:
+  only: 
+    - master
 install:
   - nuget restore WebDAVMailRuCloud.sln
 script:
