@@ -3,7 +3,8 @@ solution: WebDAVMailRuCloud.sln
 dotnet: 2.0.0
 branches:
   only: 
-    - master
+#    - master
+    - /^\d+\.\d+\.\d+\.\d+$/
 install:
   - nuget restore WebDAVMailRuCloud.sln
 script:
