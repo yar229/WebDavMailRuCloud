@@ -4,7 +4,7 @@
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
-    <StartupObject>YaR.WebDavMailRu.Program</StartupObject>
+    <StartupObject>YaR.CloudMailRu.Console.Program</StartupObject>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
@@ -15,6 +15,7 @@
     <AssemblyVersion>1.7.0.5</AssemblyVersion>
     <FileVersion>1.7.0.5</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
+    <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

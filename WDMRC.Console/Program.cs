@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -10,28 +9,20 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
+using YaR.WebDavMailRu;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
-//using YaR.WebDavMailRu.Properties;
 
-namespace YaR.WebDavMailRu
+namespace YaR.CloudMailRu.Console
 {
-    static class Program
+    public class Program : MarshalByRefObject
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
         static Program()
         {
-            //log4net.Config.XmlConfigurator.Configure()
-            //Logger = log4net.LogManager.GetLogger(typeof(Program));
-
-            XmlDocument log4netConfig = new XmlDocument();
-            log4netConfig.Load(File.OpenRead("wdmrc.config"));
-
-            var repo = log4net.LogManager.CreateRepository(
-                Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
-
-            log4net.Config.XmlConfigurator.Configure(repo, log4netConfig["log4net"]);
+            var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
+            log4net.Config.XmlConfigurator.Configure(repo, Config.Log4Net);
 
         }
 
@@ -49,7 +40,7 @@ namespace YaR.WebDavMailRu
                 options => 
                 {
                     Cloud.Init(options.UserAgent);
-                    //Cloud.TwoFactorHandlerName = Settings.Default.TwoFactorAuthHandlerName;
+                    Cloud.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName; //Settings.Default.TwoFactorAuthHandlerName;
 
                     var webdavProtocol = "http";
                     var webdavIp = "127.0.0.1";
@@ -93,7 +84,7 @@ namespace YaR.WebDavMailRu
         private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
-            var requestHandlerFactory = new CloudStore.Mailru.RequestHandlerFactory();
+            var requestHandlerFactory = new WebDavMailRu.CloudStore.Mailru.RequestHandlerFactory();
 
             // Create WebDAV dispatcher
             var homeFolder = new MailruStore();
@@ -159,9 +150,9 @@ namespace YaR.WebDavMailRu
             string copyright = GetAssemblyAttribute<AssemblyCopyrightAttribute>(a => a.Copyright);
             string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
-            Console.WriteLine($"  {title}: {description}");
-            Console.WriteLine($"  v.{version}");
-            Console.WriteLine($"  {copyright}");
+            System.Console.WriteLine($"  {title}: {description}");
+            System.Console.WriteLine($"  v.{version}");
+            System.Console.WriteLine($"  {copyright}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
