@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using MailRuCloudApi;
+using YaR.MailRuCloud.Api;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
@@ -28,7 +28,11 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private static IEnumerable<Type> GetHandlers()
         {
-            foreach (var file in Directory.EnumerateFiles(Path.GetDirectoryName(typeof(TwoFaHandlers).Assembly.Location) ?? throw new InvalidOperationException(), "MailRuCloudApi.TwoFA*.dll", SearchOption.TopDirectoryOnly))
+            var files = Directory.EnumerateFiles(
+                Path.GetDirectoryName(typeof(TwoFaHandlers).Assembly.Location) ?? throw new InvalidOperationException(),
+                "MailRuCloud.TwoFA*.dll",
+                SearchOption.TopDirectoryOnly);
+            foreach (var file in files)
             {
                 Assembly assembly = Assembly.LoadFile(file);
                 foreach (var type in assembly.ExportedTypes)

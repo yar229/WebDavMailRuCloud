@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using MailRuCloudApi;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
@@ -11,7 +10,9 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
+using YaR.MailRuCloud.Api.Base;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
+using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
@@ -19,11 +20,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
     public sealed class MailruStoreItem : IMailruStoreItem
     {
         private static readonly ILogger SLog = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreItem));
-        private readonly MailRuCloudApi.File _fileInfo;
+        private readonly File _fileInfo;
 
-        public MailRuCloudApi.File FileInfo => _fileInfo;
+        public File FileInfo => _fileInfo;
 
-        public MailruStoreItem(ILockingManager lockingManager, MailRuCloudApi.File fileInfo, bool isWritable)
+        public MailruStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
         {
             LockingManager = lockingManager;
             _fileInfo = fileInfo;
@@ -154,7 +155,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         public ILockingManager LockingManager { get; }
 
 
-        private Stream OpenReadStream(MailRuCloud cloud, long? start, long? end)
+        private Stream OpenReadStream(MailRuCloud.Api.MailRuCloud cloud, long? start, long? end)
         {
             Stream stream = cloud.GetFileDownloadStream(_fileInfo, start, end).Result;
             return stream;
