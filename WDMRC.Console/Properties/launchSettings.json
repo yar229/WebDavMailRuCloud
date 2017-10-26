@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WDMRC.Console_NetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "-p 3332 --maxthreads 1"
+    }
+  }
+}

@@ -3,10 +3,11 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using MailRuCloudApi;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
+using YaR.MailRuCloud.Api;
+using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {

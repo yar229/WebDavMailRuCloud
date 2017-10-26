@@ -6,19 +6,21 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using MailRuCloudApi;
-using MailRuCloudApi.SpecialCommands;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
+using YaR.MailRuCloud.Api;
+using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.SpecialCommands;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
+using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
-    [DebuggerDisplay("{_directoryInfo.FullPath}\\")]
+    [DebuggerDisplay("{_directoryInfo.FullPath}")]
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
@@ -328,7 +330,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var size = httpContext.Request.ContentLength();
 
-            var f = new MailRuCloudApi.File(destinationPath, size, null);
+            var f = new File(destinationPath, size, null);
 
             return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
         }
