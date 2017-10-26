@@ -6,7 +6,7 @@ install:
 script:
   - nuget restore
   - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
-  - dotnet publish -c Release -f netcoreapp2.0
+  - dotnet publish ~/WDMRC.Console/WDMRC.Console.netcoreapp.publish.csproj -c Release -f netcoreapp2.0
 
 #before_script: 
 #    - |
