@@ -15,20 +15,15 @@ using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.CloudMailRu.Console
 {
-    public class Program : MarshalByRefObject
+    public class Program 
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
-        static Program()
+        static void Main(string[] args)
         {
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
             log4net.Config.XmlConfigurator.Configure(repo, Config.Log4Net);
 
-        }
-
-
-        static void Main(string[] args)
-        {
             LoggerFactory.Factory = new Log4NetAdapter();
 
             ShowInfo();
