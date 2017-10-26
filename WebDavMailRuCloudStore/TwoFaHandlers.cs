@@ -34,7 +34,7 @@ namespace YaR.WebDavMailRu.CloudStore
                 SearchOption.TopDirectoryOnly);
             foreach (var file in files)
             {
-                Assembly assembly = Assembly.LoadFile(file);
+                Assembly assembly = Assembly.UnsafeLoadFrom(file);
                 foreach (var type in assembly.ExportedTypes)
                 {
                     if (type.GetInterfaces().Contains(typeof(ITwoFaHandler)))
