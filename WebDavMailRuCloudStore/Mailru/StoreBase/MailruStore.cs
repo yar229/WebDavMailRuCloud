@@ -26,12 +26,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             //TODO: Refact
 
+            var identity = (HttpListenerBasicIdentity)httpContext.Session.Principal.Identity;
             var path = GetPathFromUri(uri);
             
             //TODO: clean this trash
             try
             {
-                var item = Cloud.Instance(httpContext).GetItems(path).Result;
+                var item = Cloud.Instance(identity).GetItems(path).Result;
                 if (item != null)
                 {
                     if (item.FullPath == path)
@@ -44,7 +45,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, fa, IsWritable));
 
                     string parentPath = WebDavPath.Parent(path);
-                    item = Cloud.Instance(httpContext).GetItems(parentPath).Result;
+                    item = Cloud.Instance(identity).GetItems(parentPath).Result;
                     if (item != null)
                     {
                         var f = item.Files.FirstOrDefault(k => k.FullPath == path);

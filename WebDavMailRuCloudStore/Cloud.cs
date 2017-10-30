@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
+using System.Security.Principal;
 using NWebDav.Server.Http;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
@@ -22,9 +23,10 @@ namespace YaR.WebDavMailRu.CloudStore
 
         public static string TwoFactorHandlerName { get; set; }
 
-        public static MailRuCloud.Api.MailRuCloud Instance(IHttpContext context)
+        public static MailRuCloud.Api.MailRuCloud Instance(IIdentity identityi)
         {
-            HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
+            var identity = (HttpListenerBasicIdentity) identityi;
+            //HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
             string key = identity.Name + identity.Password;
 
             if (CloudCache.TryGetValue(key, out var cloud))

@@ -1,7 +1,5 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using NWebDav.Server;
-using NWebDav.Server.Stores;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
@@ -30,10 +28,10 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             }
         }
 
-        public override Task<StoreCollectionResult> Execute()
+        public override Task<SpecialCommandResult> Execute()
         {
             bool k = _cloud.CloneItem(_path, Value).Result;
-            return Task.FromResult(new StoreCollectionResult(k ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+            return Task.FromResult(new SpecialCommandResult{Success = k});
         }
     }
 }
