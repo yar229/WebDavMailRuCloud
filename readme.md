@@ -26,13 +26,11 @@
 	--version         Display version information.
 ```
 Settings in `wdmrc.exe.config`
-* Logging
-	
+* Logging <br/>
+	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
-* 2 Factor Authentification
-
-	`<configuration>/<applicationSettings>/<YaR.WebDavMailRu.Properties.Settings>/<setting name="TwoFactorAuthHandlerName">/<value>`
-	
+* 2 Factor Authentification <br/>
+	`<config><TwoFactorAuthHandlerName>` <br/>
 	At this time you can use
 	* `AuthCodeWindow` - asks for authcode in GUI window (only for .NET Framework releases)
 	* `AuthCodeConsole` - asks for authcode in application console
