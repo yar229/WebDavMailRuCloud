@@ -26,7 +26,10 @@ namespace YaR.MailRuCloud.Api.Base
         public override DateTime LastWriteTimeUtc => FileHeader.LastWriteTimeUtc;
         public override DateTime LastAccessTimeUtc => FileHeader.LastAccessTimeUtc;
 
-        public override List<File> Files => _fileParts;
+        /// <summary>
+        /// List of physical files
+        /// </summary>
+        public override List<File> Parts => _fileParts;
 
         private File FileHeader { get; }
         private readonly List<File> _fileParts = new List<File>();

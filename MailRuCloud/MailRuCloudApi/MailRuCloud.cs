@@ -212,9 +212,9 @@ namespace YaR.MailRuCloud.Api
         public async Task<bool> Rename(File file, string newFileName)
         {
             var result = await Rename(file.FullPath, newFileName);  //var result = await Rename(file.FullPath, newFileName);
-            if (file.Files.Count > 1)
+            if (file.Parts.Count > 1)
             {
-                foreach (var splitFile in file.Files)
+                foreach (var splitFile in file.Parts)
                 {
                     string newSplitName = newFileName + ".wdmrc" + splitFile.Extension; //TODO: refact with .wdmrc
                     await Rename(splitFile.FullPath, newSplitName);
@@ -288,9 +288,9 @@ namespace YaR.MailRuCloud.Api
         public async Task<bool> Move(File file, string destinationPath)
         {
             var result = !string.IsNullOrEmpty(await MoveOrCopy(file.FullPath, destinationPath, true));
-            if (file.Files.Count > 1)
+            if (file.Parts.Count > 1)
             {
-                foreach (var splitFile in file.Files)
+                foreach (var splitFile in file.Parts)
                     await MoveOrCopy(splitFile.FullPath, destinationPath, true);
             }
             return result;
@@ -319,7 +319,7 @@ namespace YaR.MailRuCloud.Api
         {
             if (file.IsSplitted)
             {
-                foreach (var fileFile in file.Files)
+                foreach (var fileFile in file.Parts)
                 {
                     await Remove(fileFile.FullPath);
                 }
@@ -350,7 +350,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var filelst = file.Files.Count == 0 ? new List<File>{file} : file.Files;
+            var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
 
             var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
             Stream stream = await task;
