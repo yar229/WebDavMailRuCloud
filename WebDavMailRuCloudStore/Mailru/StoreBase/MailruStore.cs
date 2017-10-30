@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
@@ -61,12 +60,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
                 if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
             }
+            // ReSharper disable once RedundantCatchClause
+            #if DEBUG
+            #pragma warning disable 168
             catch (Exception ex)
             {
                 throw;
             }
-
-
+            #pragma warning restore 168
+            #endif
 
             return Task.FromResult<IStoreItem>(null);
         }

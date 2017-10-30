@@ -12,7 +12,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.SpecialCommands;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;

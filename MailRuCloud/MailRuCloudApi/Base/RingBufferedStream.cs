@@ -47,24 +47,13 @@ namespace YaR.MailRuCloud.Api.Base
             _readAvailableByteCount = 0;
         }
 
-        /// <inheritdoc/>
         public override bool CanRead => true;
 
-        /// <inheritdoc/>
         public override bool CanSeek => false;
 
-        /// <inheritdoc/>
         public override bool CanWrite => true;
 
-        /// <inheritdoc/>
-        public override long Length
-        {
-            get
-            {
-                throw new NotSupportedException(
-                    "Cannot get length on RingBufferedStream");
-            }
-        }
+        public override long Length => throw new NotSupportedException("Cannot get length on RingBufferedStream");
 
         /// <inheritdoc/>
         public override int ReadTimeout { get; set; } = Timeout.Infinite;
@@ -75,17 +64,9 @@ namespace YaR.MailRuCloud.Api.Base
         /// <inheritdoc/>
         public override long Position
         {
-            get
-            {
-                throw new NotSupportedException(
-                    "Cannot set position on RingBufferedStream");
-            }
+            get => throw new NotSupportedException("Cannot set position on RingBufferedStream");
 
-            set
-            {
-                throw new NotSupportedException(
-                    "Cannot set position on RingBufferedStream");
-            }
+            set => throw new NotSupportedException("Cannot set position on RingBufferedStream");
         }
 
         /// <summary>
@@ -101,8 +82,6 @@ namespace YaR.MailRuCloud.Api.Base
                 _flushed.Set();
                 _cancellationTokenSource?.Cancel();
             }
-            //_readAvailable.Reset();
-            //_readAvailable.Set();
         }
 
         /// <summary>
@@ -156,8 +135,7 @@ namespace YaR.MailRuCloud.Api.Base
                         _writeAvailable.Reset();
                         Monitor.Exit(_store);
                         haveLock = false;
-                        bool canceled;
-                        if (!_writeAvailable.Wait(WriteTimeout, _cancellationTokenSource.Token, out canceled) || canceled)
+                        if (!_writeAvailable.Wait(WriteTimeout, _cancellationTokenSource.Token, out var canceled) || canceled)
                         {
                             break;
                         }
@@ -215,8 +193,7 @@ namespace YaR.MailRuCloud.Api.Base
                         _writeAvailable.Reset();
                         Monitor.Exit(_store);
                         haveLock = false;
-                        bool canceled;
-                        if (!_writeAvailable.Wait(WriteTimeout, _cancellationTokenSource.Token, out canceled) || canceled)
+                        if (!_writeAvailable.Wait(WriteTimeout, _cancellationTokenSource.Token, out var canceled) || canceled)
                             break;
 
                         Monitor.Enter(_store);
@@ -263,8 +240,7 @@ namespace YaR.MailRuCloud.Api.Base
                         _readAvailable.Reset();
                         Monitor.Exit(_store);
                         haveLock = false;
-                        bool canceled;
-                        if (!_readAvailable.Wait(ReadTimeout, _cancellationTokenSource.Token, out canceled) || canceled)
+                        if (!_readAvailable.Wait(ReadTimeout, _cancellationTokenSource.Token, out var canceled) || canceled)
                             break;
 
                         Monitor.Enter(_store);
@@ -328,8 +304,7 @@ namespace YaR.MailRuCloud.Api.Base
                         _readAvailable.Reset();
                         Monitor.Exit(_store);
                         haveLock = false;
-                        bool canceled;
-                        if (!_readAvailable.Wait(ReadTimeout, _cancellationTokenSource.Token, out canceled) || canceled)
+                        if (!_readAvailable.Wait(ReadTimeout, _cancellationTokenSource.Token, out var canceled) || canceled)
                             break;
 
                         Monitor.Enter(_store);
