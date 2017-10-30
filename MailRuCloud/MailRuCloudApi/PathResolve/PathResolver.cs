@@ -168,5 +168,10 @@ namespace YaR.MailRuCloud.Api.PathResolve
             if (url.StartsWith(PublicBaseLink1)) return url.Remove(PublicBaseLink1.Length);
             return url;
         }
+
+        public void ProcessRename(string fullPath, string newName)
+        {
+            //TODO: implement
+        }
     }
 }

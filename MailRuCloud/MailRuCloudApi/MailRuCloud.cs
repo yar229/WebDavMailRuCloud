@@ -383,9 +383,14 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Rename(string fullPath, string newName)
         {
-            await new RenameRequest(CloudApi, fullPath, newName)
+            var res = await new RenameRequest(CloudApi, fullPath, newName)
                 .MakeRequestAsync();
-            return true;
+
+            if (res.status == 200)
+            {
+                _pathResolver.ProcessRename(fullPath, newName);
+            }
+            return res.status == 200;
         }
 
         /// <summary>
