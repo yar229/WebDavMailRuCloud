@@ -10,9 +10,9 @@
 
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - .NET Framework 4.5 / .NET Core 2.0
-* [Linux](#linux) - Mono 4.6 / .NET Core 2.0
-* [OS X](#mac-os-x) - Mono 4.6 / .NET Core 2.0
+* [Windows](#windows)  - .NET Framework 4.5 / [.NET Core 2.0](https://www.microsoft.com/net/core#windowscmd)
+* [Linux](#linux) - Mono 4.6 / [.NET Core 2.0](https://www.microsoft.com/net/core#linuxredhat)
+* [OS X](#mac-os-x) - Mono 4.6 / [.NET Core 2.0](https://www.microsoft.com/net/core#macos)
 
 `WebDAVCloudMailRu-*-dotNet45.zip` / `WebDAVCloudMailRu-*-dotNetCore20.zip` respectively
 
@@ -104,7 +104,8 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
   * `sudo apt install apt mono-complete`
   * `mono wdmrc.exe -p <port>`
 * .Net Core (WebDAVCloudMailRu-*-dotNetCore20.zip)
-  * (i dunno)
+  * install [.NET Core](https://www.microsoft.com/net/core#linuxredhat)
+  * `dotnet wdmrc.dll <params>`
 
 
 See also 
@@ -138,7 +139,8 @@ In short:
   * `brew install mono` (how to install [brew](https://brew.sh/))
   * `mono wdmrc.exe -p <port>`
 * .Net Core (WebDAVCloudMailRu-*-dotNetCore20.zip)
-  * (i dunno)
+  * install [.NET Core](https://www.microsoft.com/net/core#macos)
+  * `dotnet wdmrc.dll <params>`
 
 Use any client supports webdav.
 
