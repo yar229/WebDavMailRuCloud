@@ -25,10 +25,10 @@ namespace NWebDav.Server.Handlers
     {
         private struct PropertyEntry
         {
-            public Uri Uri { get; }
+            public WebDavUri Uri { get; }
             public IStoreItem Entry { get; }
 
-            public PropertyEntry(Uri uri, IStoreItem entry)
+            public PropertyEntry(WebDavUri uri, IStoreItem entry)
             {
                 Uri = uri;
                 Entry = entry;
@@ -122,7 +122,7 @@ namespace NWebDav.Server.Handlers
             {
                 // Create the property
                 var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
-                    new XElement(WebDavNamespaces.DavNs + "href", UriHelper.ToEncodedString(entry.Uri)));
+                    new XElement(WebDavNamespaces.DavNs + "href", entry.Uri));
 
                 // Create tags for property values
                 var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
@@ -275,7 +275,7 @@ namespace NWebDav.Server.Handlers
             return propertyMode;
         }
 
-        private async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, Uri uri, IList<PropertyEntry> entries)
+        private async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, WebDavUri uri, IList<PropertyEntry> entries)
         {
             // Add the collection to the list
             entries.Add(new PropertyEntry(uri, collection));

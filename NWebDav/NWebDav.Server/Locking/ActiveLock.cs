@@ -13,10 +13,10 @@ namespace NWebDav.Server.Locking
         public int Depth { get; }
         public XElement Owner { get; }
         public int Timeout { get; }
-        public Uri LockToken { get; }
-        public Uri LockRoot { get; }
+        public WebDavUri LockToken { get; }
+        public WebDavUri LockRoot { get; }
 
-        public ActiveLock(LockType type, LockScope scope, int depth, XElement owner, int timeout, Uri lockToken, Uri lockRoot)
+        public ActiveLock(LockType type, LockScope scope, int depth, XElement owner, int timeout, WebDavUri lockToken, WebDavUri lockRoot)
         {
             Type = type;
             Scope = scope;

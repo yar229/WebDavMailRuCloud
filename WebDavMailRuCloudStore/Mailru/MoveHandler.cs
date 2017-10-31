@@ -100,7 +100,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             return true;
         }
 
-        private static Uri GetDestinationUri(IHttpRequest request)
+        private static WebDavUri GetDestinationUri(IHttpRequest request)
         {
             // Obtain the destination
             string destinationHeader = request.GetHeaderValue("Destination");
@@ -110,15 +110,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
             // Create the destination URI
             var uri = destinationHeader.StartsWith("/")
-                ? new Uri(request.Url, destinationHeader)
-                : new Uri(destinationHeader);
+                ? new WebDavUri(request.Url.BaseUrl, destinationHeader)
+                : new WebDavUri(destinationHeader);
 
             return uri;
         }
 
 
 
-        private async Task MoveAsync(IStoreCollection sourceCollection, string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext, Uri baseUri, UriResultCollection errors)
+        private async Task MoveAsync(IStoreCollection sourceCollection, string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
         {
             // Determine the new base URI
             var subBaseUri = UriHelper.Combine(baseUri, destinationName);
@@ -134,10 +134,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
     {
         private struct UriResult
         {
-            private Uri Uri { get; }
+            private WebDavUri Uri { get; }
             private DavStatusCode Result { get; }
 
-            public UriResult(Uri uri, DavStatusCode result)
+            public UriResult(WebDavUri uri, DavStatusCode result)
             {
                 Uri = uri;
                 Result = result;
@@ -157,7 +157,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
         public bool HasItems => _results.Any();
 
-        public void AddResult(Uri uri, DavStatusCode result)
+        public void AddResult(WebDavUri uri, DavStatusCode result)
         {
             _results.Add(new UriResult(uri, result));
         }

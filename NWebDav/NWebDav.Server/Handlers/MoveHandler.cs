@@ -106,14 +106,13 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task MoveAsync(IStoreCollection sourceCollection, string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext, Uri baseUri, UriResultCollection errors)
+        private async Task MoveAsync(IStoreCollection sourceCollection, string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
         {
             // Determine the new base URI
             var subBaseUri = UriHelper.Combine(baseUri, destinationName);
 
             // Obtain the actual item
-            var moveCollection = await sourceCollection.GetItemAsync(sourceName, httpContext).ConfigureAwait(false) as IStoreCollection;
-            if (moveCollection != null)
+            if (await sourceCollection.GetItemAsync(sourceName, httpContext).ConfigureAwait(false) is IStoreCollection moveCollection)
             {
                 // Create a new collection
                 var newCollectionResult = await destinationCollection.CreateCollectionAsync(destinationName, overwrite, httpContext);

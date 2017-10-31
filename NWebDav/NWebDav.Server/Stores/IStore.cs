@@ -73,8 +73,8 @@ namespace NWebDav.Server.Stores
 
     public interface IStore
     {
-        Task<IStoreItem> GetItemAsync(Uri uri, IHttpContext httpContext);
-        Task<IStoreCollection> GetCollectionAsync(Uri uri, IHttpContext httpContext);
+        Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext);
+        Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext);
     }
 
     public interface IStoreItem

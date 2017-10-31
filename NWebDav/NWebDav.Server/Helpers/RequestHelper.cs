@@ -19,7 +19,7 @@ namespace NWebDav.Server.Helpers
         /// <summary>
         /// Collection URI that holds the collection/document.
         /// </summary>
-        public Uri CollectionUri { get; set; }
+        public WebDavUri CollectionUri { get; set; }
 
         /// <summary>
         /// Name of the collection/document within its container collection.
@@ -65,7 +65,7 @@ namespace NWebDav.Server.Helpers
         /// <returns>
         /// Splitted URI in a collection URI and a name string.
         /// </returns>
-        public static SplitUri SplitUri(Uri uri)
+        public static SplitUri SplitUri(WebDavUri uri)
         {
             // Strip a trailing slash
             var trimmedUri = uri.AbsoluteUri;
@@ -80,7 +80,7 @@ namespace NWebDav.Server.Helpers
             // Separate name from path
             return new SplitUri
             {
-                CollectionUri = new Uri(trimmedUri.Substring(0, slashOffset)),
+                CollectionUri = new WebDavUri(trimmedUri.Substring(0, slashOffset)),
                 Name = Uri.UnescapeDataString(trimmedUri.Substring(slashOffset + 1))
             };
         }
@@ -93,7 +93,7 @@ namespace NWebDav.Server.Helpers
         /// Destination for this HTTP request (or <see langword="null"/> if no
         /// destination is specified).
         /// </returns>
-        public static Uri GetDestinationUri(this IHttpRequest request)
+        public static WebDavUri GetDestinationUri(this IHttpRequest request)
         {
             // Obtain the destination
             var destinationHeader = request.GetHeaderValue("Destination");
@@ -101,7 +101,7 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Create the destination URI
-            return destinationHeader.StartsWith("/") ? new Uri(request.Url, destinationHeader) : new Uri(destinationHeader);
+            return destinationHeader.StartsWith("/") ? new WebDavUri(request.Url, destinationHeader) : new WebDavUri(destinationHeader);
         }        
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace NWebDav.Server.Helpers
         /// <returns>
         /// Lock token URI (<see langword="null"/> if not set).
         /// </returns>
-        public static Uri GetLockToken(this IHttpRequest request)
+        public static WebDavUri GetLockToken(this IHttpRequest request)
         {
             // Get the value of the lock-token header as a string
             var lockTokenHeader = request.GetHeaderValue("Lock-Token");
@@ -208,7 +208,7 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Create an Uri of the intermediate part
-            return new Uri(lockTokenHeader.Substring(1, lockTokenHeader.Length - 2), UriKind.Absolute);
+            return new WebDavUri(lockTokenHeader.Substring(1, lockTokenHeader.Length - 2));
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace NWebDav.Server.Helpers
         /// <returns>
         /// If lock token URI (<see langword="null"/> if not set).
         /// </returns>
-        public static Uri GetIfLockToken(this IHttpRequest request)
+        public static WebDavUri GetIfLockToken(this IHttpRequest request)
         {
             // Get the value of the lock-token header as a string
             var lockTokenHeader = request.GetHeaderValue("If");
@@ -230,7 +230,7 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Create an Uri of the intermediate part
-            return new Uri(lockTokenHeader.Substring(2, lockTokenHeader.Length - 4), UriKind.Absolute);
+            return new WebDavUri(lockTokenHeader.Substring(2, lockTokenHeader.Length - 4));
         }
 
         /// <summary>
