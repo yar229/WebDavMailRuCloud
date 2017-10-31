@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NWebDav.Server;
@@ -164,7 +165,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) //=> 
         {
-            var cloud = Cloud.Instance(httpContext);
+            
+            var cloud = Cloud.Instance((HttpListenerBasicIdentity)httpContext.Session.Principal.Identity);
             var range = httpContext.Request.GetRange();
             return Task.FromResult(OpenReadStream(cloud, range?.Start, range?.End));
         }
@@ -188,7 +190,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 _fileInfo.Size = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size)
+                    ? Cloud.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -205,7 +207,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? Cloud.Instance(httpContext).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size) 
+                    ? Cloud.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size) 
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
@@ -232,7 +234,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
                     // check if the file already exists??
 
-                    await Cloud.Instance(httpContext).Copy(_fileInfo, destinationPath);
+                    await Cloud.Instance(httpContext.Session.Principal.Identity).Copy(_fileInfo, destinationPath);
 
                     return new StoreItemResult(DavStatusCode.Created);
                 }

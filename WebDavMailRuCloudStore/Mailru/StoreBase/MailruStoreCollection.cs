@@ -12,7 +12,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.SpecialCommands;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
@@ -98,7 +97,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -293,7 +292,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var item = Cloud.Instance(httpContext).GetItems(_directoryInfo).Result;
+            var item = Cloud.Instance(httpContext.Session.Principal.Identity).GetItems(_directoryInfo).Result;
 
             var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable))
                 .Cast<IStoreItem>().ToList();
@@ -342,10 +341,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
-            var cmd = SpecialCommandFabric.Build(Cloud.Instance(httpContext), destinationPath);
+            var cmd = SpecialCommandFabric.Build(Cloud.Instance(httpContext.Session.Principal.Identity), destinationPath);
             if (cmd != null)
             {
-                return cmd.Execute();
+                var res = cmd.Execute().Result;
+                return Task.FromResult(new StoreCollectionResult(res.Success ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
             }
 
             DavStatusCode result;
@@ -362,7 +362,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                Cloud.Instance(httpContext).CreateFolder(name, FullPath).Wait();
+                Cloud.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
@@ -398,6 +398,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (item == null)
                 return new StoreItemResult(DavStatusCode.NotFound);
 
+            var instance = Cloud.Instance(httpContext.Session.Principal.Identity);
 
             if (destinationCollection is MailruStoreCollection destinationStoreCollection)
             {
@@ -413,7 +414,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     if (!overwrite)
                         return new StoreItemResult(DavStatusCode.Forbidden);
 
-                    await Cloud.Instance(httpContext).Remove(itemexist);
+                    await instance.Remove(itemexist);
 
                     result = DavStatusCode.NoContent;
                 }
@@ -422,26 +423,26 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
 
                 if (destinationStoreCollection.FullPath == FullPath)
-                    await Cloud.Instance(httpContext).Rename(item, destinationName);
+                    await instance.Rename(item, destinationName);
                 else
                 {
                     if (sourceName == destinationName || string.IsNullOrEmpty(destinationName))
                     {
-                        await Cloud.Instance(httpContext).Move(item, destinationStoreCollection.FullPath);
+                        await instance.Move(item, destinationStoreCollection.FullPath);
                     }
                     else
                     {
                         var fi = ((MailruStoreItem)item).FileInfo;
 
                         string tmpName = Guid.NewGuid().ToString();
-                        await Cloud.Instance(httpContext).Rename(item, tmpName);
+                        await instance.Rename(item, tmpName);
                         fi.SetName(tmpName);
 
-                        await Cloud.Instance(httpContext).Move(fi, destinationStoreCollection.FullPath);
+                        await instance.Move(fi, destinationStoreCollection.FullPath);
 
                         fi.SetPath(destinationStoreCollection.FullPath);
 
-                        await Cloud.Instance(httpContext).Rename(fi, destinationName);
+                        await instance.Rename(fi, destinationName);
                     }
                 }
 
@@ -477,7 +478,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
                 if (null == item) return Task.FromResult(DavStatusCode.NotFound);
 
-                Cloud.Instance(httpContext).Remove(item).Wait();
+                Cloud.Instance(httpContext.Session.Principal.Identity).Remove(item).Wait();
                 return Task.FromResult(DavStatusCode.Ok);
             }
             catch (Exception exc)

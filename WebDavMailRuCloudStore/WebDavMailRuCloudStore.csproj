@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
+    <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
   </ItemGroup>
 
 </Project>

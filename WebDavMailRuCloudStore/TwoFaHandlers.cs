@@ -34,6 +34,9 @@ namespace YaR.WebDavMailRu.CloudStore
                 SearchOption.TopDirectoryOnly);
             foreach (var file in files)
             {
+                //If an application has been copied from the web, it is flagged by Windows as being a web application, even if it resides on the local computer. 
+                //You can change that designation by changing the file properties, or you can use the element to grant the assembly full trust. 
+                //As an alternative, you can use the UnsafeLoadFrom method to load a local assembly that the operating system has flagged as having been loaded from the web.
                 Assembly assembly = Assembly.UnsafeLoadFrom(file);
                 foreach (var type in assembly.ExportedTypes)
                 {

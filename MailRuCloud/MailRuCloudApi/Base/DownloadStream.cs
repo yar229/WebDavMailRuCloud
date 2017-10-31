@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.Base
         private RingBufferedStream _innerStream;
 
         public DownloadStream(File file, CloudApi cloud, long? start = null, long? end = null)
-            : this(file.Files, cloud, start, end)
+            : this(file.Parts, cloud, start, end)
         {
         }
 

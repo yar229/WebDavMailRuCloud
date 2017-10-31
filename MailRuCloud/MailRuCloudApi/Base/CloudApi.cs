@@ -9,6 +9,7 @@ namespace YaR.MailRuCloud.Api.Base
 {
     public class CloudApi : IDisposable
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudApi));
 
         /// <summary>
         /// Async tasks cancelation token.
@@ -50,6 +51,7 @@ namespace YaR.MailRuCloud.Api.Base
         {
             var data = await new ShardInfoRequest(this, useAnonymousUser).MakeRequestAsync();
             var shard = data.ToShardInfo(shardType);
+            Logger.Info($"Shard: ({shardType}){shard.Url}");
             return shard;
         }
 

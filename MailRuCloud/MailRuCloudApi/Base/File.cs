@@ -85,7 +85,10 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Public link.</value>
         public string PublicLink { get; internal set; }
 
-        public virtual List<File> Files => new List<File> {this};
+        /// <summary>
+        /// List of physical files
+        /// </summary>
+        public virtual List<File> Parts => new List<File> {this};
 
         /// <summary>
         /// Gets or sets base file size.
@@ -96,14 +99,14 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
-        public bool IsSplitted => Files.Any(f => f.FullPath != FullPath);
+        public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
 
         public void SetName(string destinationName)
         {
             string path = WebDavPath.Parent(FullPath);
             FullPath = WebDavPath.Combine(path, destinationName);
-            if (Files.Count > 1)
-                foreach (var fiFile in Files)
+            if (Parts.Count > 1)
+                foreach (var fiFile in Parts)
                 {
                     fiFile.FullPath = WebDavPath.Combine(path, destinationName + ".wdmrc" + fiFile.Extension); //TODO: refact
                 }
@@ -112,8 +115,8 @@ namespace YaR.MailRuCloud.Api.Base
         public void SetPath(string fullPath)
         {
             FullPath = WebDavPath.Combine(fullPath, Name);
-            if (Files.Count > 1)
-                foreach (var fiFile in Files)
+            if (Parts.Count > 1)
+                foreach (var fiFile in Parts)
                 {
                     fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
                 }

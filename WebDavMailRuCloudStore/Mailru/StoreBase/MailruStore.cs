@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
@@ -26,12 +25,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             //TODO: Refact
 
+            var identity = (HttpListenerBasicIdentity)httpContext.Session.Principal.Identity;
             var path = GetPathFromUri(uri);
             
             //TODO: clean this trash
             try
             {
-                var item = Cloud.Instance(httpContext).GetItems(path).Result;
+                var item = Cloud.Instance(identity).GetItems(path).Result;
                 if (item != null)
                 {
                     if (item.FullPath == path)
@@ -44,7 +44,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, fa, IsWritable));
 
                     string parentPath = WebDavPath.Parent(path);
-                    item = Cloud.Instance(httpContext).GetItems(parentPath).Result;
+                    item = Cloud.Instance(identity).GetItems(parentPath).Result;
                     if (item != null)
                     {
                         var f = item.Files.FirstOrDefault(k => k.FullPath == path);
@@ -60,12 +60,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
                 if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
             }
+            // ReSharper disable once RedundantCatchClause
+            #if DEBUG
+            #pragma warning disable 168
             catch (Exception ex)
             {
                 throw;
             }
-
-
+            #pragma warning restore 168
+            #endif
 
             return Task.FromResult<IStoreItem>(null);
         }

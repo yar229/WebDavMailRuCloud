@@ -12,8 +12,4 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
-  </ItemGroup>
-
 </Project>

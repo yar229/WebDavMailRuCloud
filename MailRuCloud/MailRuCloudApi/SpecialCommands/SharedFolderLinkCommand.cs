@@ -1,7 +1,5 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using NWebDav.Server;
-using NWebDav.Server.Stores;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
 
@@ -20,20 +18,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             _param = param;
         }
 
-        private string Value
-        {
-            get
-            {
-                var m = Regex.Match(_param, @"(?snx-) /? >> (https://?cloud.mail.ru/public)?(?<data>/\w*/?\w*)/?\s*");
-
-                return m.Success
-                    ? m.Groups["data"].Value
-                    : string.Empty;
-            }
-        }
-
-
-        public override Task<StoreCollectionResult> Execute()
+        public override Task<SpecialCommandResult> Execute()
         {
             var m = Regex.Match(_param, @"(?snx-)link \s+ (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s* (?<name>.*) ");
 
@@ -51,7 +36,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                 _cloud.LinkItem(m.Groups["url"].Value, _path, name, isFile, size, info.CreationDate);
             }
 
-            return Task.FromResult(new StoreCollectionResult(DavStatusCode.Created));
+            return Task.FromResult(new SpecialCommandResult{Success = true});
         }
     }
 }
