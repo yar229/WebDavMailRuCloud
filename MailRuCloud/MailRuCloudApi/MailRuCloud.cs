@@ -18,17 +18,11 @@ using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
 {
-
-
     /// <summary>
     /// Cloud client.
     /// </summary>
     public class MailRuCloud : IDisposable
     {
-        private readonly PathResolver _pathResolver;
-
-
-
         public CloudApi CloudApi { get; }
 
 
@@ -41,7 +35,8 @@ namespace YaR.MailRuCloud.Api
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
             CloudApi = new CloudApi(login, password, twoFaHandler);
-            _pathResolver = new PathResolver(CloudApi);
+
+            new LinkManager(CloudApi).Register(this);
         }
 
 
@@ -53,7 +48,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>List of the items.</returns>
         public virtual async Task<Entry> GetItems(string path)
         {
-            string ulink = _pathResolver.AsRelationalWebLink(path);
+            string ulink = OnLinkRequired(path);
 
             var data = await new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink)).MakeRequestAsync();
 
@@ -73,27 +68,10 @@ namespace YaR.MailRuCloud.Api
 
             var entry = data.ToEntry();
 
-
-            var flinks = _pathResolver.GetItems(entry.FullPath);
-            if (flinks.Any())
-            {
-                foreach (var flink in flinks)
-                {
-                    string linkpath = WebDavPath.Combine(entry.FullPath, flink.Name);
-
-                    if (!flink.IsFile)
-                        entry.Folders.Add(new Folder(0, 0, 0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                    else
-                    {
-                        if (entry.Files.All(inf => inf.FullPath != linkpath))
-                            entry.Files.Add(new File(linkpath, flink.Size, string.Empty));
-                    }
-                }
-            }
+            OnFolderModify(entry);
 
             return entry;
         }
-
 
         /// <summary>
         /// Get disk usage for account.
@@ -114,7 +92,6 @@ namespace YaR.MailRuCloud.Api
         {
             return await GetItems(folder.FullPath);
         }
-
 
         /// <summary>
         /// Abort all prolonged async operations.
@@ -346,8 +323,6 @@ namespace YaR.MailRuCloud.Api
             return data.status == 200;
         }
 
-
-
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
             var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
@@ -357,20 +332,11 @@ namespace YaR.MailRuCloud.Api
             return stream;
         }
 
-
         public Stream GetFileUploadStream(string destinationPath, long size)
         {
             var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
 
-            // refresh linked folders
-            stream.FileUploaded += files =>
-            {
-                var file = files?.FirstOrDefault();
-                if (null == file) return;
-
-                if (file.Path == "/" && file.Name == PathResolver.LinkContainerName)
-                    _pathResolver.Load();
-            };
+            stream.FileUploaded += OnFileUploaded;
 
             return stream;
         }
@@ -388,7 +354,7 @@ namespace YaR.MailRuCloud.Api
 
             if (res.status == 200)
             {
-                _pathResolver.ProcessRename(fullPath, newName);
+                OnItemRenamed(fullPath, newName);
             }
             return res.status == 200;
         }
@@ -407,9 +373,6 @@ namespace YaR.MailRuCloud.Api
             return data.ToString();
         }
 
-
-
-
         /// <summary>
         /// Remove file or folder.
         /// </summary>
@@ -417,24 +380,16 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Remove(string fullPath)
         {
-            //TODO: refact
-            string link = _pathResolver.AsRelationalWebLink(fullPath);
-
-            if (!string.IsNullOrEmpty(link))
-            {
-                //if folder is linked - do not delete inner files/folders if client deleting recursively
-                //just try to unlink folder
-                _pathResolver.RemoveItem(fullPath);
-
-                return true;
-            }
-
+            OnBeforeItemRemove(fullPath);
 
             await new RemoveRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
 
             return true;
         }
+
+        
+
 
         #region IDisposable Support
         private bool _disposedValue;
@@ -459,9 +414,61 @@ namespace YaR.MailRuCloud.Api
 
         public void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            _pathResolver.Add(url, path, name, isFile, size, creationDate);
+            //_pathResolver.Add(url, path, name, isFile, size, creationDate);
+            OnLinkItema(url, path, name, isFile, size, creationDate);
         }
+
+        #region Events ============================================================================================================================================
+
+        public event FolderModifyDelegate FolderModyfy;
+        public event FileUploadedDelegate FileUploaded;
+        public LinkRequiredDelegate LinkRequired;
+        public event BeforeItemRemoveDelegate BeforeItemRemove;
+        public event LinkItemDelegate LinkItema;
+        public event ItemRenamedDelegate ItemRenamed;
+
+        private void OnFolderModify(Entry entry)
+        {
+            var e = FolderModyfy;
+            e?.Invoke(entry);
+        }
+
+        private void OnFileUploaded(IEnumerable<File> files)
+        {
+            var e = FileUploaded;
+            e?.Invoke(files);
+        }
+
+        private string OnLinkRequired(string path)
+        {
+            var e = LinkRequired;
+            return e?.Invoke(path);
+        }
+
+        private void OnBeforeItemRemove(string fullPath)
+        {
+            var e = BeforeItemRemove;
+            e?.Invoke(fullPath);
+        }
+
+        private void OnLinkItema(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        {
+            var e = LinkItema;
+            e?.Invoke(url, path, name, isFile, size, creationDate);
+        }
+
+        private void OnItemRenamed(string fullPath, string newName)
+        {
+            var e = ItemRenamed;
+            e?.Invoke(fullPath, newName);
+        }
+        #endregion Events =========================================================================================================================================
     }
 
     public delegate void FileUploadedDelegate(IEnumerable<File> file);
+    public delegate string LinkRequiredDelegate(string path);
+    public delegate void FolderModifyDelegate(Entry entry);
+    public delegate void BeforeItemRemoveDelegate(string fullPath);
+    public delegate void LinkItemDelegate(string url, string path, string name, bool isFile, long size, DateTime? creationDate);
+    public delegate void ItemRenamedDelegate(string fullPath, string newName);
 }

@@ -10,16 +10,16 @@ using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.PathResolve
 {
-    public class PathResolver
+    public class LinkManagerBase
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(PathResolver));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(LinkManagerBase));
 
         public static string LinkContainerName = "item.links.wdmrc";
         private readonly CloudApi _api;
         private ItemList _itemList;
 
 
-        public PathResolver(CloudApi api)
+        public LinkManagerBase(CloudApi api)
         {
             _api = api;
 
