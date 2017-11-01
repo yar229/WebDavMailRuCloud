@@ -14,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _toPath = toPath;
         }
 
-        public override string RelationalUri
+        protected override string RelationalUri
         {
             get
             {

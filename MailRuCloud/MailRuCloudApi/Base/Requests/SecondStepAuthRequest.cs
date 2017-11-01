@@ -3,7 +3,6 @@ using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    //class SecondStepAuthRequest
     class SecondStepAuthRequest : BaseRequest<string>
     {
         private readonly string _csrf;
@@ -17,14 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _authCode = authCode;
         }
 
-        public override string RelationalUri
-        {
-            get
-            {
-                string uri = $"{ConstSettings.AuthDomain}/cgi-bin/secstep";
-                return uri;
-            }
-        }
+        protected override string RelationalUri => $"{ConstSettings.AuthDomain}/cgi-bin/secstep";
 
         protected override byte[] CreateHttpContent()
         {

@@ -14,14 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _fullPath = fullPath;
         }
 
-        public override string RelationalUri
-        {
-            get
-            {
-                const string uri = "/api/v2/file/remove";
-                return uri;
-            }
-        }
+        protected override string RelationalUri => "/api/v2/file/remove";
 
         protected override byte[] CreateHttpContent()
         {

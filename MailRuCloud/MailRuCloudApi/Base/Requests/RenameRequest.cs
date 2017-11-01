@@ -16,7 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _newName = newName;
         }
 
-        public override string RelationalUri => "/api/v2/file/rename";
+        protected override string RelationalUri => "/api/v2/file/rename";
 
         protected override byte[] CreateHttpContent()
         {

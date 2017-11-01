@@ -8,13 +8,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         {
         }
 
-        public override string RelationalUri
-        {
-            get
-            { 
-                var uri = $"{ConstSettings.CloudDomain}/api/v2/user?token={CloudApi.Account.AuthToken}";
-                return uri;
-            }
-        }
+        protected override string RelationalUri => $"{ConstSettings.CloudDomain}/api/v2/user?token={CloudApi.Account.AuthToken}";
     }
 }

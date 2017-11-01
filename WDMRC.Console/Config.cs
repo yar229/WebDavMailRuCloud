@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml;
 
 namespace YaR.CloudMailRu.Console
@@ -8,7 +10,8 @@ namespace YaR.CloudMailRu.Console
         static Config()
         {
             Document = new XmlDocument();
-            Document.Load(File.OpenRead("wdmrc.config"));
+            var configpath = Path.Combine(Path.GetDirectoryName(typeof(Config).Assembly.Location), "wdmrc.config");
+            Document.Load(File.OpenRead(configpath));
         }
 
         private static readonly XmlDocument Document;
