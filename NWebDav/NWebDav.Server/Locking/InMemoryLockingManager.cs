@@ -19,14 +19,14 @@ namespace NWebDav.Server.Locking
             public IStoreItem Item { get; }
             public LockType Type { get; }
             public LockScope Scope { get; set; }
-            public Uri LockRootUri { get; set; }
+            public WebDavUri LockRootUri { get; set; }
             public bool Recursive { get; set; }
             public XElement Owner { get; set; }
             public int Timeout { get; set; }
             public DateTime? Expires { get; private set; }
             public bool IsExpired => !Expires.HasValue || Expires < DateTime.UtcNow;
 
-            public ItemLockInfo(IStoreItem item, LockType lockType, LockScope lockScope, Uri lockRootUri, bool recursive, XElement owner, int timeout)
+            public ItemLockInfo(IStoreItem item, LockType lockType, LockScope lockScope, WebDavUri lockRootUri, bool recursive, XElement owner, int timeout)
             {
                 Token = Guid.NewGuid();
                 Item = item;
@@ -72,7 +72,7 @@ namespace NWebDav.Server.Locking
 
         #region Public methods
 
-        public LockResult Lock(IStoreItem item, LockType lockType, LockScope lockScope, XElement owner, Uri lockRootUri, bool recursive, IEnumerable<int> timeouts)
+        public LockResult Lock(IStoreItem item, LockType lockType, LockScope lockScope, XElement owner, WebDavUri lockRootUri, bool recursive, IEnumerable<int> timeouts)
         {
             // Determine the expiration based on the first time-out
             var timeout = timeouts.Cast<int?>().FirstOrDefault();
@@ -83,13 +83,11 @@ namespace NWebDav.Server.Locking
             lock (_itemLocks)
             {
                 // Make sure the item is in the dictionary
-                ItemLockTypeDictionary itemLockTypeDictionary;
-                if (!_itemLocks.TryGetValue(key, out itemLockTypeDictionary))
+                if (!_itemLocks.TryGetValue(key, out var itemLockTypeDictionary))
                     _itemLocks.Add(key, itemLockTypeDictionary = new ItemLockTypeDictionary());
 
                 // Make sure there is already a lock-list for this type
-                ItemLockList itemLockList;
-                if (!itemLockTypeDictionary.TryGetValue(lockType, out itemLockList))
+                if (!itemLockTypeDictionary.TryGetValue(lockType, out var itemLockList))
                 {
                     // Create a new lock-list
                     itemLockTypeDictionary.Add(lockType, itemLockList = new ItemLockList());
@@ -112,7 +110,7 @@ namespace NWebDav.Server.Locking
             }
         }
 
-        public DavStatusCode Unlock(IStoreItem item, Uri lockTokenUri)
+        public DavStatusCode Unlock(IStoreItem item, WebDavUri lockTokenUri)
         {
             // Determine the actual lock token
             var lockToken = GetTokenFromLockToken(lockTokenUri);
@@ -164,7 +162,7 @@ namespace NWebDav.Server.Locking
             return DavStatusCode.PreconditionFailed;
         }
 
-        public LockResult RefreshLock(IStoreItem item, bool recursiveLock, IEnumerable<int> timeouts, Uri lockTokenUri)
+        public LockResult RefreshLock(IStoreItem item, bool recursiveLock, IEnumerable<int> timeouts, WebDavUri lockTokenUri)
         {
             // Determine the actual lock token
             var lockToken = GetTokenFromLockToken(lockTokenUri);
@@ -177,8 +175,7 @@ namespace NWebDav.Server.Locking
             lock (_itemLocks)
             {
                 // Make sure the item is in the dictionary
-                ItemLockTypeDictionary itemLockTypeDictionary;
-                if (!_itemLocks.TryGetValue(key, out itemLockTypeDictionary))
+                if (!_itemLocks.TryGetValue(key, out var itemLockTypeDictionary))
                     return new LockResult(DavStatusCode.PreconditionFailed);
 
                 // Scan both the dictionaries for the token
@@ -248,7 +245,7 @@ namespace NWebDav.Server.Locking
             return false;
         }
 
-        public bool HasLock(IStoreItem item, Uri lockTokenUri)
+        public bool HasLock(IStoreItem item, WebDavUri lockTokenUri)
         {
             // If no lock is specified, then we should abort
             if (lockTokenUri == null)
@@ -265,8 +262,7 @@ namespace NWebDav.Server.Locking
             lock (_itemLocks)
             {
                 // Make sure the item is in the dictionary
-                ItemLockTypeDictionary itemLockTypeDictionary;
-                if (!_itemLocks.TryGetValue(key, out itemLockTypeDictionary))
+                if (!_itemLocks.TryGetValue(key, out var itemLockTypeDictionary))
                     return false;
 
                 // Scan both the dictionaries for the token
@@ -289,10 +285,15 @@ namespace NWebDav.Server.Locking
 
         private static ActiveLock GetActiveLockInfo(ItemLockInfo itemLockInfo)
         {
-            return new ActiveLock(itemLockInfo.Type, itemLockInfo.Scope, itemLockInfo.Recursive ? int.MaxValue : 0, itemLockInfo.Owner, itemLockInfo.Timeout, new Uri($"{TokenScheme}:{itemLockInfo.Token:D}"), itemLockInfo.LockRootUri);
+            return new ActiveLock(itemLockInfo.Type, 
+                itemLockInfo.Scope, 
+                itemLockInfo.Recursive ? int.MaxValue : 0, itemLockInfo.Owner, 
+                itemLockInfo.Timeout, 
+                new WebDavUri($"{TokenScheme}:{itemLockInfo.Token:D}"), 
+                itemLockInfo.LockRootUri);
         }
 
-        private static Guid? GetTokenFromLockToken(Uri lockTokenUri)
+        private static Guid? GetTokenFromLockToken(WebDavUri lockTokenUri)
         {
             // We should always use opaquetokens
             if (lockTokenUri.Scheme != TokenScheme)

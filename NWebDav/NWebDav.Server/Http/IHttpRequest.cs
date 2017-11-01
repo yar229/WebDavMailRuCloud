@@ -37,7 +37,7 @@ namespace NWebDav.Server.Http
         /// The URL in a WebDAV request typically specifies which document or
         /// collection should be used for the request.
         /// </remarks>
-        Uri Url { get; }
+        WebDavUri Url { get; }
 
         /// <summary>
         /// Gets the remote end point of the request.
