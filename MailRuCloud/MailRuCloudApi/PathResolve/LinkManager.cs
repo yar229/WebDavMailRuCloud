@@ -15,7 +15,7 @@ namespace YaR.MailRuCloud.Api.PathResolve
         {
             cloud.FileUploaded += FileUploaded;
             cloud.LinkRequired = AsRelationalWebLink;
-            cloud.FolderModyfy += OnCloudOnFolderModyfy;
+            cloud.FolderListed += OnCloudOnFolderListed;
             cloud.BeforeItemRemove += OnCloudOnBeforeItemRemove;
             cloud.LinkItema += Add;
             cloud.ItemRenamed += ProcessRename;
@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.PathResolve
             }
         }
 
-        private void OnCloudOnFolderModyfy(Entry entry)
+        private void OnCloudOnFolderListed(Entry entry)
         {
             var flinks = GetItems(entry.FullPath);
             if (flinks.Any())

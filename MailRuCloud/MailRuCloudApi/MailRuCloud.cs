@@ -37,6 +37,7 @@ namespace YaR.MailRuCloud.Api
             CloudApi = new CloudApi(login, password, twoFaHandler);
 
             new LinkManager(CloudApi).Register(this);
+            new SharedContainer().Register(this);
         }
 
 
@@ -68,7 +69,7 @@ namespace YaR.MailRuCloud.Api
 
             var entry = data.ToEntry();
 
-            OnFolderModify(entry);
+            OnFolderListed(entry);
 
             return entry;
         }
@@ -325,10 +326,15 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
+            var filelst = file.Parts.Count == 0 ? new List<File> { file } : file.Parts;
 
-            var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
-            Stream stream = await task;
+            OnBeforeFileDownload(filelst, out var stream);
+
+            if (null == stream)
+            {
+                var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
+                stream = await task;
+            }
             return stream;
         }
 
@@ -420,16 +426,24 @@ namespace YaR.MailRuCloud.Api
 
         #region Events ============================================================================================================================================
 
-        public event FolderModifyDelegate FolderModyfy;
+        public event FolderModifyDelegate FolderListed;
         public event FileUploadedDelegate FileUploaded;
         public LinkRequiredDelegate LinkRequired;
         public event BeforeItemRemoveDelegate BeforeItemRemove;
         public event LinkItemDelegate LinkItema;
         public event ItemRenamedDelegate ItemRenamed;
+        public event BeforeFileDownloadDelegate BeforeFileDownload;
 
-        private void OnFolderModify(Entry entry)
+        private void OnBeforeFileDownload(IEnumerable<File> file, out Stream stream)
         {
-            var e = FolderModyfy;
+            var e = BeforeFileDownload;
+            stream = null;
+            e?.Invoke(file, out stream);
+        }
+
+        private void OnFolderListed(Entry entry)
+        {
+            var e = FolderListed;
             e?.Invoke(entry);
         }
 
@@ -471,4 +485,5 @@ namespace YaR.MailRuCloud.Api
     public delegate void BeforeItemRemoveDelegate(string fullPath);
     public delegate void LinkItemDelegate(string url, string path, string name, bool isFile, long size, DateTime? creationDate);
     public delegate void ItemRenamedDelegate(string fullPath, string newName);
+    public delegate void BeforeFileDownloadDelegate(IEnumerable<File> file, out Stream stream);
 }
