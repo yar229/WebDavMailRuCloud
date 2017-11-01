@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     public abstract class BaseRequest<T> where T : class
     {
-        protected static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<T>));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<T>));
 
         protected readonly CloudApi CloudApi;
 
@@ -19,9 +19,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             CloudApi = cloudApi;
         }
 
-        public virtual string RelationalUri { get; protected set; }
+        protected abstract string RelationalUri { get; }
 
-        public virtual HttpWebRequest CreateRequest(string baseDomain = null)
+        protected virtual HttpWebRequest CreateRequest(string baseDomain = null)
         {
             string domain = string.IsNullOrEmpty(baseDomain) ? ConstSettings.CloudDomain : baseDomain;
             var uriz = new Uri(new Uri(domain), RelationalUri);
@@ -48,7 +48,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         }
 
 
-        public virtual async Task<T> MakeRequestAsync()
+        public async Task<T> MakeRequestAsync()
         {
             var httprequest = CreateRequest();
             Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri}");
@@ -84,12 +84,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests
                 return retVal;
             }
         }
-
-        protected string JsonSerialize(object value)
-        {
-            return JsonConvert.SerializeObject(value);
-        }
-
 
         protected virtual RequestResponse<T> DeserializeMessage(string json)
         {

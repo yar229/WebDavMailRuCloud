@@ -19,7 +19,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _onConflict = onConflict;
         }
 
-        public override string RelationalUri => "/api/v2/file/add";
+        protected override string RelationalUri => "/api/v2/file/add";
 
         protected override byte[] CreateHttpContent()
         {

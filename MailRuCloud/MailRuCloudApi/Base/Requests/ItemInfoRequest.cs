@@ -18,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _limit = limit;
         }
 
-        public override string RelationalUri
+        protected override string RelationalUri
         {
             get
             {

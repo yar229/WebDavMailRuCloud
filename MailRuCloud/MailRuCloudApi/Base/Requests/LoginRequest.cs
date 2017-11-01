@@ -17,14 +17,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _password = password;
         }
 
-        public override HttpWebRequest CreateRequest(string baseDomain = null)
+        protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
             var request = base.CreateRequest(ConstSettings.AuthDomain);
             request.Accept = ConstSettings.DefaultAcceptType;
             return request;
         }
 
-        public override string RelationalUri => "/cgi-bin/auth";
+        protected override string RelationalUri => "/cgi-bin/auth";
 
         protected override byte[] CreateHttpContent()
         {

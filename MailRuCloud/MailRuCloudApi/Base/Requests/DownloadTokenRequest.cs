@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         {
         }
 
-        public override string RelationalUri
+        protected override string RelationalUri
         {
             get
             {
@@ -31,14 +31,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _url = url;
         }
 
-        public override HttpWebRequest CreateRequest(string baseDomain = null)
+        protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
             var request = base.CreateRequest(ConstSettings.AuthDomain);
             request.Accept = ConstSettings.DefaultAcceptType;
             return request;
         }
 
-        public override string RelationalUri => _url;
+        protected override string RelationalUri => _url;
 
         //protected override byte[] CreateHttpContent()
         //{

@@ -11,9 +11,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _isAnonymous = isAnonymous;
         }
 
-        
 
-        public override string RelationalUri
+        protected override string RelationalUri
         {
             get
             {

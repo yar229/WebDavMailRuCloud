@@ -13,7 +13,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             _fullPath = fullPath;
         }
 
-        public override string RelationalUri => "/api/v2/folder/add";
+        protected override string RelationalUri => "/api/v2/folder/add";
 
         protected override byte[] CreateHttpContent()
         {
