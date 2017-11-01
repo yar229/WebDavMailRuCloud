@@ -143,11 +143,12 @@ In short:
 Use any client supports webdav.
 
 
-#### Client remarks
+#### Remarks
 * [**Total Commander**](http://www.ghisler.com/): requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
 * [**WebDrive**](https://southrivertech.com/products/webdrive/): 
   - check on option `(disk properties) -> HTTP Settings -> Use /allprop on PROPFIND's (slower performance)`
   - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`
+* avoid using Unicode non-printing characters such as [right-to-left mark](https://en.wikipedia.org/wiki/Right-to-left_mark) in file/folder names
 
 
 #### Big thanks
