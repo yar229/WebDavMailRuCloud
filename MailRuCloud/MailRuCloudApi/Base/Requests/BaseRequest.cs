@@ -10,6 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     public abstract class BaseRequest<T> where T : class
     {
+        protected static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<T>));
 
         protected readonly CloudApi CloudApi;
 
@@ -24,6 +25,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         {
             string domain = string.IsNullOrEmpty(baseDomain) ? ConstSettings.CloudDomain : baseDomain;
             var uriz = new Uri(new Uri(domain), RelationalUri);
+            
+            // supressing escaping is obsolete and breaks, for example, chinese names
+            // url generated for %E2%80%8E and %E2%80%8F seems ok, but mail.ru replies error
+            // https://stackoverflow.com/questions/20211496/uri-ignore-special-characters
+            //var udriz = new Uri(new Uri(domain), RelationalUri, true);
 
             var request = (HttpWebRequest)WebRequest.Create(uriz);
             request.Proxy = CloudApi.Account.Proxy;
@@ -45,6 +51,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         public virtual async Task<T> MakeRequestAsync()
         {
             var httprequest = CreateRequest();
+            Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri}");
 
             var content = CreateHttpContent();
             if (content != null)

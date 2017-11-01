@@ -106,7 +106,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task CopyAsync(IStoreItem source, IStoreCollection destinationCollection, string name, bool overwrite, int depth, IHttpContext httpContext, Uri baseUri, UriResultCollection errors)
+        private async Task CopyAsync(IStoreItem source, IStoreCollection destinationCollection, string name, bool overwrite, int depth, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
         {
             // Determine the new base Uri
             var newBaseUri = UriHelper.Combine(baseUri, name);

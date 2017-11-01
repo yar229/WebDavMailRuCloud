@@ -21,14 +21,14 @@ namespace NWebDav.Server.Locking
     // TODO: Call the locking methods from the handlers
     public interface ILockingManager
     {
-        LockResult Lock(IStoreItem item, LockType lockType, LockScope lockScope, XElement owner, Uri lockRootUri, bool recursiveLock, IEnumerable<int> timeouts);
-        DavStatusCode Unlock(IStoreItem item, Uri token);
-        LockResult RefreshLock(IStoreItem item, bool recursiveLock, IEnumerable<int> timeouts, Uri lockTokenUri);
+        LockResult Lock(IStoreItem item, LockType lockType, LockScope lockScope, XElement owner, WebDavUri lockRootUri, bool recursiveLock, IEnumerable<int> timeouts);
+        DavStatusCode Unlock(IStoreItem item, WebDavUri token);
+        LockResult RefreshLock(IStoreItem item, bool recursiveLock, IEnumerable<int> timeouts, WebDavUri lockTokenUri);
 
         IEnumerable<ActiveLock> GetActiveLockInfo(IStoreItem item);
         IEnumerable<LockEntry> GetSupportedLocks(IStoreItem item);
 
         bool IsLocked(IStoreItem item);
-        bool HasLock(IStoreItem item, Uri lockToken);
+        bool HasLock(IStoreItem item, WebDavUri lockToken);
     }
 }

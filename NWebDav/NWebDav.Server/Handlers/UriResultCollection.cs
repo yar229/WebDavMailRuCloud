@@ -11,10 +11,10 @@ namespace NWebDav.Server.Handlers
     {
         private struct UriResult
         {
-            private Uri Uri { get; }
+            private WebDavUri Uri { get; }
             private DavStatusCode Result { get; }
 
-            public UriResult(Uri uri, DavStatusCode result)
+            public UriResult(WebDavUri uri, DavStatusCode result)
             {
                 Uri = uri;
                 Result = result;
@@ -24,7 +24,7 @@ namespace NWebDav.Server.Handlers
             {
                 var statusText = $"HTTP/1.1 {(int)Result} {DavStatusCodeHelper.GetStatusDescription(Result)}";
                 return new XElement(WebDavNamespaces.DavNs + "response",
-                    new XElement(WebDavNamespaces.DavNs + "href", UriHelper.ToEncodedString(Uri)),
+                    new XElement(WebDavNamespaces.DavNs + "href", Uri.AbsoluteUri),
                     new XElement(WebDavNamespaces.DavNs + "status", statusText));
             }
         }
@@ -33,7 +33,7 @@ namespace NWebDav.Server.Handlers
 
         public bool HasItems => _results.Any();
 
-        public void AddResult(Uri uri, DavStatusCode result)
+        public void AddResult(WebDavUri uri, DavStatusCode result)
         {
             _results.Add(new UriResult(uri, result));
         }
