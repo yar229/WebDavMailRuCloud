@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Security.Principal;
@@ -25,16 +24,10 @@ namespace YaR.WebDavMailRu.CloudStore
         public static MailRuCloud.Api.MailRuCloud Instance(IIdentity identityi)
         {
             var identity = (HttpListenerBasicIdentity) identityi;
-            //HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)context.Session.Principal.Identity;
             string key = identity.Name + identity.Password;
 
             if (CloudCache.TryGetValue(key, out var cloud))
-            {
-                if (cloud.CloudApi.Account.TokenExpiresAt <= DateTime.Now)
-                    CloudCache.TryRemove(key, out cloud);
-                else
-                    return cloud;
-            }
+                return cloud;
 
             lock (Locker)
             {
@@ -60,10 +53,8 @@ namespace YaR.WebDavMailRu.CloudStore
                 Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
             }
 
-
-            //2FA
+            //2FA authorization
             ITwoFaHandler twoFaHandler = null;
-
             if (!string.IsNullOrEmpty(TwoFactorHandlerName))
             {
                 twoFaHandler = TwoFaHandlers.Get(TwoFactorHandlerName);

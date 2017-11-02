@@ -20,6 +20,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
+        public static string ToToken(this AuthTokenResult data)
+        {
+            var res = data.body.token;
+            return res;
+        }
+
+
         public static string ToToken(this DownloadTokenResult data)
         {
             var res = data.body.token;

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
@@ -12,16 +11,12 @@ namespace YaR.MailRuCloud.Api.Base
     /// </summary>
     public class Account
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
-
         private readonly CloudApi _cloudApi;
 
         /// <summary>
         /// Default cookies.
         /// </summary>
         private CookieContainer _cookies;
-
-        //private readonly AuthCodeWindow _authCodeHandler = new AuthCodeWindow();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
@@ -46,19 +41,16 @@ namespace YaR.MailRuCloud.Api.Base
 
             DownloadToken = new Cached<string>(() => new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(),
                 TimeSpan.FromSeconds(DownloadTokenExpiresSec));
+
+            AuthToken = new Cached<string>(() => new AuthTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(), 
+                TimeSpan.FromSeconds(AuthTokenExpiresInSec));
         }
 
         /// <summary>
-        /// Gets or sets connection proxy.
+        /// Gets connection proxy.
         /// </summary>
         /// <value>Proxy settings.</value>
-        public IWebProxy Proxy { get; set; }
-
-        /// <summary>
-        /// Gets authorization token.
-        /// </summary>
-        /// <value>Access token.</value>
-        public string AuthToken { get; private set; }
+        public IWebProxy Proxy { get; }
 
         /// <summary>
         /// Gets account cookies.
@@ -70,15 +62,15 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets or sets login name.
         /// </summary>
         /// <value>Account email.</value>
-        public string LoginName { get; set; }
+        public string LoginName { get; }
 
         /// <summary>
         /// Gets or sets email password.
         /// </summary>
         /// <value>Password related with login.</value>
-        public string Password { get; set; }
+        private string Password { get; }
 
-        public AccountInfo Info { get; set; }
+        public AccountInfo Info { get; private set; }
 
         /// <summary>
         /// Authorize on MAIL.RU server.
@@ -119,56 +111,29 @@ namespace YaR.MailRuCloud.Api.Base
             await new EnsureSdcCookieRequest(_cloudApi)
                 .MakeRequestAsync();
 
-            AuthToken = new AuthTokenRequest(_cloudApi)
-                .MakeRequestAsync()
-                .ThrowIf(data => string.IsNullOrEmpty(data.body?.token), new AuthenticationException("Empty auth token"))
-                .body.token;
-
             Info = new AccountInfo
             {
                 FileSizeLimit = new AccountInfoRequest(_cloudApi).MakeRequestAsync().Result.body.cloud.file_size_limit
             };
 
-            TokenExpiresAt = DateTime.Now.AddHours(TokenExpiresInSec);
-
             return true;
         }
 
+        /// <summary>
+        /// Token for authorization
+        /// </summary>
+        public readonly Cached<string> AuthToken;
+        private const int AuthTokenExpiresInSec = 23 * 60 * 60;
+
+        /// <summary>
+        /// Token for downloading files
+        /// </summary>
         public readonly Cached<string> DownloadToken;
         private const int DownloadTokenExpiresSec = 2 * 60 * 60;
 
-        public DateTime TokenExpiresAt { get; private set; }
-        private const int TokenExpiresInSec = 23 * 60 * 60;
-
-        //public string DownloadToken
-        //{
-        //    get
-        //    {
-        //        if (string.IsNullOrEmpty(_downloadToken) || (DateTime.Now - _downloadTokenDate).TotalSeconds > DownloadTokenExpiresSec)
-        //        {
-        //            _downloadTokenDate = DateTime.Now;
-        //            _downloadToken = new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
-        //        }
-        //        return _downloadToken;
-        //    }
-        //}
-        //private string _downloadToken;
-        //private DateTime _downloadTokenDate = DateTime.MinValue;
         
 
-        /// <summary>
-        /// Need to add this function for all calls.
-        /// </summary>
-        internal void CheckAuth()
-        {
-            if (LoginName == null || Password == null)
-                throw new AuthenticationException("Login or password is empty.");
-
-            if (string.IsNullOrEmpty(AuthToken))
-                if (!Login())
-                    throw new AuthenticationException("Auth token has't been retrieved.");
-        }
-
+      
 
         public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 
@@ -176,16 +141,6 @@ namespace YaR.MailRuCloud.Api.Base
         protected virtual string OnAuthCodeRequired(string login, bool isAutoRelogin)
         {
             return AuthCodeRequiredEvent?.Invoke(login, isAutoRelogin);
-        }
-    }
-
-    public static class Extensions
-    {
-        public static T ThrowIf<T>(this Task<T> data, Func<T, bool> func, Exception ex)
-        {
-            var res = data.Result;
-            if (func(res)) throw ex;
-            return res;
         }
     }
 }

@@ -42,5 +42,10 @@ namespace YaR.MailRuCloud.Api.Base
                 }
             }
         }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

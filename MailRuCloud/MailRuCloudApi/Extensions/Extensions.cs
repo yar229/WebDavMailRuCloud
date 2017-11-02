@@ -1,9 +1,18 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class Extensions
     {
+        public static T ThrowIf<T>(this Task<T> data, Func<T, bool> func, Exception ex)
+        {
+            var res = data.Result;
+            if (func(res)) throw ex;
+            return res;
+        }
+
+
         /// <summary>
         /// Finds the first exception of the requested type.
         /// </summary>
