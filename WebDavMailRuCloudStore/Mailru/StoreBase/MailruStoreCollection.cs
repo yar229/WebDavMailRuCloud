@@ -97,7 +97,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -325,7 +325,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
             var cmdFabric = new SpecialCommandFabric();
-            var cmd = cmdFabric.Build(Cloud.Instance(httpContext.Session.Principal.Identity), destinationPath);
+            var cmd = cmdFabric.Build(CloudManager.Instance(httpContext.Session.Principal.Identity), destinationPath);
             if (cmd != null)
             {
                 var res = cmd.Execute().Result;
@@ -346,7 +346,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                Cloud.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
+                CloudManager.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
@@ -382,7 +382,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (item == null)
                 return new StoreItemResult(DavStatusCode.NotFound);
 
-            var instance = Cloud.Instance(httpContext.Session.Principal.Identity);
+            var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
 
             if (destinationCollection is MailruStoreCollection destinationStoreCollection)
             {
@@ -462,7 +462,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
                 if (null == item) return Task.FromResult(DavStatusCode.NotFound);
 
-                Cloud.Instance(httpContext.Session.Principal.Identity).Remove(item).Wait();
+                CloudManager.Instance(httpContext.Session.Principal.Identity).Remove(item).Wait();
                 return Task.FromResult(DavStatusCode.Ok);
             }
             catch (Exception exc)

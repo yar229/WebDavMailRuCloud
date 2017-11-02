@@ -7,9 +7,9 @@ using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
-    public static class Cloud
+    public static class CloudManager
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Cloud));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudManager));
 
         public static void Init(string userAgent = "")
         {
@@ -47,6 +47,8 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private static MailRuCloud.Api.MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
         {
+            Logger.Info($"Cloud instance created for {identity.Name}");
+
             if (!ConstSettings.AvailDomains.Any(d => identity.Name.Contains($"@{d}.")))
             {
                 string domains = ConstSettings.AvailDomains.Aggregate((c, n) => c + ", @" + n);

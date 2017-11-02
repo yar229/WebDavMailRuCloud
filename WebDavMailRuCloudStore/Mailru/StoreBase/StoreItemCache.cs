@@ -18,21 +18,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             _store = store;
             _expirePeriod = expirePeriod;
 
-            long cleanPreiod = (long) CleanUpPeriod.TotalMilliseconds;
-            _cleanTimer = new Timer(state =>
-            {
-                if (!_items.Any()) return;
-                int removedCount = 0;
-                foreach (var item in _items)
-                {
-                    if (DateTime.Now - item.Value.Created > TimeSpan.FromMinutes(5))
-                    {
-                        bool removed = _items.TryRemove(item.Key, out _);
-                        if (removed) removedCount++;
-                    }
-                    Logger.Debug($"Items cache clean: removed {removedCount} expired items");
-                }
-            }, null, cleanPreiod, cleanPreiod);
+            long cleanPeriod = (long) CleanUpPeriod.TotalMilliseconds;
+
+            _cleanTimer = new Timer(state => RemoveExpired() , null, cleanPeriod, cleanPeriod);
         }
 
         private readonly IStore _store;
@@ -49,6 +37,25 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 long cleanPreiod = (long)value.TotalMilliseconds;
                 _cleanTimer.Change(cleanPreiod, cleanPreiod);
             }
+        }
+
+        public int RemoveExpired()
+        {
+            if (!_items.Any()) return 0;
+
+            int removedCount = 0;
+            foreach (var item in _items)
+            {
+                if (DateTime.Now - item.Value.Created > TimeSpan.FromMinutes(5))
+                {
+                    bool removed = _items.TryRemove(item.Key, out _);
+                    if (removed) removedCount++;
+                }
+            }
+            if (removedCount > 0)
+                Logger.Debug($"Items cache clean: removed {removedCount} expired items");
+
+            return removedCount;
         }
 
         public IStoreItem Get(WebDavUri uri, IHttpContext context)

@@ -39,7 +39,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //TODO: clean this trash
             try
             {
-                var item = Cloud.Instance(identity).GetItem(path).Result;
+                var item = CloudManager.Instance(identity).GetItem(path).Result;
                 if (item != null)
                 {
                     return item.IsFile
@@ -89,7 +89,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             var path = uri.Path;
 
-            var folder = (Folder)Cloud.Instance(httpContext.Session.Principal.Identity)
+            var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
                 .GetItem(path, MailRuCloud.Api.MailRuCloud.ItemType.Folder).Result;
 
             return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, folder, IsWritable));
