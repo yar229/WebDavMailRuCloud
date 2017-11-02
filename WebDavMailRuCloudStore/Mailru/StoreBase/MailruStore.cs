@@ -32,27 +32,31 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //TODO: clean this trash
             try
             {
-                var item = Cloud.Instance(identity).GetItems(path).Result;
+                var item = Cloud.Instance(identity).GetItem(path).Result;
                 if (item != null)
                 {
-                    if (item.FullPath == path)
-                    {
-                        var dir = new Folder(item.NumberOfFolders, item.NumberOfFiles, item.Size, path);
-                        return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
-                    }
-                    var fa = item.Files.FirstOrDefault(k => k.FullPath == path);
-                    if (fa != null)
-                        return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, fa, IsWritable));
+                    return item.IsFile
+                        ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, (File)item, IsWritable))
+                        : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
 
-                    string parentPath = WebDavPath.Parent(path);
-                    item = Cloud.Instance(identity).GetItems(parentPath).Result;
-                    if (item != null)
-                    {
-                        var f = item.Files.FirstOrDefault(k => k.FullPath == path);
-                        return null != f
-                            ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable))
-                            : null;
-                    }
+                    //if (item.FullPath == path)
+                    //{
+                    //    var dir = new Folder(item.NumberOfFolders, item.NumberOfFiles, item.Size, path);
+                    //    return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
+                    //}
+                    //var fa = item.Files.FirstOrDefault(k => k.FullPath == path);
+                    //if (fa != null)
+                    //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, fa, IsWritable));
+
+                    //string parentPath = WebDavPath.Parent(path);
+                    //item = Cloud.Instance(identity).GetItems(parentPath).Result;
+                    //if (item != null)
+                    //{
+                    //    var f = item.Files.FirstOrDefault(k => k.FullPath == path);
+                    //    return null != f
+                    //        ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable))
+                    //        : null;
+                    //}
 
                 }
             }
@@ -77,7 +81,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         public Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext)
         {
             var path = uri.Path;
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, new Folder(path), IsWritable));
+
+            var folder = (Folder)Cloud.Instance(httpContext.Session.Principal.Identity)
+                .GetItem(path, MailRuCloud.Api.MailRuCloud.ItemType.Folder).Result;
+
+            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, folder, IsWritable));
         }
     }
 }

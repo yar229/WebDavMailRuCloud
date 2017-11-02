@@ -10,7 +10,7 @@ namespace YaR.WebDavMailRu.CloudStore
 {
     public static class Cloud
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(SplittedCloud));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Cloud));
 
         public static void Init(string userAgent = "")
         {
@@ -71,7 +71,7 @@ namespace YaR.WebDavMailRu.CloudStore
                     Logger.Error($"Cannot load two-factor auth handler {TwoFactorHandlerName}");
             }
 
-            var cloud = new SplittedCloud(identity.Name, identity.Password, twoFaHandler);
+            var cloud = new MailRuCloud.Api.MailRuCloud(identity.Name, identity.Password, twoFaHandler);
             return cloud;
         }
     }

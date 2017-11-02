@@ -41,57 +41,131 @@ namespace YaR.MailRuCloud.Api
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
             CloudApi = new CloudApi(login, password, twoFaHandler);
-            _pathResolver = new PathResolver(CloudApi);
+            _pathResolver = new PathResolver(this);
         }
 
-
+        public enum ItemType
+        {
+            File,
+            Folder,
+            Unknown
+        }
 
         /// <summary>
         /// Get list of files and folders from account.
         /// </summary>
         /// <param name="path">Path in the cloud to return the list of the items.</param>
+        /// <param name="itemType"></param>
+        /// <param name="b"></param>
         /// <returns>List of the items.</returns>
-        public virtual async Task<Entry> GetItems(string path)
+        public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            string ulink = _pathResolver.AsRelationalWebLink(path);
+            string ulink = resolveLinks ? _pathResolver.AsRelationalWebLink(path) : string.Empty;
 
-            var data = await new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink)).MakeRequestAsync();
+            var data = new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
+                .MakeRequestAsync().ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(ulink))
+            if (itemType == ItemType.Unknown && !string.IsNullOrEmpty(ulink))
             {
-                bool isFile = data.body.list.Any(it => it.weblink.TrimStart('/') == ulink.TrimStart('/'));
-
-                string trimpath = path;
-                if (isFile) trimpath = WebDavPath.Parent(path);
-
-                foreach (var propse in data.body.list)
-                {
-                    propse.home = WebDavPath.Combine(trimpath, propse.name);
-                }
-                data.body.home = trimpath;
+                var infores = await new ItemInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
+                    .MakeRequestAsync().ConfigureAwait(false);
+                itemType = infores.body.kind == "file"
+                    ? ItemType.File
+                    : ItemType.Folder;
             }
 
-            var entry = data.ToEntry();
+            var datares = await data;
 
-
-            var flinks = _pathResolver.GetItems(entry.FullPath);
-            if (flinks.Any())
+            if (itemType == ItemType.Unknown && string.IsNullOrEmpty(ulink))
             {
-                foreach (var flink in flinks)
-                {
-                    string linkpath = WebDavPath.Combine(entry.FullPath, flink.Name);
+                itemType = (await data).body.home == path
+                    ? ItemType.Folder
+                    : ItemType.File;
+            }
 
-                    if (!flink.IsFile)
-                        entry.Folders.Add(new Folder(0, 0, 0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                    else
+            // patch paths if linked item
+            if (!string.IsNullOrEmpty(ulink))
+            {
+                string home = path;
+                if (itemType == ItemType.File) home = WebDavPath.Parent(path);
+
+                //if (itemType == ItemType.Folder)
+                foreach (var propse in datares.body.list)
+                {
+                    propse.home = WebDavPath.Combine(home, propse.name);
+                }
+                datares.body.home = home;
+            }
+
+            var entry = itemType == ItemType.File
+                ? (IEntry)datares.ToFile(WebDavPath.Name(path))
+                : datares.ToFolder();
+
+            if (itemType == ItemType.Folder && entry is Folder folder)
+            {
+                var flinks = _pathResolver.GetItems(folder.FullPath);
+                if (flinks.Any())
+                {
+                    foreach (var flink in flinks)
                     {
-                        if (entry.Files.All(inf => inf.FullPath != linkpath))
-                            entry.Files.Add(new File(linkpath, flink.Size, string.Empty));
+                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+
+                        if (!flink.IsFile)
+                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+                        else
+                        {
+                            if (folder.Files.All(inf => inf.FullPath != linkpath))
+                                folder.Files.Add(new File(linkpath, flink.Size));
+                        }
                     }
                 }
             }
 
+
+
             return entry;
+
+
+
+            //=======================================================================================================
+
+            //var data = await new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink)).MakeRequestAsync();
+
+            //if (!string.IsNullOrEmpty(ulink))
+            //{
+            //    bool isFile = data.body.list.Any(it => it.weblink.TrimStart('/') == ulink.TrimStart('/'));
+
+            //    string trimpath = path;
+            //    if (isFile) trimpath = WebDavPath.Parent(path);
+
+            //    foreach (var propse in data.body.list)
+            //    {
+            //        propse.home = WebDavPath.Combine(trimpath, propse.name);
+            //    }
+            //    data.body.home = trimpath;
+            //}
+
+            //var entry = data.ToEntry();
+
+
+            //var flinks = _pathResolver.GetItems(entry.FullPath);
+            //if (flinks.Any())
+            //{
+            //    foreach (var flink in flinks)
+            //    {
+            //        string linkpath = WebDavPath.Combine(entry.FullPath, flink.Name);
+
+            //        if (!flink.IsFile)
+            //            entry.Folders.Add(new Folder(0, 0, 0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+            //        else
+            //        {
+            //            if (entry.Files.All(inf => inf.FullPath != linkpath))
+            //                entry.Files.Add(new File(linkpath, flink.Size, string.Empty));
+            //        }
+            //    }
+            //}
+
+            //return entry;
         }
 
 
@@ -106,33 +180,11 @@ namespace YaR.MailRuCloud.Api
         }
 
         /// <summary>
-        /// Get list of files and folders from account.
-        /// </summary>
-        /// <param name="folder">Folder info.</param>
-        /// <returns>List of the items.</returns>
-        public async Task<Entry> GetItems(Folder folder)
-        {
-            return await GetItems(folder.FullPath);
-        }
-
-
-        /// <summary>
         /// Abort all prolonged async operations.
         /// </summary>
         public void AbortAllAsyncThreads()
         {
             CloudApi.CancelToken.Cancel(true);
-        }
-
-        /// <summary>
-        /// Copying folder in another space on the server.
-        /// </summary>
-        /// <param name="folder">Folder info to copying.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(Folder folder, Entry destinationEntry)
-        {
-            return await Copy(folder, destinationEntry.FullPath);
         }
 
         /// <summary>
@@ -155,17 +207,6 @@ namespace YaR.MailRuCloud.Api
         public async Task<bool> Copy(Folder folder, string destinationPath)
         {
             return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, false));
-        }
-
-        /// <summary>
-        /// Copying file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to copying.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, Entry destinationEntry)
-        {
-            return await Copy(file, destinationEntry.FullPath);
         }
 
         /// <summary>
@@ -238,34 +279,12 @@ namespace YaR.MailRuCloud.Api
         /// <summary>
         /// Move folder in another space on the server.
         /// </summary>
-        /// <param name="folder">Folder info to moving.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(Folder folder, Entry destinationEntry)
-        {
-            return await Move(folder, destinationEntry.FullPath);
-        }
-
-        /// <summary>
-        /// Move folder in another space on the server.
-        /// </summary>
         /// <param name="folder">Folder info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(Folder folder, string destinationPath)
         {
             return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, true));
-        }
-
-        /// <summary>
-        /// Move file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to move.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, Entry destinationEntry)
-        {
-            return await Move(file, destinationEntry.FullPath);
         }
 
         /// <summary>
