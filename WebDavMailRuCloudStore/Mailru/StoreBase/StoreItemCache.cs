@@ -11,6 +11,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
     //TODO: not thread-safe, refact
     public class StoreItemCache
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(StoreItemCache));
+
         public StoreItemCache(IStore store, TimeSpan expirePeriod)
         {
             _store = store;
@@ -20,12 +22,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             _cleanTimer = new Timer(state =>
             {
                 if (!_items.Any()) return;
+                int removedCount = 0;
                 foreach (var item in _items)
                 {
                     if (DateTime.Now - item.Value.Created > TimeSpan.FromMinutes(5))
                     {
-                        _items.TryRemove(item.Key, out _);
+                        bool removed = _items.TryRemove(item.Key, out _);
+                        if (removed) removedCount++;
                     }
+                    Logger.Debug($"Items cache clean: removed {removedCount} expired items");
                 }
             }, null, cleanPreiod, cleanPreiod);
         }
