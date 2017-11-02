@@ -448,11 +448,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             return string.IsNullOrEmpty(name) ? this : Items.FirstOrDefault(it => it.Name == name);
         }
 
-        public Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext)
+        public async Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext)
         {
             if (!IsWritable)
-                return Task.FromResult(DavStatusCode.PreconditionFailed);
-
+                return DavStatusCode.PreconditionFailed;
 
             // Determine the full path
             var fullPath = WebDavPath.Combine(_directoryInfo.FullPath, name);
@@ -460,15 +459,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 var item = FindSubItem(name);
 
-                if (null == item) return Task.FromResult(DavStatusCode.NotFound);
+                if (null == item) return DavStatusCode.NotFound;
 
-                CloudManager.Instance(httpContext.Session.Principal.Identity).Remove(item).Wait();
-                return Task.FromResult(DavStatusCode.Ok);
+                var cloud = CloudManager.Instance(httpContext.Session.Principal.Identity);
+                bool res = await cloud.Remove(item);
+
+                return res ? DavStatusCode.Ok : DavStatusCode.InternalServerError;
             }
             catch (Exception exc)
             {
                 Logger.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
-                return Task.FromResult(DavStatusCode.InternalServerError);
+                return DavStatusCode.InternalServerError;
             }
         }
 
