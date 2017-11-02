@@ -7,7 +7,6 @@ using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api.Base;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru
@@ -167,7 +166,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             }
 
             // Determine the number of bytes to read
-            var bytesToRead = end.HasValue ? end.Value - start + 1 : long.MaxValue;
+            var bytesToRead = end - start + 1 ?? long.MaxValue;
 
             // Read in 64KB blocks
             var buffer = new byte[64 * 1024];

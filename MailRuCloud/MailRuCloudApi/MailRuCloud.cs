@@ -56,7 +56,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         /// <param name="path">Path in the cloud to return the list of the items.</param>
         /// <param name="itemType"></param>
-        /// <param name="b"></param>
+        /// <param name="resolveLinks"></param>
         /// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
@@ -124,48 +124,6 @@ namespace YaR.MailRuCloud.Api
 
 
             return entry;
-
-
-
-            //=======================================================================================================
-
-            //var data = await new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink)).MakeRequestAsync();
-
-            //if (!string.IsNullOrEmpty(ulink))
-            //{
-            //    bool isFile = data.body.list.Any(it => it.weblink.TrimStart('/') == ulink.TrimStart('/'));
-
-            //    string trimpath = path;
-            //    if (isFile) trimpath = WebDavPath.Parent(path);
-
-            //    foreach (var propse in data.body.list)
-            //    {
-            //        propse.home = WebDavPath.Combine(trimpath, propse.name);
-            //    }
-            //    data.body.home = trimpath;
-            //}
-
-            //var entry = data.ToEntry();
-
-
-            //var flinks = _pathResolver.GetItems(entry.FullPath);
-            //if (flinks.Any())
-            //{
-            //    foreach (var flink in flinks)
-            //    {
-            //        string linkpath = WebDavPath.Combine(entry.FullPath, flink.Name);
-
-            //        if (!flink.IsFile)
-            //            entry.Folders.Add(new Folder(0, 0, 0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-            //        else
-            //        {
-            //            if (entry.Files.All(inf => inf.FullPath != linkpath))
-            //                entry.Files.Add(new File(linkpath, flink.Size, string.Empty));
-            //        }
-            //    }
-            //}
-
-            //return entry;
         }
 
 
