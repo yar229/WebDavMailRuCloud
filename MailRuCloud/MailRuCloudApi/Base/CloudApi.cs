@@ -46,7 +46,6 @@ namespace YaR.MailRuCloud.Api.Base
         {
             var shards = await Task.Run(() => _cachedShards.Value);
             var shard = shards[shardType];
-            Logger.Info($"Shard: ({shardType}){shard.Url}");
             return shard;
         }
 
