@@ -111,10 +111,9 @@ namespace YaR.MailRuCloud.Api.Base
             await new EnsureSdcCookieRequest(_cloudApi)
                 .MakeRequestAsync();
 
-            Info = new AccountInfo
-            {
-                FileSizeLimit = new AccountInfoRequest(_cloudApi).MakeRequestAsync().Result.body.cloud.file_size_limit
-            };
+            Info = (await new AccountInfoRequest(_cloudApi)
+                .MakeRequestAsync())
+                .ToAccountInfo();
 
             return true;
         }

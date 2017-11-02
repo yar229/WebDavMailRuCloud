@@ -9,6 +9,16 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+        public static AccountInfo ToAccountInfo(this AccountInfoResult data)
+        {
+            var res = new AccountInfo
+            {
+                FileSizeLimit = data.body.cloud.file_size_limit
+            };
+            return res;
+        }
+
+
         public static DiskUsage ToDiskUsage(this AccountInfoResult data)
         {
             var res = new DiskUsage
