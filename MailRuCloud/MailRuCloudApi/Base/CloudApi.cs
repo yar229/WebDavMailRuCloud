@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base
@@ -21,13 +23,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets or sets account to connect with cloud.
         /// </summary>
         /// <value>Account info.</value>
-        public Account Account { get; set; }
-
-        //public string DownloadToken { get; set; }
-
-
-
-
+        public Account Account { get; }
 
         public CloudApi(string login, string password, ITwoFaHandler twoFaHandler)
         {
@@ -37,23 +33,24 @@ namespace YaR.MailRuCloud.Api.Base
                 throw new AuthenticationException("Auth token has't been retrieved.");
             }
 
-            // !!!!!!!!!!!!!!!! Account.Info = GetAccountInfo().Result;
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(this).MakeRequestAsync().Result.ToShardInfo(),
+                TimeSpan.FromMinutes(2));
         }
-
 
         /// <summary>
         /// Get shard info that to do post get request. Can be use for anonymous user.
         /// </summary>
         /// <param name="shardType">Shard type as numeric type.</param>
-        /// <param name="useAnonymousUser">To get anonymous user.</param>
         /// <returns>Shard info.</returns>
-        public async Task<ShardInfo> GetShardInfo(ShardType shardType, bool useAnonymousUser = false)
+        public async Task<ShardInfo> GetShardInfo(ShardType shardType)
         {
-            var data = await new ShardInfoRequest(this, useAnonymousUser).MakeRequestAsync();
-            var shard = data.ToShardInfo(shardType);
+            var shards = await Task.Run(() => _cachedShards.Value);
+            var shard = shards[shardType];
             Logger.Info($"Shard: ({shardType}){shard.Url}");
             return shard;
         }
+
+        private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
 
         #region IDisposable Support
         private bool _disposedValue;
@@ -75,13 +72,5 @@ namespace YaR.MailRuCloud.Api.Base
             Dispose(true);
         }
         #endregion
-
-
     }
-
-
-
-
-
-
 }
