@@ -96,7 +96,7 @@ namespace YaR.MailRuCloud.Api.Base
                             {
                                 //var dtres = new DownloadTokenHtmlRequest(_cloud, file.PublicLink).MakeRequestAsync().Result;
                                 //downloadkey = dtres.body.token;
-                                downloadkey = _cloud.Account.DownloadToken;
+                                downloadkey = _cloud.Account.DownloadToken.Value;
                             }
 
                             var request = _shard.Type == ShardType.Get

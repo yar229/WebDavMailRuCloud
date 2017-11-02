@@ -3,6 +3,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -11,6 +12,8 @@ namespace YaR.MailRuCloud.Api.Base
     /// </summary>
     public class Account
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+
         private readonly CloudApi _cloudApi;
 
         /// <summary>
@@ -39,6 +42,10 @@ namespace YaR.MailRuCloud.Api.Base
             var twoFaHandler1 = twoFaHandler;
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
+
+
+            DownloadToken = new Cached<string>(() => new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(),
+                TimeSpan.FromSeconds(DownloadTokenExpiresSec));
         }
 
         /// <summary>
@@ -127,26 +134,27 @@ namespace YaR.MailRuCloud.Api.Base
             return true;
         }
 
+        public readonly Cached<string> DownloadToken;
+        private const int DownloadTokenExpiresSec = 2 * 60 * 60;
+
         public DateTime TokenExpiresAt { get; private set; }
         private const int TokenExpiresInSec = 23 * 60 * 60;
 
-
-        public string DownloadToken
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_downloadToken) || (DateTime.Now - _downloadTokenDate).TotalSeconds > DownloadTokenExpiresSec)
-                {
-                    _downloadTokenDate = DateTime.Now;
-                    var dtres = new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result;
-                    _downloadToken = dtres.body.token;
-                }
-                return _downloadToken;
-            }
-        }
-        private string _downloadToken;
-        private DateTime _downloadTokenDate = DateTime.MinValue;
-        private const int DownloadTokenExpiresSec = 2 * 60 * 60;
+        //public string DownloadToken
+        //{
+        //    get
+        //    {
+        //        if (string.IsNullOrEmpty(_downloadToken) || (DateTime.Now - _downloadTokenDate).TotalSeconds > DownloadTokenExpiresSec)
+        //        {
+        //            _downloadTokenDate = DateTime.Now;
+        //            _downloadToken = new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
+        //        }
+        //        return _downloadToken;
+        //    }
+        //}
+        //private string _downloadToken;
+        //private DateTime _downloadTokenDate = DateTime.MinValue;
+        
 
         /// <summary>
         /// Need to add this function for all calls.

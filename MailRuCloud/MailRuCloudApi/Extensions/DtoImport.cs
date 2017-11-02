@@ -20,7 +20,11 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
-
+        public static string ToToken(this DownloadTokenResult data)
+        {
+            var res = data.body.token;
+            return res;
+        }
 
 
         public static Dictionary<ShardType, ShardInfo> ToShardInfo(this ShardInfoResult webdata)
