@@ -2,6 +2,10 @@
 {
     public class SpecialCommandResult
     {
-        public bool Success { get; set; }
+        public bool IsSuccess { get; set; }
+
+        public static SpecialCommandResult Success => new SpecialCommandResult {IsSuccess = true};
+        public static SpecialCommandResult Fail => new SpecialCommandResult { IsSuccess = false };
+
     }
 }

@@ -20,9 +20,9 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public override Task<SpecialCommandResult> Execute()
         {
-            var m = Regex.Match(_param, @"(?snx-)link \s+ (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s* (?<name>.*) ");
+            var m = Regex.Match(_param, @"(?snx-)\s* (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s* (?<name>.*) ");
 
-            if (!m.Success) return Task.FromResult(new SpecialCommandResult { Success = false });
+            if (!m.Success) return Task.FromResult(SpecialCommandResult.Fail);
 
             var item = new ItemInfoRequest(_cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync().Result.ToEntry();
             
@@ -39,7 +39,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                 _cloud.LinkItem(m.Groups["url"].Value, _path, name, isFile, size, item.CreationTimeUtc);
             }
 
-            return Task.FromResult(new SpecialCommandResult{Success = true});
+            return Task.FromResult(SpecialCommandResult.Success);
         }
     }
 }

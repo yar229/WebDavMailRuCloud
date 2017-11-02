@@ -287,6 +287,22 @@ namespace YaR.MailRuCloud.Api
             return true;
         }
 
+
+        /// <summary>
+        /// Remove item on server by path
+        /// </summary>
+        /// <param name="entry">File or folder</param>
+        /// <returns>True or false operation result.</returns>
+        public virtual async Task<bool> Remove(IEntry entry)
+        {
+            if (entry is File file)
+                return await Remove(file);
+            if (entry is Folder folder)
+                return await Remove(folder);
+
+            return false;
+        }
+
         /// <summary>
         /// Remove the file on server.
         /// </summary>
