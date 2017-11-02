@@ -22,18 +22,21 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         {
             var m = Regex.Match(_param, @"(?snx-)link \s+ (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s* (?<name>.*) ");
 
-            var info = new ItemInfoRequest(_cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync().Result.ToEntry();
+            if (!m.Success) return Task.FromResult(new SpecialCommandResult { Success = false });
 
-            bool isFile = info.IsFile;
-            long size = info.Size;
+            var item = new ItemInfoRequest(_cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync().Result.ToEntry();
+            
+
+            bool isFile = item.IsFile;
+            long size = item.Size;
 
 
             string name = m.Groups["name"].Value;
-            if (string.IsNullOrWhiteSpace(name)) name = info.Name;
+            if (string.IsNullOrWhiteSpace(name)) name = item.Name;
 
             if (m.Success)
             {
-                _cloud.LinkItem(m.Groups["url"].Value, _path, name, isFile, size, info.CreationDate);
+                _cloud.LinkItem(m.Groups["url"].Value, _path, name, isFile, size, item.CreationTimeUtc);
             }
 
             return Task.FromResult(new SpecialCommandResult{Success = true});

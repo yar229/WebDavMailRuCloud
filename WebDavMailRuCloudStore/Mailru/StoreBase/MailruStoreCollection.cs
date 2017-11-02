@@ -292,30 +292,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var item = Cloud.Instance(httpContext.Session.Principal.Identity).GetItems(_directoryInfo).Result;
+            var list = _directoryInfo.Entries
+                .Select(entry => entry.IsFile
+                    ? (IStoreItem) new MailruStoreItem(LockingManager, (File) entry, IsWritable)
+                    : new MailruStoreCollection(httpContext, LockingManager, (Folder) entry, IsWritable))
+                .ToList();
 
-            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable))
-                .Cast<IStoreItem>().ToList();
-
-            items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
-
-            //var shares = item.Folders
-            //    .Where(dir => !string.IsNullOrEmpty(dir.PublicLink))
-            //    .Select(dir => dir.FullPath + "\t" + dir.PublicLink)
-            //    .ToList();
-            //if (shares.Any())
-            //{
-            //    string sharestr = shares
-            //        .Aggregate((c, n) => c + "\r\n" + n);
-
-            //    items.Add(new MailruStoreItem(
-            //        LockingManager,
-            //        new MailRuCloudApi.File(_directoryInfo.FullPath + "/folder.info.wdmrc", sharestr.Length,
-            //            string.Empty),
-            //        false));
-            //}
-
-            return Task.FromResult<IList<IStoreItem>>(items);
+            return Task.FromResult<IList<IStoreItem>>(list);
         }
 
         public Task<StoreItemResult> CreateItemAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -341,7 +324,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
-            var cmd = SpecialCommandFabric.Build(Cloud.Instance(httpContext.Session.Principal.Identity), destinationPath);
+            var cmdFabric = new SpecialCommandFabric();
+            var cmd = cmdFabric.Build(Cloud.Instance(httpContext.Session.Principal.Identity), destinationPath);
             if (cmd != null)
             {
                 var res = cmd.Execute().Result;

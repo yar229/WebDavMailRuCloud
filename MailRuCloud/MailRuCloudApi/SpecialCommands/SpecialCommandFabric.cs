@@ -3,9 +3,9 @@ using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
-    public static class SpecialCommandFabric
+    public class SpecialCommandFabric
     {
-        public static SpecialCommand Build(MailRuCloud cloud, string param)
+        public SpecialCommand Build(MailRuCloud cloud, string param)
         {
             if (null == param || !param.Contains("/>>"))
                 return null;

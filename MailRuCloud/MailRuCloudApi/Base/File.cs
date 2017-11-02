@@ -16,13 +16,13 @@ namespace YaR.MailRuCloud.Api.Base
     /// Server file info.
     /// </summary>
     [DebuggerDisplay("{" + nameof(FullPath) + "}")]
-    public class File
+    public class File : IEntry
     {
         protected File()
         {
         }
 
-        public File(string fullPath, long size, string hash)
+        public File(string fullPath, long size, string hash = "")
         {
             FullPath = fullPath;
             _size = size;
@@ -39,7 +39,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         /// <value>File name.</value>
         //TODO: refact
-        public virtual string Name => FullPath.Substring(FullPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
+        public virtual string Name => WebDavPath.Name(FullPath); //FullPath.Substring(FullPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
 
         public string Extension => System.IO.Path.GetExtension(Name);
 
@@ -70,11 +70,7 @@ namespace YaR.MailRuCloud.Api.Base
         public string FullPath
         {
             get => _fullPath;
-            set
-            {
-                _fullPath = value.Replace("\\", "/");
-                if (!string.IsNullOrEmpty(Name) && !_fullPath.EndsWith("/" + Name)) _fullPath = _fullPath.TrimEnd('/') + "/" + Name;
-            }
+            protected set => _fullPath = WebDavPath.Clean(value);
         }
 
         public string Path => WebDavPath.Parent(FullPath);
@@ -90,16 +86,12 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         public virtual List<File> Parts => new List<File> {this};
 
-        /// <summary>
-        /// Gets or sets base file size.
-        /// </summary>
-        /// <value>File size.</value>
-        internal FileSize PrimarySize => Size;
-
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
         public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
+
+        public bool IsFile => true;
 
         public void SetName(string destinationName)
         {
@@ -120,7 +112,6 @@ namespace YaR.MailRuCloud.Api.Base
                 {
                     fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
                 }
-        }
-    }
+        }}
 }
 
