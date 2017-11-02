@@ -45,7 +45,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 _cleanTimer.Change(cleanPreiod, cleanPreiod);
             }
         }
-        private TimeSpan _cleanUpPeriod = TimeSpan.FromMinutes(5);
 
         public IStoreItem Get(WebDavUri uri, IHttpContext context)
         {
@@ -81,8 +80,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         }
 
         private readonly TimeSpan _expirePeriod;
-        private readonly TimeSpan _cleanupPeriod;
-
+        private TimeSpan _cleanUpPeriod = TimeSpan.FromMinutes(5);
 
         private class TimedItem<T>
         {
