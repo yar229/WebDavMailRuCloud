@@ -30,12 +30,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
         {
-            //TODO: Refact
-
             var identity = (HttpListenerBasicIdentity)httpContext.Session.Principal.Identity;
             var path = uri.Path;
             
-            //TODO: clean this trash
             try
             {
                 var item = CloudManager.Instance(identity).GetItem(path).Result;
@@ -44,26 +41,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return item.IsFile
                         ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, (File)item, IsWritable))
                         : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
-
-                    //if (item.FullPath == path)
-                    //{
-                    //    var dir = new Folder(item.NumberOfFolders, item.NumberOfFiles, item.Size, path);
-                    //    return Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, dir, IsWritable));
-                    //}
-                    //var fa = item.Files.FirstOrDefault(k => k.FullPath == path);
-                    //if (fa != null)
-                    //    return Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, fa, IsWritable));
-
-                    //string parentPath = WebDavPath.Parent(path);
-                    //item = Cloud.Instance(identity).GetItems(parentPath).Result;
-                    //if (item != null)
-                    //{
-                    //    var f = item.Files.FirstOrDefault(k => k.FullPath == path);
-                    //    return null != f
-                    //        ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, f, IsWritable))
-                    //        : null;
-                    //}
-
                 }
             }
             catch (AggregateException e)
