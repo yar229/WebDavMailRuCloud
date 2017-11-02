@@ -25,14 +25,13 @@ namespace YaR.CloudMailRu.Console
 
             LoggerFactory.Factory = new Log4NetAdapter();
 
-            ShowInfo();
-
             var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
             var exitCode = result
               .MapResult(
                 options => 
                 {
+                    ShowInfo(options);
                     Cloud.Init(options.UserAgent);
                     Cloud.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName;
 
@@ -137,7 +136,7 @@ namespace YaR.CloudMailRu.Console
         }
 
 
-        private static void ShowInfo()
+        private static void ShowInfo(CommandLineOptions options)
         {
             string title = GetAssemblyAttribute<AssemblyProductAttribute>(a => a.Product);
             string description = GetAssemblyAttribute<AssemblyDescriptionAttribute>(a => a.Description);
@@ -147,6 +146,12 @@ namespace YaR.CloudMailRu.Console
             System.Console.WriteLine($"  {title}: {description}");
             System.Console.WriteLine($"  v.{version}");
             System.Console.WriteLine($"  {copyright}");
+
+            Logger.Info($"OS Version: {Environment.OSVersion}");
+            Logger.Info($"CLR Version: {Environment.Version}");
+            Logger.Info($"User interactive: {Environment.UserInteractive}");
+            Logger.Info($"Version: {version}");
+            Logger.Info($"Max threads count: {options.MaxThreadCount}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
