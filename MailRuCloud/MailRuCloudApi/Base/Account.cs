@@ -128,7 +128,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// Token for downloading files
         /// </summary>
         public readonly Cached<string> DownloadToken;
-        private const int DownloadTokenExpiresSec = 2 * 60 * 60;
+        private const int DownloadTokenExpiresSec = 20 * 60;
 
         
 
