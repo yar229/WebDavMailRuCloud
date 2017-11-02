@@ -10,6 +10,8 @@ namespace YaR.MailRuCloud.Api.Base
 {
     public class DownloadStream : Stream
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
+
         private const int InnerBufferSize = 65536;
 
         private readonly IList<File> _files;
@@ -93,16 +95,12 @@ namespace YaR.MailRuCloud.Api.Base
                             //TODO: refact
                             string downloadkey = string.Empty;
                             if (_shard.Type == ShardType.WeblinkGet)
-                            {
-                                //var dtres = new DownloadTokenHtmlRequest(_cloud, file.PublicLink).MakeRequestAsync().Result;
-                                //downloadkey = dtres.body.token;
                                 downloadkey = _cloud.Account.DownloadToken.Value;
-                            }
 
                             var request = _shard.Type == ShardType.Get
                                 ? (HttpWebRequest) WebRequest.Create($"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}")
                                 : (HttpWebRequest)WebRequest.Create($"{_shard.Url}{new Uri(file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}");
-
+                            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
                             request.Headers.Add("Accept-Ranges", "bytes");
                             request.AddRange(instart, inend);

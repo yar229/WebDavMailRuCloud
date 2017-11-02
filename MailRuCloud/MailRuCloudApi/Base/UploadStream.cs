@@ -10,6 +10,8 @@ namespace YaR.MailRuCloud.Api.Base
 {
     internal class UploadStream : Stream
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
+
         private readonly CloudApi _cloud;
         private readonly File _file;
         private readonly ShardInfo _shard;
@@ -59,6 +61,8 @@ namespace YaR.MailRuCloud.Api.Base
             _request.Accept = "*/*";
             _request.UserAgent = ConstSettings.UserAgent;
             _request.AllowWriteStreamBuffering = false;
+
+            Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
             _task = Task.Factory.FromAsync(_request.BeginGetRequestStream, asyncResult => _request.EndGetRequestStream(asyncResult), null);
 
