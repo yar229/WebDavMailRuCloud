@@ -25,7 +25,17 @@
 	--help            Display this help screen.
 	--version         Display version information.
 ```
-Settings in `wdmrc.exe.config`
+
+***Commands*** <br/>
+Commands executed by making directory with special name
+* Clone shared cloud.mail.ru file/folder to your account: `>>SHARED_FOLDER_LINK`
+* Link shared folder without wasting your space: `>>link SHARED_FOLDER_LINK [linkname]` or manually edit file /item.links.wdmrc
+* Fast delete:
+  * `>>del` current folder
+  * `>>del abc/cde` current folder/abc/cde
+  * `>>del /abc/cde` root/abc/cde
+
+***Settings*** in `wdmrc.exe.config`
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
@@ -45,9 +55,6 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
 [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 
-***Commands***
-* Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
-* Link shared folder without wasting your space: make folder with name `>>link SHARED_FOLDER_LINK [linkname]` or manually edit file /item.links.wdmrc
 
 #### Windows
 
