@@ -177,7 +177,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavExtCollectionNoSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) => false //TODO: WTF?
+                Getter = (context, collection) => false
             },
 
             new DavExtCollectionObjectCount<MailruStoreCollection>
@@ -361,7 +361,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream source)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Cannot upload a collection by stream");
         }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)

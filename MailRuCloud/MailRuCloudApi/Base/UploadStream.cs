@@ -134,10 +134,12 @@ namespace YaR.MailRuCloud.Api.Base
                                     WriteBytesInStream(zbuffer, s, token, zcount);
                                 }
                                 // ReSharper disable once UnusedVariable
+                                #pragma warning disable 168
                                 catch (Exception ex)
                                 {
                                     return null;
                                 }
+                                #pragma warning restore 168
 
                                 return t.Result;
                             },

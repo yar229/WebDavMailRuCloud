@@ -38,9 +38,11 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets file name.
         /// </summary>
         /// <value>File name.</value>
-        //TODO: refact
-        public virtual string Name => WebDavPath.Name(FullPath); //FullPath.Substring(FullPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
+        public virtual string Name => WebDavPath.Name(FullPath);
 
+        /// <summary>
+        /// Gets file extension
+        /// </summary>
         public string Extension => System.IO.Path.GetExtension(Name);
 
         /// <summary>
@@ -64,7 +66,7 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
         /// <summary>
-        /// Gets full file path with name in server.
+        /// Gets full file path with name on server.
         /// </summary>
         /// <value>Full file path.</value>
         public string FullPath
@@ -73,6 +75,9 @@ namespace YaR.MailRuCloud.Api.Base
             protected set => _fullPath = WebDavPath.Clean(value);
         }
 
+        /// <summary>
+        /// Path to file (without filename)
+        /// </summary>
         public string Path => WebDavPath.Parent(FullPath);
 
         /// <summary>
@@ -89,6 +94,10 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
+
+        /// <summary>
+        /// If file splitted to several phisical files
+        /// </summary>
         public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
 
         public bool IsFile => true;
