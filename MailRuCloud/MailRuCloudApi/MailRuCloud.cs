@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
-using YaR.MailRuCloud.Api.PathResolve;
+using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api
     /// </summary>
     public class MailRuCloud : IDisposable
     {
-        private readonly PathResolver _pathResolver;
+        private readonly LinkManager _linkManager;
 
 
 
@@ -41,7 +41,7 @@ namespace YaR.MailRuCloud.Api
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
             CloudApi = new CloudApi(login, password, twoFaHandler);
-            _pathResolver = new PathResolver(this);
+            _linkManager = new LinkManager(this);
         }
 
         public enum ItemType
@@ -60,7 +60,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            string ulink = resolveLinks ? _pathResolver.AsRelationalWebLink(path) : string.Empty;
+            string ulink = resolveLinks ? _linkManager.AsRelationalWebLink(path) : string.Empty;
 
             var data = new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
                 .MakeRequestAsync().ConfigureAwait(false);
@@ -103,7 +103,7 @@ namespace YaR.MailRuCloud.Api
 
             if (itemType == ItemType.Folder && entry is Folder folder)
             {
-                var flinks = _pathResolver.GetItems(folder.FullPath);
+                var flinks = _linkManager.GetItems(folder.FullPath);
                 if (flinks.Any())
                 {
                     foreach (var flink in flinks)
@@ -361,8 +361,8 @@ namespace YaR.MailRuCloud.Api
                 var file = files?.FirstOrDefault();
                 if (null == file) return;
 
-                if (file.Path == "/" && file.Name == PathResolver.LinkContainerName)
-                    _pathResolver.Load();
+                if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
+                    _linkManager.Load();
             };
 
             return stream;
@@ -381,7 +381,7 @@ namespace YaR.MailRuCloud.Api
 
             if (res.status == 200)
             {
-                _pathResolver.ProcessRename(fullPath, newName);
+                _linkManager.ProcessRename(fullPath, newName);
             }
             return res.status == 200;
         }
@@ -411,13 +411,13 @@ namespace YaR.MailRuCloud.Api
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            string link = _pathResolver.AsRelationalWebLink(fullPath);
+            string link = _linkManager.AsRelationalWebLink(fullPath);
 
             if (!string.IsNullOrEmpty(link))
             {
                 //if folder is linked - do not delete inner files/folders if client deleting recursively
                 //just try to unlink folder
-                _pathResolver.RemoveItem(fullPath);
+                _linkManager.RemoveItem(fullPath);
 
                 return true;
             }
@@ -452,12 +452,12 @@ namespace YaR.MailRuCloud.Api
 
         public void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            _pathResolver.Add(url, path, name, isFile, size, creationDate);
+            _linkManager.Add(url, path, name, isFile, size, creationDate);
         }
 
         public void RemoveDeadLinks()
         {
-            _pathResolver.RemoveDeadLinks(true);
+            _linkManager.RemoveDeadLinks(true);
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api.PathResolve
+namespace YaR.MailRuCloud.Api.Links
 {
     public class ItemList
     {
