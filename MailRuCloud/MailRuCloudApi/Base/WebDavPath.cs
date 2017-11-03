@@ -59,6 +59,7 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
         public static string Root => "/";
+        public static string Separator => "/";
 
         public static WebDavPathParts Parts(string path)
         {
