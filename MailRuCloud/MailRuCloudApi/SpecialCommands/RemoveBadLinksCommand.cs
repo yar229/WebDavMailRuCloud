@@ -1,20 +1,19 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class RemoveBadLinksCommand : SpecialCommand
     {
-        private readonly MailRuCloud _cloud;
-
-        public RemoveBadLinksCommand(MailRuCloud cloud)
+        public RemoveBadLinksCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
-            _cloud = cloud;
         }
+
+        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0);
 
         public override Task<SpecialCommandResult> Execute()
         {
-            _cloud.RemoveDeadLinks();
+            Cloud.RemoveDeadLinks();
             return Task.FromResult(SpecialCommandResult.Success);
         }
     }

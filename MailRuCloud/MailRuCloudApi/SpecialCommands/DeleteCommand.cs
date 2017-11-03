@@ -1,40 +1,37 @@
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class DeleteCommand : SpecialCommand
     {
-        private readonly MailRuCloud _cloud;
-        private readonly string _path;
-        private readonly string _param;
-
-        public DeleteCommand(MailRuCloud cloud, string path, string param)
+        public DeleteCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
-            _cloud = cloud;
-            _path = WebDavPath.Clean(path);
-            _param = param.Replace('\\', '/');
         }
+
+        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 1);
 
         public override async Task<SpecialCommandResult> Execute()
         {
             string path;
-            if (string.IsNullOrWhiteSpace(_param))
-                path = _path;
-            else if (_param.StartsWith("/"))
-                path = _param;
-            else
-                path = WebDavPath.Combine(_path, _param);
+            string param = Parames.Count == 0 ? string.Empty : Parames[0].Replace("\\", WebDavPath.Separator);
 
-            var entry = await _cloud.GetItem(path);
+            if (Parames.Count == 0)
+                path = Path;
+            else if (param.StartsWith(WebDavPath.Separator))
+                path = param;
+            else
+                path = WebDavPath.Combine(Path, param);
+
+            var entry = await Cloud.GetItem(path);
             if (null == entry)
                 return SpecialCommandResult.Fail;
 
-            var res = await _cloud.Remove(entry);
+            var res = await Cloud.Remove(entry);
             return new SpecialCommandResult { IsSuccess = res };
         }
     }
+
+
 }
