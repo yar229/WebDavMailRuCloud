@@ -157,6 +157,10 @@ namespace NWebDav.Server.Handlers
                         {
                             foreach (var propertyName in propertyList)
                                 await AddPropertyAsync(httpContext, xResponse, xProp, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+
+                            //TODO: dirty fix!
+                            // some clients reqire collection property
+                            await AddPropertyAsync(httpContext, xResponse, xProp, propertyManager, entry.Entry, "collection", addedProperties).ConfigureAwait(false);
                         }
 
                         // Add the values (if any)
