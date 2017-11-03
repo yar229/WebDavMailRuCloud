@@ -102,8 +102,30 @@ namespace YaR.MailRuCloud.Api.PathResolve
                 _itemList.Items.Remove(z);
                 Save();
             }
+        }
 
+        public void RemoveDeadLinks(bool doWriteHistory)
+        {
+            var removes = _itemList.Items.Where(it => !IsLinkAlive(it)).ToList();
+            if (removes.Count == 0) return;
 
+            _itemList.Items.RemoveAll(it => removes.Contains(it));
+
+            if (doWriteHistory)
+            {
+                //TODO:load item.links.history.wdmrc
+                //TODO:append removed
+                //TODO:save item.links.history.wdmrc
+            }
+
+        }
+
+        private bool IsLinkAlive(ItemLink link)
+        {
+            string path = WebDavPath.Combine(link.MapTo, link.Name);
+            var entry = _cloud.GetItem(path);
+
+            return entry != null;
         }
 
         public string AsWebLink(string path)

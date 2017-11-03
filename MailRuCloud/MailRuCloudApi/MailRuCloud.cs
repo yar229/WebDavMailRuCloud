@@ -454,6 +454,11 @@ namespace YaR.MailRuCloud.Api
         {
             _pathResolver.Add(url, path, name, isFile, size, creationDate);
         }
+
+        public void RemoveDeadLinks()
+        {
+            _pathResolver.RemoveDeadLinks(true);
+        }
     }
 
     public delegate void FileUploadedDelegate(IEnumerable<File> file);

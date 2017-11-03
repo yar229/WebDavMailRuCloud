@@ -15,6 +15,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             string path = WebDavPath.Clean(param.Substring(0, pos + 1));
             string data = param.Substring(pos + 3);
 
+            if (data == "link check") return new RemoveBadLinksCommand(cloud);
             if (data.StartsWith("link ")) return new SharedFolderLinkCommand(cloud, path, data.Remove(0, 5));
             if (data.StartsWith("del ")) return new DeleteCommand(cloud, path, data.Remove(0, 4));
             if (data == "del") return new DeleteCommand(cloud, path, data.Remove(0, 3));

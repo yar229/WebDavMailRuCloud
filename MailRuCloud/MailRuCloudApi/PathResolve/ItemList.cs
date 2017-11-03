@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.PathResolve
 {
     public class ItemList
     {
-        public IList<ItemLink> Items { get; } = new List<ItemLink>();
+        public List<ItemLink> Items { get; } = new List<ItemLink>();
     }
 
     public class ItemLink
