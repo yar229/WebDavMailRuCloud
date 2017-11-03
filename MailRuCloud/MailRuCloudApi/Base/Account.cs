@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -38,11 +39,25 @@ namespace YaR.MailRuCloud.Api.Base
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_cloudApi).MakeRequestAsync().Result.ToShardInfo(),
+                TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            DownloadToken = new Cached<string>(() => new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(),
+            DownloadToken = new Cached<string>(() =>
+                {
+                    //TODO: not thread safe
+                    var token = new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
+                    _cachedShards.Expire();
+                    return token;
+                },
                 TimeSpan.FromSeconds(DownloadTokenExpiresSec));
 
-            AuthToken = new Cached<string>(() => new AuthTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(), 
+            AuthToken = new Cached<string>(() =>
+                {
+                    //TODO: not thread safe
+                    var token = new AuthTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
+                    DownloadToken.Expire();
+                    return token;
+                },
                 TimeSpan.FromSeconds(AuthTokenExpiresInSec));
         }
 
@@ -130,9 +145,24 @@ namespace YaR.MailRuCloud.Api.Base
         public readonly Cached<string> DownloadToken;
         private const int DownloadTokenExpiresSec = 20 * 60;
 
+        private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
+        private const int ShardsExpiresInSec = 2 * 60;
+
+        /// <summary>
+        /// Get shard info that to do post get request. Can be use for anonymous user.
+        /// </summary>
+        /// <param name="shardType">Shard type as numeric type.</param>
+        /// <returns>Shard info.</returns>
+        public async Task<ShardInfo> GetShardInfo(ShardType shardType)
+        {
+            var shards = await Task.Run(() => _cachedShards.Value);
+            var shard = shards[shardType];
+            return shard;
+        }
+
         
 
-      
+
 
         public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 

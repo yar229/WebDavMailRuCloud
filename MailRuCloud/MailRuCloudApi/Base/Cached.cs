@@ -47,5 +47,13 @@ namespace YaR.MailRuCloud.Api.Base
         {
             return Value.ToString();
         }
+
+        public void Expire()
+        {
+            lock (_refreshLock)
+            {
+                _expiration = DateTime.MinValue;
+            }
+        }
     }
 }

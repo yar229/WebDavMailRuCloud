@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.Base
             _cloud = cloud;
 
             _file = new File(destinationPath, size, null);
-            _shard = _cloud.GetShardInfo(ShardType.Upload).Result;
+            _shard = _cloud.Account.GetShardInfo(ShardType.Upload).Result;
 
             Initialize();
         }

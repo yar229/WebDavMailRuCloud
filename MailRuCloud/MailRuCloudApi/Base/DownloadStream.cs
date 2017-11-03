@@ -33,8 +33,8 @@ namespace YaR.MailRuCloud.Api.Base
 
             _cloud = cloud;
             _shard = files.All(f => string.IsNullOrEmpty(f.PublicLink))
-                ? _cloud.GetShardInfo(ShardType.Get).Result
-                : _cloud.GetShardInfo(ShardType.WeblinkGet).Result;
+                ? _cloud.Account.GetShardInfo(ShardType.Get).Result
+                : _cloud.Account.GetShardInfo(ShardType.WeblinkGet).Result;
 
             _files = files;
             _start = start;

@@ -33,23 +33,23 @@ namespace YaR.MailRuCloud.Api.Base
                 throw new AuthenticationException("Auth token has't been retrieved.");
             }
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(this).MakeRequestAsync().Result.ToShardInfo(),
-                TimeSpan.FromMinutes(2));
+            //_cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(this).MakeRequestAsync().Result.ToShardInfo(),
+            //    TimeSpan.FromMinutes(2));
         }
 
-        /// <summary>
-        /// Get shard info that to do post get request. Can be use for anonymous user.
-        /// </summary>
-        /// <param name="shardType">Shard type as numeric type.</param>
-        /// <returns>Shard info.</returns>
-        public async Task<ShardInfo> GetShardInfo(ShardType shardType)
-        {
-            var shards = await Task.Run(() => _cachedShards.Value);
-            var shard = shards[shardType];
-            return shard;
-        }
+        ///// <summary>
+        ///// Get shard info that to do post get request. Can be use for anonymous user.
+        ///// </summary>
+        ///// <param name="shardType">Shard type as numeric type.</param>
+        ///// <returns>Shard info.</returns>
+        //public async Task<ShardInfo> GetShardInfo(ShardType shardType)
+        //{
+        //    var shards = await Task.Run(() => _cachedShards.Value);
+        //    var shard = shards[shardType];
+        //    return shard;
+        //}
 
-        private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
+        //private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
 
         #region IDisposable Support
         private bool _disposedValue;
