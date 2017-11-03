@@ -28,9 +28,10 @@
 
 ***Commands*** <br/>
 Commands executed by making directory with special name
-* Clone shared cloud.mail.ru file/folder to your account: `>>SHARED_FOLDER_LINK`
-* Link shared folder without wasting your space: `>>link SHARED_FOLDER_LINK [linkname]` or manually edit file /item.links.wdmrc
-* Fast delete:
+* `>>join SHARED_FOLDER_LINK` Clone shared cloud.mail.ru file/folder to your account
+* `>>link SHARED_FOLDER_LINK [linkname]` Link shared folder without wasting your space (or manually edit file /item.links.wdmrc)
+* `>>link check` Remove all dead links (may take time if there's a lot of links)
+* `>>del` Fast delete (if your client makes recursive deletions of inner items)
   * `>>del` current folder
   * `>>del abc/cde` current folder/abc/cde
   * `>>del /abc/cde` root/abc/cde
