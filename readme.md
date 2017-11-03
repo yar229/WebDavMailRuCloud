@@ -151,7 +151,9 @@ Use any client supports webdav.
 
 
 #### Remarks
-* [**Total Commander**](http://www.ghisler.com/): requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
+* [**Total Commander**](http://www.ghisler.com/): 
+  - requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
+  - turn on `(connection properties) -> Send\Receive accents in URLs as UTF-8 Unicode`
 * [**WebDrive**](https://southrivertech.com/products/webdrive/): 
   - check on option `(disk properties) -> HTTP Settings -> Use /allprop on PROPFIND's (slower performance)`
   - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`
