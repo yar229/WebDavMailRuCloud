@@ -2,54 +2,63 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Extensions;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.PathResolve
+namespace YaR.MailRuCloud.Api.Links
 {
-    public class PathResolver
+    /// <summary>
+    /// Управление ссылками, привязанными к облаку
+    /// </summary>
+    public class LinkManager
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(PathResolver));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(LinkManager));
 
         public static string LinkContainerName = "item.links.wdmrc";
-        private readonly CloudApi _api;
+        private readonly MailRuCloud _cloud;
         private ItemList _itemList;
 
 
-        public PathResolver(CloudApi api)
+        public LinkManager(MailRuCloud api)
         {
-            _api = api;
+            _cloud = api;
 
             Load();
         }
 
-        
 
+        /// <summary>
+        /// Сохранить в файл в облаке список ссылок
+        /// </summary>
         public void Save()
         {
             Logger.Info($"Saving links to {LinkContainerName}");
 
             string content = JsonConvert.SerializeObject(_itemList, Formatting.Indented);
             var data = Encoding.UTF8.GetBytes(content);
-            using (var stream = new UploadStream("/" + LinkContainerName, _api, data.Length))
+
+            using (var stream = _cloud.GetFileUploadStream(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), data.Length))
             {
                 stream.Write(data, 0, data.Length);
                 stream.Close();
             }
         }
 
+        /// <summary>
+        /// Загрузить из файла в облаке список ссылок
+        /// </summary>
         public void Load()
         {
             Logger.Info($"Loading links from {LinkContainerName}");
 
-            var flist = new FolderInfoRequest(_api, WebDavPath.Root).MakeRequestAsync().Result.ToEntry();
-            var file = flist.Files.FirstOrDefault(f => f.Name == LinkContainerName);
+            var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
+
             if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
             {
-                DownloadStream stream = new DownloadStream(file, _api);
+                DownloadStream stream = new DownloadStream(file, _cloud.CloudApi);
 
                 using (StreamReader reader = new StreamReader(stream))
                 using (JsonTextReader jsonReader = new JsonTextReader(reader))
@@ -67,6 +76,11 @@ namespace YaR.MailRuCloud.Api.PathResolve
             }
         }
 
+        /// <summary>
+        /// Получить список ссылок, привязанных к указанному пути в облаке
+        /// </summary>
+        /// <param name="path">Путь к каталогу в облаке</param>
+        /// <returns></returns>
         public List<ItemLink> GetItems(string path)
         {
             var z = _itemList.Items
@@ -87,6 +101,10 @@ namespace YaR.MailRuCloud.Api.PathResolve
             return item;
         }
 
+        /// <summary>
+        /// Убрать ссылку
+        /// </summary>
+        /// <param name="path"></param>
         public void RemoveItem(string path)
         {
             var name = WebDavPath.Name(path);
@@ -100,8 +118,53 @@ namespace YaR.MailRuCloud.Api.PathResolve
                 _itemList.Items.Remove(z);
                 Save();
             }
+        }
 
+        /// <summary>
+        /// Убрать все привязки на мёртвые ссылки
+        /// </summary>
+        /// <param name="doWriteHistory"></param>
+        public void RemoveDeadLinks(bool doWriteHistory)
+        {
+            var removes = _itemList.Items
+                .AsParallel()
+                .WithDegreeOfParallelism(5)
+                .Where(it => !IsLinkAlive(it)).ToList();
+            if (removes.Count == 0) return;
 
+            _itemList.Items.RemoveAll(it => removes.Contains(it));
+
+            if (doWriteHistory)
+            {
+                //TODO:load item.links.history.wdmrc
+                //TODO:append removed
+                //TODO:save item.links.history.wdmrc
+            }
+
+            Save();
+        }
+
+        /// <summary>
+        /// Проверка доступности ссылки
+        /// </summary>
+        /// <param name="link"></param>
+        /// <returns></returns>
+        private bool IsLinkAlive(ItemLink link)
+        {
+            string path = WebDavPath.Combine(link.MapTo, link.Name);
+            try
+            {
+                var entry = _cloud.GetItem(path).Result;
+                return entry != null;
+            }
+            catch (AggregateException e) 
+            when (  // let's check if there really no file or just other network error
+                    e.InnerException is WebException we && 
+                    (we.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound
+                 )
+            {
+                return false;
+            }
         }
 
         public string AsWebLink(string path)
@@ -134,6 +197,15 @@ namespace YaR.MailRuCloud.Api.PathResolve
             return link;
         }
 
+        /// <summary>
+        /// Привязать ссылку к облаку
+        /// </summary>
+        /// <param name="url">Ссылка</param>
+        /// <param name="path">Путь в облаке, в который поместить ссылку</param>
+        /// <param name="name">Имя для ссылки</param>
+        /// <param name="isFile">Признак, что ссылка ведёт на файл, иначе - на папку</param>
+        /// <param name="size">Размер данных по ссылке</param>
+        /// <param name="creationDate">Дата создания</param>
         public void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             Load();
@@ -160,7 +232,7 @@ namespace YaR.MailRuCloud.Api.PathResolve
 
 
         private const string PublicBaseLink = "https://cloud.mail.ru/public";
-        private const string PublicBaseLink1 = "https:/cloud.mail.ru/public";
+        private const string PublicBaseLink1 = "https:/cloud.mail.ru/public"; //TODO: may be obsolete?
 
         private string GetRelaLink(string url)
         {

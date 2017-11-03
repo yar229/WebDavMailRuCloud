@@ -6,8 +6,10 @@
 //-----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -15,7 +17,7 @@ namespace YaR.MailRuCloud.Api.Base
     /// Server file info.
     /// </summary>
     [DebuggerDisplay("{" + nameof(FullPath) + "}")]
-    public class Folder
+    public class Folder : IEntry
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Folder" /> class.
@@ -33,25 +35,39 @@ namespace YaR.MailRuCloud.Api.Base
         /// <param name="size">Folder size.</param>
         /// <param name="fullPath">Full folder path.</param>
         /// <param name="publicLink">Public folder link.</param>
-        public Folder(int foldersCount, int filesCount, FileSize size, string fullPath, string publicLink = null):this(fullPath)
+        public Folder(FileSize size, string fullPath, string publicLink = null):this(fullPath)
         {
-            NumberOfFolders = foldersCount;
-            NumberOfFiles = filesCount;
             Size = size;
             PublicLink = publicLink;
         }
+
+        public IEnumerable<IEntry> Entries
+        {
+            get
+            {
+                foreach (var file in Files)
+                    yield return file;
+                foreach (var folder in Folders)
+                    yield return folder;
+            }
+        }
+
+        public List<File> Files { get; set; } = new List<File>();
+
+        public List<Folder> Folders { get; set; } = new List<Folder>();
+
 
         /// <summary>
         /// Gets number of folders in folder.
         /// </summary>
         /// <value>Number of folders.</value>
-        public int NumberOfFolders { get; }
+        public int NumberOfFolders => Entries.OfType<Folder>().Count();
 
         /// <summary>
         /// Gets number of files in folder.
         /// </summary>
         /// <value>Number of files.</value>
-        public int NumberOfFiles { get; }
+        public int NumberOfFiles => Entries.OfType<File>().Count();
 
         /// <summary>
         /// Gets folder name.
@@ -96,5 +112,7 @@ namespace YaR.MailRuCloud.Api.Base
 
 
         public FileAttributes Attributes { get; set; } = FileAttributes.Directory;
+
+        public bool IsFile => false;
     }
 }

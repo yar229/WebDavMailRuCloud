@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -10,7 +11,8 @@ namespace YaR.MailRuCloud.Api.Base
             b = Clean(b);
             a = a.Trim('/');
             b = b.TrimStart('/');
-            string res = "/" + a + (string.IsNullOrEmpty(b) ? "" : "/" + b);
+            string res = a + (string.IsNullOrEmpty(b) ? "" : "/" + b);
+            if (!res.StartsWith("/")) res = "/" + res;
             return res;
 
         }
@@ -25,7 +27,16 @@ namespace YaR.MailRuCloud.Api.Base
 
         public static string Parent(string path)
         {
-            int pos = path.LastIndexOf("/", StringComparison.Ordinal);
+            //TODO: refact
+            path = path.TrimEnd('/');
+
+            // cause we use >> as a sign of special command
+            int cmdPos = path.IndexOf(">>", StringComparison.Ordinal);
+
+            int pos = cmdPos > 0
+                ? path.LastIndexOf("/", 0, cmdPos + 1, StringComparison.Ordinal)
+                : path.LastIndexOf("/", StringComparison.Ordinal);
+
             return pos > 0
                 ? path.Substring(0, pos)
                 : "/";
@@ -33,13 +44,39 @@ namespace YaR.MailRuCloud.Api.Base
 
         public static string Name(string path)
         {
+            //TODO: refact
             path = path.TrimEnd('/');
-            int pos = path.LastIndexOf("/", StringComparison.Ordinal);
+
+            // cause we use >> as a sign of special command
+            int cmdPos = path.IndexOf(">>", StringComparison.Ordinal);
+
+            int pos = cmdPos > 0
+                    ? path.LastIndexOf("/", 0, cmdPos + 1, StringComparison.Ordinal)
+                    : path.LastIndexOf("/", StringComparison.Ordinal);
 
             string res = path.Substring(pos+1);
             return res;
         }
 
         public static string Root => "/";
+        public static string Separator => "/";
+
+        public static WebDavPathParts Parts(string path)
+        {
+            //TODO: refact
+            var res = new WebDavPathParts
+            {
+                Parent = Parent(path),
+                Name = Name(path)
+            };
+
+            return res;
+        }
+    }
+
+    public struct WebDavPathParts
+    {
+        public string Parent { get; set; }
+        public string Name { get; set; }
     }
 }

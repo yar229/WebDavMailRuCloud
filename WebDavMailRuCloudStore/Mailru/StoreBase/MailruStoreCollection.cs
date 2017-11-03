@@ -97,7 +97,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? Cloud.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -177,7 +177,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavExtCollectionNoSubs<MailruStoreCollection>
             {
-                Getter = (context, collection) => false //TODO: WTF?
+                Getter = (context, collection) => false
             },
 
             new DavExtCollectionObjectCount<MailruStoreCollection>
@@ -292,30 +292,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var item = Cloud.Instance(httpContext.Session.Principal.Identity).GetItems(_directoryInfo).Result;
+            var list = _directoryInfo.Entries
+                .Select(entry => entry.IsFile
+                    ? (IStoreItem) new MailruStoreItem(LockingManager, (File) entry, IsWritable)
+                    : new MailruStoreCollection(httpContext, LockingManager, (Folder) entry, IsWritable))
+                .ToList();
 
-            var items = item.Folders.Select(subDirectory => new MailruStoreCollection(httpContext, LockingManager, subDirectory, IsWritable))
-                .Cast<IStoreItem>().ToList();
-
-            items.AddRange(item.Files.Select(file => new MailruStoreItem(LockingManager, file, IsWritable)));
-
-            //var shares = item.Folders
-            //    .Where(dir => !string.IsNullOrEmpty(dir.PublicLink))
-            //    .Select(dir => dir.FullPath + "\t" + dir.PublicLink)
-            //    .ToList();
-            //if (shares.Any())
-            //{
-            //    string sharestr = shares
-            //        .Aggregate((c, n) => c + "\r\n" + n);
-
-            //    items.Add(new MailruStoreItem(
-            //        LockingManager,
-            //        new MailRuCloudApi.File(_directoryInfo.FullPath + "/folder.info.wdmrc", sharestr.Length,
-            //            string.Empty),
-            //        false));
-            //}
-
-            return Task.FromResult<IList<IStoreItem>>(items);
+            return Task.FromResult<IList<IStoreItem>>(list);
         }
 
         public Task<StoreItemResult> CreateItemAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -341,11 +324,12 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
-            var cmd = SpecialCommandFabric.Build(Cloud.Instance(httpContext.Session.Principal.Identity), destinationPath);
+            var cmdFabric = new SpecialCommandFabric();
+            var cmd = cmdFabric.Build(CloudManager.Instance(httpContext.Session.Principal.Identity), destinationPath);
             if (cmd != null)
             {
                 var res = cmd.Execute().Result;
-                return Task.FromResult(new StoreCollectionResult(res.Success ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+                return Task.FromResult(new StoreCollectionResult(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
             }
 
             DavStatusCode result;
@@ -362,7 +346,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                Cloud.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
+                CloudManager.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
             }
             catch (Exception exc)
             {
@@ -377,7 +361,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<DavStatusCode> UploadFromStreamAsync(IHttpContext httpContext, Stream source)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException("Cannot upload a collection by stream");
         }
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
@@ -398,7 +382,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (item == null)
                 return new StoreItemResult(DavStatusCode.NotFound);
 
-            var instance = Cloud.Instance(httpContext.Session.Principal.Identity);
+            var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
 
             if (destinationCollection is MailruStoreCollection destinationStoreCollection)
             {
@@ -464,11 +448,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             return string.IsNullOrEmpty(name) ? this : Items.FirstOrDefault(it => it.Name == name);
         }
 
-        public Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext)
+        public async Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext)
         {
             if (!IsWritable)
-                return Task.FromResult(DavStatusCode.PreconditionFailed);
-
+                return DavStatusCode.PreconditionFailed;
 
             // Determine the full path
             var fullPath = WebDavPath.Combine(_directoryInfo.FullPath, name);
@@ -476,15 +459,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 var item = FindSubItem(name);
 
-                if (null == item) return Task.FromResult(DavStatusCode.NotFound);
+                if (null == item) return DavStatusCode.NotFound;
 
-                Cloud.Instance(httpContext.Session.Principal.Identity).Remove(item).Wait();
-                return Task.FromResult(DavStatusCode.Ok);
+                var cloud = CloudManager.Instance(httpContext.Session.Principal.Identity);
+                bool res = await cloud.Remove(item);
+
+                return res ? DavStatusCode.Ok : DavStatusCode.InternalServerError;
             }
             catch (Exception exc)
             {
                 Logger.Log(LogLevel.Error, () => $"Unable to delete '{fullPath}' directory.", exc);
-                return Task.FromResult(DavStatusCode.InternalServerError);
+                return DavStatusCode.InternalServerError;
             }
         }
 

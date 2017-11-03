@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api.PathResolve
+namespace YaR.MailRuCloud.Api.Links
 {
     public class ItemList
     {
-        public IList<ItemLink> Items { get; } = new List<ItemLink>();
+        public List<ItemLink> Items { get; } = new List<ItemLink>();
     }
 
     public class ItemLink

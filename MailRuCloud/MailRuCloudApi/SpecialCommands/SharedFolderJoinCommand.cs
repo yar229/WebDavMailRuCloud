@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -5,22 +6,17 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class SharedFolderJoinCommand: SpecialCommand
     {
-        private readonly MailRuCloud _cloud;
-        private readonly string _path;
-        private readonly string _param;
-
-        public SharedFolderJoinCommand(MailRuCloud cloud, string path, string param)
+        public SharedFolderJoinCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
-            _cloud = cloud;
-            _path = path;
-            _param = param;
         }
+
+        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(1);
 
         private string Value
         {
             get
             {
-                var m = Regex.Match(_param, @"(?snx-) (https://?cloud.mail.ru/public)?(?<data>/\w*/?\w*)/?\s*");
+                var m = Regex.Match(Parames[0], @"(?snx-) (https://?cloud.mail.ru/public)?(?<data>/\w*/?\w*)/?\s*");
 
                 return m.Success
                     ? m.Groups["data"].Value
@@ -30,8 +26,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public override Task<SpecialCommandResult> Execute()
         {
-            bool k = _cloud.CloneItem(_path, Value).Result;
-            return Task.FromResult(new SpecialCommandResult{Success = k});
+            bool k = Cloud.CloneItem(Path, Value).Result;
+            return Task.FromResult(new SpecialCommandResult{IsSuccess = k});
         }
     }
 }

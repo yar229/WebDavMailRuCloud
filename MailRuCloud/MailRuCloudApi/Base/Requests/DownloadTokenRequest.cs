@@ -40,13 +40,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         protected override string RelationalUri => _url;
 
-        //protected override byte[] CreateHttpContent()
-        //{
-        //    string data = $"Login={Uri.EscapeUriString(_login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(_password)}";
-
-        //    return Encoding.UTF8.GetBytes(data);
-        //}
-
         protected override RequestResponse<DownloadTokenResult> DeserializeMessage(string responseText)
         {
             var m = Regex.Match(responseText,

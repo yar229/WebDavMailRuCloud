@@ -11,6 +11,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Types
         public FolderInfoBody body { get; set; }
         public long time { get; set; }
         public int status { get; set; }
+        public bool IsFile { get; set; }
     }
 
 

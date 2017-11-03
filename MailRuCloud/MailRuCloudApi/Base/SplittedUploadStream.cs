@@ -129,58 +129,17 @@ namespace YaR.MailRuCloud.Api.Base
         {
             if (_files.Count > 1)
             {
-                string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}"; //TODO: calculate CRC32 \r\ncrc32 = C9EB1402\r\n";
+                string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
                 var data = Encoding.UTF8.GetBytes(content);
                 var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
                 stream.Write(data, 0, data.Length);
                 stream.Close();
             }
 
-            ////remove test file created with webdav
-            //var dele = new RemoveRequest(_cloud, _origfile.FullPath)
-            //    .MakeRequestAsync().Result;
-
             _uploadStream?.Close();
 
             OnFileUploaded(_files);
         }
-
-
-        //uint CalculateCrc(uint crc, byte[] buffer, int offset, int count)
-        //{
-        //    unchecked
-        //    {
-        //        for (int i = offset, end = offset + count; i < end; i++)
-        //            crc = (crc >> 8) ^ CrcTable[(crc ^ buffer[i]) & 0xFF];
-        //    }
-        //    return crc;
-        //}
-
-        //private static readonly uint[] CrcTable = GenerateTable();
-
-        //private static uint[] GenerateTable()
-        //{
-        //    unchecked
-        //    {
-        //        uint[] table = new uint[256];
-
-        //        const uint poly = 0xEDB88320;
-        //        for (uint i = 0; i < table.Length; i++)
-        //        {
-        //            var crc = i;
-        //            for (int j = 8; j > 0; j--)
-        //            {
-        //                if ((crc & 1) == 1) crc = (crc >> 1) ^ poly;
-        //                else crc >>= 1;
-        //            }
-        //            table[i] = crc;
-        //        }
-
-        //        return table;
-        //    }
-
-        //}
-
 
         public override bool CanRead => true;
         public override bool CanSeek => true;

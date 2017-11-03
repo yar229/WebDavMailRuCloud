@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -7,36 +8,31 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class SharedFolderLinkCommand : SpecialCommand
     {
-        private readonly MailRuCloud _cloud;
-        private readonly string _path;
-        private readonly string _param;
-
-        public SharedFolderLinkCommand(MailRuCloud cloud, string path, string param)
+        public SharedFolderLinkCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
-            _cloud = cloud;
-            _path = path;
-            _param = param;
         }
 
-        public override Task<SpecialCommandResult> Execute()
+        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(1, 2);
+
+        public override async Task<SpecialCommandResult> Execute()
         {
-            var m = Regex.Match(_param, @"(?snx-)link \s+ (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s* (?<name>.*) ");
+            var m = Regex.Match(Parames[0], @"(?snx-)\s* (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s*");
 
-            var info = new ItemInfoRequest(_cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync().Result.ToEntry();
+            if (!m.Success) return SpecialCommandResult.Fail;
 
-            bool isFile = info.IsFile;
-            long size = info.Size;
+            //TODO: make method in MailRuCloud to get entry by url
+            var item = await new ItemInfoRequest(Cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync();
+            var entry = item.ToEntry();
+            if (null == entry)
+                return SpecialCommandResult.Fail;
 
+            string name = Parames.Count > 1 && !string.IsNullOrWhiteSpace(Parames[1])
+                    ? Parames[1]
+                    : entry.Name;
 
-            string name = m.Groups["name"].Value;
-            if (string.IsNullOrWhiteSpace(name)) name = info.Name;
+            Cloud.LinkItem(m.Groups["url"].Value, Path, name, item.IsFile, entry.Size, entry.CreationTimeUtc);
 
-            if (m.Success)
-            {
-                _cloud.LinkItem(m.Groups["url"].Value, _path, name, isFile, size, info.CreationDate);
-            }
-
-            return Task.FromResult(new SpecialCommandResult{Success = true});
+            return SpecialCommandResult.Success;
         }
     }
 }

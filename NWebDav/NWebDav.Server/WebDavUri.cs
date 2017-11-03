@@ -71,9 +71,44 @@ namespace NWebDav.Server
             }
         }
 
+        public UriAndName Parent
+        {
+            get
+            {
+                var trimmedUri = AbsoluteUri;
+                if (trimmedUri.EndsWith("/"))
+                    trimmedUri = trimmedUri.TrimEnd('/');
+
+                // cause we use >> as a sign for special command
+                int cmdPos = trimmedUri.IndexOf("%3e%3e", StringComparison.Ordinal);
+
+                int slashOffset = cmdPos > 0
+                    ? trimmedUri.LastIndexOf("/", cmdPos, StringComparison.InvariantCultureIgnoreCase)
+                    : trimmedUri.LastIndexOf('/');
+
+                if (slashOffset == -1)
+                    return null;
+
+                // Separate name from path
+                return new UriAndName
+                {
+                    Parent = new WebDavUri(trimmedUri.Substring(0, slashOffset)),
+                    Name = Uri.UnescapeDataString(trimmedUri.Substring(slashOffset + 1))
+                };
+               
+            }
+        }
+
         public override string ToString()
         {
             return _url;
         }
     }
+
+    public class UriAndName
+{
+        public WebDavUri Parent { get; set; }
+        public string Name { get; set; }
+    }
+
 }

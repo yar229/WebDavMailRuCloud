@@ -25,7 +25,18 @@
 	--help            Display this help screen.
 	--version         Display version information.
 ```
-Settings in `wdmrc.exe.config`
+
+***Commands*** <br/>
+Commands executed by making directory with special name
+* `>>join SHARED_FOLDER_LINK` Clone shared cloud.mail.ru file/folder to your account
+* `>>link SHARED_FOLDER_LINK [linkname]` Link shared folder without wasting your space (or manually edit file /item.links.wdmrc)
+* `>>link check` Remove all dead links (may take time if there's a lot of links)
+* `>>del` Fast delete (if your client makes recursive deletions of inner items)
+  * `>>del` current folder
+  * `>>del abc/cde` current folder/abc/cde
+  * `>>del /abc/cde` root/abc/cde
+
+***Settings*** in `wdmrc.exe.config`
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
@@ -45,9 +56,6 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
 [Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
 
-***Commands***
-* Clone shared cloud.mail.ru file/folder to your account:	make folder with name `>>SHARED_FOLDER_LINK`
-* Link shared folder without wasting your space: make folder with name `>>link SHARED_FOLDER_LINK [linkname]` or manually edit file /item.links.wdmrc
 
 #### Windows
 
@@ -144,7 +152,9 @@ Use any client supports webdav.
 
 
 #### Remarks
-* [**Total Commander**](http://www.ghisler.com/): requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
+* [**Total Commander**](http://www.ghisler.com/): 
+  - requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
+  - turn on `(connection properties) -> Send\Receive accents in URLs as UTF-8 Unicode`
 * [**WebDrive**](https://southrivertech.com/products/webdrive/): 
   - check on option `(disk properties) -> HTTP Settings -> Use /allprop on PROPFIND's (slower performance)`
   - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`

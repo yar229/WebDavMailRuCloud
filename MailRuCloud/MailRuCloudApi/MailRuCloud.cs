@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
-using YaR.MailRuCloud.Api.PathResolve;
+using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api
     /// </summary>
     public class MailRuCloud : IDisposable
     {
-        private readonly PathResolver _pathResolver;
+        private readonly LinkManager _linkManager;
 
 
 
@@ -41,55 +41,87 @@ namespace YaR.MailRuCloud.Api
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
             CloudApi = new CloudApi(login, password, twoFaHandler);
-            _pathResolver = new PathResolver(CloudApi);
+            _linkManager = new LinkManager(this);
         }
 
-
+        public enum ItemType
+        {
+            File,
+            Folder,
+            Unknown
+        }
 
         /// <summary>
         /// Get list of files and folders from account.
         /// </summary>
         /// <param name="path">Path in the cloud to return the list of the items.</param>
+        /// <param name="itemType"></param>
+        /// <param name="resolveLinks"></param>
         /// <returns>List of the items.</returns>
-        public virtual async Task<Entry> GetItems(string path)
+        public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            string ulink = _pathResolver.AsRelationalWebLink(path);
+            string ulink = resolveLinks ? _linkManager.AsRelationalWebLink(path) : string.Empty;
 
-            var data = await new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink)).MakeRequestAsync();
+            var data = new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
+                .MakeRequestAsync().ConfigureAwait(false);
 
-            if (!string.IsNullOrEmpty(ulink))
+            if (itemType == ItemType.Unknown && !string.IsNullOrEmpty(ulink))
             {
-                bool isFile = data.body.list.Any(it => it.weblink.TrimStart('/') == ulink.TrimStart('/'));
-
-                string trimpath = path;
-                if (isFile) trimpath = WebDavPath.Parent(path);
-
-                foreach (var propse in data.body.list)
-                {
-                    propse.home = WebDavPath.Combine(trimpath, propse.name);
-                }
-                data.body.home = trimpath;
+                var infores = await new ItemInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
+                    .MakeRequestAsync().ConfigureAwait(false);
+                itemType = infores.body.kind == "file"
+                    ? ItemType.File
+                    : ItemType.Folder;
             }
 
-            var entry = data.ToEntry();
+            var datares = await data;
 
-
-            var flinks = _pathResolver.GetItems(entry.FullPath);
-            if (flinks.Any())
+            if (itemType == ItemType.Unknown && string.IsNullOrEmpty(ulink))
             {
-                foreach (var flink in flinks)
-                {
-                    string linkpath = WebDavPath.Combine(entry.FullPath, flink.Name);
+                itemType = (await data).body.home == path
+                    ? ItemType.Folder
+                    : ItemType.File;
+            }
 
-                    if (!flink.IsFile)
-                        entry.Folders.Add(new Folder(0, 0, 0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                    else
+            // patch paths if linked item
+            if (!string.IsNullOrEmpty(ulink))
+            {
+                string home = path;
+                if (itemType == ItemType.File) home = WebDavPath.Parent(path);
+
+                //if (itemType == ItemType.Folder)
+                foreach (var propse in datares.body.list)
+                {
+                    propse.home = WebDavPath.Combine(home, propse.name);
+                }
+                datares.body.home = home;
+            }
+
+            var entry = itemType == ItemType.File
+                ? (IEntry)datares.ToFile(WebDavPath.Name(path))
+                : datares.ToFolder();
+
+            if (itemType == ItemType.Folder && entry is Folder folder)
+            {
+                var flinks = _linkManager.GetItems(folder.FullPath);
+                if (flinks.Any())
+                {
+                    foreach (var flink in flinks)
                     {
-                        if (entry.Files.All(inf => inf.FullPath != linkpath))
-                            entry.Files.Add(new File(linkpath, flink.Size, string.Empty));
+                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+
+                        if (!flink.IsFile)
+                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+                        else
+                        {
+                            if (folder.Files.All(inf => inf.FullPath != linkpath))
+                                folder.Files.Add(new File(linkpath, flink.Size));
+                        }
                     }
                 }
             }
+
+
 
             return entry;
         }
@@ -106,33 +138,11 @@ namespace YaR.MailRuCloud.Api
         }
 
         /// <summary>
-        /// Get list of files and folders from account.
-        /// </summary>
-        /// <param name="folder">Folder info.</param>
-        /// <returns>List of the items.</returns>
-        public async Task<Entry> GetItems(Folder folder)
-        {
-            return await GetItems(folder.FullPath);
-        }
-
-
-        /// <summary>
         /// Abort all prolonged async operations.
         /// </summary>
         public void AbortAllAsyncThreads()
         {
             CloudApi.CancelToken.Cancel(true);
-        }
-
-        /// <summary>
-        /// Copying folder in another space on the server.
-        /// </summary>
-        /// <param name="folder">Folder info to copying.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(Folder folder, Entry destinationEntry)
-        {
-            return await Copy(folder, destinationEntry.FullPath);
         }
 
         /// <summary>
@@ -155,17 +165,6 @@ namespace YaR.MailRuCloud.Api
         public async Task<bool> Copy(Folder folder, string destinationPath)
         {
             return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, false));
-        }
-
-        /// <summary>
-        /// Copying file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to copying.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, Entry destinationEntry)
-        {
-            return await Copy(file, destinationEntry.FullPath);
         }
 
         /// <summary>
@@ -238,34 +237,12 @@ namespace YaR.MailRuCloud.Api
         /// <summary>
         /// Move folder in another space on the server.
         /// </summary>
-        /// <param name="folder">Folder info to moving.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(Folder folder, Entry destinationEntry)
-        {
-            return await Move(folder, destinationEntry.FullPath);
-        }
-
-        /// <summary>
-        /// Move folder in another space on the server.
-        /// </summary>
         /// <param name="folder">Folder info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(Folder folder, string destinationPath)
         {
             return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, true));
-        }
-
-        /// <summary>
-        /// Move file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to move.</param>
-        /// <param name="destinationEntry">Destination entry on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, Entry destinationEntry)
-        {
-            return await Move(file, destinationEntry.FullPath);
         }
 
         /// <summary>
@@ -308,6 +285,22 @@ namespace YaR.MailRuCloud.Api
                 .MakeRequestAsync();
 
             return true;
+        }
+
+
+        /// <summary>
+        /// Remove item on server by path
+        /// </summary>
+        /// <param name="entry">File or folder</param>
+        /// <returns>True or false operation result.</returns>
+        public virtual async Task<bool> Remove(IEntry entry)
+        {
+            if (entry is File file)
+                return await Remove(file);
+            if (entry is Folder folder)
+                return await Remove(folder);
+
+            return false;
         }
 
         /// <summary>
@@ -368,8 +361,8 @@ namespace YaR.MailRuCloud.Api
                 var file = files?.FirstOrDefault();
                 if (null == file) return;
 
-                if (file.Path == "/" && file.Name == PathResolver.LinkContainerName)
-                    _pathResolver.Load();
+                if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
+                    _linkManager.Load();
             };
 
             return stream;
@@ -388,7 +381,7 @@ namespace YaR.MailRuCloud.Api
 
             if (res.status == 200)
             {
-                _pathResolver.ProcessRename(fullPath, newName);
+                _linkManager.ProcessRename(fullPath, newName);
             }
             return res.status == 200;
         }
@@ -418,13 +411,13 @@ namespace YaR.MailRuCloud.Api
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            string link = _pathResolver.AsRelationalWebLink(fullPath);
+            string link = _linkManager.AsRelationalWebLink(fullPath);
 
             if (!string.IsNullOrEmpty(link))
             {
                 //if folder is linked - do not delete inner files/folders if client deleting recursively
                 //just try to unlink folder
-                _pathResolver.RemoveItem(fullPath);
+                _linkManager.RemoveItem(fullPath);
 
                 return true;
             }
@@ -459,7 +452,12 @@ namespace YaR.MailRuCloud.Api
 
         public void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            _pathResolver.Add(url, path, name, isFile, size, creationDate);
+            _linkManager.Add(url, path, name, isFile, size, creationDate);
+        }
+
+        public void RemoveDeadLinks()
+        {
+            _linkManager.RemoveDeadLinks(true);
         }
     }
 

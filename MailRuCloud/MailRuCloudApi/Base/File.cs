@@ -16,13 +16,13 @@ namespace YaR.MailRuCloud.Api.Base
     /// Server file info.
     /// </summary>
     [DebuggerDisplay("{" + nameof(FullPath) + "}")]
-    public class File
+    public class File : IEntry
     {
         protected File()
         {
         }
 
-        public File(string fullPath, long size, string hash)
+        public File(string fullPath, long size, string hash = "")
         {
             FullPath = fullPath;
             _size = size;
@@ -38,9 +38,11 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets file name.
         /// </summary>
         /// <value>File name.</value>
-        //TODO: refact
-        public virtual string Name => FullPath.Substring(FullPath.LastIndexOf("/", StringComparison.Ordinal) + 1);
+        public virtual string Name => WebDavPath.Name(FullPath);
 
+        /// <summary>
+        /// Gets file extension
+        /// </summary>
         public string Extension => System.IO.Path.GetExtension(Name);
 
         /// <summary>
@@ -64,19 +66,18 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
         /// <summary>
-        /// Gets full file path with name in server.
+        /// Gets full file path with name on server.
         /// </summary>
         /// <value>Full file path.</value>
         public string FullPath
         {
             get => _fullPath;
-            set
-            {
-                _fullPath = value.Replace("\\", "/");
-                if (!string.IsNullOrEmpty(Name) && !_fullPath.EndsWith("/" + Name)) _fullPath = _fullPath.TrimEnd('/') + "/" + Name;
-            }
+            protected set => _fullPath = WebDavPath.Clean(value);
         }
 
+        /// <summary>
+        /// Path to file (without filename)
+        /// </summary>
         public string Path => WebDavPath.Parent(FullPath);
 
         /// <summary>
@@ -90,16 +91,16 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         public virtual List<File> Parts => new List<File> {this};
 
-        /// <summary>
-        /// Gets or sets base file size.
-        /// </summary>
-        /// <value>File size.</value>
-        internal FileSize PrimarySize => Size;
-
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
+
+        /// <summary>
+        /// If file splitted to several phisical files
+        /// </summary>
         public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
+
+        public bool IsFile => true;
 
         public void SetName(string destinationName)
         {
@@ -120,7 +121,6 @@ namespace YaR.MailRuCloud.Api.Base
                 {
                     fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
                 }
-        }
-    }
+        }}
 }
 
