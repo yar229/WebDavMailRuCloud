@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Extensions;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api.PathResolve
@@ -106,7 +105,10 @@ namespace YaR.MailRuCloud.Api.PathResolve
 
         public void RemoveDeadLinks(bool doWriteHistory)
         {
-            var removes = _itemList.Items.Where(it => !IsLinkAlive(it)).ToList();
+            var removes = _itemList.Items
+                .AsParallel()
+                .WithDegreeOfParallelism(5)
+                .Where(it => !IsLinkAlive(it)).ToList();
             if (removes.Count == 0) return;
 
             _itemList.Items.RemoveAll(it => removes.Contains(it));
@@ -118,14 +120,25 @@ namespace YaR.MailRuCloud.Api.PathResolve
                 //TODO:save item.links.history.wdmrc
             }
 
+            Save();
         }
 
         private bool IsLinkAlive(ItemLink link)
         {
             string path = WebDavPath.Combine(link.MapTo, link.Name);
-            var entry = _cloud.GetItem(path);
-
-            return entry != null;
+            try
+            {
+                var entry = _cloud.GetItem(path).Result;
+                return entry != null;
+            }
+            catch (AggregateException e) 
+            when (  // let's check if there really no file or just other network error
+                    e.InnerException is WebException we && 
+                    (we.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound
+                 )
+            {
+                return false;
+            }
         }
 
         public string AsWebLink(string path)
