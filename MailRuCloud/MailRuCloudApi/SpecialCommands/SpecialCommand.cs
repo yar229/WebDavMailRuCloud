@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         private void CheckParams()
         {
             if (Parames.Count < MinMaxParamsCount.Min || Parames.Count > MinMaxParamsCount.Max)
-                throw new ArgumentException("Invalid pameters count");
+                throw new ArgumentException("Invalid parameters count");
         }
 
     }
