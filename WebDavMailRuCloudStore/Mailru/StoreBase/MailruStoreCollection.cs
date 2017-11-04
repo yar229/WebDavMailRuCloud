@@ -62,11 +62,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             //    Getter = (context, collection) => ""
             //},
 
-            //// ?? required for WebDrive
-            //new DavCollection<MailruStoreCollection>
-            //{
-            //    Getter = (context, collection) => string.Empty
-            //},
+            // collection property required for WebDrive
+            new DavCollection<MailruStoreCollection>
+            {
+                Getter = (context, collection) => string.Empty
+            },
 
             new DavGetEtag<MailruStoreCollection>
             {
