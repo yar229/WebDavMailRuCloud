@@ -120,9 +120,16 @@ namespace NWebDav.Server.Handlers
             // Add all the properties
             foreach (var entry in entries)
             {
+                // fusedav 0.2 differs files from folders using ending '/'
+                bool isCollection = entry.Entry is IStoreCollection;
+                string href = entry.Uri.LocalPath;
+                href = isCollection
+                    ? href.EndsWith("/") ? href : href + "/"
+                    : entry.Uri.LocalPath.TrimEnd('/');
+
                 // Create the property
                 var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
-                    new XElement(WebDavNamespaces.DavNs + "href", entry.Uri.LocalPath));
+                    new XElement(WebDavNamespaces.DavNs + "href", href));
 
                 // Create tags for property values
                 var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
