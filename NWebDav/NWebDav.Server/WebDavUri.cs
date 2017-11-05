@@ -41,14 +41,15 @@ namespace NWebDav.Server
         public string Scheme => _fakeurl.Scheme;
 
         /// <summary>
-        /// Encoded path
+        /// Decoded path (standart decode, may fail)
         /// </summary>
         public string LocalPath =>  _fakeurl.LocalPath;
 
         /// <summary>
         /// decoded path
         /// </summary>
-        public string Path {
+        public string Path
+        {
             get
             {
                 var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
@@ -57,6 +58,22 @@ namespace NWebDav.Server
                 if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
                 requestedPath = Uri.UnescapeDataString(requestedPath);
+
+                return requestedPath;
+            }
+        }
+
+        /// <summary>
+        /// Encoded path
+        /// </summary>
+        public string PathEncoded
+        {
+            get
+            {
+                var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
+                requestedPath = "/" + requestedPath.TrimEnd('/');
+
+                if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
                 return requestedPath;
             }
@@ -106,7 +123,7 @@ namespace NWebDav.Server
     }
 
     public class UriAndName
-{
+    {
         public WebDavUri Parent { get; set; }
         public string Name { get; set; }
     }
