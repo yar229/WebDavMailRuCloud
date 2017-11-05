@@ -14,6 +14,7 @@
     <AssemblyVersion>1.8.0.4</AssemblyVersion>
     <FileVersion>1.8.0.4</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
+    <ApplicationIcon>cloud.ico</ApplicationIcon>	
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
