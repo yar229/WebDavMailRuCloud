@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Base.Requests;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api.Links
@@ -43,7 +45,7 @@ namespace YaR.MailRuCloud.Api.Links
             using (var stream = _cloud.GetFileUploadStream(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), data.Length))
             {
                 stream.Write(data, 0, data.Length);
-                stream.Close();
+                //stream.Close();
             }
         }
 
@@ -97,22 +99,12 @@ namespace YaR.MailRuCloud.Api.Links
             return z;
         }
 
-        public ItemLink GetItem(string path)
-        {
-            var name = WebDavPath.Name(path);
-            var pa = WebDavPath.Parent(path);
-
-            var item = _itemList.Items
-                .FirstOrDefault(f => f.MapTo == pa && f.Name == name);
-
-            return item;
-        }
-
         /// <summary>
         /// Убрать ссылку
         /// </summary>
         /// <param name="path"></param>
-        public void RemoveItem(string path)
+        /// <param name="doSave">Save container after removing</param>
+        public void RemoveItem(string path, bool doSave = true)
         {
             var name = WebDavPath.Name(path);
             var pa = WebDavPath.Parent(path);
@@ -123,7 +115,7 @@ namespace YaR.MailRuCloud.Api.Links
             if (z != null)
             {
                 _itemList.Items.Remove(z);
-                Save();
+                if (doSave) Save();
             }
         }
 
@@ -174,34 +166,68 @@ namespace YaR.MailRuCloud.Api.Links
             }
         }
 
-        public string AsWebLink(string path)
+        public async Task<ItemfromLink> GetItemLink(string path, bool doResolveType = true)
         {
             //TODO: subject to refact
             string parent = path;
-            string wp;
+            ItemLink wp;
             string right = string.Empty;
             do
             {
                 string name = WebDavPath.Name(parent);
                 parent = WebDavPath.Parent(parent);
-                wp = _itemList.Items.FirstOrDefault(ip => parent == ip.MapTo && name == ip.Name)?.Href;
-                if (string.IsNullOrEmpty(wp)) right = WebDavPath.Combine(name, right);
-            } while (parent != WebDavPath.Root  && string.IsNullOrEmpty(wp));
-            
-            return string.IsNullOrEmpty(wp)
-                ? string.Empty
-                : wp + right;
+                wp = _itemList.Items.FirstOrDefault(ip => parent == ip.MapTo && name == ip.Name);
+                if (null == wp) right = WebDavPath.Combine(name, right);
+            } while (parent != WebDavPath.Root && null == wp);
+
+            if (null == wp) return null;
+
+            var res = new ItemfromLink(wp) { Href = wp.Href + right, Path = path };
+
+            if (doResolveType)
+            {
+                try
+                {
+                    var infores = await new ItemInfoRequest(_cloud.CloudApi, res.Href, true).MakeRequestAsync()
+                        .ConfigureAwait(false);
+                    res.IsFile = infores.body.kind == "file";
+                }
+                catch (Exception e) //TODO check 404 etc.
+                {
+                    //this means a bad link
+                    // don't know what to do
+                    res.IsBad = true;
+                }
+            }
+
+            return res;
         }
 
-
-
-        public string AsRelationalWebLink(string path)
+        public class ItemfromLink : ItemLink
         {
-            //TODO: subject to refact
-            string link = AsWebLink(path);
-            link = GetRelaLink(link);
+            public ItemfromLink() { }
 
-            return link;
+            public ItemfromLink(ItemLink link) : this()
+            {
+                Href = link.Href;
+                MapTo = link.MapTo;
+                Name = link.Name;
+                IsFile = link.IsFile;
+                Size = link.Size;
+                CreationDate = link.CreationDate;
+            }
+
+            public bool IsBad { get; set; }
+            public string Path { get; set; }
+
+            public IEntry ToBadEntry()
+            {
+                var res = IsFile
+                    ? (IEntry)new File(Path, Size, string.Empty)
+                    : new Folder(Size, Path, string.Empty);
+
+                return res;
+            }
         }
 
         /// <summary>
@@ -213,26 +239,28 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="isFile">Признак, что ссылка ведёт на файл, иначе - на папку</param>
         /// <param name="size">Размер данных по ссылке</param>
         /// <param name="creationDate">Дата создания</param>
-        public void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             Load();
 
             path = WebDavPath.Clean(path);
+
+            var folder = (Folder)await _cloud.GetItem(path);
+            if (folder.Entries.Any(entry => entry.Name == name))
+                return;
+
             url = GetRelaLink(url);
 
-            if (!_itemList.Items.Any(ii => ii.MapTo == path && ii.Name == name))
+            _itemList.Items.Add(new ItemLink
             {
-                _itemList.Items.Add(new ItemLink
-                {
-                    Href = url,
-                    MapTo = WebDavPath.Clean(path),
-                    Name = name,
-                    IsFile = isFile,
-                    Size = size,
-                    CreationDate = creationDate
-                });
-                Save();
-            }
+                Href = url,
+                MapTo = WebDavPath.Clean(path),
+                Name = name,
+                IsFile = isFile,
+                Size = size,
+                CreationDate = creationDate
+            });
+            Save();
         }
 
 
@@ -250,7 +278,18 @@ namespace YaR.MailRuCloud.Api.Links
 
         public void ProcessRename(string fullPath, string newName)
         {
-            //TODO: implement
+            string newPath = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+
+            bool changed = false;
+            foreach (var link in _itemList.Items)
+            {
+                if (WebDavPath.IsParentOrSame(fullPath, link.MapTo))
+                {
+                    link.MapTo = WebDavPath.ModifyParent(link.MapTo, fullPath, newPath);
+                    changed = true;
+                }
+            }
+            if (changed) Save();
         }
     }
 }

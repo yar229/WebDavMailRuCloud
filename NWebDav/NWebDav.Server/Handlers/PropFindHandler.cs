@@ -127,7 +127,7 @@ namespace NWebDav.Server.Handlers
                 bool isCollection = entry.Entry is IStoreCollection;
                 href = isCollection
                     ? href.EndsWith("/") ? href : href + "/"
-                    : entry.Uri.LocalPath.TrimEnd('/');
+                    : href.TrimEnd('/');
 
                 // Create the property
                 var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
