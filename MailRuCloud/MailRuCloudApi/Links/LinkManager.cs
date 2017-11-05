@@ -239,26 +239,28 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="isFile">Признак, что ссылка ведёт на файл, иначе - на папку</param>
         /// <param name="size">Размер данных по ссылке</param>
         /// <param name="creationDate">Дата создания</param>
-        public void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             Load();
 
             path = WebDavPath.Clean(path);
+
+            var folder = (Folder)await _cloud.GetItem(path);
+            if (folder.Entries.Any(entry => entry.Name == name))
+                return;
+
             url = GetRelaLink(url);
 
-            if (!_itemList.Items.Any(ii => ii.MapTo == path && ii.Name == name))
+            _itemList.Items.Add(new ItemLink
             {
-                _itemList.Items.Add(new ItemLink
-                {
-                    Href = url,
-                    MapTo = WebDavPath.Clean(path),
-                    Name = name,
-                    IsFile = isFile,
-                    Size = size,
-                    CreationDate = creationDate
-                });
-                Save();
-            }
+                Href = url,
+                MapTo = WebDavPath.Clean(path),
+                Name = name,
+                IsFile = isFile,
+                Size = size,
+                CreationDate = creationDate
+            });
+            Save();
         }
 
 
