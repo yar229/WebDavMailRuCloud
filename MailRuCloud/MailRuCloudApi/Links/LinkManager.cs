@@ -276,7 +276,18 @@ namespace YaR.MailRuCloud.Api.Links
 
         public void ProcessRename(string fullPath, string newName)
         {
-            //TODO: implement
+            string newPath = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+
+            bool changed = false;
+            foreach (var link in _itemList.Items)
+            {
+                if (WebDavPath.IsParentOrSame(fullPath, link.MapTo))
+                {
+                    link.MapTo = WebDavPath.ModifyParent(link.MapTo, fullPath, newPath);
+                    changed = true;
+                }
+            }
+            if (changed) Save();
         }
     }
 }

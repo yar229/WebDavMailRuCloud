@@ -61,6 +61,14 @@ namespace YaR.MailRuCloud.Api.Base
         public static string Root => "/";
         public static string Separator => "/";
 
+        public static bool IsParentOrSame(string parent, string child)
+        {
+            parent = Clean(parent) + Separator;
+            child = Clean(child) + Separator;
+            return child.StartsWith(parent);
+
+        }
+
         public static WebDavPathParts Parts(string path)
         {
             //TODO: refact
@@ -71,6 +79,19 @@ namespace YaR.MailRuCloud.Api.Base
             };
 
             return res;
+        }
+
+        public static string ModifyParent(string path, string oldParent, string newParent)
+        {
+            if (!IsParentOrSame(oldParent, path))
+                return path;
+
+            path = Clean(path) + Separator;
+            oldParent = Clean(oldParent) + Separator;
+
+            path = path.Remove(0, oldParent.Length);
+
+            return Combine(newParent, path);
         }
     }
 
