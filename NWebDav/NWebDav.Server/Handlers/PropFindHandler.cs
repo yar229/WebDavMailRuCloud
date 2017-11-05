@@ -120,9 +120,11 @@ namespace NWebDav.Server.Handlers
             // Add all the properties
             foreach (var entry in entries)
             {
+                // we need encoded path as it is in original url (Far does not show items with spaces)
+                string href = entry.Uri.PathEncoded;
+
                 // fusedav 0.2 differs files from folders using ending '/'
                 bool isCollection = entry.Entry is IStoreCollection;
-                string href = entry.Uri.LocalPath;
                 href = isCollection
                     ? href.EndsWith("/") ? href : href + "/"
                     : entry.Uri.LocalPath.TrimEnd('/');

@@ -4,7 +4,7 @@
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
     <RootNamespace>YaR.WebDavMailRu.CloudStore</RootNamespace>
-    <AssemblyName>WebDavMailRu.CloudStore</AssemblyName>
+    <AssemblyName>MailRuCloud.NWebDav.Store</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
