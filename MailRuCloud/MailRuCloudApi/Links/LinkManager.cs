@@ -19,7 +19,7 @@ namespace YaR.MailRuCloud.Api.Links
 
         public static string LinkContainerName = "item.links.wdmrc";
         private readonly MailRuCloud _cloud;
-        private ItemList _itemList;
+        private ItemList _itemList = new ItemList();
 
 
         public LinkManager(MailRuCloud api)
@@ -54,18 +54,25 @@ namespace YaR.MailRuCloud.Api.Links
         {
             Logger.Info($"Loading links from {LinkContainerName}");
 
-            var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
-
-            if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
+            try
             {
-                DownloadStream stream = new DownloadStream(file, _cloud.CloudApi);
+                var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
 
-                using (StreamReader reader = new StreamReader(stream))
-                using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
                 {
-                    var ser = new JsonSerializer();
-                    _itemList = ser.Deserialize<ItemList>(jsonReader);
+                    DownloadStream stream = new DownloadStream(file, _cloud.CloudApi);
+
+                    using (StreamReader reader = new StreamReader(stream))
+                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                    {
+                        var ser = new JsonSerializer();
+                        _itemList = ser.Deserialize<ItemList>(jsonReader);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.Warn("Cannot load links", e);
             }
 
             if (null == _itemList) _itemList = new ItemList();
