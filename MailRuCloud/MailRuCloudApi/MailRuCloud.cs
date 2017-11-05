@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
@@ -60,23 +61,34 @@ namespace YaR.MailRuCloud.Api
         /// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            string ulink = resolveLinks ? _linkManager.AsRelationalWebLink(path) : string.Empty;
+            //TODO: subject to refact
+            var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
 
-            var data = new FolderInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
+            // bad link detected, just return stub
+            // cause client cannot, for example, delete it if we return NotFound for this item
+            if (ulink != null && ulink.IsBad)
+            {
+                return ulink.ToBadEntry();
+            }
+
+
+            var data = new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                 .MakeRequestAsync().ConfigureAwait(false);
 
-            if (itemType == ItemType.Unknown && !string.IsNullOrEmpty(ulink))
+            if (itemType == ItemType.Unknown && ulink != null)
             {
-                var infores = await new ItemInfoRequest(CloudApi, string.IsNullOrEmpty(ulink) ? path : ulink, !string.IsNullOrEmpty(ulink))
-                    .MakeRequestAsync().ConfigureAwait(false);
-                itemType = infores.body.kind == "file"
-                    ? ItemType.File
-                    : ItemType.Folder;
+                itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
+                //var infores = await new ItemInfoRequest(CloudApi, ulink.Href, true)
+                //    .MakeRequestAsync().ConfigureAwait(false);
+                //itemType = infores.body.kind == "file"
+                //    ? ItemType.File
+                //    : ItemType.Folder;
             }
 
             var datares = await data;
+            
 
-            if (itemType == ItemType.Unknown && string.IsNullOrEmpty(ulink))
+            if (itemType == ItemType.Unknown && null == ulink) //string.IsNullOrEmpty(ulink))
             {
                 itemType = (await data).body.home == path
                     ? ItemType.Folder
@@ -84,7 +96,8 @@ namespace YaR.MailRuCloud.Api
             }
 
             // patch paths if linked item
-            if (!string.IsNullOrEmpty(ulink))
+            //if (!string.IsNullOrEmpty(ulink))
+            if (ulink != null)
             {
                 string home = path;
                 if (itemType == ItemType.File) home = WebDavPath.Parent(path);
@@ -411,9 +424,10 @@ namespace YaR.MailRuCloud.Api
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            string link = _linkManager.AsRelationalWebLink(fullPath);
+            //string link = _linkManager.AsRelationalWebLink(fullPath);
+            var link = await _linkManager.GetItemLink(fullPath, false);
 
-            if (!string.IsNullOrEmpty(link))
+            if (link != null)
             {
                 //if folder is linked - do not delete inner files/folders if client deleting recursively
                 //just try to unlink folder
