@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -20,6 +21,11 @@ namespace YaR.CloudMailRu.Console
 
         static void Main(string[] args)
         {
+            // trying to fix "infinite recursion during resource lookup with system.private.corelib"
+            // .Net Core 2.0.0
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-us");
+
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
             log4net.Config.XmlConfigurator.Configure(repo, Config.Log4Net);
 
