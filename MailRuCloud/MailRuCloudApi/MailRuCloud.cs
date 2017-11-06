@@ -389,14 +389,25 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Rename(string fullPath, string newName)
         {
-            var res = await new RenameRequest(CloudApi, fullPath, newName)
-                .MakeRequestAsync();
+            var link = await _linkManager.GetItemLink(fullPath, false);
 
-            if (res.status == 200)
+            //rename item
+            if (link == null)
             {
-                _linkManager.ProcessRename(fullPath, newName);
+                var data = await new RenameRequest(CloudApi, fullPath, newName)
+                    .MakeRequestAsync();
+
+                if (data.status == 200)
+                {
+                    _linkManager.ProcessRename(fullPath, newName);
+                }
+                return data.status == 200;
             }
-            return res.status == 200;
+
+            //rename link
+            var res = _linkManager.RenameLink(link, newName);
+
+            return res;
         }
 
         /// <summary>

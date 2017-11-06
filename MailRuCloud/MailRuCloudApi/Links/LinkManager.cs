@@ -166,6 +166,12 @@ namespace YaR.MailRuCloud.Api.Links
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="doResolveType">Resolving file/folder type requires addition request to cloud</param>
+        /// <returns></returns>
         public async Task<ItemfromLink> GetItemLink(string path, bool doResolveType = true)
         {
             //TODO: subject to refact
@@ -219,6 +225,8 @@ namespace YaR.MailRuCloud.Api.Links
 
             public bool IsBad { get; set; }
             public string Path { get; set; }
+
+            public bool IsRoot => WebDavPath.PathEquals(WebDavPath.Parent(Path), MapTo);
 
             public IEntry ToBadEntry()
             {
@@ -290,6 +298,19 @@ namespace YaR.MailRuCloud.Api.Links
                 }
             }
             if (changed) Save();
+        }
+
+        public bool RenameLink(ItemfromLink link, string newName)
+        {
+            // can't rename items within linked folder
+            if (!link.IsRoot) return false;
+
+            var ilink = _itemList.Items.FirstOrDefault(it => it.MapTo == link.MapTo && it.Name == link.Name);
+            if (null == ilink) return false;
+
+            ilink.Name = newName;
+            Save();
+            return true;
         }
     }
 }
