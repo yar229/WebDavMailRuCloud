@@ -93,6 +93,11 @@ namespace YaR.MailRuCloud.Api.Base
 
             return Combine(newParent, path);
         }
+
+        public static bool PathEquals(string path1, string path2)
+        {
+            return String.Compare(Clean(path1), Clean(path2), StringComparison.InvariantCultureIgnoreCase) == 0;
+        }
     }
 
     public struct WebDavPathParts

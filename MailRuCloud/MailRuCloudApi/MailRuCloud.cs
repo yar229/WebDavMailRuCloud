@@ -9,10 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
@@ -111,7 +113,8 @@ namespace YaR.MailRuCloud.Api
             }
 
             var entry = itemType == ItemType.File
-                ? (IEntry)datares.ToFile(WebDavPath.Name(path))
+                //? (IEntry)datares.ToFile(WebDavPath.Name(path))
+                ? (IEntry)datares.ToFile(ulink == null ? WebDavPath.Name(path) : ulink.OriginalName)
                 : datares.ToFolder();
 
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -381,6 +384,62 @@ namespace YaR.MailRuCloud.Api
             return stream;
         }
 
+        public T DownloadFileAsJson<T>(File file)
+        {
+            DownloadStream stream = new DownloadStream(file, CloudApi);
+
+            using (var reader = new StreamReader(stream))
+            using (var jsonReader = new JsonTextReader(reader))
+            {
+                var ser = new JsonSerializer();
+                return ser.Deserialize<T>(jsonReader);
+            }
+        }
+
+        public string DownloadFileAsString(File file)
+        {
+            using (var stream = new DownloadStream(file, CloudApi))
+            using (var reader = new StreamReader(stream))
+            {
+                string res = reader.ReadToEnd();
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// Download content of file
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>file content or null if NotFound</returns>
+        public async Task<string> DownloadFileAsString(string path)
+        {
+            try
+            {
+                var file = (File)await GetItem(path);
+                return DownloadFileAsString(file);
+            }
+            catch (Exception e)
+                when (  // let's check if there really no file or just other network error
+                    (e is AggregateException && e.InnerException is WebException we && (we.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+                    ||
+                    (e is WebException wee && (wee.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+                )
+            {
+                return null;
+            }
+        }
+
+        public void UploadFile(string path, string content)
+        {
+            var data = Encoding.UTF8.GetBytes(content);
+
+            using (var stream = GetFileUploadStream(path, data.Length))
+            {
+                stream.Write(data, 0, data.Length);
+                //stream.Close();
+            }
+        }
+
         /// <summary>
         /// Rename item on server.
         /// </summary>
@@ -389,14 +448,25 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Rename(string fullPath, string newName)
         {
-            var res = await new RenameRequest(CloudApi, fullPath, newName)
-                .MakeRequestAsync();
+            var link = await _linkManager.GetItemLink(fullPath, false);
 
-            if (res.status == 200)
+            //rename item
+            if (link == null)
             {
-                _linkManager.ProcessRename(fullPath, newName);
+                var data = await new RenameRequest(CloudApi, fullPath, newName)
+                    .MakeRequestAsync();
+
+                if (data.status == 200)
+                {
+                    _linkManager.ProcessRename(fullPath, newName);
+                }
+                return data.status == 200;
             }
-            return res.status == 200;
+
+            //rename link
+            var res = _linkManager.RenameLink(link, newName);
+
+            return res;
         }
 
         /// <summary>

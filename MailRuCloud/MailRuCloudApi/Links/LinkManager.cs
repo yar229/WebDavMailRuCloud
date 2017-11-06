@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -19,7 +17,8 @@ namespace YaR.MailRuCloud.Api.Links
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(LinkManager));
 
-        public static string LinkContainerName = "item.links.wdmrc";
+        public static readonly string LinkContainerName = "item.links.wdmrc";
+        public static readonly string HistoryContainerName = "item.links.history.wdmrc";
         private readonly MailRuCloud _cloud;
         private ItemList _itemList = new ItemList();
 
@@ -40,13 +39,8 @@ namespace YaR.MailRuCloud.Api.Links
             Logger.Info($"Saving links to {LinkContainerName}");
 
             string content = JsonConvert.SerializeObject(_itemList, Formatting.Indented);
-            var data = Encoding.UTF8.GetBytes(content);
-
-            using (var stream = _cloud.GetFileUploadStream(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), data.Length))
-            {
-                stream.Write(data, 0, data.Length);
-                //stream.Close();
-            }
+            string path = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
+            _cloud.UploadFile(path, content);
         }
 
         /// <summary>
@@ -61,16 +55,7 @@ namespace YaR.MailRuCloud.Api.Links
                 var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
 
                 if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
-                {
-                    DownloadStream stream = new DownloadStream(file, _cloud.CloudApi);
-
-                    using (StreamReader reader = new StreamReader(stream))
-                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
-                    {
-                        var ser = new JsonSerializer();
-                        _itemList = ser.Deserialize<ItemList>(jsonReader);
-                    }
-                }
+                    _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
             }
             catch (Exception e)
             {
@@ -123,49 +108,64 @@ namespace YaR.MailRuCloud.Api.Links
         /// Убрать все привязки на мёртвые ссылки
         /// </summary>
         /// <param name="doWriteHistory"></param>
-        public void RemoveDeadLinks(bool doWriteHistory)
+        public async void RemoveDeadLinks(bool doWriteHistory)
         {
             var removes = _itemList.Items
                 .AsParallel()
                 .WithDegreeOfParallelism(5)
-                .Where(it => !IsLinkAlive(it)).ToList();
+                .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name)).Result)
+                .Where(itl => itl.IsBad)
+                .ToList();
             if (removes.Count == 0) return;
 
-            _itemList.Items.RemoveAll(it => removes.Contains(it));
+            _itemList.Items.RemoveAll(it => removes.Any(rem => rem.MapTo == it.MapTo && rem.Name == it.Name));
 
-            if (doWriteHistory)
+            if (removes.Any())
             {
-                //TODO:load item.links.history.wdmrc
-                //TODO:append removed
-                //TODO:save item.links.history.wdmrc
+                if (doWriteHistory)
+                {
+                    string path = WebDavPath.Combine(WebDavPath.Root, HistoryContainerName);
+                    string res = await _cloud.DownloadFileAsString(path);
+                    var history = new StringBuilder(res ?? string.Empty);
+                    foreach (var link in removes)
+                    {
+                        history.Append($"{DateTime.Now} REMOVE: {link.Href} {link.Name}\r\n");
+                    }
+                    _cloud.UploadFile(path, history.ToString());
+                }
+                Save();
             }
-
-            Save();
         }
+
+        ///// <summary>
+        ///// Проверка доступности ссылки
+        ///// </summary>
+        ///// <param name="link"></param>
+        ///// <returns></returns>
+        //private bool IsLinkAlive(ItemLink link)
+        //{
+        //    string path = WebDavPath.Combine(link.MapTo, link.Name);
+        //    try
+        //    {
+        //        var entry = _cloud.GetItem(path).Result;
+        //        return entry != null;
+        //    }
+        //    catch (AggregateException e) 
+        //    when (  // let's check if there really no file or just other network error
+        //            e.InnerException is WebException we && 
+        //            (we.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound
+        //         )
+        //    {
+        //        return false;
+        //    }
+        //}
 
         /// <summary>
-        /// Проверка доступности ссылки
+        /// 
         /// </summary>
-        /// <param name="link"></param>
+        /// <param name="path"></param>
+        /// <param name="doResolveType">Resolving file/folder type requires addition request to cloud</param>
         /// <returns></returns>
-        private bool IsLinkAlive(ItemLink link)
-        {
-            string path = WebDavPath.Combine(link.MapTo, link.Name);
-            try
-            {
-                var entry = _cloud.GetItem(path).Result;
-                return entry != null;
-            }
-            catch (AggregateException e) 
-            when (  // let's check if there really no file or just other network error
-                    e.InnerException is WebException we && 
-                    (we.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound
-                 )
-            {
-                return false;
-            }
-        }
-
         public async Task<ItemfromLink> GetItemLink(string path, bool doResolveType = true)
         {
             //TODO: subject to refact
@@ -191,8 +191,9 @@ namespace YaR.MailRuCloud.Api.Links
                     var infores = await new ItemInfoRequest(_cloud.CloudApi, res.Href, true).MakeRequestAsync()
                         .ConfigureAwait(false);
                     res.IsFile = infores.body.kind == "file";
+                    res.OriginalName = infores.body.name;
                 }
-                catch (Exception e) //TODO check 404 etc.
+                catch (Exception) //TODO check 404 etc.
                 {
                     //this means a bad link
                     // don't know what to do
@@ -205,7 +206,7 @@ namespace YaR.MailRuCloud.Api.Links
 
         public class ItemfromLink : ItemLink
         {
-            public ItemfromLink() { }
+            private ItemfromLink() { }
 
             public ItemfromLink(ItemLink link) : this()
             {
@@ -219,6 +220,9 @@ namespace YaR.MailRuCloud.Api.Links
 
             public bool IsBad { get; set; }
             public string Path { get; set; }
+
+            public bool IsRoot => WebDavPath.PathEquals(WebDavPath.Parent(Path), MapTo);
+            public string OriginalName { get; set; }
 
             public IEntry ToBadEntry()
             {
@@ -290,6 +294,19 @@ namespace YaR.MailRuCloud.Api.Links
                 }
             }
             if (changed) Save();
+        }
+
+        public bool RenameLink(ItemfromLink link, string newName)
+        {
+            // can't rename items within linked folder
+            if (!link.IsRoot) return false;
+
+            var ilink = _itemList.Items.FirstOrDefault(it => it.MapTo == link.MapTo && it.Name == link.Name);
+            if (null == ilink) return false;
+
+            ilink.Name = newName;
+            Save();
+            return true;
         }
     }
 }
