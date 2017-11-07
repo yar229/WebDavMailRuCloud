@@ -4,6 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
+    //TODO: refact, make MoveRequest
     class MoveOrCopyRequest : BaseRequest<MoveOrCopyResult>
     {
         private readonly string _sourceFullPath;

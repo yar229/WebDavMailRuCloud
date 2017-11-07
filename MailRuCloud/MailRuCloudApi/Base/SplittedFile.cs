@@ -10,15 +10,17 @@ namespace YaR.MailRuCloud.Api.Base
         public SplittedFile(IList<File> files)
         {
             FileHeader = files.First(f => !Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success);
-            _fileParts.AddRange(files
+            Files = files;
+            Parts = files
                 .Where(f => Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success)
-                .OrderBy(f => f.Name));
+                .OrderBy(f => f.Name)
+                .ToList();
 
-            FullPath = FileHeader.FullPath; //FullPath = WebDavPath.Combine(FileHeader.Path, FileHeader.Name.Substring(0, FileHeader.Name.Length - HeaderSuffix.Length));
+            FullPath = FileHeader.FullPath;
         }
 
 
-        public override FileSize Size => _fileParts.Sum(f => f.Size);
+        public override FileSize Size => Parts.Sum(f => f.Size);
 
         public override string Hash => FileHeader.Hash;
 
@@ -26,12 +28,25 @@ namespace YaR.MailRuCloud.Api.Base
         public override DateTime LastWriteTimeUtc => FileHeader.LastWriteTimeUtc;
         public override DateTime LastAccessTimeUtc => FileHeader.LastAccessTimeUtc;
 
-        /// <summary>
-        /// List of physical files
-        /// </summary>
-        public override List<File> Parts => _fileParts;
-
         private File FileHeader { get; }
-        private readonly List<File> _fileParts = new List<File>();
+
+        /// <summary>
+        /// List of phisical files contains data
+        /// </summary>
+        public override List<File> Parts { get; }
+
+        public override IList<File> Files { get; }
+
+
+        public override File New(string newfullPath)
+        {
+            string path = WebDavPath.Parent(newfullPath);
+
+            var flist = Files
+                .Select(f => f.New(WebDavPath.Combine(path, f.Name)))
+                .ToList();
+            var spfile = new SplittedFile(flist);
+            return spfile;
+        }
     }
 }
