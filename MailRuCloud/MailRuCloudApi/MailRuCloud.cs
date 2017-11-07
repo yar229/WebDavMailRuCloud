@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
@@ -198,13 +199,41 @@ namespace YaR.MailRuCloud.Api
         /// Copying file in another space on the server.
         /// </summary>
         /// <param name="file">File info to copying.</param>
-        /// <param name="destinationPath">Destination path on the server.</param>
+        /// <param name="destinationFilePath">Destination path (with filename) on the server.</param>
+        /// /// <param name="maxParallelRequests">Maximum parallel requests to server</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, string destinationPath)
+        public async Task<bool> Copy(File file, string destinationFilePath, int maxParallelRequests = 5)
         {
-            var result = !string.IsNullOrEmpty(await MoveOrCopy(file.FullPath, destinationPath, false));
+            string destPath = WebDavPath.Parent(destinationFilePath);
+            string newname = WebDavPath.Name(destinationFilePath);
 
-            return result;
+            bool doRename = file.Name == newname;
+
+            var qry = file.Files
+                    .AsParallel()
+                    .WithDegreeOfParallelism(Math.Min(maxParallelRequests, file.Files.Count))
+                    .Select(async pfile =>
+                    {
+                        var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath)
+                            .MakeRequestAsync();
+                        Thread.Sleep(1000);
+                        if (copyRes.status != 200) return false;
+
+                        if (doRename || WebDavPath.Name(copyRes.body) != newname)
+                        {
+                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.body));
+                            var renameRes =
+                                await new RenameRequest(CloudApi, newFullPath, pfile.Name.Replace(file.Name, newname))
+                                    .MakeRequestAsync();
+                            if (renameRes.status != 200) return false;
+                        }
+                        return true;
+                    });
+
+            bool res = (await Task.WhenAll(qry))
+                .All(r => r);
+
+            return res;
         }
 
         /// <summary>
@@ -297,12 +326,16 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> CreateFolder(string name, string createIn)
         {
-            await new CreateFolderRequest(CloudApi, WebDavPath.Combine(createIn, name))
+            return await CreateFolder(WebDavPath.Combine(createIn, name));
+        }
+
+        public async Task<bool> CreateFolder(string fullPath)
+        {
+            await new CreateFolderRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
 
             return true;
         }
-
 
         /// <summary>
         /// Remove item on server by path
@@ -478,6 +511,20 @@ namespace YaR.MailRuCloud.Api
         /// <returns>New created file name.</returns>
         public async Task<string> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
         {
+            //TODO: refact
+            if (!move) //copy
+            {
+                var entry = await GetItem(sourceFullPath);
+                if (entry is File file)
+                {
+                    await Copy(file, destinationPath);
+                }
+                else if (entry is Folder folder)
+                {
+                    await Copy(folder, destinationPath);
+                }
+            }
+
             var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
                 .MakeRequestAsync();
             return data.ToString();
