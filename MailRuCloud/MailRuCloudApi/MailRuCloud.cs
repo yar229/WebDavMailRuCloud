@@ -216,7 +216,6 @@ namespace YaR.MailRuCloud.Api
                     {
                         var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath)
                             .MakeRequestAsync();
-                        Thread.Sleep(1000);
                         if (copyRes.status != 200) return false;
 
                         if (doRename || WebDavPath.Name(copyRes.body) != newname)
