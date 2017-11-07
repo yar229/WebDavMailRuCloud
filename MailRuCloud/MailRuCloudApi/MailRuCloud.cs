@@ -17,6 +17,7 @@ using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using YaR.WebDavMailRu.CloudStore.XTSSharp;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -369,19 +370,66 @@ namespace YaR.MailRuCloud.Api
 
         public Stream GetFileUploadStream(string destinationPath, long size)
         {
-            var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+            var key1 = new byte[32];
+            var key2 = new byte[32];
+            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
+            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
+
+            var xts = XtsAes256.Create(key1, key2);
+
+            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+            var stream = new UploadStream(destinationPath, CloudApi, size);
+            var xtsstream = new XtsSectorStream(stream, xts, 64, 0);
+
+
+
+
+
+            //================================================================================================================================
+            var xtsa = XtsAes256.Create(key1, key2);
+            using (FileStream SourceStream = System.IO.File.Open("d:\\Informatsionny_byulleten_ChiPRVD2017.pdf", FileMode.OpenOrCreate))
+            {
+                SourceStream.Seek(0, SeekOrigin.End);
+
+                FileStream targetStream = System.IO.File.Open("d:\\Informatsionny_byulleten_ChiPRVD2017_enc.pdf", FileMode.OpenOrCreate);
+                var encstream = new XtsStream(targetStream, xtsa, 64);
+                SourceStream.Seek(0, SeekOrigin.Begin);
+                SourceStream.CopyTo(encstream);
+                encstream.Flush();
+                encstream.Close();
+                targetStream.Flush();
+                targetStream.Close();
+            }
+
+
 
             // refresh linked folders
-            stream.FileUploaded += files =>
-            {
-                var file = files?.FirstOrDefault();
-                if (null == file) return;
+            //stream.FileUploaded += files =>
+            //{
+            //    var file = files?.FirstOrDefault();
+            //    if (null == file) return;
 
-                if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
-                    _linkManager.Load();
-            };
+            //    if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
+            //        _linkManager.Load();
+            //};
 
-            return stream;
+            return xtsstream;
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+            ////var stream = new UploadStream(destinationPath, CloudApi, size);
+
+            ////refresh linked folders
+            //stream.FileUploaded += files =>
+            //{
+            //    var file = files?.FirstOrDefault();
+            //    if (null == file) return;
+
+            //    if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
+            //        _linkManager.Load();
+            //};
+
+            //return stream;
         }
 
         public T DownloadFileAsJson<T>(File file)

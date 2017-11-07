@@ -62,139 +62,58 @@ namespace YaR.MailRuCloud.Api.Base
             _request.UserAgent = ConstSettings.UserAgent;
             _request.AllowWriteStreamBuffering = false;
 
+            _request.KeepAlive = false;
+            _request.Timeout = Timeout.Infinite;
+            _request.ProtocolVersion = HttpVersion.Version10;
+
+
+
+            _requestStream = _request.GetRequestStream();
             Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
-            _task = Task.Factory.FromAsync(_request.BeginGetRequestStream, asyncResult => _request.EndGetRequestStream(asyncResult), null);
-
-            _task = _task.ContinueWith
-                (
-                            (t, m) =>
-                            {
-                                try
-                                {
-                                    var token = (CancellationToken)m;
-                                    var s = t.Result;
-                                    WriteBytesInStream(boundaryRequest, s, token, boundaryRequest.Length);
-                                }
-                                catch (Exception)
-                                {
-                                    return (Stream)null;
-                                }
-                                return t.Result;
-                            },
-                        _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _requestStream.Write(boundaryRequest, 0, boundaryRequest.Length);
         }
 
-        private Task<Stream> _task;
-
-        private const long MaxBufferSize = 3000000;
-
-        private readonly AutoResetEvent _canWrite = new AutoResetEvent(true);
-
-        private long BufferSize
-        {
-            set
-            {
-                lock (_bufferSizeLocker)
-                {
-                    _bufferSize = value;
-                    if (_bufferSize > MaxBufferSize)
-                        _canWrite.Reset();
-                    else _canWrite.Set();
-                }
-            }
-            get
-            {
-                lock (_bufferSizeLocker)
-                {
-                    return _bufferSize;
-                }
-            }
-        }
-
-        private long _bufferSize;
-
-        private readonly object _bufferSizeLocker = new object();
+        private Stream _requestStream;
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            _canWrite.WaitOne();
-            BufferSize += count;
-
-            var zbuffer = new byte[count];
-            Array.Copy(buffer, offset, zbuffer, 0, count); //buffer.CopyTo(zbuffer, 0);
-            var zcount = count;
-            _task = _task.ContinueWith(
-                            (t, m) =>
-                            {
-                                try
-                                {
-                                    var token = (CancellationToken)m;
-                                    var s = t.Result;
-                                    WriteBytesInStream(zbuffer, s, token, zcount);
-                                }
-                                // ReSharper disable once UnusedVariable
-                                #pragma warning disable 168
-                                catch (Exception ex)
-                                {
-                                    return null;
-                                }
-                                #pragma warning restore 168
-
-                                return t.Result;
-                            },
-                        _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _requestStream.Write(buffer, offset, count);
         }
-        public override void Close()
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            var z = _task.ContinueWith(
-                 (t, m) =>
-                 {
-                     try
-                     {
-                         var token = (CancellationToken)m;
-                         var s = t.Result;
-                         WriteBytesInStream(_endBoundaryRequest, s, token, _endBoundaryRequest.Length);
-                     }
-                     catch (Exception)
-                     {
-                         return false;
-                     }
-                     finally
-                     {
-                         var st = t.Result;
-                         st?.Dispose();
-                     }
-
-
-                     using (var response = (HttpWebResponse)_request.GetResponse())
-                     {
-                         if (response.StatusCode == HttpStatusCode.OK)
-                         {
-                             var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
-                             var hashResult = resp[0];
-                             var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
-
-                             _file.Hash = hashResult;
-                             _file.Size = sizeResult;
-
-                             var res = AddFileInCloud(_file).Result;
-                             return res;
-                         }
-                     }
-
-                     return true;
-                 },
-             _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
-
-            z.Wait();
-
-            base.Close();
+            return _requestStream.WriteAsync(buffer, offset, count, cancellationToken);
         }
 
+        protected override void Dispose(bool disposing)
+        {
 
+            if (_requestStream != null)
+            {
+                if (disposing)
+                {
+                    _requestStream.Write(_endBoundaryRequest, 0, _endBoundaryRequest.Length);
+                    _requestStream.Close();
 
+                    using (var response = (HttpWebResponse)_request.GetResponse())
+                    {
+                        if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
+                            var hashResult = resp[0];
+                            var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
 
+                            _file.Hash = hashResult;
+                            _file.Size = sizeResult;
+
+                            var res = AddFileInCloud(_file).Result;
+                        }
+                    }
+                }
+            }
+            
+        }
 
 
         private async Task<bool> AddFileInCloud(File fileInfo, ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
@@ -223,6 +142,7 @@ namespace YaR.MailRuCloud.Api.Base
             }
         }
 
+
         private static void ReadResponseAsByte(WebResponse resp, CancellationToken token, Stream outputStream = null)
         {
             using (Stream responseStream = resp.GetResponseStream())
@@ -238,88 +158,41 @@ namespace YaR.MailRuCloud.Api.Base
             }
         }
 
-
-        // ReSharper disable once UnusedMethodReturnValue.Local
-        private long WriteBytesInStream(byte[] bytes, Stream outputStream, CancellationToken token, long length)
-        {
-            BufferSize -= bytes.Length;
-            Stream stream = null;
-
-            try
-            {
-                stream = new MemoryStream(bytes);
-                using (var source = new BinaryReader(stream))
-                {
-                    stream = null;
-                    return WriteBytesInStream(source, outputStream, token, length);
-                }
-            }
-            finally
-            {
-                stream?.Dispose();
-            }
-        }
-
-        private long WriteBytesInStream(BinaryReader sourceStream, Stream outputStream, CancellationToken token, long length)
-        {
-            int bufferLength = 65536;
-            var totalWritten = 0L;
-            if (length < bufferLength)
-            {
-                var z = sourceStream.ReadBytes((int)length);
-                outputStream.Write(z, 0, (int)length);
-            }
-            else
-            {
-                while (length > totalWritten)
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    var bytes = sourceStream.ReadBytes(bufferLength);
-                    outputStream.Write(bytes, 0, bufferLength);
-
-                    totalWritten += bufferLength;
-                    if (length - totalWritten < bufferLength)
-                    {
-                        bufferLength = (int)(length - totalWritten);
-                    }
-                }
-
-
-            }
-            return totalWritten;
-        }
-
-
         public override void Flush()
         {
-            throw new NotImplementedException();
+            _requestStream.Flush();
         }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            throw new NotImplementedException();
+            return _requestStream.Seek(offset, origin);
         }
 
         public override void SetLength(long value)
         {
-            _file.Size = value;
+            _requestStream.SetLength(value);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+            return _requestStream.Read(buffer, offset, count);
         }
-
-        public override bool CanRead => true;
-        public override bool CanSeek => true;
-        public override bool CanWrite => true;
-        public override long Length => _file.Size;
-        public override long Position { get; set; }
-
-        public static long BytesCount(string value)
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            return Encoding.UTF8.GetByteCount(value);
+            return _requestStream.ReadAsync(buffer, offset, count, cancellationToken);
         }
+
+        public override bool CanRead => _requestStream.CanRead;
+        public override bool CanSeek => _requestStream.CanSeek;
+        public override bool CanWrite => _requestStream.CanWrite;
+        public override long Length => _requestStream.Length;
+        public override long Position { get => _requestStream.Position; set => _requestStream.Position = value; }
+
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            return _requestStream.CopyToAsync(destination, bufferSize, cancellationToken);
+        }
+
+
     }
 }

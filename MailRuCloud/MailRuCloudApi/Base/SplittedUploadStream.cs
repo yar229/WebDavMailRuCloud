@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base
@@ -90,7 +91,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotImplementedException();
+            return _uploadStream.Read(buffer, offset, count);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -125,25 +126,32 @@ namespace YaR.MailRuCloud.Api.Base
             e?.Invoke(files);
         }
 
-        public override void Close()
+        protected override void Dispose(bool disposing)
         {
-            if (_files.Count > 1)
+            if (_uploadStream != null)
             {
-                string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
-                var data = Encoding.UTF8.GetBytes(content);
-                var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
-                stream.Write(data, 0, data.Length);
-                stream.Close();
+                if (disposing)
+                {
+                    if (_files.Count > 1)
+                    {
+                        string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
+                        var data = Encoding.UTF8.GetBytes(content);
+                        var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
+                        stream.Write(data, 0, data.Length);
+                        stream.Close();
+                    }
+
+                    _uploadStream?.Close();
+
+                    OnFileUploaded(_files);
+                }
             }
 
-            _uploadStream?.Close();
-
-            OnFileUploaded(_files);
         }
 
-        public override bool CanRead => true;
-        public override bool CanSeek => true;
-        public override bool CanWrite => true;
+        public override bool CanRead => _uploadStream.CanRead;
+        public override bool CanSeek => _uploadStream.CanSeek;
+        public override bool CanWrite => _uploadStream.CanWrite;
         public override long Length => _size;
         public override long Position { get; set; }
 
