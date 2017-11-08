@@ -16,7 +16,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public override async Task<SpecialCommandResult> Execute()
         {
-            var m = Regex.Match(Parames[0], @"(?snx-)\s* (https://?cloud.mail.ru/public)?(?<url>/\w*/\w*)/? \s*");
+            var m = Regex.Match(Parames[0], @"(?snx-)\s* (https://?cloud.mail.ru/public)?(?<url>.*)/? \s*");
 
             if (!m.Success) return SpecialCommandResult.Fail;
 
