@@ -1,4 +1,5 @@
 ﻿using NWebDav.Server.Stores;
+using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
@@ -6,5 +7,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
     {
         bool IsWritable { get; }
         string FullPath { get; }
+
+        IEntry EntryInfo { get; }
     }
 }

@@ -76,24 +76,13 @@ namespace YaR.MailRuCloud.Api
             var datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                 .MakeRequestAsync().ConfigureAwait(false);
 
-            //if (itemType == ItemType.Unknown)
-            //    itemType = ulink != null
-            //        ? ulink.IsFile ? ItemType.File : ItemType.Folder
-            //        : datares.body.home == path
-            //            ? ItemType.Folder
-            //            : ItemType.File;
-
             if (itemType == ItemType.Unknown && ulink != null)
-            {
                 itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
-            }
 
             if (itemType == ItemType.Unknown && null == ulink)
-            {
                 itemType = datares.body.home == path
                     ? ItemType.Folder
                     : ItemType.File;
-            }
 
             var entry = itemType == ItemType.File
                 ? (IEntry)datares.ToFile(
@@ -146,21 +135,13 @@ namespace YaR.MailRuCloud.Api
             CloudApi.CancelToken.Cancel(true);
         }
 
-        /// <summary>
-        /// Copying folder in another space on the server.
-        /// </summary>
-        /// <param name="folder">Folder info to copying.</param>
-        /// <param name="destinationFolder">Destination folder on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(Folder folder, Folder destinationFolder)
-        {
-            return await Copy(folder, destinationFolder.FullPath);
-        }
+
+        #region == Copy =============================================================================================================================
 
         /// <summary>
-        /// Copying folder in another space on the server.
+        /// Copy folder.
         /// </summary>
-        /// <param name="folder">Folder info to copying.</param>
+        /// <param name="folder">Source folder.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(Folder folder, string destinationPath)
@@ -206,6 +187,12 @@ namespace YaR.MailRuCloud.Api
             return true;
         }
 
+        /// <summary>
+        /// Copy item.
+        /// </summary>
+        /// <param name="sourcePath">Source item.</param>
+        /// <param name="destinationPath">Destination path on the server.</param>
+        /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(string sourcePath, string destinationPath)
         {
             var entry = await GetItem(sourcePath);
@@ -214,6 +201,13 @@ namespace YaR.MailRuCloud.Api
             return await Copy(entry, destinationPath);
         }
 
+        /// <summary>
+        /// Copy item.
+        /// </summary>
+        /// <param name="source">Source item.</param>
+        /// <param name="destinationPath">Destination path on the server.</param>
+        /// <param name="newname">Rename target item.</param>
+        /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(IEntry source, string destinationPath, string newname = null)
         {
             if (source is File file)
@@ -226,24 +220,12 @@ namespace YaR.MailRuCloud.Api
         }
 
         /// <summary>
-        /// Copying file in another space on the server.
+        /// Copy file to another path.
         /// </summary>
-        /// <param name="file">File info to copying.</param>
-        /// <param name="destinationFolder">Destination folder on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, Folder destinationFolder)
-        {
-            return await Copy(file, destinationFolder.FullPath);
-        }
-
-        /// <summary>
-        /// Copying file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to copying.</param>
-        /// <param name="destinationFilePath">Destination path (with filename) on the server.</param>
-        /// ///
-        /// <param name="newname"></param>
-        /// <param name="maxParallelRequests">Maximum parallel requests to server</param>
+        /// <param name="file">Source file info.</param>
+        /// <param name="destinationFilePath">Destination path.</param>
+        /// <param name="newname">Rename target file.</param>
+        /// <param name="maxParallelRequests">Maximum parallel requests to server.</param>
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(File file, string destinationFilePath, string newname, int maxParallelRequests = 5)
         {
@@ -288,6 +270,30 @@ namespace YaR.MailRuCloud.Api
             return res;
         }
 
+        #endregion == Copy ==========================================================================================================================
+
+        #region == Rename ===========================================================================================================================
+
+        /// <summary>
+        /// Rename item on the server.
+        /// </summary>
+        /// <param name="source">Source item info.</param>
+        /// <param name="newName">New item name.</param>
+        /// <returns>True or false operation result.</returns>
+        public async Task<bool> Rename(IEntry source, string newName)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (string.IsNullOrEmpty(newName)) throw new ArgumentNullException(nameof(newName));
+
+            if (source is File file)
+                return await Rename(file, newName);
+
+            if (source is Folder folder)
+                return await Rename(folder, newName);
+
+            throw new ArgumentException("Source item is not a file nor folder", nameof(source));
+        }
+
         /// <summary>
         /// Rename folder on the server.
         /// </summary>
@@ -307,7 +313,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Rename(File file, string newFileName)
         {
-            var result = await Rename(file.FullPath, newFileName);  //var result = await Rename(file.FullPath, newFileName);
+            var result = await Rename(file.FullPath, newFileName);
             if (file.Parts.Count > 1)
             {
                 foreach (var splitFile in file.Parts)
@@ -320,15 +326,28 @@ namespace YaR.MailRuCloud.Api
             return result;
         }
 
+        #endregion == Rename ========================================================================================================================
+
+        #region == Move =============================================================================================================================
+
         /// <summary>
         /// Move folder in another space on the server.
         /// </summary>
-        /// <param name="folder">Folder info to moving.</param>
-        /// <param name="destinationFolder">Destination folder on the server.</param>
+        /// <param name="folder">Folder info to move.</param>
+        /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(Folder folder, Folder destinationFolder)
+        public async Task<bool> Move(IEntry source, string destinationPath)
         {
-            return await Move(folder, destinationFolder.FullPath);
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
+
+            if (source is File file)
+                return await Move(file, destinationPath);
+
+            if (source is Folder folder)
+                return await Move(folder, destinationPath);
+
+            throw new ArgumentException("Source item is not a file nor folder", nameof(source));
         }
 
         /// <summary>
@@ -340,17 +359,6 @@ namespace YaR.MailRuCloud.Api
         public async Task<bool> Move(Folder folder, string destinationPath)
         {
             return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, true));
-        }
-
-        /// <summary>
-        /// Move file in another space on the server.
-        /// </summary>
-        /// <param name="file">File info to move.</param>
-        /// <param name="destinationFolder">Destination folder on the server.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, Folder destinationFolder)
-        {
-            return await Move(file, destinationFolder.FullPath);
         }
 
         /// <summary>
@@ -370,15 +378,17 @@ namespace YaR.MailRuCloud.Api
             return result;
         }
 
+        #endregion == Move ==========================================================================================================================
+
         /// <summary>
         /// Create folder on the server.
         /// </summary>
         /// <param name="name">New path name.</param>
-        /// <param name="createIn">Destination path.</param>
+        /// <param name="basePath">Destination path.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> CreateFolder(string name, string createIn)
+        public async Task<bool> CreateFolder(string name, string basePath)
         {
-            return await CreateFolder(WebDavPath.Combine(createIn, name));
+            return await CreateFolder(WebDavPath.Combine(basePath, name));
         }
 
         public async Task<bool> CreateFolder(string fullPath)
