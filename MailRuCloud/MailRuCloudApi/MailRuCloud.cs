@@ -64,7 +64,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            //TODO: subject to refact
+            //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
@@ -74,33 +74,34 @@ namespace YaR.MailRuCloud.Api
                 return ulink.ToBadEntry();
             }
 
-
             var data = new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                 .MakeRequestAsync().ConfigureAwait(false);
 
-            var datares = await data;
-
-            if (itemType == ItemType.Unknown)
+            if (itemType == ItemType.Unknown && ulink != null)
             {
-                itemType = ulink != null
-                    ? ulink.IsFile ? ItemType.File : ItemType.Folder
-                    : datares.body.home == path
-                        ? ItemType.Folder
-                        : ItemType.File;
+                itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
             }
 
+            var datares = await data;
+
+            if (itemType == ItemType.Unknown && null == ulink)
+            {
+                itemType = (await data).body.home == path
+                    ? ItemType.Folder
+                    : ItemType.File;
+            }
 
             // patch paths if linked item
             if (ulink != null)
             {
-                string home = itemType == ItemType.File
+                string home = itemType != ItemType.File
                     ? path
                     : WebDavPath.Parent(path);
 
                 foreach (var propse in datares.body.list)
                 {
                     string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
-                    propse.home = WebDavPath.Combine(home, name);
+                    propse.home = WebDavPath.Combine(home, name); //propse.kind != "file" ? home : WebDavPath.Combine(home, name);
                     propse.name = name;
                 }
                 datares.body.home = home;
