@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
@@ -146,8 +145,6 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(Folder folder, string destinationPath)
         {
-            //return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, false));
-
             // if it linked - just clone
             var link = await _linkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
@@ -169,18 +166,12 @@ namespace YaR.MailRuCloud.Api
             var links = _linkManager.GetChilds(folder.FullPath, false);
             foreach (var linka in links)
             {
-                try
+                var linkdest = WebDavPath.ModifyParent(linka.MapTo, WebDavPath.Parent(folder.FullPath), destinationPath);
+                var cloneres = await CloneItem(linkdest, linka.Href);
+                if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
                 {
-                    var linkdest = WebDavPath.ModifyParent(linka.MapTo, WebDavPath.Parent(folder.FullPath), destinationPath);
-                    var cloneres = await CloneItem(linkdest, linka.Href);
-                    if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
-                    {
-                        var renRes = Rename(cloneres.Path, linka.Name);
-                    }
-                }
-                catch (Exception e)
-                {
-                    
+                    var renRes = await Rename(cloneres.Path, linka.Name);
+                    if (!renRes) return false;
                 }
             }
 
@@ -210,6 +201,9 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(IEntry source, string destinationPath, string newname = null)
         {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
+
             if (source is File file)
                 return await Copy(file, destinationPath, string.IsNullOrEmpty(newname) ? file.Name : newname);
 
@@ -331,9 +325,9 @@ namespace YaR.MailRuCloud.Api
         #region == Move =============================================================================================================================
 
         /// <summary>
-        /// Move folder in another space on the server.
+        /// Move item.
         /// </summary>
-        /// <param name="folder">Folder info to move.</param>
+        /// <param name="source">source item info.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(IEntry source, string destinationPath)
