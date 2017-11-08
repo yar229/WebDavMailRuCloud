@@ -32,6 +32,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             {
                 Commands = new [] {"join"},
                 CreateFunc = (cloud, path, param) => new SharedFolderJoinCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"copy"},
+                CreateFunc = (cloud, path, param) => new CopyCommand(cloud, path, param)
             }
         };
 
