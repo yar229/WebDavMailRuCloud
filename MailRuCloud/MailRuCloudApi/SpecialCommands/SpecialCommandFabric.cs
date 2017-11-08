@@ -37,6 +37,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             {
                 Commands = new [] {"copy"},
                 CreateFunc = (cloud, path, param) => new CopyCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"move"},
+                CreateFunc = (cloud, path, param) => new MoveCommand(cloud, path, param)
             }
         };
 
