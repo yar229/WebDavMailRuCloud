@@ -110,18 +110,21 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        public static File ToFile(this FolderInfoResult data, string filename = null)
+        public static File ToFile(this FolderInfoResult data, string filename = null, string nameReplacement = null)
         {
             if (string.IsNullOrEmpty(filename))
             {
                 return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
             }
 
-            var groupedFile = data.body.list?
+            var z = data.body.list?
                 .Where(it => it.kind == "file")
-                .Select(it => it.ToFile())
-                .ToGroupedFiles()
-                .First(it => it.Name == filename);
+                .Select(it => filename != null && it.name == filename
+                                ? it.ToFile(nameReplacement)
+                                : it.ToFile())
+                .ToList();
+            var groupedFile = z.ToGroupedFiles()
+                .First(it => it.Name == (string.IsNullOrEmpty(nameReplacement) ? filename : nameReplacement));
 
             return groupedFile;
         }
@@ -132,9 +135,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        private static File ToFile(this FolderInfoProps item)
+        private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
         {
-            var file = new File(item.home, item.size, item.hash)
+            var path = string.IsNullOrEmpty(nameReplacement)
+                ? item.home
+                : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
+
+            var file = new File(path, item.size, item.hash)
             {
                 PublicLink =
                     string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink,

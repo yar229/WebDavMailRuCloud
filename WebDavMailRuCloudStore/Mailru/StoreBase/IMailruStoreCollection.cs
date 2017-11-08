@@ -2,9 +2,7 @@
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 {
-    public interface IMailruStoreCollection : IStoreCollection
+    public interface IMailruStoreCollection : IStoreCollection, IMailruStoreItem
     {
-        bool IsWritable { get; }
-        string FullPath { get; }
     }
 }

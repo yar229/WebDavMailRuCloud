@@ -178,7 +178,7 @@ namespace YaR.MailRuCloud.Api.Base
                              _file.Hash = hashResult;
                              _file.Size = sizeResult;
 
-                             var res = AddFileInCloud(_file).Result;
+                             var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
                              return res;
                          }
                      }
@@ -197,7 +197,7 @@ namespace YaR.MailRuCloud.Api.Base
 
 
 
-        private async Task<bool> AddFileInCloud(File fileInfo, ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
+        private async Task<bool> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
             await new CreateFileRequest(_cloud, fileInfo.FullPath, fileInfo.Hash, fileInfo.Size, conflict)
                 .MakeRequestAsync();

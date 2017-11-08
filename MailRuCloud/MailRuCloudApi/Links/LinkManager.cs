@@ -182,7 +182,7 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (null == wp) return null;
 
-            var res = new ItemfromLink(wp) { Href = wp.Href + right, Path = path };
+            var res = new ItemfromLink(wp) { Href = wp.Href + right, Path = path, Name = WebDavPath.Name(path) };
 
             if (doResolveType)
             {
@@ -203,6 +203,16 @@ namespace YaR.MailRuCloud.Api.Links
 
             return res;
         }
+
+        public IEnumerable<ItemLink> GetChilds(string folderFullPath, bool doResolveType)
+        {
+            var lst = _itemList.Items
+                .Where(it => 
+                WebDavPath.IsParentOrSame(folderFullPath, it.MapTo));
+
+            return lst;
+        }
+
 
         public class ItemfromLink : ItemLink
         {
@@ -308,5 +318,7 @@ namespace YaR.MailRuCloud.Api.Links
             Save();
             return true;
         }
+
+
     }
 }

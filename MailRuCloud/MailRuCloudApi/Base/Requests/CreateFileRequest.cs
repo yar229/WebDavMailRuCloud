@@ -9,14 +9,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         private readonly string _fullPath;
         private readonly string _hash;
         private readonly long _size;
-        private readonly ResolveFileConflictMethod _onConflict;
+        private readonly ConflictResolver _conflictResolver;
 
-        public CreateFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, ResolveFileConflictMethod onConflict) : base(cloudApi)
+        public CreateFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, ConflictResolver? conflictResolver) : base(cloudApi)
         {
             _fullPath = fullPath;
             _hash = hash;
             _size = size;
-            _onConflict = onConflict;
+            _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
         }
 
         protected override string RelationalUri => "/api/v2/file/add";
@@ -24,27 +24,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         protected override byte[] CreateHttpContent()
         {
             string filePart = $"&hash={_hash}&size={_size}";
-            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={GetConflictSolverParameter(_onConflict)}&api=2&token={CloudApi.Account.AuthToken}" + filePart;
+            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={CloudApi.Account.AuthToken}" + filePart;
 
             return Encoding.UTF8.GetBytes(data);
         }
-
-        private string GetConflictSolverParameter(ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
-        {
-            switch (conflict)
-            {
-                case ResolveFileConflictMethod.Rewrite:
-                    return "rewrite";
-                case ResolveFileConflictMethod.Rename:
-                    return "rename";
-                default: throw new NotImplementedException("File conflict method not implemented");
-            }
-        }
-    }
-
-    public enum ResolveFileConflictMethod
-    {
-        Rename,
-        Rewrite
     }
 }

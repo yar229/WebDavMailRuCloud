@@ -18,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         {
             get
             {
-                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?folder={Uri.EscapeDataString(_toPath)}&weblink={_fromUrl}&token={CloudApi.Account.AuthToken}";
+                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?conflict=rename&folder={Uri.EscapeDataString(_toPath)}&weblink={Uri.EscapeDataString(_fromUrl)}&token={CloudApi.Account.AuthToken}";
                 return uri;
             }
         }

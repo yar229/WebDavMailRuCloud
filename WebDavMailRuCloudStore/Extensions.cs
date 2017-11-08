@@ -49,12 +49,7 @@ namespace YaR.WebDavMailRu.CloudStore
         {
             if (null == item) return string.Empty;
 
-            if (item is MailruStoreItem storeItem)
-                return storeItem.FullPath;
-            if (item is MailruStoreCollection storeCollection)
-                return storeCollection.FullPath;
-
-            throw new ArgumentException(string.Empty, nameof(item));
+            return (item as IMailruStoreItem)?.FullPath;
         }
 
 

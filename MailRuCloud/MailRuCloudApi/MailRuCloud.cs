@@ -78,44 +78,36 @@ namespace YaR.MailRuCloud.Api
             var data = new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                 .MakeRequestAsync().ConfigureAwait(false);
 
-            if (itemType == ItemType.Unknown && ulink != null)
-            {
-                itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
-                //var infores = await new ItemInfoRequest(CloudApi, ulink.Href, true)
-                //    .MakeRequestAsync().ConfigureAwait(false);
-                //itemType = infores.body.kind == "file"
-                //    ? ItemType.File
-                //    : ItemType.Folder;
-            }
-
             var datares = await data;
-            
 
-            if (itemType == ItemType.Unknown && null == ulink) //string.IsNullOrEmpty(ulink))
+            if (itemType == ItemType.Unknown)
             {
-                itemType = (await data).body.home == path
-                    ? ItemType.Folder
-                    : ItemType.File;
+                itemType = ulink != null
+                    ? ulink.IsFile ? ItemType.File : ItemType.Folder
+                    : datares.body.home == path
+                        ? ItemType.Folder
+                        : ItemType.File;
             }
+
 
             // patch paths if linked item
-            //if (!string.IsNullOrEmpty(ulink))
             if (ulink != null)
             {
-                string home = path;
-                if (itemType == ItemType.File) home = WebDavPath.Parent(path);
+                string home = itemType == ItemType.File
+                    ? path
+                    : WebDavPath.Parent(path);
 
-                //if (itemType == ItemType.Folder)
                 foreach (var propse in datares.body.list)
                 {
-                    propse.home = WebDavPath.Combine(home, propse.name);
+                    string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
+                    propse.home = WebDavPath.Combine(home, name);
+                    propse.name = name;
                 }
                 datares.body.home = home;
             }
 
             var entry = itemType == ItemType.File
-                //? (IEntry)datares.ToFile(WebDavPath.Name(path))
-                ? (IEntry)datares.ToFile(ulink == null ? WebDavPath.Name(path) : ulink.OriginalName)
+                ? (IEntry)datares.ToFile(ulink == null ? WebDavPath.Name(path) : ulink.OriginalName, WebDavPath.Name(path))
                 : datares.ToFolder();
 
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -137,8 +129,6 @@ namespace YaR.MailRuCloud.Api
                     }
                 }
             }
-
-
 
             return entry;
         }
@@ -181,7 +171,64 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(Folder folder, string destinationPath)
         {
-            return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, false));
+            //return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, false));
+
+            // if it linked - just clone
+            var link = await _linkManager.GetItemLink(folder.FullPath, false);
+            if (link != null)
+            {
+                var cloneres = await CloneItem(destinationPath, link.Href);
+                if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != link.Name)
+                {
+                    var renRes = await Rename(cloneres.Path, link.Name);
+                    return renRes;
+                }
+                return cloneres.IsSuccess;
+            }
+
+            var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath)
+                .MakeRequestAsync();
+            if (copyRes.status != 200) return false;
+
+            //clone all inner links
+            var links = _linkManager.GetChilds(folder.FullPath, false);
+            foreach (var linka in links)
+            {
+                try
+                {
+                    var linkdest = WebDavPath.ModifyParent(linka.MapTo, WebDavPath.Parent(folder.FullPath), destinationPath);
+                    var cloneres = await CloneItem(linkdest, linka.Href);
+                    if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
+                    {
+                        var renRes = Rename(cloneres.Path, linka.Name);
+                    }
+                }
+                catch (Exception e)
+                {
+                    
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<bool> Copy(string sourcePath, string destinationPath)
+        {
+            var entry = await GetItem(sourcePath);
+            if (null == entry) return false;
+
+            return await Copy(entry, destinationPath);
+        }
+
+        public async Task<bool> Copy(IEntry source, string destinationPath, string newname = null)
+        {
+            if (source is File file)
+                return await Copy(file, destinationPath, string.IsNullOrEmpty(newname) ? file.Name : newname);
+
+            if (source is Folder folder)
+                return await Copy(folder, destinationPath);
+
+            throw new ArgumentException("Source is not a file or folder", nameof(source));
         }
 
         /// <summary>
@@ -200,31 +247,43 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         /// <param name="file">File info to copying.</param>
         /// <param name="destinationFilePath">Destination path (with filename) on the server.</param>
-        /// /// <param name="maxParallelRequests">Maximum parallel requests to server</param>
+        /// ///
+        /// <param name="newname"></param>
+        /// <param name="maxParallelRequests">Maximum parallel requests to server</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, string destinationFilePath, int maxParallelRequests = 5)
+        public async Task<bool> Copy(File file, string destinationFilePath, string newname, int maxParallelRequests = 5)
         {
-            string destPath = WebDavPath.Parent(destinationFilePath);
-            string newname = WebDavPath.Name(destinationFilePath);
+            string destPath = destinationFilePath;
+            newname = string.IsNullOrEmpty(newname) ? file.Name : newname;
+            bool doRename = file.Name != newname;
 
-            bool doRename = file.Name == newname;
+            var link = await _linkManager.GetItemLink(file.FullPath, false);
+            if (link != null)
+            {
+                var cloneRes = await CloneItem(destPath, link.Href);
+                if (doRename || WebDavPath.Name(cloneRes.Path) != newname)
+                {
+                    string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(cloneRes.Path));
+                    var renameRes = await Rename(newFullPath, link.Name);
+                    if (!renameRes) return false;
+                }
+                return cloneRes.IsSuccess;
+            }
 
             var qry = file.Files
                     .AsParallel()
                     .WithDegreeOfParallelism(Math.Min(maxParallelRequests, file.Files.Count))
                     .Select(async pfile =>
                     {
-                        var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath)
+                        var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite)
                             .MakeRequestAsync();
                         if (copyRes.status != 200) return false;
 
                         if (doRename || WebDavPath.Name(copyRes.body) != newname)
                         {
                             string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.body));
-                            var renameRes =
-                                await new RenameRequest(CloudApi, newFullPath, pfile.Name.Replace(file.Name, newname))
-                                    .MakeRequestAsync();
-                            if (renameRes.status != 200) return false;
+                            var renameRes = await Rename(newFullPath, pfile.Name.Replace(file.Name, newname));
+                            if (!renameRes) return false;
                         }
                         return true;
                     });
@@ -380,14 +439,24 @@ namespace YaR.MailRuCloud.Api
             return await Remove(folder.FullPath);
         }
 
-        public async Task<bool> CloneItem(string path, string url)
+
+        public async Task<CloneResult> CloneItem(string path, string url)
         {
             var data = await new CloneItemRequest(CloudApi, url, path)
                 .MakeRequestAsync();
-            return data.status == 200;
+            return new CloneResult
+            {
+                //TODO: move to dtoimport
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
         }
 
-
+        public class CloneResult
+        {
+            public bool IsSuccess { get; set; }
+            public string Path { get; set; }
+        }
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
@@ -492,6 +561,7 @@ namespace YaR.MailRuCloud.Api
                 {
                     _linkManager.ProcessRename(fullPath, newName);
                 }
+
                 return data.status == 200;
             }
 

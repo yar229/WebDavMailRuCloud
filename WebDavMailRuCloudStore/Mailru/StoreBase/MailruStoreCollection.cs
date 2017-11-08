@@ -366,9 +366,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
         {
-            // Just create the folder itself
-            var result = await destinationCollection.CreateCollectionAsync(name, overwrite, httpContext);
-            return new StoreItemResult(result.Result, result.Collection);
+            var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
+            var res = await instance.Copy(_directoryInfo, destinationCollection.GetFullPath());
+
+            return new StoreItemResult( res ? DavStatusCode.Created : DavStatusCode.InternalServerError, null);
         }
 
         public async Task<StoreItemResult> MoveItemAsync(string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext)
