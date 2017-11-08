@@ -92,9 +92,30 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-
-        public static Folder ToFolder(this FolderInfoResult data)
+        /// <summary>
+        /// When it's a linked item, need to shift paths
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="home"></param>
+        /// <param name="ulink"></param>
+        private static void PatchEntryPath(FolderInfoResult data, string home, LinkManager.ItemfromLink ulink)
         {
+            if (string.IsNullOrEmpty(home) || null == ulink)
+                return;
+
+            foreach (var propse in data.body.list)
+            {
+                string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
+                propse.home = WebDavPath.Combine(home, name);
+                propse.name = name;
+            }
+            data.body.home = home;
+        }
+
+        public static Folder ToFolder(this FolderInfoResult data, string home = null, LinkManager.ItemfromLink ulink = null)
+        {
+            PatchEntryPath(data, home, ulink);
+
             var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
             {
                 Folders = data.body.list?
@@ -118,17 +139,7 @@ namespace YaR.MailRuCloud.Api.Extensions
                 return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
             }
 
-            // patch paths if linked item
-            if (!string.IsNullOrEmpty(home) && ulink != null)
-            {
-                foreach (var propse in data.body.list)
-                {
-                    string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
-                    propse.home = WebDavPath.Combine(home, name);
-                    propse.name = name;
-                }
-                data.body.home = home;
-            }
+            PatchEntryPath(data, home, ulink);
 
             var z = data.body.list?
                 .Where(it => it.kind == "file")

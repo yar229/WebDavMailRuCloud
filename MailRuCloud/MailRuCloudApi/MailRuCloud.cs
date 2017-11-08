@@ -89,7 +89,9 @@ namespace YaR.MailRuCloud.Api
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
                     nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder();
+                : datares.ToFolder(
+                    itemType != ItemType.File ? path : WebDavPath.Parent(path),
+                    ulink);
 
             // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -219,9 +221,8 @@ namespace YaR.MailRuCloud.Api
         /// <param name="file">Source file info.</param>
         /// <param name="destinationFilePath">Destination path.</param>
         /// <param name="newname">Rename target file.</param>
-        /// <param name="maxParallelRequests">Maximum parallel requests to server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, string destinationFilePath, string newname, int maxParallelRequests = 5)
+        public async Task<bool> Copy(File file, string destinationFilePath, string newname)
         {
             string destPath = destinationFilePath;
             newname = string.IsNullOrEmpty(newname) ? file.Name : newname;
@@ -242,7 +243,7 @@ namespace YaR.MailRuCloud.Api
 
             var qry = file.Files
                     .AsParallel()
-                    .WithDegreeOfParallelism(Math.Min(maxParallelRequests, file.Files.Count))
+                    .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                     .Select(async pfile =>
                     {
                         var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite)
@@ -352,7 +353,12 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(Folder folder, string destinationPath)
         {
-            return !string.IsNullOrEmpty(await MoveOrCopy(folder.FullPath, destinationPath, true));
+            var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
+            if (!string.IsNullOrEmpty(res)) return false;
+
+
+            //move links
+            return true;
         }
 
         /// <summary>
@@ -363,16 +369,24 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(File file, string destinationPath)
         {
-            var result = !string.IsNullOrEmpty(await MoveOrCopy(file.FullPath, destinationPath, true));
-            if (file.Parts.Count > 1)
-            {
-                foreach (var splitFile in file.Parts)
-                    await MoveOrCopy(splitFile.FullPath, destinationPath, true);
-            }
-            return result;
+            var qry = file.Files
+                .AsParallel()
+                .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
+                .Select(async pfile => await MoveOrCopy(pfile.FullPath, destinationPath, true));
+
+            bool res = (await Task.WhenAll(qry))
+                .All(r => !string.IsNullOrEmpty(r));
+            return res;
         }
 
         #endregion == Move ==========================================================================================================================
+
+        public byte MaxInnerParallelRequests
+        {
+            get => _maxInnerParallelRequests;
+            set => _maxInnerParallelRequests = value != 0 ? value : (byte)1;
+        }
+        private byte _maxInnerParallelRequests = 5;
 
         /// <summary>
         /// Create folder on the server.
@@ -579,17 +593,10 @@ namespace YaR.MailRuCloud.Api
         public async Task<string> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
         {
             //TODO: refact
-            if (!move) //copy
+            if (!move)
             {
                 var entry = await GetItem(sourceFullPath);
-                if (entry is File file)
-                {
-                    await Copy(file, destinationPath);
-                }
-                else if (entry is Folder folder)
-                {
-                    await Copy(folder, destinationPath);
-                }
+                await Copy(entry, destinationPath);
             }
 
             var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
