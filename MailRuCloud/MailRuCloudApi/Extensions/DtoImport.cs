@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
@@ -94,7 +95,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static Folder ToFolder(this FolderInfoResult data)
         {
-            var folder = new Folder(data.body.size, data.body.home)
+            var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
             {
                 Folders = data.body.list?
                     .Where(it => FolderKinds.Contains(it.kind))
@@ -110,11 +111,23 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        public static File ToFile(this FolderInfoResult data, string filename = null, string nameReplacement = null)
+        public static File ToFile(this FolderInfoResult data, string home = null, LinkManager.ItemfromLink ulink = null, string filename = null, string nameReplacement = null)
         {
             if (string.IsNullOrEmpty(filename))
             {
                 return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
+            }
+
+            // patch paths if linked item
+            if (!string.IsNullOrEmpty(home) && ulink != null)
+            {
+                foreach (var propse in data.body.list)
+                {
+                    string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
+                    propse.home = WebDavPath.Combine(home, name);
+                    propse.name = name;
+                }
+                data.body.home = home;
             }
 
             var z = data.body.list?
@@ -131,7 +144,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static Folder ToFolder(this FolderInfoProps item)
         {
-            var folder = new Folder(item.size, item.home, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
+            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
             return folder;
         }
 
@@ -141,7 +154,7 @@ namespace YaR.MailRuCloud.Api.Extensions
                 ? item.home
                 : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
 
-            var file = new File(path, item.size, item.hash)
+            var file = new File(path ?? item.name, item.size, item.hash)
             {
                 PublicLink =
                     string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink,

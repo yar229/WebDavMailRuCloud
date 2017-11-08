@@ -59,8 +59,8 @@ namespace YaR.MailRuCloud.Api
         /// Get list of files and folders from account.
         /// </summary>
         /// <param name="path">Path in the cloud to return the list of the items.</param>
-        /// <param name="itemType"></param>
-        /// <param name="resolveLinks"></param>
+        /// <param  name="itemType">Unknown, File/Folder if you know for sure</param>
+        /// <param name="resolveLinks">True if you know for sure that's not a linked item</param>
         /// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
@@ -70,47 +70,40 @@ namespace YaR.MailRuCloud.Api
             // bad link detected, just return stub
             // cause client cannot, for example, delete it if we return NotFound for this item
             if (ulink != null && ulink.IsBad)
-            {
                 return ulink.ToBadEntry();
-            }
 
-            var data = new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
+
+            var datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                 .MakeRequestAsync().ConfigureAwait(false);
+
+            //if (itemType == ItemType.Unknown)
+            //    itemType = ulink != null
+            //        ? ulink.IsFile ? ItemType.File : ItemType.Folder
+            //        : datares.body.home == path
+            //            ? ItemType.Folder
+            //            : ItemType.File;
 
             if (itemType == ItemType.Unknown && ulink != null)
             {
                 itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
             }
 
-            var datares = await data;
-
             if (itemType == ItemType.Unknown && null == ulink)
             {
-                itemType = (await data).body.home == path
+                itemType = datares.body.home == path
                     ? ItemType.Folder
                     : ItemType.File;
             }
 
-            // patch paths if linked item
-            if (ulink != null)
-            {
-                string home = itemType != ItemType.File
-                    ? path
-                    : WebDavPath.Parent(path);
-
-                foreach (var propse in datares.body.list)
-                {
-                    string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
-                    propse.home = WebDavPath.Combine(home, name); //propse.kind != "file" ? home : WebDavPath.Combine(home, name);
-                    propse.name = name;
-                }
-                datares.body.home = home;
-            }
-
             var entry = itemType == ItemType.File
-                ? (IEntry)datares.ToFile(ulink == null ? WebDavPath.Name(path) : ulink.OriginalName, WebDavPath.Name(path))
+                ? (IEntry)datares.ToFile(
+                    home:  itemType != ItemType.File ? path : WebDavPath.Parent(path),
+                    ulink: ulink,
+                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+                    nameReplacement: WebDavPath.Name(path))
                 : datares.ToFolder();
 
+            // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)
             {
                 var flinks = _linkManager.GetItems(folder.FullPath);

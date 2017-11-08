@@ -19,11 +19,21 @@ namespace YaR.MailRuCloud.Api.Base
 
         public static string Clean(string path, bool doAddFinalseparator = false)
         {
+            try
+            {
+
             string res = path.Replace("\\", "/");
             if (res.Length > 1 && !doAddFinalseparator)                
                 return res.TrimEnd('/');
             if (doAddFinalseparator && !res.EndsWith("/")) res += Separator;
             return res;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         public static string Parent(string path)
