@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
@@ -86,9 +87,16 @@ namespace YaR.MailRuCloud.Api
                 return res;
             }
 
-
-            var datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
-                .MakeRequestAsync().ConfigureAwait(false);
+            FolderInfoResult datares;
+            try
+            {
+                datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
+                    .MakeRequestAsync().ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
 
             if (itemType == ItemType.Unknown && ulink != null)
                 itemType = ulink.ItemType;
@@ -193,10 +201,10 @@ namespace YaR.MailRuCloud.Api
             if (copyRes.status != 200) return false;
 
             //clone all inner links
-            var links = _linkManager.GetChilds(folder.FullPath, false);
+            var links = _linkManager.GetChilds(folder.FullPath);
             foreach (var linka in links)
             {
-                var linkdest = WebDavPath.ModifyParent(linka.MapTo, WebDavPath.Parent(folder.FullPath), destinationPath);
+                var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
                 var cloneres = await CloneItem(linkdest, linka.Href);
                 if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
                 {
@@ -422,11 +430,27 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(Folder folder, string destinationPath)
         {
+            var link = await _linkManager.GetItemLink(folder.FullPath, false);
+            if (link != null)
+            {
+                var remapped = await _linkManager.RemapLink(link, destinationPath);
+                if (remapped)
+                    _itemCache.Invalidate(WebDavPath.Parent(folder.FullPath), destinationPath);
+                return remapped;
+            }
+
             var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
             if (!string.IsNullOrEmpty(res)) return false;
 
+            //clone all inner links
+            var links = _linkManager.GetChilds(folder.FullPath).ToList();
+            foreach (var linka in links)
+            {
+                var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
+                await _linkManager.RemapLink(linka, linkdest, false);
+            }
+            if (links.Any()) _linkManager.Save();
 
-            //TODO: move links
             return true;
         }
 
@@ -452,7 +476,6 @@ namespace YaR.MailRuCloud.Api
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                 .Select(async pfile => await MoveOrCopy(pfile.FullPath, destinationPath, true));
 
-            _itemCache.Invalidate(file.Path, destinationPath);
             bool res = (await Task.WhenAll(qry))
                 .All(r => !string.IsNullOrEmpty(r));
             return res;
@@ -570,16 +593,16 @@ namespace YaR.MailRuCloud.Api
             var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
 
             // refresh linked folders
-            stream.FileUploaded += files =>
-            {
-                var file = files?.FirstOrDefault();
-                if (null == file) return;
-
-                if (file.Path == "/" && file.Name == LinkManager.LinkContainerName)
-                    _linkManager.Load();
-            };
+            stream.FileUploaded += OnFileUploaded;
 
             return stream;
+        }
+
+        public event FileUploadedDelegate FileUploaded;
+
+        private void OnFileUploaded(IEnumerable<File> files)
+        {
+            FileUploaded?.Invoke(files);
         }
 
         public T DownloadFileAsJson<T>(File file)
@@ -596,11 +619,25 @@ namespace YaR.MailRuCloud.Api
 
         public string DownloadFileAsString(File file)
         {
-            using (var stream = new DownloadStream(file, CloudApi))
-            using (var reader = new StreamReader(stream))
+            //using (var stream = new DownloadStream(file, CloudApi))
+            //using (var reader = new StreamReader(stream))
+            //{
+            //    string res = reader.ReadToEnd();
+            //    return res;
+            //}
+
+            //TODO: refact, bad stream realization
+            StreamReader reader = null;
+            try
             {
+                var stream = new DownloadStream(file, CloudApi);
+                reader = new StreamReader(stream);
                 string res = reader.ReadToEnd();
                 return res;
+            }
+            finally
+            {
+                reader?.Close();
             }
         }
 
@@ -636,6 +673,7 @@ namespace YaR.MailRuCloud.Api
                 stream.Write(data, 0, data.Length);
                 //stream.Close();
             }
+            _itemCache.Invalidate(path, WebDavPath.Parent(path));
         }
 
 
@@ -679,16 +717,22 @@ namespace YaR.MailRuCloud.Api
             {
                 //if folder is linked - do not delete inner files/folders if client deleting recursively
                 //just try to unlink folder
-                _linkManager.RemoveItem(fullPath);
+                _linkManager.RemoveLink(fullPath);
 
                 _itemCache.Invalidate(WebDavPath.Parent(fullPath));
                 return true;
             }
 
-
             var res = await new RemoveRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
-            if (res.status == 200) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            if (res.status == 200)
+            {
+                //remove inner links
+                var innerLinks = _linkManager.GetChilds(fullPath);
+                _linkManager.RemoveLinks(innerLinks);
+
+                _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            }
             return res.status == 200;
         }
 

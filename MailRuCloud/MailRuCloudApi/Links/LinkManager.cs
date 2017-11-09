@@ -24,25 +24,50 @@ namespace YaR.MailRuCloud.Api.Links
         private ItemList _itemList = new ItemList();
         private readonly StoreItemCache _itemCache;
 
+        private readonly object _lockContainer = new object();
+
+
         public LinkManager(MailRuCloud cloud)
         {
             _cloud = cloud;
             _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
 
+            cloud.FileUploaded += OnFileUploaded;
+
             Load();
         }
 
+        private void OnFileUploaded(IEnumerable<File> files)
+        {
+            var file = files?.FirstOrDefault();
+            if (null == file) return;
+
+            if (file.Path == "/" && file.Name == LinkContainerName && file.Size > 3)
+                Load();
+        }
 
         /// <summary>
         /// Сохранить в файл в облаке список ссылок
         /// </summary>
         public void Save()
         {
-            Logger.Info($"Saving links to {LinkContainerName}");
+            lock (_lockContainer)
+            {
+                
+                Logger.Info($"Saving links to {LinkContainerName}");
 
-            string content = JsonConvert.SerializeObject(_itemList, Formatting.Indented);
-            string path = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
-            _cloud.UploadFile(path, content);
+                string content = JsonConvert.SerializeObject(_itemList, Formatting.Indented);
+                string path = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
+                try
+                {
+                    _cloud.FileUploaded -= OnFileUploaded;
+                    _cloud.UploadFile(path, content);
+                }
+                finally
+                {
+                    _cloud.FileUploaded += OnFileUploaded;
+                }
+            }
         }
 
         /// <summary>
@@ -54,10 +79,13 @@ namespace YaR.MailRuCloud.Api.Links
 
             try
             {
-                var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
+                lock (_lockContainer)
+                {
+                    var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
 
-                if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
-                    _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
+                    if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
+                            _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
+                }
             }
             catch (Exception e)
             {
@@ -91,7 +119,7 @@ namespace YaR.MailRuCloud.Api.Links
         /// </summary>
         /// <param name="path"></param>
         /// <param name="doSave">Save container after removing</param>
-        public void RemoveItem(string path, bool doSave = true)
+        public bool RemoveLink(string path, bool doSave = true)
         {
             var name = WebDavPath.Name(path);
             var parent = WebDavPath.Parent(path);
@@ -100,11 +128,25 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (z != null)
             {
-                _itemCache.Invalidate(path, parent);
                 _itemList.Items.Remove(z);
+                _itemCache.Invalidate(path, parent);
                 if (doSave) Save();
+                return true;
             }
+            return false;
         }
+
+        public void RemoveLinks(IEnumerable<Link> innerLinks, bool doSave = true)
+        {
+            bool removed = false;
+            foreach (var link in innerLinks)
+            {
+                var res = RemoveLink(link.FullPath, false);
+                if (res) removed = true;
+            }
+            if (doSave && removed) Save();
+        }
+
 
         /// <summary>
         /// Убрать все привязки на мёртвые ссылки
@@ -112,11 +154,15 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="doWriteHistory"></param>
         public async Task<int> RemoveDeadLinks(bool doWriteHistory)
         {
+            var z = _cloud.GetItem(@"/__enc/3/_linked_test", MailRuCloud.ItemType.Folder, false).Result;
+
             var removes = _itemList.Items
                 .AsParallel()
                 .WithDegreeOfParallelism(5)
                 .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name)).Result)
-                .Where(itl => itl.IsBad)
+                .Where(itl => 
+                    itl.IsBad || 
+                    _cloud.GetItem(itl.MapPath, MailRuCloud.ItemType.Folder, false).Result == null)
                 .ToList();
             if (removes.Count == 0) return 0;
 
@@ -227,14 +273,24 @@ namespace YaR.MailRuCloud.Api.Links
             }
         }
 
-        public IEnumerable<ItemLink> GetChilds(string folderFullPath, bool doResolveType)
+        //public IEnumerable<ItemLink> GetChilds(string folderFullPath, bool doResolveType)
+        //{
+        //    var lst = _itemList.Items
+        //        .Where(it => 
+        //        WebDavPath.IsParentOrSame(folderFullPath, it.MapTo));
+
+        //    return lst;
+        //}
+
+        public IEnumerable<Link> GetChilds(string folderFullPath)
         {
             var lst = _itemList.Items
-                .Where(it => 
-                WebDavPath.IsParentOrSame(folderFullPath, it.MapTo));
+                .Where(it => WebDavPath.IsParentOrSame(folderFullPath, it.MapTo))
+                .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name), false).Result);
 
             return lst;
         }
+
 
         /// <summary>
         /// Привязать ссылку к облаку
@@ -339,7 +395,7 @@ namespace YaR.MailRuCloud.Api.Links
         /// 2. скопировать содержимое
         /// если следовать логике, что при копировании мы копируем содержимое ссылок, а при перемещении - перемещаем ссылки, то надо делать новую ссылку
         ///</remarks>
-        public async Task<bool> RemapLink(Link link, string destinationPath)
+        public async Task<bool> RemapLink(Link link, string destinationPath, bool doSave = true)
         {
             if (WebDavPath.PathEquals(link.MapPath, destinationPath))
                 return true;
@@ -372,11 +428,13 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (res)
             {
-                Save();
+                if (doSave) Save();
                 _itemCache.Invalidate(destinationPath);
             }
 
             return res;
         }
+
+
     }
 }
