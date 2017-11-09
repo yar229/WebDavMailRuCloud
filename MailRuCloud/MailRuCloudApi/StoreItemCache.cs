@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,13 +75,21 @@ namespace YaR.MailRuCloud.Api
 
         public void Add(string path, IEntry itemin)
         {
-            var item1 = new TimedItem<IEntry>
+            var item = new TimedItem<IEntry>
             {
                 Created = DateTime.Now,
                 Item = itemin
             };
 
-            _items.AddOrUpdate(path, item1, (key, oldValue) => item1);
+            _items.AddOrUpdate(path, item, (key, oldValue) => item);
+        }
+
+        public void Add(IEnumerable<IEntry> items)
+        {
+            foreach (var item in items)
+            {
+                Add(item.FullPath, item);
+            }
         }
 
         public IEntry Invalidate(string path)

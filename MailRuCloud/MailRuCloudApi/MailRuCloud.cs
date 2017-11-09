@@ -50,7 +50,7 @@ namespace YaR.MailRuCloud.Api
             CloudApi = new CloudApi(login, password, twoFaHandler);
 
             //TODO: wow very dummy linking, refact cache realization globally!
-            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
             _linkManager = new LinkManager(this);
         }
 
@@ -98,15 +98,21 @@ namespace YaR.MailRuCloud.Api
                     ? ItemType.Folder
                     : ItemType.File;
 
+            // TODO: cache (parent) folder for file 
+            //if (itemType == ItemType.File)
+            //{
+            //    var cachefolder = datares.ToFolder(path, ulink);
+            //    _itemCache.Add(cachefolder.FullPath, cachefolder);
+            //    //_itemCache.Add(cachefolder.Files);
+            //}
+
             var entry = itemType == ItemType.File
                 ? (IEntry)datares.ToFile(
-                    home: itemType != ItemType.File ? path : WebDavPath.Parent(path),
+                    home: WebDavPath.Parent(path),
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
                     nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder(
-                    itemType != ItemType.File ? path : WebDavPath.Parent(path),
-                    ulink);
+                : datares.ToFolder(path, ulink);
 
             // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -130,10 +136,14 @@ namespace YaR.MailRuCloud.Api
             }
 
             _itemCache.Add(entry.FullPath, entry);
+            if (entry is Folder cfolder)
+                _itemCache.Add(cfolder.Files);
             return entry;
         }
 
- 
+
+
+
         /// <summary>
         /// Get disk usage for account.
         /// </summary>

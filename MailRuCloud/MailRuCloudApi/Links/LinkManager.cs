@@ -27,7 +27,7 @@ namespace YaR.MailRuCloud.Api.Links
         public LinkManager(MailRuCloud cloud)
         {
             _cloud = cloud;
-            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
 
             Load();
         }
