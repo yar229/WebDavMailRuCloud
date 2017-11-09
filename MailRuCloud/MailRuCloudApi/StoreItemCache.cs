@@ -66,7 +66,7 @@ namespace YaR.MailRuCloud.Api
                     _items.TryRemove(path, out item);
                 else
                 {
-                    Logger.Warn($"Cache hit: {item.Item.FullPath}");
+                    Logger.Debug($"Cache hit: {item.Item.FullPath}");
                     return item.Item;
                 }
             }
