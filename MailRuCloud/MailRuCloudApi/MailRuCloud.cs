@@ -446,8 +446,22 @@ namespace YaR.MailRuCloud.Api
             var links = _linkManager.GetChilds(folder.FullPath).ToList();
             foreach (var linka in links)
             {
+                // некоторые клиенты сначала делают структуру каталогов, а потом по одному переносят файлы
+                // в таких условиях на каждый файл получится свой собственный линк, если делать правильно, т.е. в итоге расплодится миллин линков
+                // поэтому делаем неправильно - копируем содержимое линков
+
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
-                await _linkManager.RemapLink(linka, linkdest, false);
+                var cloneres = await CloneItem(linkdest, linka.Href);
+                if (cloneres.IsSuccess )
+                {
+                    _itemCache.Invalidate(destinationPath);
+                    if (WebDavPath.Name(cloneres.Path) != linka.Name)
+                    {
+                        var renRes = await Rename(cloneres.Path, linka.Name);
+                        if (!renRes) return false;
+                    }
+                }
+                //await _linkManager.RemapLink(linka, linkdest, false);
             }
             if (links.Any()) _linkManager.Save();
 

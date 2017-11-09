@@ -140,7 +140,8 @@ namespace YaR.MailRuCloud.Api.Links
         public void RemoveLinks(IEnumerable<Link> innerLinks, bool doSave = true)
         {
             bool removed = false;
-            foreach (var link in innerLinks)
+            var lst = innerLinks.ToList();
+            foreach (var link in lst)
             {
                 var res = RemoveLink(link.FullPath, false);
                 if (res) removed = true;
@@ -382,20 +383,26 @@ namespace YaR.MailRuCloud.Api.Links
         }
 
 
-        /// <summary>
-        /// Перемещение ссылки из одного каталога в другой
-        /// </summary>
-        /// <param name="link"></param>
-        /// <param name="destinationPath"></param>
+        ///  <summary>
+        ///  Перемещение ссылки из одного каталога в другой
+        ///  </summary>
+        ///  <param name="link"></param>
+        ///  <param name="destinationPath"></param>
+        /// <param name="doSave">Сохранить изменения в файл в облаке</param>
         /// <returns></returns>
-        /// <remarks>            
-        /// Корневую ссылку просто перенесем
-        ///
-        /// Если это вложенная ссылка, то перенести ее нельзя, а можно
-        /// 1. сделать новую ссылку на эту вложенность
-        /// 2. скопировать содержимое
-        /// если следовать логике, что при копировании мы копируем содержимое ссылок, а при перемещении - перемещаем ссылки, то надо делать новую ссылку
-        ///</remarks>
+        ///  <remarks>            
+        ///  Корневую ссылку просто перенесем
+        /// 
+        ///  Если это вложенная ссылка, то перенести ее нельзя, а можно
+        ///  1. сделать новую ссылку на эту вложенность
+        ///  2. скопировать содержимое
+        ///  если следовать логике, что при копировании мы копируем содержимое ссылок, а при перемещении - перемещаем ссылки, то надо делать новую ссылку
+        ///  
+        ///  Логика хороша, но
+        ///  некоторые клиенты сначала делают структуру каталогов, а потом по одному переносят файлы, например, TotalCommander c плагином WebDAV v.2.9
+        ///  в таких условиях на каждый файл получится свой собственный линк, если делать правильно, т.е. в итоге расплодится миллин линков
+        ///  поэтому делаем неправильно - копируем содержимое линков
+        /// </remarks>
         public async Task<bool> RemapLink(Link link, string destinationPath, bool doSave = true)
         {
             if (WebDavPath.PathEquals(link.MapPath, destinationPath))
