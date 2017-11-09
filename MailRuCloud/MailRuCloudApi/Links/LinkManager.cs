@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Links.Dto;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api.Links
@@ -118,7 +119,7 @@ namespace YaR.MailRuCloud.Api.Links
                 .ToList();
             if (removes.Count == 0) return;
 
-            _itemList.Items.RemoveAll(it => removes.Any(rem => rem.MapTo == it.MapTo && rem.Name == it.Name));
+            _itemList.Items.RemoveAll(it => removes.Any(rem => WebDavPath.PathEquals(rem.MapPath, it.MapTo) && rem.Name == it.Name));
 
             if (removes.Any())
             {
@@ -166,7 +167,7 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="path"></param>
         /// <param name="doResolveType">Resolving file/folder type requires addition request to cloud</param>
         /// <returns></returns>
-        public async Task<ItemfromLink> GetItemLink(string path, bool doResolveType = true)
+        public async Task<Link> GetItemLink(string path, bool doResolveType = true)
         {
             //TODO: subject to refact
             string parent = path;
@@ -182,16 +183,20 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (null == wp) return null;
 
-            var res = new ItemfromLink(wp) { Href = wp.Href + right, Path = path, Name = WebDavPath.Name(path) };
+            var res = new Link(wp, path, wp.Href + right);
 
+            //resolve additional link properties, e.g. OriginalName, ItemType, Size
             if (doResolveType)
             {
                 try
                 {
                     var infores = await new ItemInfoRequest(_cloud.CloudApi, res.Href, true).MakeRequestAsync()
                         .ConfigureAwait(false);
-                    res.IsFile = infores.body.kind == "file";
+                    res.ItemType = infores.body.kind == "file"
+                        ? MailRuCloud.ItemType.File
+                        : MailRuCloud.ItemType.Folder;
                     res.OriginalName = infores.body.name;
+                    res.Size = infores.body.size;
                 }
                 catch (Exception) //TODO check 404 etc.
                 {
@@ -211,37 +216,6 @@ namespace YaR.MailRuCloud.Api.Links
                 WebDavPath.IsParentOrSame(folderFullPath, it.MapTo));
 
             return lst;
-        }
-
-
-        public class ItemfromLink : ItemLink
-        {
-            private ItemfromLink() { }
-
-            public ItemfromLink(ItemLink link) : this()
-            {
-                Href = link.Href;
-                MapTo = link.MapTo;
-                Name = link.Name;
-                IsFile = link.IsFile;
-                Size = link.Size;
-                CreationDate = link.CreationDate;
-            }
-
-            public bool IsBad { get; set; }
-            public string Path { get; set; }
-
-            public bool IsRoot => WebDavPath.PathEquals(WebDavPath.Parent(Path), MapTo);
-            public string OriginalName { get; set; }
-
-            public IEntry ToBadEntry()
-            {
-                var res = IsFile
-                    ? (IEntry)new File(Path, Size, string.Empty)
-                    : new Folder(Size, Path, string.Empty);
-
-                return res;
-            }
         }
 
         /// <summary>
@@ -306,12 +280,12 @@ namespace YaR.MailRuCloud.Api.Links
             if (changed) Save();
         }
 
-        public bool RenameLink(ItemfromLink link, string newName)
+        public bool RenameLink(Link link, string newName)
         {
             // can't rename items within linked folder
             if (!link.IsRoot) return false;
 
-            var ilink = _itemList.Items.FirstOrDefault(it => it.MapTo == link.MapTo && it.Name == link.Name);
+            var ilink = _itemList.Items.FirstOrDefault(it => WebDavPath.PathEquals(it.MapTo, link.MapPath) && it.Name == link.Name);
             if (null == ilink) return false;
 
             ilink.Name = newName;

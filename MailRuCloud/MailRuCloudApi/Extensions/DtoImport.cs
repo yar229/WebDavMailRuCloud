@@ -97,24 +97,24 @@ namespace YaR.MailRuCloud.Api.Extensions
         /// </summary>
         /// <param name="data"></param>
         /// <param name="home"></param>
-        /// <param name="ulink"></param>
-        private static void PatchEntryPath(FolderInfoResult data, string home, LinkManager.ItemfromLink ulink)
+        /// <param name="link"></param>
+        private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
         {
-            if (string.IsNullOrEmpty(home) || null == ulink)
+            if (string.IsNullOrEmpty(home) || null == link)
                 return;
 
             foreach (var propse in data.body.list)
             {
-                string name = ulink.OriginalName == propse.name ? ulink.Name : propse.name;
+                string name = link.OriginalName == propse.name ? link.Name : propse.name;
                 propse.home = WebDavPath.Combine(home, name);
                 propse.name = name;
             }
             data.body.home = home;
         }
 
-        public static Folder ToFolder(this FolderInfoResult data, string home = null, LinkManager.ItemfromLink ulink = null)
+        public static Folder ToFolder(this FolderInfoResult data, string home = null, Link link = null)
         {
-            PatchEntryPath(data, home, ulink);
+            PatchEntryPath(data, home, link);
 
             var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
             {
@@ -132,7 +132,7 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        public static File ToFile(this FolderInfoResult data, string home = null, LinkManager.ItemfromLink ulink = null, string filename = null, string nameReplacement = null)
+        public static File ToFile(this FolderInfoResult data, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
         {
             if (string.IsNullOrEmpty(filename))
             {

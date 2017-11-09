@@ -76,7 +76,7 @@ namespace YaR.MailRuCloud.Api
                 .MakeRequestAsync().ConfigureAwait(false);
 
             if (itemType == ItemType.Unknown && ulink != null)
-                itemType = ulink.IsFile ? ItemType.File : ItemType.Folder;
+                itemType = ulink.ItemType;
 
             if (itemType == ItemType.Unknown && null == ulink)
                 itemType = datares.body.home == path
