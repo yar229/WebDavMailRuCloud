@@ -40,6 +40,8 @@ namespace YaR.MailRuCloud.Api.Links
 
         public bool IsBad { get; set; }
 
+        public bool IsResolved { get; set; }
+
         /// <summary>
         /// Filesystem full path from root
         /// </summary>

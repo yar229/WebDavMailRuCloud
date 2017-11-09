@@ -183,30 +183,35 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (null == wp) return null;
 
-            var res = new Link(wp, path, wp.Href + right);
+            var link = new Link(wp, path, wp.Href + right);
 
             //resolve additional link properties, e.g. OriginalName, ItemType, Size
             if (doResolveType)
-            {
-                try
-                {
-                    var infores = await new ItemInfoRequest(_cloud.CloudApi, res.Href, true).MakeRequestAsync()
-                        .ConfigureAwait(false);
-                    res.ItemType = infores.body.kind == "file"
-                        ? MailRuCloud.ItemType.File
-                        : MailRuCloud.ItemType.Folder;
-                    res.OriginalName = infores.body.name;
-                    res.Size = infores.body.size;
-                }
-                catch (Exception) //TODO check 404 etc.
-                {
-                    //this means a bad link
-                    // don't know what to do
-                    res.IsBad = true;
-                }
-            }
+                ResolveLink(link);
 
-            return res;
+            return link;
+        }
+
+        private async void ResolveLink(Link link)
+        {
+            try
+            {
+                var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync()
+                    .ConfigureAwait(false);
+                link.ItemType = infores.body.kind == "file"
+                    ? MailRuCloud.ItemType.File
+                    : MailRuCloud.ItemType.Folder;
+                link.OriginalName = infores.body.name;
+                link.Size = infores.body.size;
+
+                link.IsResolved = true;
+            }
+            catch (Exception) //TODO check 404 etc.
+            {
+                //this means a bad link
+                // don't know what to do
+                link.IsBad = true;
+            }
         }
 
         public IEnumerable<ItemLink> GetChilds(string folderFullPath, bool doResolveType)
@@ -227,29 +232,35 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="isFile">Признак, что ссылка ведёт на файл, иначе - на папку</param>
         /// <param name="size">Размер данных по ссылке</param>
         /// <param name="creationDate">Дата создания</param>
-        public async void Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async Task<bool> Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            Load();
-
             path = WebDavPath.Clean(path);
 
             var folder = (Folder)await _cloud.GetItem(path);
             if (folder.Entries.Any(entry => entry.Name == name))
-                return;
+                return false;
 
             url = GetRelaLink(url);
+            path = WebDavPath.Clean(path);
+
+            if (folder.Entries.Any(entry => entry.Name == name))
+                return false;
+            if (_itemList.Items.Any(it => WebDavPath.PathEquals(it.MapTo, path) && it.Name == name))
+                return false;
 
             _itemList.Items.Add(new ItemLink
             {
                 Href = url,
-                MapTo = WebDavPath.Clean(path),
+                MapTo = path,
                 Name = name,
                 IsFile = isFile,
                 Size = size,
                 CreationDate = creationDate
             });
-            Save();
+
+            return true;
         }
+
 
 
 
@@ -294,5 +305,53 @@ namespace YaR.MailRuCloud.Api.Links
         }
 
 
+        /// <summary>
+        /// Перемещение ссылки из одного каталога в другой
+        /// </summary>
+        /// <param name="link"></param>
+        /// <param name="destinationPath"></param>
+        /// <returns></returns>
+        /// <remarks>            
+        /// Корневую ссылку просто перенесем
+        ///
+        /// Если это вложенная ссылка, то перенести ее нельзя, а можно
+        /// 1. сделать новую ссылку на эту вложенность
+        /// 2. скопировать содержимое
+        /// если следовать логике, что при копировании мы копируем содержимое ссылок, а при перемещении - перемещаем ссылки, то надо делать новую ссылку
+        ///</remarks>
+        public async Task<bool> RemapLink(Link link, string destinationPath)
+        {
+            if (WebDavPath.PathEquals(link.MapPath, destinationPath))
+                return true;
+
+            if (link.IsRoot)
+            {
+                var rootlink = _itemList.Items.FirstOrDefault(it => WebDavPath.PathEquals(it.MapTo, link.MapPath) && it.Name == link.Name);
+                if (rootlink != null)
+                {
+                    rootlink.MapTo = destinationPath;
+                    Save();
+                    return true;
+                }
+                return false;
+            }
+
+            // it's a link on inner item of root link, creating new link
+            if (!link.IsResolved)
+                ResolveLink(link);
+
+            var res = await Add(
+                link.Href,
+                destinationPath,
+                link.Name,
+                link.ItemType == MailRuCloud.ItemType.File,
+                link.Size,
+                DateTime.Now);
+
+            if (res)
+                Save();
+
+            return res;
+        }
     }
 }

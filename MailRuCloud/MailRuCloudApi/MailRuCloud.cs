@@ -229,6 +229,7 @@ namespace YaR.MailRuCloud.Api
             bool doRename = file.Name != newname;
 
             var link = await _linkManager.GetItemLink(file.FullPath, false);
+            // копируем не саму ссылку, а её содержимое
             if (link != null)
             {
                 var cloneRes = await CloneItem(destPath, link.Href);
@@ -369,6 +370,13 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Move(File file, string destinationPath)
         {
+            var link = await _linkManager.GetItemLink(file.FullPath, false);
+            if (link != null)
+            {
+                var remapped = await _linkManager.RemapLink(link, destinationPath);
+                return remapped;
+            }
+
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
@@ -655,9 +663,11 @@ namespace YaR.MailRuCloud.Api
         }
         #endregion
 
-        public void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            _linkManager.Add(url, path, name, isFile, size, creationDate);
+            var res = await _linkManager.Add(url, path, name, isFile, size, creationDate);
+            if (res)
+                _linkManager.Save();
         }
 
         public void RemoveDeadLinks()
