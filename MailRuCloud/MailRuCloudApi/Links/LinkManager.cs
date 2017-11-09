@@ -24,11 +24,9 @@ namespace YaR.MailRuCloud.Api.Links
         private ItemList _itemList = new ItemList();
 
 
-        public LinkManager(MailRuCloud api)
+        public LinkManager(MailRuCloud cloud)
         {
-            _cloud = api;
-
-            Load();
+            _cloud = cloud;
         }
 
 
@@ -109,7 +107,7 @@ namespace YaR.MailRuCloud.Api.Links
         /// Убрать все привязки на мёртвые ссылки
         /// </summary>
         /// <param name="doWriteHistory"></param>
-        public async void RemoveDeadLinks(bool doWriteHistory)
+        public async Task<int> RemoveDeadLinks(bool doWriteHistory)
         {
             var removes = _itemList.Items
                 .AsParallel()
@@ -117,7 +115,7 @@ namespace YaR.MailRuCloud.Api.Links
                 .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name)).Result)
                 .Where(itl => itl.IsBad)
                 .ToList();
-            if (removes.Count == 0) return;
+            if (removes.Count == 0) return 0;
 
             _itemList.Items.RemoveAll(it => removes.Any(rem => WebDavPath.PathEquals(rem.MapPath, it.MapTo) && rem.Name == it.Name));
 
@@ -135,7 +133,10 @@ namespace YaR.MailRuCloud.Api.Links
                     _cloud.UploadFile(path, history.ToString());
                 }
                 Save();
+                return removes.Count;
             }
+
+            return 0;
         }
 
         ///// <summary>

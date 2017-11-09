@@ -10,6 +10,27 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+
+        public static MailRuCloud.PathResult ToPathResult(this CloneItemResult data)
+        {
+            var res = new MailRuCloud.PathResult
+            {
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
+        public static MailRuCloud.PathResult ToPathResult(this CreateFolderResult data)
+        {
+            var res = new MailRuCloud.PathResult
+            {
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
         public static AccountInfo ToAccountInfo(this AccountInfoResult data)
         {
             var res = new AccountInfo

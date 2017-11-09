@@ -5,7 +5,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
 
-   class RemoveRequest : BaseRequest<UnknownResult>
+   class RemoveRequest : BaseRequest<RemoveResult>
     {
         private readonly string _fullPath;
 

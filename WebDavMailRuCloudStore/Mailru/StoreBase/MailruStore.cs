@@ -16,17 +16,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         {
             LockingManager = lockingManager ?? new InMemoryLockingManager();
             IsWritable = isWritable;
-
-            ItemCache = new StoreItemCache(this, TimeSpan.FromSeconds(20)) {CleanUpPeriod = TimeSpan.FromMinutes(5)};
         }
 
         private bool IsWritable { get; }
         private ILockingManager LockingManager { get; }
-
-        /// <summary>
-        /// Caching files for multiple small reads
-        /// </summary>
-        public StoreItemCache ItemCache { get; }
 
         public Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
         {

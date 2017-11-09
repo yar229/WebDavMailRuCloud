@@ -21,7 +21,7 @@ using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
 {
-
+    //TODO: not thread-safe, refact
 
     /// <summary>
     /// Cloud client.
@@ -34,6 +34,10 @@ namespace YaR.MailRuCloud.Api
 
         public CloudApi CloudApi { get; }
 
+        /// <summary>
+        /// Caching files for multiple small reads
+        /// </summary>
+        private readonly StoreItemCache _itemCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MailRuCloud" /> class.
@@ -44,7 +48,12 @@ namespace YaR.MailRuCloud.Api
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
             CloudApi = new CloudApi(login, password, twoFaHandler);
-            _linkManager = new LinkManager(this);
+
+            //TODO: wow very dummy linking, refact cache realization globally!
+            var linkmanager = new LinkManager(this);
+            _itemCache = new StoreItemCache(this, linkmanager, TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _linkManager = linkmanager;
+            _linkManager.Load();
         }
 
         public enum ItemType
@@ -54,70 +63,19 @@ namespace YaR.MailRuCloud.Api
             Unknown
         }
 
-        /// <summary>
-        /// Get list of files and folders from account.
-        /// </summary>
-        /// <param name="path">Path in the cloud to return the list of the items.</param>
-        /// <param  name="itemType">Unknown, File/Folder if you know for sure</param>
-        /// <param name="resolveLinks">True if you know for sure that's not a linked item</param>
-        /// <returns>List of the items.</returns>
+        ///// <summary>
+        ///// Get list of files and folders from account.
+        ///// </summary>
+        ///// <param name="path">Path in the cloud to return the list of the items.</param>
+        ///// <param  name="itemType">Unknown, File/Folder if you know for sure</param>
+        ///// <param name="resolveLinks">True if you know for sure that's not a linked item</param>
+        ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            //TODO: subject to refact!!!
-            var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
-
-            // bad link detected, just return stub
-            // cause client cannot, for example, delete it if we return NotFound for this item
-            if (ulink != null && ulink.IsBad)
-                return ulink.ToBadEntry();
-
-
-            var datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
-                .MakeRequestAsync().ConfigureAwait(false);
-
-            if (itemType == ItemType.Unknown && ulink != null)
-                itemType = ulink.ItemType;
-
-            if (itemType == ItemType.Unknown && null == ulink)
-                itemType = datares.body.home == path
-                    ? ItemType.Folder
-                    : ItemType.File;
-
-            var entry = itemType == ItemType.File
-                ? (IEntry)datares.ToFile(
-                    home:  itemType != ItemType.File ? path : WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder(
-                    itemType != ItemType.File ? path : WebDavPath.Parent(path),
-                    ulink);
-
-            // fill folder with links if any
-            if (itemType == ItemType.Folder && entry is Folder folder)
-            {
-                var flinks = _linkManager.GetItems(folder.FullPath);
-                if (flinks.Any())
-                {
-                    foreach (var flink in flinks)
-                    {
-                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
-
-                        if (!flink.IsFile)
-                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                        else
-                        {
-                            if (folder.Files.All(inf => inf.FullPath != linkpath))
-                                folder.Files.Add(new File(linkpath, flink.Size));
-                        }
-                    }
-                }
-            }
-
-            return entry;
+            return await _itemCache.Get(path, itemType, resolveLinks);
         }
 
-
+ 
         /// <summary>
         /// Get disk usage for account.
         /// </summary>
@@ -147,6 +105,8 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(Folder folder, string destinationPath)
         {
+            destinationPath = WebDavPath.Clean(destinationPath);
+
             // if it linked - just clone
             var link = await _linkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
@@ -173,10 +133,15 @@ namespace YaR.MailRuCloud.Api
                 if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
                 {
                     var renRes = await Rename(cloneres.Path, linka.Name);
-                    if (!renRes) return false;
+                    if (!renRes)
+                    {
+                        _itemCache.Invalidate(destinationPath);
+                        return false;
+                    }
                 }
             }
 
+            _itemCache.Invalidate(destinationPath);
             return true;
         }
 
@@ -219,12 +184,12 @@ namespace YaR.MailRuCloud.Api
         /// Copy file to another path.
         /// </summary>
         /// <param name="file">Source file info.</param>
-        /// <param name="destinationFilePath">Destination path.</param>
+        /// <param name="destinationPath">Destination path.</param>
         /// <param name="newname">Rename target file.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Copy(File file, string destinationFilePath, string newname)
+        public async Task<bool> Copy(File file, string destinationPath, string newname)
         {
-            string destPath = destinationFilePath;
+            string destPath = destinationPath;
             newname = string.IsNullOrEmpty(newname) ? file.Name : newname;
             bool doRename = file.Name != newname;
 
@@ -239,6 +204,7 @@ namespace YaR.MailRuCloud.Api
                     var renameRes = await Rename(newFullPath, link.Name);
                     if (!renameRes) return false;
                 }
+                if (cloneRes.IsSuccess) _itemCache.Invalidate(destinationPath);
                 return cloneRes.IsSuccess;
             }
 
@@ -260,6 +226,7 @@ namespace YaR.MailRuCloud.Api
                         return true;
                     });
 
+            _itemCache.Invalidate(destinationPath);
             bool res = (await Task.WhenAll(qry))
                 .All(r => r);
 
@@ -322,6 +289,39 @@ namespace YaR.MailRuCloud.Api
             return result;
         }
 
+
+        /// <summary>
+        /// Rename item on server.
+        /// </summary>
+        /// <param name="fullPath">Full path of the file or folder.</param>
+        /// <param name="newName">New file or path name.</param>
+        /// <returns>True or false result operation.</returns>
+        private async Task<bool> Rename(string fullPath, string newName)
+        {
+            var link = await _linkManager.GetItemLink(fullPath, false);
+
+            //rename item
+            if (link == null)
+            {
+                var data = await new RenameRequest(CloudApi, fullPath, newName)
+                    .MakeRequestAsync();
+
+                if (data.status == 200)
+                {
+                    _linkManager.ProcessRename(fullPath, newName);
+                    _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+                }
+
+                return data.status == 200;
+            }
+
+            //rename link
+            var res = _linkManager.RenameLink(link, newName);
+            if (res) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+
+            return res;
+        }
+
         #endregion == Rename ========================================================================================================================
 
         #region == Move =============================================================================================================================
@@ -358,7 +358,7 @@ namespace YaR.MailRuCloud.Api
             if (!string.IsNullOrEmpty(res)) return false;
 
 
-            //move links
+            //TODO: move links
             return true;
         }
 
@@ -374,6 +374,8 @@ namespace YaR.MailRuCloud.Api
             if (link != null)
             {
                 var remapped = await _linkManager.RemapLink(link, destinationPath);
+                if (remapped)
+                    _itemCache.Invalidate(file.Path, destinationPath);
                 return remapped;
             }
 
@@ -382,12 +384,63 @@ namespace YaR.MailRuCloud.Api
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                 .Select(async pfile => await MoveOrCopy(pfile.FullPath, destinationPath, true));
 
+            _itemCache.Invalidate(file.Path, destinationPath);
             bool res = (await Task.WhenAll(qry))
                 .All(r => !string.IsNullOrEmpty(r));
             return res;
         }
 
         #endregion == Move ==========================================================================================================================
+
+        #region == Remove ===========================================================================================================================
+
+        /// <summary>
+        /// Remove item on server by path
+        /// </summary>
+        /// <param name="entry">File or folder</param>
+        /// <returns>True or false operation result.</returns>
+        public virtual async Task<bool> Remove(IEntry entry)
+        {
+            if (entry is File file)
+                return await Remove(file);
+            if (entry is Folder folder)
+                return await Remove(folder);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Remove the folder on server.
+        /// </summary>
+        /// <param name="folder">Folder info.</param>
+        /// <returns>True or false operation result.</returns>
+        public async Task<bool> Remove(Folder folder)
+        {
+            return await Remove(folder.FullPath);
+        }
+
+        /// <summary>
+        /// Remove the file on server.
+        /// </summary>
+        /// <param name="file">File info.</param>
+        /// <returns>True or false operation result.</returns>
+        public virtual async Task<bool> Remove(File file)
+        {
+            var qry = file.Files
+                .AsParallel()
+                .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
+                .Select(async pfile =>
+                {
+                    var removed = await Remove(pfile.FullPath);
+                    return removed;
+                });
+
+            bool res = (await Task.WhenAll(qry)).All(r => r);
+            _itemCache.Invalidate(file.Path, file.FullPath);
+            return res;
+        }
+
+        #endregion == Remove ========================================================================================================================
 
         public byte MaxInnerParallelRequests
         {
@@ -409,70 +462,26 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            await new CreateFolderRequest(CloudApi, fullPath)
+            var req = await new CreateFolderRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
+            var res = req.ToPathResult();
 
-            return true;
+            if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            return res.IsSuccess;
         }
 
-        /// <summary>
-        /// Remove item on server by path
-        /// </summary>
-        /// <param name="entry">File or folder</param>
-        /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(IEntry entry)
-        {
-            if (entry is File file)
-                return await Remove(file);
-            if (entry is Folder folder)
-                return await Remove(folder);
-
-            return false;
-        }
-
-        /// <summary>
-        /// Remove the file on server.
-        /// </summary>
-        /// <param name="file">File info.</param>
-        /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file)
-        {
-            if (file.IsSplitted)
-            {
-                foreach (var fileFile in file.Parts)
-                {
-                    await Remove(fileFile.FullPath);
-                }
-            }
-            var result = await Remove(file.FullPath);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Remove the folder on server.
-        /// </summary>
-        /// <param name="folder">Folder info.</param>
-        /// <returns>True or false operation result.</returns>
-        public async Task<bool> Remove(Folder folder)
-        {
-            return await Remove(folder.FullPath);
-        }
-
-
-        public async Task<CloneResult> CloneItem(string path, string url)
+        public async Task<PathResult> CloneItem(string path, string url)
         {
             var data = await new CloneItemRequest(CloudApi, url, path)
                 .MakeRequestAsync();
-            return new CloneResult
-            {
-                //TODO: move to dtoimport
-                IsSuccess = data.status == 200,
-                Path = data.body
-            };
+
+            var res = data.ToPathResult();
+            if (res.IsSuccess) _itemCache.Invalidate(path);
+            return res;
         }
 
-        public class CloneResult
+        //TODO : move upper
+        public class PathResult
         {
             public bool IsSuccess { get; set; }
             public string Path { get; set; }
@@ -561,35 +570,6 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
-        /// <summary>
-        /// Rename item on server.
-        /// </summary>
-        /// <param name="fullPath">Full path of the file or folder.</param>
-        /// <param name="newName">New file or path name.</param>
-        /// <returns>True or false result operation.</returns>
-        private async Task<bool> Rename(string fullPath, string newName)
-        {
-            var link = await _linkManager.GetItemLink(fullPath, false);
-
-            //rename item
-            if (link == null)
-            {
-                var data = await new RenameRequest(CloudApi, fullPath, newName)
-                    .MakeRequestAsync();
-
-                if (data.status == 200)
-                {
-                    _linkManager.ProcessRename(fullPath, newName);
-                }
-
-                return data.status == 200;
-            }
-
-            //rename link
-            var res = _linkManager.RenameLink(link, newName);
-
-            return res;
-        }
 
         /// <summary>
         /// Move or copy item on server.
@@ -609,6 +589,8 @@ namespace YaR.MailRuCloud.Api
 
             var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
                 .MakeRequestAsync();
+
+            if (data.status == 200) _itemCache.Invalidate(WebDavPath.Parent(sourceFullPath), destinationPath);
             return data.ToString();
         }
 
@@ -623,7 +605,6 @@ namespace YaR.MailRuCloud.Api
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            //string link = _linkManager.AsRelationalWebLink(fullPath);
             var link = await _linkManager.GetItemLink(fullPath, false);
 
             if (link != null)
@@ -632,14 +613,15 @@ namespace YaR.MailRuCloud.Api
                 //just try to unlink folder
                 _linkManager.RemoveItem(fullPath);
 
+                _itemCache.Invalidate(WebDavPath.Parent(fullPath));
                 return true;
             }
 
 
-            await new RemoveRequest(CloudApi, fullPath)
+            var res = await new RemoveRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
-
-            return true;
+            if (res.status == 200) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            return res.status == 200;
         }
 
         #region IDisposable Support
@@ -663,16 +645,21 @@ namespace YaR.MailRuCloud.Api
         }
         #endregion
 
-        public async void LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async Task<bool> LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             var res = await _linkManager.Add(url, path, name, isFile, size, creationDate);
             if (res)
+            {
                 _linkManager.Save();
+                _itemCache.Invalidate(path);
+            }
+            return res;
         }
 
-        public void RemoveDeadLinks()
+        public async void RemoveDeadLinks()
         {
-            _linkManager.RemoveDeadLinks(true);
+            var count = await _linkManager.RemoveDeadLinks(true);
+            if (count > 0) _itemCache.Invalidate();
         }
     }
 
