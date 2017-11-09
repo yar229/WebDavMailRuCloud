@@ -71,9 +71,9 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            var cached = _itemCache.Get(path);
-            if (null != cached)
-                return cached;
+            //var cached = _itemCache.Get(path);
+            //if (null != cached)
+            //    return cached;
 
             //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
@@ -602,13 +602,15 @@ namespace YaR.MailRuCloud.Api
 
         private void OnFileUploaded(IEnumerable<File> files)
         {
-            FileUploaded?.Invoke(files);
+            var lst = files.ToList();
+            _itemCache.Invalidate(lst);
+            _itemCache.Invalidate(lst.Select(file => file.Path).Distinct());
+            FileUploaded?.Invoke(lst);
         }
 
         public T DownloadFileAsJson<T>(File file)
         {
-            DownloadStream stream = new DownloadStream(file, CloudApi);
-
+            using (var stream = new DownloadStream(file, CloudApi))
             using (var reader = new StreamReader(stream))
             using (var jsonReader = new JsonTextReader(reader))
             {
@@ -619,26 +621,26 @@ namespace YaR.MailRuCloud.Api
 
         public string DownloadFileAsString(File file)
         {
-            //using (var stream = new DownloadStream(file, CloudApi))
-            //using (var reader = new StreamReader(stream))
-            //{
-            //    string res = reader.ReadToEnd();
-            //    return res;
-            //}
-
-            //TODO: refact, bad stream realization
-            StreamReader reader = null;
-            try
+            using (var stream = new DownloadStream(file, CloudApi))
+            using (var reader = new StreamReader(stream))
             {
-                var stream = new DownloadStream(file, CloudApi);
-                reader = new StreamReader(stream);
                 string res = reader.ReadToEnd();
                 return res;
             }
-            finally
-            {
-                reader?.Close();
-            }
+
+            ////TODO: refact, bad stream realization
+            //StreamReader reader = null;
+            //try
+            //{
+            //    var stream = new DownloadStream(file, CloudApi);
+            //    reader = new StreamReader(stream);
+            //    string res = reader.ReadToEnd();
+            //    return res;
+            //}
+            //finally
+            //{
+            //    reader?.Close();
+            //}
         }
 
         /// <summary>

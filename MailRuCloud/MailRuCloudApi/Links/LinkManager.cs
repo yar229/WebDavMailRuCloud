@@ -81,7 +81,8 @@ namespace YaR.MailRuCloud.Api.Links
             {
                 lock (_lockContainer)
                 {
-                    var file = (File)_cloud.GetItem(WebDavPath.Combine(WebDavPath.Root, LinkContainerName), MailRuCloud.ItemType.File, false).Result;
+                    string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
+                    var file = (File)_cloud.GetItem(filepath, MailRuCloud.ItemType.File, false).Result;
 
                     if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
                             _itemList = _cloud.DownloadFileAsJson<ItemList>(file);

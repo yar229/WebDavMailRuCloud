@@ -105,6 +105,11 @@ namespace YaR.MailRuCloud.Api
 
         public void Invalidate(params string[] paths)
         {
+            Invalidate(paths.AsEnumerable());
+        }
+
+        internal void Invalidate(IEnumerable<string> paths)
+        {
             foreach (var path in paths)
             {
                 _items.TryRemove(path, out _);
@@ -114,6 +119,14 @@ namespace YaR.MailRuCloud.Api
         public IEntry Invalidate(IEntry item)
         {
             return Invalidate(item.FullPath);
+        }
+
+        public void Invalidate(IEnumerable<IEntry> items)
+        {
+            foreach (var item in items)
+            {
+                _items.TryRemove(item.FullPath, out _);
+            }
         }
 
         private bool IsExpired(TimedItem<IEntry> item)
