@@ -14,10 +14,8 @@ namespace YaR.MailRuCloud.Api
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(StoreItemCache));
 
-        public StoreItemCache(MailRuCloud store, LinkManager linkManager, TimeSpan expirePeriod)
+        public StoreItemCache(TimeSpan expirePeriod)
         {
-            _store = store;
-            _linkManager = linkManager;
             _expirePeriod = expirePeriod;
 
             long cleanPeriod = (long)CleanUpPeriod.TotalMilliseconds;
@@ -25,8 +23,6 @@ namespace YaR.MailRuCloud.Api
             _cleanTimer = new Timer(state => RemoveExpired(), null, cleanPeriod, cleanPeriod);
         }
 
-        private readonly MailRuCloud _store;
-        private readonly LinkManager _linkManager;
         private readonly Timer _cleanTimer;
         private readonly ConcurrentDictionary<string, TimedItem<IEntry>> _items = new ConcurrentDictionary<string, TimedItem<IEntry>>();
         private readonly object _locker = new object();
@@ -61,7 +57,7 @@ namespace YaR.MailRuCloud.Api
             return removedCount;
         }
 
-        public async Task<IEntry> Get(string path, MailRuCloud.ItemType itemType = MailRuCloud.ItemType.Unknown, bool resolveLinks = true)
+        public IEntry Get(string path)
         {
             if (_items.TryGetValue(path, out var item))
             {
@@ -69,92 +65,22 @@ namespace YaR.MailRuCloud.Api
                     _items.TryRemove(path, out item);
                 else
                 {
-                    Logger.Debug($"Cache hit: {item.Item.FullPath}");
+                    Logger.Warn($"Cache hit: {item.Item.FullPath}");
                     return item.Item;
                 }
             }
-
-            var newitem = await GetItem(path, itemType, resolveLinks);
-            lock (_locker)
-            {
-                if (!_items.TryGetValue(path, out item))
-                {
-                    item = new TimedItem<IEntry>
-                    {
-                        Created = DateTime.Now,
-                        Item = newitem
-                    };
-
-                    if (!_items.TryAdd(path, item))
-                        _items.TryGetValue(path, out item);
-                }
-            }
-
-            return item.Item;
+            return null;
         }
 
-
-        /// <summary>
-        /// Get list of files and folders from account.
-        /// </summary>
-        /// <param name="path">Path in the cloud to return the list of the items.</param>
-        /// <param  name="itemType">Unknown, File/Folder if you know for sure</param>
-        /// <param name="resolveLinks">True if you know for sure that's not a linked item</param>
-        /// <returns>List of the items.</returns>
-        public virtual async Task<IEntry> GetItem(string path, MailRuCloud.ItemType itemType = MailRuCloud.ItemType.Unknown, bool resolveLinks = true)
+        public void Add(string path, IEntry itemin)
         {
-            //TODO: subject to refact!!!
-            var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
-
-            // bad link detected, just return stub
-            // cause client cannot, for example, delete it if we return NotFound for this item
-            if (ulink != null && ulink.IsBad)
-                return ulink.ToBadEntry();
-
-
-            var datares = await new FolderInfoRequest(_store.CloudApi, null == ulink ? path : ulink.Href, ulink != null)
-                .MakeRequestAsync().ConfigureAwait(false);
-
-            if (itemType == MailRuCloud.ItemType.Unknown && ulink != null)
-                itemType = ulink.ItemType;
-
-            if (itemType == MailRuCloud.ItemType.Unknown && null == ulink)
-                itemType = datares.body.home == path
-                    ? MailRuCloud.ItemType.Folder
-                    : MailRuCloud.ItemType.File;
-
-            var entry = itemType == MailRuCloud.ItemType.File
-                ? (IEntry)datares.ToFile(
-                    home: itemType != MailRuCloud.ItemType.File ? path : WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder(
-                    itemType != MailRuCloud.ItemType.File ? path : WebDavPath.Parent(path),
-                    ulink);
-
-            // fill folder with links if any
-            if (itemType == MailRuCloud.ItemType.Folder && entry is Folder folder)
+            var item1 = new TimedItem<IEntry>
             {
-                var flinks = _linkManager.GetItems(folder.FullPath);
-                if (flinks.Any())
-                {
-                    foreach (var flink in flinks)
-                    {
-                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+                Created = DateTime.Now,
+                Item = itemin
+            };
 
-                        if (!flink.IsFile)
-                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                        else
-                        {
-                            if (folder.Files.All(inf => inf.FullPath != linkpath))
-                                folder.Files.Add(new File(linkpath, flink.Size));
-                        }
-                    }
-                }
-            }
-
-            return entry;
+            _items.AddOrUpdate(path, item1, (key, oldValue) => item1);
         }
 
         public IEntry Invalidate(string path)

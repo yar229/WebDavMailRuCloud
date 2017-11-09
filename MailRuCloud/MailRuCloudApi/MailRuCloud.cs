@@ -50,10 +50,8 @@ namespace YaR.MailRuCloud.Api
             CloudApi = new CloudApi(login, password, twoFaHandler);
 
             //TODO: wow very dummy linking, refact cache realization globally!
-            var linkmanager = new LinkManager(this);
-            _itemCache = new StoreItemCache(this, linkmanager, TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
-            _linkManager = linkmanager;
-            _linkManager.Load();
+            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _linkManager = new LinkManager(this);
         }
 
         public enum ItemType
@@ -72,7 +70,67 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            return await _itemCache.Get(path, itemType, resolveLinks);
+            var cached = _itemCache.Get(path);
+            if (null != cached)
+                return cached;
+
+            //TODO: subject to refact!!!
+            var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
+
+            // bad link detected, just return stub
+            // cause client cannot, for example, delete it if we return NotFound for this item
+            if (ulink != null && ulink.IsBad)
+            {
+                var res = ulink.ToBadEntry();
+                _itemCache.Add(res.FullPath, res);
+                return res;
+            }
+
+
+            var datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
+                .MakeRequestAsync().ConfigureAwait(false);
+
+            if (itemType == ItemType.Unknown && ulink != null)
+                itemType = ulink.ItemType;
+
+            if (itemType == ItemType.Unknown && null == ulink)
+                itemType = datares.body.home == path
+                    ? ItemType.Folder
+                    : ItemType.File;
+
+            var entry = itemType == ItemType.File
+                ? (IEntry)datares.ToFile(
+                    home: itemType != ItemType.File ? path : WebDavPath.Parent(path),
+                    ulink: ulink,
+                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+                    nameReplacement: WebDavPath.Name(path))
+                : datares.ToFolder(
+                    itemType != ItemType.File ? path : WebDavPath.Parent(path),
+                    ulink);
+
+            // fill folder with links if any
+            if (itemType == ItemType.Folder && entry is Folder folder)
+            {
+                var flinks = _linkManager.GetItems(folder.FullPath);
+                if (flinks.Any())
+                {
+                    foreach (var flink in flinks)
+                    {
+                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+
+                        if (!flink.IsFile)
+                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+                        else
+                        {
+                            if (folder.Files.All(inf => inf.FullPath != linkpath))
+                                folder.Files.Add(new File(linkpath, flink.Size));
+                        }
+                    }
+                }
+            }
+
+            _itemCache.Add(entry.FullPath, entry);
+            return entry;
         }
 
  

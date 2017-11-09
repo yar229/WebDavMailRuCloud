@@ -22,11 +22,14 @@ namespace YaR.MailRuCloud.Api.Links
         public static readonly string HistoryContainerName = "item.links.history.wdmrc";
         private readonly MailRuCloud _cloud;
         private ItemList _itemList = new ItemList();
-
+        private readonly StoreItemCache _itemCache;
 
         public LinkManager(MailRuCloud cloud)
         {
             _cloud = cloud;
+            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(15)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+
+            Load();
         }
 
 
@@ -91,13 +94,13 @@ namespace YaR.MailRuCloud.Api.Links
         public void RemoveItem(string path, bool doSave = true)
         {
             var name = WebDavPath.Name(path);
-            var pa = WebDavPath.Parent(path);
+            var parent = WebDavPath.Parent(path);
 
-            var z = _itemList.Items
-                .FirstOrDefault(f => f.MapTo == pa && f.Name == name);
+            var z = _itemList.Items.FirstOrDefault(f => f.MapTo == parent && f.Name == name);
 
             if (z != null)
             {
+                _itemCache.Invalidate(path, parent);
                 _itemList.Items.Remove(z);
                 if (doSave) Save();
             }
@@ -123,6 +126,11 @@ namespace YaR.MailRuCloud.Api.Links
             {
                 if (doWriteHistory)
                 {
+                    foreach (var link in removes)
+                    {
+                        _itemCache.Invalidate(link.FullPath, link.MapPath);
+                    }
+
                     string path = WebDavPath.Combine(WebDavPath.Root, HistoryContainerName);
                     string res = await _cloud.DownloadFileAsString(path);
                     var history = new StringBuilder(res ?? string.Empty);
@@ -170,6 +178,10 @@ namespace YaR.MailRuCloud.Api.Links
         /// <returns></returns>
         public async Task<Link> GetItemLink(string path, bool doResolveType = true)
         {
+            var cached = _itemCache.Get(path);
+            if (null != cached)
+                return (Link)cached;
+
             //TODO: subject to refact
             string parent = path;
             ItemLink wp;
@@ -188,17 +200,17 @@ namespace YaR.MailRuCloud.Api.Links
 
             //resolve additional link properties, e.g. OriginalName, ItemType, Size
             if (doResolveType)
-                ResolveLink(link);
+                await ResolveLink(link);
 
+            _itemCache.Add(link.FullPath, link);
             return link;
         }
 
-        private async void ResolveLink(Link link)
+        private async Task ResolveLink(Link link)
         {
             try
             {
-                var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync()
-                    .ConfigureAwait(false);
+                var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
                 link.ItemType = infores.body.kind == "file"
                     ? MailRuCloud.ItemType.File
                     : MailRuCloud.ItemType.Folder;
@@ -259,6 +271,7 @@ namespace YaR.MailRuCloud.Api.Links
                 CreationDate = creationDate
             });
 
+            _itemCache.Invalidate(path);
             return true;
         }
 
@@ -289,7 +302,11 @@ namespace YaR.MailRuCloud.Api.Links
                     changed = true;
                 }
             }
-            if (changed) Save();
+            if (changed)
+            {
+                _itemCache.Invalidate(fullPath, newPath);
+                Save();
+            }
         }
 
         public bool RenameLink(Link link, string newName)
@@ -299,9 +316,11 @@ namespace YaR.MailRuCloud.Api.Links
 
             var ilink = _itemList.Items.FirstOrDefault(it => WebDavPath.PathEquals(it.MapTo, link.MapPath) && it.Name == link.Name);
             if (null == ilink) return false;
+            if (ilink.Name == newName) return true;
 
             ilink.Name = newName;
             Save();
+            _itemCache.Invalidate(link.MapPath);
             return true;
         }
 
@@ -330,8 +349,10 @@ namespace YaR.MailRuCloud.Api.Links
                 var rootlink = _itemList.Items.FirstOrDefault(it => WebDavPath.PathEquals(it.MapTo, link.MapPath) && it.Name == link.Name);
                 if (rootlink != null)
                 {
+                    string oldmap = rootlink.MapTo;
                     rootlink.MapTo = destinationPath;
                     Save();
+                    _itemCache.Invalidate(link.FullPath, oldmap, destinationPath);
                     return true;
                 }
                 return false;
@@ -339,7 +360,7 @@ namespace YaR.MailRuCloud.Api.Links
 
             // it's a link on inner item of root link, creating new link
             if (!link.IsResolved)
-                ResolveLink(link);
+                await ResolveLink(link);
 
             var res = await Add(
                 link.Href,
@@ -350,7 +371,10 @@ namespace YaR.MailRuCloud.Api.Links
                 DateTime.Now);
 
             if (res)
+            {
                 Save();
+                _itemCache.Invalidate(destinationPath);
+            }
 
             return res;
         }

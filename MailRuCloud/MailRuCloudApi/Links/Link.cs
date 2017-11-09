@@ -5,7 +5,7 @@ using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api.Links
 {
-    public class Link
+    public class Link : IEntry
     {
         private Link()
         {
@@ -27,7 +27,7 @@ namespace YaR.MailRuCloud.Api.Links
                 ? rootLink.Size
                 : 0;
 
-            CreationDate = rootLink.CreationDate;
+            CreationTimeUtc = rootLink.CreationDate ?? DateTime.Now;
         }
 
         private readonly ItemLink _rootLink;
@@ -37,6 +37,8 @@ namespace YaR.MailRuCloud.Api.Links
         public string Name => WebDavPath.Name(FullPath);
 
         public MailRuCloud.ItemType ItemType { get; set; }
+
+        public bool IsFile => ItemType == MailRuCloud.ItemType.File;
 
         public bool IsBad { get; set; }
 
@@ -62,8 +64,8 @@ namespace YaR.MailRuCloud.Api.Links
 
         public string Href { get; }
             
-        public long Size { get; set; }
-        public DateTime? CreationDate { get; set; }
+        public FileSize Size { get; set; }
+        public DateTime CreationTimeUtc { get; set; }
 
     }
 }
