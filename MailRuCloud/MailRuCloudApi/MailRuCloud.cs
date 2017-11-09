@@ -71,9 +71,9 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
-            //var cached = _itemCache.Get(path);
-            //if (null != cached)
-            //    return cached;
+            var cached = _itemCache.Get(path);
+            if (null != cached)
+                return cached;
 
             //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;

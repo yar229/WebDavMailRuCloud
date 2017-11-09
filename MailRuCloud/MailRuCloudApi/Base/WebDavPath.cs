@@ -21,12 +21,12 @@ namespace YaR.MailRuCloud.Api.Base
         {
             try
             {
-
-            string res = path.Replace("\\", "/");
-            if (res.Length > 1 && !doAddFinalseparator)                
-                return res.TrimEnd('/');
-            if (doAddFinalseparator && !res.EndsWith("/")) res += Separator;
-            return res;
+                string res = path.Replace("\\", "/");
+                res = res.Replace("//", "/");
+                if (res.Length > 1 && !doAddFinalseparator)                
+                    return res.TrimEnd('/');
+                if (doAddFinalseparator && !res.EndsWith("/")) res += Separator;
+                return res;
             }
             catch (Exception e)
             {
