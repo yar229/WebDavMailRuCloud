@@ -125,18 +125,44 @@ namespace YaR.MailRuCloud.Api.Base
             e?.Invoke(files);
         }
 
-        public override void Close()
+        //public override void Close()
+        //{
+        //    if (_files.Count > 1)
+        //    {
+        //        string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
+        //        var data = Encoding.UTF8.GetBytes(content);
+        //        var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
+        //        stream.Write(data, 0, data.Length);
+        //        stream.Close();
+        //    }
+
+        //    _uploadStream?.Close();
+
+        //    OnFileUploaded(_files);
+        //}
+
+        ~SplittedUploadStream()
         {
+            Dispose(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
+            _uploadStream?.Close();
+
             if (_files.Count > 1)
             {
                 string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
                 var data = Encoding.UTF8.GetBytes(content);
-                var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
-                stream.Write(data, 0, data.Length);
-                stream.Close();
+                using (var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length))
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+                    
             }
-
-            _uploadStream?.Close();
 
             OnFileUploaded(_files);
         }

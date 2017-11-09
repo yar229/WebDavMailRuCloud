@@ -55,7 +55,7 @@ namespace YaR.MailRuCloud.Api.Base
             var t = GetFileStream();
         }
 
-
+        private Task<WebResponse> _task;
 
         private async Task<object> GetFileStream()
         {
@@ -66,7 +66,7 @@ namespace YaR.MailRuCloud.Api.Base
             long fileStart = 0;
             long fileEnd = 0;
 
-            Task<WebResponse> task = Task.FromResult((WebResponse)null);
+            _task = Task.FromResult((WebResponse)null);
 
             foreach (var file in _files)
             {
@@ -83,7 +83,7 @@ namespace YaR.MailRuCloud.Api.Base
                 var instart = Math.Max(0, glostart - fileStart);
                 var inend = gloend - fileStart - 1;
 
-                task = task.ContinueWith(task1 =>
+                _task = _task.ContinueWith(task1 =>
                 {
                     
                     WebResponse response;
@@ -139,7 +139,7 @@ namespace YaR.MailRuCloud.Api.Base
                 fileStart += file.Size;
             }
 
-            task = task.ContinueWith(task1 =>
+            _task = _task.ContinueWith(task1 =>
             {
                 _innerStream.Flush();
                 return (WebResponse)null;
@@ -149,34 +149,14 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
 
-        public override void Close()
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
+            _task.Wait();
             _innerStream.Close();
-            base.Close();
         }
-
-        //private void ReadResponseAsByte(WebResponse resp, CancellationToken token, Stream outputStream = null)
-        //{
-        //    using (Stream responseStream = resp.GetResponseStream())
-        //    {
-        //        var buffer = new byte[65536];
-        //        int bytesRead;
-        //        int totalRead = 0;
-
-        //        while (responseStream != null && (bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)
-        //        {
-        //            token.ThrowIfCancellationRequested();
-
-        //            if (totalRead + bytesRead > Length)
-        //            {
-        //                bytesRead = (int)(Length - totalRead);
-        //            }
-        //            totalRead += bytesRead;
-
-        //            outputStream?.Write(buffer, 0, bytesRead);
-        //        }
-        //    }
-        //}
 
 
         public override void Flush()

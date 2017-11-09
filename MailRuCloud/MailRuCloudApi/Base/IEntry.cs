@@ -7,6 +7,7 @@ namespace YaR.MailRuCloud.Api.Base
         bool IsFile { get; }
         FileSize Size { get; }
         string Name { get; }
+        string FullPath { get; }
         DateTime CreationTimeUtc { get; }
     }
 }

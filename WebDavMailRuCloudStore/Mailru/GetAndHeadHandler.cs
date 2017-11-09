@@ -51,9 +51,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
             // Obtain the WebDAV collection
             var mrstore = (MailruStore) store;
-            //TODO: refact
-            var entry = mrstore.ItemCache.Get(request.Url, httpContext); // GetItemAsync(request.Url, httpContext).ConfigureAwait(false);
-            //var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false);
+
+            var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false); //mrstore.ItemCache.Get(request.Url, httpContext); // 
             if (entry == null)
             {
                 // Set status to not found

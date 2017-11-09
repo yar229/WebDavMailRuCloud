@@ -145,59 +145,99 @@ namespace YaR.MailRuCloud.Api.Base
                             },
                         _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
-        public override void Close()
+        //public override void Close()
+        //{
+        //    var z = _task.ContinueWith(
+        //         (t, m) =>
+        //         {
+        //             try
+        //             {
+        //                 var token = (CancellationToken)m;
+        //                 var s = t.Result;
+        //                 WriteBytesInStream(_endBoundaryRequest, s, token, _endBoundaryRequest.Length);
+        //             }
+        //             catch (Exception)
+        //             {
+        //                 return false;
+        //             }
+        //             finally
+        //             {
+        //                 var st = t.Result;
+        //                 st?.Dispose();
+        //             }
+
+
+        //             using (var response = (HttpWebResponse)_request.GetResponse())
+        //             {
+        //                 if (response.StatusCode == HttpStatusCode.OK)
+        //                 {
+        //                     var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
+        //                     var hashResult = resp[0];
+        //                     var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
+
+        //                     _file.Hash = hashResult;
+        //                     _file.Size = sizeResult;
+
+        //                     var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
+        //                     return res;
+        //                 }
+        //             }
+
+        //             return true;
+        //         },
+        //     _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+        //    z.Wait();
+
+        //    base.Close();
+        //}
+
+
+
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
             var z = _task.ContinueWith(
-                 (t, m) =>
-                 {
-                     try
-                     {
-                         var token = (CancellationToken)m;
-                         var s = t.Result;
-                         WriteBytesInStream(_endBoundaryRequest, s, token, _endBoundaryRequest.Length);
-                     }
-                     catch (Exception)
-                     {
-                         return false;
-                     }
-                     finally
-                     {
-                         var st = t.Result;
-                         st?.Dispose();
-                     }
+                (t, m) =>
+                {
+                    var stream = t.Result;
+                    try
+                    {
+                        var token = (CancellationToken)m;
+                        WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
+                    }
+                    finally
+                    {
+                        stream.Close();
+                    }
 
+                    using (var response = (HttpWebResponse)_request.GetResponse())
+                    {
+                        if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
+                            var hashResult = resp[0];
+                            var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
 
-                     using (var response = (HttpWebResponse)_request.GetResponse())
-                     {
-                         if (response.StatusCode == HttpStatusCode.OK)
-                         {
-                             var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
-                             var hashResult = resp[0];
-                             var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
+                            _file.Hash = hashResult;
+                            _file.Size = sizeResult;
 
-                             _file.Hash = hashResult;
-                             _file.Size = sizeResult;
+                            var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
+                            return res;
+                        }
+                    }
 
-                             var res = AddFileInCloud(_file).Result;
-                             return res;
-                         }
-                     }
-
-                     return true;
-                 },
-             _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    return true;
+                },
+                _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             z.Wait();
-
-            base.Close();
         }
 
 
-
-
-
-
-        private async Task<bool> AddFileInCloud(File fileInfo, ResolveFileConflictMethod conflict = ResolveFileConflictMethod.Rewrite)
+        private async Task<bool> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
             await new CreateFileRequest(_cloud, fileInfo.FullPath, fileInfo.Hash, fileInfo.Size, conflict)
                 .MakeRequestAsync();

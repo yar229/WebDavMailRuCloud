@@ -17,12 +17,23 @@ namespace YaR.MailRuCloud.Api.Base
 
         }
 
-        public static string Clean(string path)
+        public static string Clean(string path, bool doAddFinalseparator = false)
         {
-            string res = path.Replace("\\", "/");
-            if (res.Length > 1)                
-                return res.TrimEnd('/');
-            return res;
+            try
+            {
+                string res = path.Replace("\\", "/");
+                res = res.Replace("//", "/");
+                if (res.Length > 1 && !doAddFinalseparator)                
+                    return res.TrimEnd('/');
+                if (doAddFinalseparator && !res.EndsWith("/")) res += Separator;
+                return res;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         public static string Parent(string path)
@@ -63,10 +74,14 @@ namespace YaR.MailRuCloud.Api.Base
 
         public static bool IsParentOrSame(string parent, string child)
         {
-            parent = Clean(parent) + Separator;
-            child = Clean(child) + Separator;
-            return child.StartsWith(parent);
+            return IsParent(parent, child, true);
+        }
 
+        public static bool IsParent(string parent, string child, bool selfTrue = false)
+        {
+            parent = Clean(parent, true);
+            child = Clean(child, true);
+            return child.StartsWith(parent) && (selfTrue || parent.Length != child.Length);
         }
 
         public static WebDavPathParts Parts(string path)
@@ -86,8 +101,8 @@ namespace YaR.MailRuCloud.Api.Base
             if (!IsParentOrSame(oldParent, path))
                 return path;
 
-            path = Clean(path) + Separator;
-            oldParent = Clean(oldParent) + Separator;
+            path = Clean(path, true);
+            oldParent = Clean(oldParent, true);
 
             path = path.Remove(0, oldParent.Length);
 

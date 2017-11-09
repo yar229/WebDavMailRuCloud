@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 
-namespace YaR.MailRuCloud.Api.Links
+namespace YaR.MailRuCloud.Api.Links.Dto
 {
-    public class ItemList
-    {
-        public List<ItemLink> Items { get; } = new List<ItemLink>();
-    }
-
     public class ItemLink
     {
         public string Href { get; set; }

@@ -24,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         public Folder(string fullPath)
         {
-            FullPath = fullPath;
+            FullPath = WebDavPath.Clean(fullPath);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace YaR.MailRuCloud.Api.Base
         {
             get
             {
-                string z = FullPath == "/" ? "" : FullPath.TrimEnd('/').Remove(0, FullPath.LastIndexOf('/') + 1);
+                string z = WebDavPath.Name(FullPath); //FullPath == "/" ? "" : FullPath.TrimEnd('/').Remove(0, FullPath.LastIndexOf('/') + 1);
                 return z;
             }
         }
