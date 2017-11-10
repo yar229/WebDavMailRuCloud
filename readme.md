@@ -27,10 +27,13 @@
 ```
 
 ***Commands*** <br/>
-Commands executed by making directory with special name
+Commands executed by making directory with special name.<br/>
+Parameters with spaces must be screened by quotes.
 * `>>join SHARED_FOLDER_LINK` Clone shared cloud.mail.ru file/folder to your account
 * `>>link SHARED_FOLDER_LINK [linkname]` Link shared folder without wasting your space (or manually edit file /item.links.wdmrc)
-* `>>link check` Remove all dead links (may take time if there's a lot of links)
+  * `>>link check` Remove all dead links (may take time if there's a lot of links)
+* `>>move` `/full/path/from /full/path/to` Fast move (if your client moves inner items recursively)
+* `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
 * `>>del` Fast delete (if your client makes recursive deletions of inner items)
   * `>>del` current folder
   * `>>del abc/cde` current folder/abc/cde
