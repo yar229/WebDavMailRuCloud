@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,17 +51,25 @@ namespace YaR.MailRuCloud.Api.Base
             _request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
             _request.Proxy = _cloud.Account.Proxy;
             _request.CookieContainer = _cloud.Account.Cookies;
-            _request.Method = "POST";
+            _request.Method = "PUT";
 
-            _request.ContentLength = _file.Size + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
+            _request.ContentLength = _file.Size; // + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
 
             _request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}";
             _request.Headers.Add("Origin", ConstSettings.CloudDomain);
             _request.Host = url.Host;
-            _request.ContentType = $"multipart/form-data; boundary=----{boundary}";
+            _request.ContentType = "image/png";//$"multipart/form-data; boundary=----{boundary}";
             _request.Accept = "*/*";
             _request.UserAgent = ConstSettings.UserAgent;
             _request.AllowWriteStreamBuffering = false;
+
+
+
+
+
+
+
+
 
             Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
@@ -74,7 +83,7 @@ namespace YaR.MailRuCloud.Api.Base
                                 {
                                     var token = (CancellationToken)m;
                                     var s = t.Result;
-                                    WriteBytesInStream(boundaryRequest, s, token, boundaryRequest.Length);
+                                    //WriteBytesInStream(boundaryRequest, s, token, boundaryRequest.Length);
                                 }
                                 catch (Exception)
                                 {
@@ -206,19 +215,19 @@ namespace YaR.MailRuCloud.Api.Base
                     if (stream == null)
                         return false;
                     var token = (CancellationToken) m;
-                    WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
+                    //WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
                     stream.Dispose();
 
                     using (var response = (HttpWebResponse)_request.GetResponse())
                     {
-                        if (response.StatusCode == HttpStatusCode.OK)
+                        if (response.StatusCode == HttpStatusCode.Created)
                         {
                             var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
                             var hashResult = resp[0];
-                            var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
+                            //var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
 
                             _file.Hash = hashResult;
-                            _file.Size = sizeResult;
+                            //_file.Size = sizeResult;
 
                             var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
                             return res;
