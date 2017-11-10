@@ -61,7 +61,7 @@ namespace YaR.MailRuCloud.Api.Base
         private void NextFile()
         {
             if (_currFileId >= 0)
-                _uploadStream.Close();
+                _uploadStream.Dispose();
 
             _currFileId++;
             if (_currFileId >= _files.Count)
