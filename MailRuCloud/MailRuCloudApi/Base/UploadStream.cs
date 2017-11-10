@@ -203,15 +203,11 @@ namespace YaR.MailRuCloud.Api.Base
                 (t, m) =>
                 {
                     var stream = t.Result;
-                    try
-                    {
-                        var token = (CancellationToken)m;
-                        WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
-                    }
-                    finally
-                    {
-                        stream.Close();
-                    }
+                    if (stream == null)
+                        return false;
+                    var token = (CancellationToken) m;
+                    WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
+                    stream.Dispose();
 
                     using (var response = (HttpWebResponse)_request.GetResponse())
                     {
