@@ -8,7 +8,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
     {
         private static readonly IDictionary<string, IRequestHandler> RequestHandlers = new Dictionary<string, IRequestHandler>
         {   
-            { "COPY",      new NWebDav.Server.Handlers.CopyHandler() },
+            { "COPY",      new CopyHandler() },
             { "DELETE",    new DeleteHandler() },
             { "GET",       new GetAndHeadHandler() },
             { "HEAD",      new NWebDav.Server.Handlers.GetAndHeadHandler() },

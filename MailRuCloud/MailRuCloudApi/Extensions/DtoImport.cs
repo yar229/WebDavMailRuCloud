@@ -4,11 +4,33 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+
+        public static MailRuCloud.PathResult ToPathResult(this CloneItemResult data)
+        {
+            var res = new MailRuCloud.PathResult
+            {
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
+        public static MailRuCloud.PathResult ToPathResult(this CreateFolderResult data)
+        {
+            var res = new MailRuCloud.PathResult
+            {
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
         public static AccountInfo ToAccountInfo(this AccountInfoResult data)
         {
             var res = new AccountInfo
@@ -91,10 +113,31 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-
-        public static Folder ToFolder(this FolderInfoResult data)
+        /// <summary>
+        /// When it's a linked item, need to shift paths
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="home"></param>
+        /// <param name="link"></param>
+        private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
         {
-            var folder = new Folder(data.body.size, data.body.home)
+            if (string.IsNullOrEmpty(home) || null == link)
+                return;
+
+            foreach (var propse in data.body.list)
+            {
+                string name = link.OriginalName == propse.name ? link.Name : propse.name;
+                propse.home = WebDavPath.Combine(home, name);
+                propse.name = name;
+            }
+            data.body.home = home;
+        }
+
+        public static Folder ToFolder(this FolderInfoResult data, string home = null, Link link = null)
+        {
+            PatchEntryPath(data, home, link);
+
+            var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
             {
                 Folders = data.body.list?
                     .Where(it => FolderKinds.Contains(it.kind))
@@ -110,31 +153,40 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        public static File ToFile(this FolderInfoResult data, string filename = null)
+        public static File ToFile(this FolderInfoResult data, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
         {
             if (string.IsNullOrEmpty(filename))
             {
                 return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
             }
 
-            var groupedFile = data.body.list?
+            PatchEntryPath(data, home, ulink);
+
+            var z = data.body.list?
                 .Where(it => it.kind == "file")
-                .Select(it => it.ToFile())
-                .ToGroupedFiles()
-                .First(it => it.Name == filename);
+                .Select(it => filename != null && it.name == filename
+                                ? it.ToFile(nameReplacement)
+                                : it.ToFile())
+                .ToList();
+            var groupedFile = z.ToGroupedFiles()
+                .First(it => it.Name == (string.IsNullOrEmpty(nameReplacement) ? filename : nameReplacement));
 
             return groupedFile;
         }
 
         private static Folder ToFolder(this FolderInfoProps item)
         {
-            var folder = new Folder(item.size, item.home, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
+            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
             return folder;
         }
 
-        private static File ToFile(this FolderInfoProps item)
+        private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
         {
-            var file = new File(item.home, item.size, item.hash)
+            var path = string.IsNullOrEmpty(nameReplacement)
+                ? item.home
+                : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
+
+            var file = new File(path ?? item.name, item.size, item.hash)
             {
                 PublicLink =
                     string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink,

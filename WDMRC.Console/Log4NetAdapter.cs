@@ -48,8 +48,8 @@ namespace YaR.WebDavMailRu
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
-                        if (_log.IsDebugEnabled)
-                            _log.Debug(msg, exception);
+                        //if (_log.IsDebugEnabled)
+                        //    _log.Debug(msg, exception);
                         break;
                     case LogLevel.Info:
                         if (_log.IsInfoEnabled)

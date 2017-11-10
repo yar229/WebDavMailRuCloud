@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base
@@ -91,7 +90,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return _uploadStream.Read(buffer, offset, count);
+            throw new NotImplementedException();
         }
 
         public override void Write(byte[] buffer, int offset, int count)
@@ -126,32 +125,51 @@ namespace YaR.MailRuCloud.Api.Base
             e?.Invoke(files);
         }
 
-        protected override void Dispose(bool disposing)
+        //public override void Close()
+        //{
+        //    if (_files.Count > 1)
+        //    {
+        //        string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
+        //        var data = Encoding.UTF8.GetBytes(content);
+        //        var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
+        //        stream.Write(data, 0, data.Length);
+        //        stream.Close();
+        //    }
+
+        //    _uploadStream?.Close();
+
+        //    OnFileUploaded(_files);
+        //}
+
+        ~SplittedUploadStream()
         {
-            if (_uploadStream != null)
-            {
-                if (disposing)
-                {
-                    if (_files.Count > 1)
-                    {
-                        string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
-                        var data = Encoding.UTF8.GetBytes(content);
-                        var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length);
-                        stream.Write(data, 0, data.Length);
-                        stream.Close();
-                    }
-
-                    _uploadStream?.Close();
-
-                    OnFileUploaded(_files);
-                }
-            }
-
+            Dispose(false);
         }
 
-        public override bool CanRead => _uploadStream.CanRead;
-        public override bool CanSeek => _uploadStream.CanSeek;
-        public override bool CanWrite => _uploadStream.CanWrite;
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
+            _uploadStream?.Close();
+
+            if (_files.Count > 1)
+            {
+                string content = $"filename={_origfile.Name}\r\nsize = {_origfile.Size.DefaultValue}";
+                var data = Encoding.UTF8.GetBytes(content);
+                using (var stream = new UploadStream(_origfile.FullPath, _cloud, data.Length))
+                {
+                    stream.Write(data, 0, data.Length);
+                }
+                    
+            }
+
+            OnFileUploaded(_files);
+        }
+
+        public override bool CanRead => true;
+        public override bool CanSeek => true;
+        public override bool CanWrite => true;
         public override long Length => _size;
         public override long Position { get; set; }
 

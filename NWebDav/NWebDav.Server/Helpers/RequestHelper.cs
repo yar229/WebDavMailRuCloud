@@ -101,7 +101,7 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Create the destination URI
-            return destinationHeader.StartsWith("/") ? new WebDavUri(request.Url, destinationHeader) : new WebDavUri(destinationHeader);
+            return destinationHeader.StartsWith("/") ? new WebDavUri(request.Url.BaseUrl, destinationHeader) : new WebDavUri(destinationHeader);
         }        
 
         /// <summary>

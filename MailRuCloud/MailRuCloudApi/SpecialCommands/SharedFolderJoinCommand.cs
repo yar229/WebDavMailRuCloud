@@ -26,8 +26,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public override Task<SpecialCommandResult> Execute()
         {
-            bool k = Cloud.CloneItem(Path, Value).Result;
-            return Task.FromResult(new SpecialCommandResult{IsSuccess = k});
+            var k = Cloud.CloneItem(Path, Value).Result;
+            return Task.FromResult(new SpecialCommandResult{IsSuccess = k.IsSuccess});
         }
     }
 }

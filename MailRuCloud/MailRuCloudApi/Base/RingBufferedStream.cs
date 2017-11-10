@@ -280,12 +280,6 @@ namespace YaR.MailRuCloud.Api.Base
             return ret;
         }
 
-        public override void Close()
-        {
-            _cancellationTokenSource.Cancel();
-            base.Close();
-        }
-
         /// <inheritdoc/>
         public override int ReadByte()
         {
@@ -333,17 +327,21 @@ namespace YaR.MailRuCloud.Api.Base
             return ret;
         }
 
+        //public override void Close()
+        //{
+        //    _cancellationTokenSource.Cancel();
+        //    base.Close();
+        //}
+
         /// <inheritdoc/>
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _disposed = true;
-                _cancellationTokenSource.Cancel();
-                _cancellationTokenSource.Dispose();
-            }
-
             base.Dispose(disposing);
+            if (!disposing) return;
+
+            //_disposed = true;
+            //_cancellationTokenSource.Cancel();
+            //_cancellationTokenSource.Dispose();
         }
     }
 

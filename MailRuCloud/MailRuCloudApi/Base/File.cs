@@ -35,6 +35,22 @@ namespace YaR.MailRuCloud.Api.Base
         private string _hash;
 
         /// <summary>
+        /// makes copy of this file with new path
+        /// </summary>
+        /// <param name="newfullPath"></param>
+        /// <returns></returns>
+        public virtual File New(string newfullPath)
+        {
+            return new File(newfullPath, Size, Hash)
+            {
+                CreationTimeUtc = CreationTimeUtc,
+                LastAccessTimeUtc = LastAccessTimeUtc,
+                LastWriteTimeUtc = LastWriteTimeUtc,
+                PublicLink = PublicLink
+            };
+        }
+
+        /// <summary>
         /// Gets file name.
         /// </summary>
         /// <value>File name.</value>
@@ -87,9 +103,10 @@ namespace YaR.MailRuCloud.Api.Base
         public string PublicLink { get; internal set; }
 
         /// <summary>
-        /// List of physical files
+        /// List of phisical files contains data
         /// </summary>
         public virtual List<File> Parts => new List<File> {this};
+        public virtual IList<File> Files => new List<File> { this };
 
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }

@@ -1,8 +1,6 @@
-﻿// ReSharper disable All
-
-namespace YaR.MailRuCloud.Api.Base.Requests.Types
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    class MoveOrCopyResult
+    public class CreateFolderResult
     {
         public string email { get; set; }
         public string body { get; set; }

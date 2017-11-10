@@ -24,6 +24,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         private readonly File _fileInfo;
 
         public File FileInfo => _fileInfo;
+        public IEntry EntryInfo => FileInfo;
 
         public MailruStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
         {
@@ -230,11 +231,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     if (!collection.IsWritable)
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
 
-                    var destinationPath = WebDavPath.Combine(collection.FullPath, name);
+                    //var destinationPath = WebDavPath.Combine(collection.FullPath, name);
 
                     // check if the file already exists??
 
-                    await CloudManager.Instance(httpContext.Session.Principal.Identity).Copy(_fileInfo, destinationPath);
+                    await CloudManager.Instance(httpContext.Session.Principal.Identity).Copy(_fileInfo, collection.FullPath);
 
                     return new StoreItemResult(DavStatusCode.Created);
                 }
