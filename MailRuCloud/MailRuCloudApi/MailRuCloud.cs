@@ -29,6 +29,8 @@ namespace YaR.MailRuCloud.Api
     /// </summary>
     public class MailRuCloud : IDisposable
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+
         private readonly LinkManager _linkManager;
 
 
@@ -95,6 +97,7 @@ namespace YaR.MailRuCloud.Api
             }
             catch (Exception e)
             {
+                Logger.Warn($"Cannot get {path} with exception {e}");
                 return null;
             }
 
