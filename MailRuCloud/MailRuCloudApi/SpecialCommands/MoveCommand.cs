@@ -22,7 +22,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                 return SpecialCommandResult.Fail;
 
             var res = await Cloud.Move(sourceEntry, target);
-            return new SpecialCommandResult { IsSuccess = res };
+            return new SpecialCommandResult(res);
         }
     }
 }

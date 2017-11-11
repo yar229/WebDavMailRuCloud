@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                 return SpecialCommandResult.Fail;
 
             var res = await Cloud.Remove(entry);
-            return new SpecialCommandResult { IsSuccess = res };
+            return new SpecialCommandResult(res);
         }
     }
 
