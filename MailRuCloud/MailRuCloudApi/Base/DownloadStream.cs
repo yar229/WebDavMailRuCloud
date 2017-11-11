@@ -15,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base
         private const int InnerBufferSize = 65536;
 
         private readonly IList<File> _files;
-        private readonly ShardInfo _shard;
+        private ShardInfo _shard;
         private readonly CloudApi _cloud;
         private readonly long? _start;
         private readonly long? _end;
@@ -32,10 +32,6 @@ namespace YaR.MailRuCloud.Api.Base
             var globalLength = files.Sum(f => f.Size);
 
             _cloud = cloud;
-            _shard = files.All(f => string.IsNullOrEmpty(f.PublicLink))
-                ? _cloud.Account.GetShardInfo(ShardType.Get).Result
-                : _cloud.Account.GetShardInfo(ShardType.WeblinkGet).Result;
-
             _files = files;
             _start = start;
             _end = end >= globalLength ? globalLength - 1 : end;
@@ -80,55 +76,38 @@ namespace YaR.MailRuCloud.Api.Base
                     continue;
                 }
                 
-                var instart = Math.Max(0, glostart - fileStart);
-                var inend = gloend - fileStart - 1;
+                long clostart = Math.Max(0, glostart - fileStart);
+                long cloend = gloend - fileStart - 1;
 
                 _task = _task.ContinueWith(task1 =>
                 {
                     
                     WebResponse response;
-                    int cnt = 0;
+                    int retryCnt = 0;
                     while (true)
                     {
                         try
                         {
-                            //TODO: refact
-                            string downloadkey = string.Empty;
-                            if (_shard.Type == ShardType.WeblinkGet)
-                                downloadkey = _cloud.Account.DownloadToken.Value;
-
-                            var request = _shard.Type == ShardType.Get
-                                ? (HttpWebRequest) WebRequest.Create($"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}")
-                                : (HttpWebRequest)WebRequest.Create($"{_shard.Url}{new Uri(file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}");
+                            var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
                             Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
-
-                            request.Headers.Add("Accept-Ranges", "bytes");
-                            request.AddRange(instart, inend);
-                            request.Proxy = _cloud.Account.Proxy;
-                            request.CookieContainer = _cloud.Account.Cookies;
-                            request.Method = "GET";
-                            request.ContentType =  MediaTypeNames.Application.Octet;
-                            request.Accept = "*/*";
-                            request.UserAgent = ConstSettings.UserAgent;
-                            request.AllowReadStreamBuffering = false;
 
                             response = request.GetResponse();
                             break;
                         }
-                        catch (WebException wex)
+                        catch (Exception wex)
                         {
-                            if (wex.Status == WebExceptionStatus.ProtocolError)
+                            if (++retryCnt <= 3)
                             {
-                                if (wex.Response is HttpWebResponse wexresp && wexresp.StatusCode == HttpStatusCode.GatewayTimeout && ++cnt <= 3)
-                                    continue;
+                                Logger.Warn($"HTTP: Failed with {wex.Message} ");
+                                continue;
                             }
-                            _innerStream.Close();
+                            Logger.Error($"GetFileStream failed with {wex}");
+                            _innerStream.Dispose();
                             throw;
                         }
-                        
                     }
 
-                    using (Stream responseStream = response.GetResponseStream()) //ReadResponseAsByte(response, CancellationToken.None, _innerStream);
+                    using (Stream responseStream = response.GetResponseStream())
                     {
                         responseStream?.CopyTo(_innerStream);
                     }
@@ -146,6 +125,43 @@ namespace YaR.MailRuCloud.Api.Base
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             return _innerStream;
+        }
+
+        private ShardInfo GetShard(File file)
+        {
+            var res = string.IsNullOrEmpty(file.PublicLink)
+                ? _cloud.Account.GetShardInfo(ShardType.Get).Result
+                : _cloud.Account.GetShardInfo(ShardType.WeblinkGet).Result;
+            return res;
+        }
+        private HttpWebRequest CreateRequest(long instart, long inend, File file, bool doBanCurrentShard)
+        {
+            if (doBanCurrentShard)
+                _cloud.Account.BanShardInfo(_shard);
+
+            _shard = GetShard(file);
+
+            string downloadkey = string.Empty;
+            if (_shard.Type == ShardType.WeblinkGet)
+                downloadkey = _cloud.Account.DownloadToken.Value;
+
+            var request = _shard.Type == ShardType.Get
+                ? (HttpWebRequest)WebRequest.Create($"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}")
+                : (HttpWebRequest)WebRequest.Create($"{_shard.Url}{new Uri(file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}");
+
+            request.Headers.Add("Accept-Ranges", "bytes");
+            request.AddRange(instart, inend);
+            request.Proxy = _cloud.Account.Proxy;
+            request.CookieContainer = _cloud.Account.Cookies;
+            request.Method = "GET";
+            request.ContentType = MediaTypeNames.Application.Octet;
+            request.Accept = "*/*";
+            request.UserAgent = ConstSettings.UserAgent;
+            request.AllowReadStreamBuffering = false;
+
+            request.Timeout = 15 * 1000;
+
+            return request;
         }
 
 
