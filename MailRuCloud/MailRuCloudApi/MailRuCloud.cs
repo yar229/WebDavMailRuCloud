@@ -95,9 +95,8 @@ namespace YaR.MailRuCloud.Api
                 datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                     .MakeRequestAsync().ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
-                Logger.Warn($"Cannot get {path} with exception {e}");
                 return null;
             }
 
