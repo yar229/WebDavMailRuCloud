@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
@@ -53,7 +53,25 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             }
             catch (Exception)
             {
-                Cloud.UploadFile(WebDavPath.Combine(Path, $"{DateTime.Now:yyyy-MM-dd hh-mm-ss} Not today, dude.txt"), @"Maybe next time ¯\_(ツ)_/¯");
+                string content = string.Empty;
+                try
+                {
+                    using (WebClient client = new WebClient())
+                    {
+                        string htmlCode = client.DownloadString("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
+                        content = Regex.Match(htmlCode,
+                                @"</FORM>\s*</TD>\s*<TD\s*ALIGN=""center""\s*WIDTH=\d+\s*BGCOLOR="".DCDCFF""\s*>\s*(?<phrase>.*?)<P>\s*(?<phraseeng>.*?)\s*<P>")
+                            .Groups["phraseeng"].Value;
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+                if (string.IsNullOrEmpty(content))
+                    content = @"Maybe next time ¯\_(ツ)_/¯";
+
+                Cloud.UploadFile(WebDavPath.Combine(Path, $"{DateTime.Now:yyyy-MM-dd hh-mm-ss} Not today, dude.txt"), content);
             }
 
             return SpecialCommandResult.Success;
