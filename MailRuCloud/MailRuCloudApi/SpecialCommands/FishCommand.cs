@@ -53,7 +53,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             }
             catch (Exception)
             {
-                Cloud.UploadFile(WebDavPath.Combine(Path, $"{DateTime.Now:YYYY-MM-dd hh-mm-ss} Not today, dude.txt"), @"Maybe next time ¯\_(ツ)_/¯");
+                Cloud.UploadFile(WebDavPath.Combine(Path, $"{DateTime.Now:yyyy-MM-dd hh-mm-ss} Not today, dude.txt"), @"Maybe next time ¯\_(ツ)_/¯");
             }
 
             return SpecialCommandResult.Success;
