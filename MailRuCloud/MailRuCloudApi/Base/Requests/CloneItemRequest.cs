@@ -3,7 +3,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    class CloneItemRequest : BaseRequest<CloneItemResult>
+    class CloneItemRequest : BaseRequest<StatusResult>
     {
         private readonly string _fromUrl;
         private readonly string _toPath;

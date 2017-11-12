@@ -1,7 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class CloneItemResult
+    public class StatusResult
     {
         public string email { get; set; }
         public string body { get; set; }

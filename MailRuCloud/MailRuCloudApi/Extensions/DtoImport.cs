@@ -11,7 +11,7 @@ namespace YaR.MailRuCloud.Api.Extensions
     public static class DtoImport
     {
 
-        public static MailRuCloud.PathResult ToPathResult(this CloneItemResult data)
+        public static MailRuCloud.PathResult ToPathResult(this StatusResult data)
         {
             var res = new MailRuCloud.PathResult
             {
