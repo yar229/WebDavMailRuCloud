@@ -44,7 +44,7 @@ namespace YaR.MailRuCloud.Api.Base
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
             _bannedShards = new Cached<List<ShardInfo>>(() => new List <ShardInfo>(),
-                TimeSpan.FromMinutes(4));
+                TimeSpan.FromMinutes(2));
 
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_cloudApi).MakeRequestAsync().Result.ToShardInfo(),
                 TimeSpan.FromSeconds(ShardsExpiresInSec));
@@ -169,7 +169,7 @@ namespace YaR.MailRuCloud.Api.Base
         public async Task<ShardInfo> GetShardInfo(ShardType shardType)
         {
             bool refreshed = false;
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(80 * i);
                 var ishards = await Task.Run(() => _cachedShards.Value);
