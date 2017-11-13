@@ -30,6 +30,8 @@ namespace YaR.MailRuCloud.Api
     /// </summary>
     public class MailRuCloud : IDisposable
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+
         private readonly LinkManager _linkManager;
 
 
@@ -94,7 +96,7 @@ namespace YaR.MailRuCloud.Api
                 datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                     .MakeRequestAsync().ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }

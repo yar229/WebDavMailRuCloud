@@ -339,7 +339,7 @@ namespace YaR.MailRuCloud.Api.Base
             base.Dispose(disposing);
             if (!disposing) return;
 
-            //_disposed = true;
+            _disposed = true;
             //_cancellationTokenSource.Cancel();
             //_cancellationTokenSource.Dispose();
         }

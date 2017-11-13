@@ -30,9 +30,9 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                     ? Parames[1]
                     : entry.Name;
 
-            Cloud.LinkItem(m.Groups["url"].Value, Path, name, entry.IsFile, entry.Size, entry.CreationTimeUtc);
+            var res = await Cloud.LinkItem(m.Groups["url"].Value, Path, name, entry.IsFile, entry.Size, entry.CreationTimeUtc);
 
-            return SpecialCommandResult.Success;
+            return new SpecialCommandResult(res);
         }
     }
 }

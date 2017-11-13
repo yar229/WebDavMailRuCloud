@@ -10,8 +10,20 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+        public static UploadFileResult ToUploadPathResult(this string data)
+        {
+            var resp = data.Split(';');
 
-        public static MailRuCloud.PathResult ToPathResult(this CloneItemResult data)
+            var res = new UploadFileResult
+            {
+                Hash = resp[0],
+                Size = long.Parse(resp[1].Trim('\r', '\n', ' '))
+            };
+            return res;
+        }
+
+
+        public static MailRuCloud.PathResult ToPathResult(this StatusResult data)
         {
             var res = new MailRuCloud.PathResult
             {

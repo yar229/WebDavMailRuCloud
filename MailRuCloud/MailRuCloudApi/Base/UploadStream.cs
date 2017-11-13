@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -26,7 +27,10 @@ namespace YaR.MailRuCloud.Api.Base
             Initialize();
         }
 
+        public bool CheckHashes { get; set; } = true;
+
         private HttpWebRequest _request;
+        private MailRuSha1Hash _sha1 = new MailRuSha1Hash();
         private byte[] _endBoundaryRequest;
 
 
@@ -121,6 +125,9 @@ namespace YaR.MailRuCloud.Api.Base
             _canWrite.WaitOne();
             BufferSize += count;
 
+            if (CheckHashes)
+                _sha1.Append(buffer, offset, count);
+
             var zbuffer = new byte[count];
             Array.Copy(buffer, offset, zbuffer, 0, count); //buffer.CopyTo(zbuffer, 0);
             var zcount = count;
@@ -145,54 +152,6 @@ namespace YaR.MailRuCloud.Api.Base
                             },
                         _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
         }
-        //public override void Close()
-        //{
-        //    var z = _task.ContinueWith(
-        //         (t, m) =>
-        //         {
-        //             try
-        //             {
-        //                 var token = (CancellationToken)m;
-        //                 var s = t.Result;
-        //                 WriteBytesInStream(_endBoundaryRequest, s, token, _endBoundaryRequest.Length);
-        //             }
-        //             catch (Exception)
-        //             {
-        //                 return false;
-        //             }
-        //             finally
-        //             {
-        //                 var st = t.Result;
-        //                 st?.Dispose();
-        //             }
-
-
-        //             using (var response = (HttpWebResponse)_request.GetResponse())
-        //             {
-        //                 if (response.StatusCode == HttpStatusCode.OK)
-        //                 {
-        //                     var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
-        //                     var hashResult = resp[0];
-        //                     var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
-
-        //                     _file.Hash = hashResult;
-        //                     _file.Size = sizeResult;
-
-        //                     var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
-        //                     return res;
-        //                 }
-        //             }
-
-        //             return true;
-        //         },
-        //     _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
-
-        //    z.Wait();
-
-        //    base.Close();
-        //}
-
-
 
         protected override void Dispose(bool disposing)
         {
@@ -213,12 +172,18 @@ namespace YaR.MailRuCloud.Api.Base
                     {
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
-                            var hashResult = resp[0];
-                            var sizeResult = long.Parse(resp[1].Trim('\r', '\n', ' '));
+                            var resp = ReadResponseAsText(response, _cloud.CancelToken)
+                                            .ToUploadPathResult();
 
-                            _file.Hash = hashResult;
-                            _file.Size = sizeResult;
+                            _file.Size = resp.Size;
+                            _file.Hash = resp.Hash;
+
+                            if (CheckHashes)
+                            {
+                                var localHash = _sha1.HashString;
+                                if (localHash != resp.Hash)
+                                    throw new HashMatchException(localHash, resp.Hash);
+                            }
 
                             var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
                             return res;

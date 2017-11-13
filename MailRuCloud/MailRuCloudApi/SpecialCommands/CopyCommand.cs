@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             string target = WebDavPath.Clean(Parames.Count == 1 ? Parames[0] : Parames[1]);
 
             var res = await Cloud.Copy(source, target);
-            return new SpecialCommandResult {IsSuccess = res};
+            return new SpecialCommandResult(res);
 
         }
     }
