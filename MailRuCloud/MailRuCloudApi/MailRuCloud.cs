@@ -18,6 +18,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
 using File = YaR.MailRuCloud.Api.Base.File;
 
@@ -607,10 +608,10 @@ namespace YaR.MailRuCloud.Api
 
         public Stream GetFileUploadStream(string destinationPath, long size)
         {
-            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+            var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
 
-            //// refresh linked folders
-            //stream.FileUploaded += OnFileUploaded;
+            // refresh linked folders
+            stream.FileUploaded += OnFileUploaded;
 
             //return stream;
             //=============================================================================================================
@@ -619,30 +620,35 @@ namespace YaR.MailRuCloud.Api
             var key2 = new byte[32];
             Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
             Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-
-
             var xts = XtsAes256.Create(key1, key2);
 
-            var stream = new UploadStream(destinationPath, CloudApi, size);
-            var xtsstream = new XtsSectorStream(stream, xts, 64, 0);
-
-            //================================================================================================================================
-            var xtsa = XtsAes256.Create(key1, key2);
-            using (FileStream SourceStream = System.IO.File.Open("d:\\Informatsionny_byulleten_ChiPRVD2017.pdf", FileMode.OpenOrCreate))
+            using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
             {
-                SourceStream.Seek(0, SeekOrigin.End);
+                using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
+                {
+                    streamread.CopyTo(xtswritestream);
+                }
+            }
 
-                FileStream targetStream = System.IO.File.Open("d:\\Informatsionny_byulleten_ChiPRVD2017_enc.pdf", FileMode.OpenOrCreate);
-                var encstream = new XtsStream(targetStream, xtsa, 64);
-                SourceStream.Seek(0, SeekOrigin.Begin);
-                SourceStream.CopyTo(encstream);
+
+            ////================================================================================================================================
+            var xtsa = XtsAes256.Create(key1, key2);
+            using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                sourceStream.Seek(0, SeekOrigin.End);
+
+                FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
+                var encstream = new XtsStream(targetStream, xtsa, 512);
+                sourceStream.Seek(0, SeekOrigin.Begin);
+                sourceStream.CopyTo(encstream);
                 encstream.Flush();
                 encstream.Close();
                 targetStream.Flush();
                 targetStream.Close();
             }
 
-            return xtsstream;
+            return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;

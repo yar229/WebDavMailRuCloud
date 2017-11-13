@@ -45,29 +45,70 @@ namespace YaR.MailRuCloud.Api.XTSSharp
             if (count == 0)
                 return;
 
-            int bytesToCopy = Math.Min(count, _sectorSize - _sectorBufferCount);
-            Buffer.BlockCopy(buffer, offset, _sectorBuffer, _sectorBufferCount, bytesToCopy);
-            _sectorBufferCount += bytesToCopy;
-            offset += bytesToCopy;
-            count -= bytesToCopy;
-
-            if (_sectorBufferCount == _sectorSize)
+            while (count > 0)
             {
-                //sector filled
-                int transformedCount = _encryptor.TransformBlock(buffer, offset, count, _encriptedBuffer, 0, _currentSector);
-                base.Write(_encriptedBuffer, 0, transformedCount);
+                int bytesToCopy = Math.Min(count, _sectorSize - _sectorBufferCount);
+                Buffer.BlockCopy(buffer, offset, _sectorBuffer, _sectorBufferCount, bytesToCopy);
+                _sectorBufferCount += bytesToCopy;
+                offset += bytesToCopy;
+                count -= bytesToCopy;
 
+                if (_sectorBufferCount == _sectorSize)
+                {
+                    //sector filled
+                    int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
+                    //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorSize);
+                    _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
+
+                    _currentSector++;
+                    _sectorBufferCount = 0;
+                }
             }
 
 
-
-            //encrypt the sector
-            int transformedCount = _encryptor.TransformBlock(buffer, offset, count, encriptedBuffer, 0, _currentSector);
-
-            //Console.WriteLine("Encrypting sector {0}", currentSector);
-
-            //write it to the base stream
-            base.Write(encriptedBuffer, 0, transformedCount);
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
+            if (_sectorBufferCount > 0)
+            {
+                int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, _sectorBufferCount, _encriptedBuffer, 0, _currentSector);
+                //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorBufferCount);
+                _baseStream.Write(_encriptedBuffer, 0, _sectorBufferCount);
+            }
+
+        }
+
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool CanRead { get; }
+        public override bool CanSeek { get; }
+        public override bool CanWrite => true;
+        public override long Length { get; }
+        public override long Position { get; set; }
+
+        //==================================================================================================================
     }
 }
