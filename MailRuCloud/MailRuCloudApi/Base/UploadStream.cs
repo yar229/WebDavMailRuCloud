@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -171,18 +172,17 @@ namespace YaR.MailRuCloud.Api.Base
                     {
                         if (response.StatusCode == HttpStatusCode.OK)
                         {
-                            var resp = ReadResponseAsText(response, _cloud.CancelToken).Split(';');
-                            var remoteHash = resp[0];
-                            var remoteSize = long.Parse(resp[1].Trim('\r', '\n', ' '));
+                            var resp = ReadResponseAsText(response, _cloud.CancelToken)
+                                            .ToUploadPathResult();
 
-                            _file.Size = remoteSize;
-                            _file.Hash = remoteHash;
+                            _file.Size = resp.Size;
+                            _file.Hash = resp.Hash;
 
                             if (CheckHashes)
                             {
                                 var localHash = _sha1.HashString;
-                                if (localHash != remoteHash)
-                                    throw new HashMatchException(localHash, remoteHash);
+                                if (localHash != resp.Hash)
+                                    throw new HashMatchException(localHash, resp.Hash);
                             }
 
                             var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
