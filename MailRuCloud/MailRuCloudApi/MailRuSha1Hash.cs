@@ -13,12 +13,15 @@ namespace YaR.MailRuCloud.Api
             AppendInitBuffer();
         }
 
-        public void Append(byte[] buffer, int pos, int length)
+        public void Append(byte[] buffer, int offset, int length)
         {
             if (_isClosed)
                 throw new Exception("Cannot append because MRSHA1 already calculated.");
 
-            _sha1.TransformBlock(buffer, pos, length, null, 0);
+            if (_length < 20)
+                Array.Copy(buffer, offset, _smallContent, _length, Math.Min(length, 20 - _length));
+
+            _sha1.TransformBlock(buffer, offset, length, null, 0);
             _length += length;
         }
 
@@ -36,8 +39,7 @@ namespace YaR.MailRuCloud.Api
             int read;
             while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
             {
-                _sha1.TransformBlock(buffer, 0, read, null, 0);
-                _length += read;
+                Append(buffer, 0, read);
             }
         }
 
@@ -49,10 +51,15 @@ namespace YaR.MailRuCloud.Api
             {
                 if (null == _hash)
                 {
-                    AppendFinalBuffer();
+                    if (_length <= 20)
+                        _hash = _smallContent;
+                    else
+                    {
+                        AppendFinalBuffer();
 
-                    _sha1.TransformFinalBlock(new byte[0], 0, 0);
-                    _hash = _sha1.Hash;
+                        _sha1.TransformFinalBlock(new byte[0], 0, 0);
+                        _hash = _sha1.Hash;
+                    }
                     _isClosed = true;
                 }
                 return _hash;
@@ -61,6 +68,7 @@ namespace YaR.MailRuCloud.Api
 
         private byte[] _hash;
 
+        private readonly byte[] _smallContent = new byte[20];
         private readonly SHA1 _sha1 = SHA1.Create();
         private long _length;
         private bool _isClosed;
