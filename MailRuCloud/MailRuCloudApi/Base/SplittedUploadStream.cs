@@ -10,6 +10,7 @@ namespace YaR.MailRuCloud.Api.Base
         private readonly string _destinationPath;
         private readonly CloudApi _cloud;
         private long _size;
+        private readonly bool _checkHash;
         private readonly long _maxFileSize;
         private File _origfile;
 
@@ -20,11 +21,12 @@ namespace YaR.MailRuCloud.Api.Base
 
         private readonly List<File> _files = new List<File>();
 
-        public SplittedUploadStream(string destinationPath, CloudApi cloud, long size)
+        public SplittedUploadStream(string destinationPath, CloudApi cloud, long size, bool checkHash)
         {
             _destinationPath = destinationPath;
             _cloud = cloud;
             _size = size;
+            _checkHash = checkHash;
 
             _maxFileSize = _cloud.Account.Info.FileSizeLimit > 0
                 ? _cloud.Account.Info.FileSizeLimit - 1024
@@ -69,7 +71,7 @@ namespace YaR.MailRuCloud.Api.Base
 
             _bytesWrote = 0;
             var currFile = _files[_currFileId];
-            _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.Size);
+            _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.Size) {CheckHashes = _checkHash};
         }
 
 
