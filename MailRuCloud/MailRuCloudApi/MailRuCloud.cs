@@ -791,6 +791,21 @@ namespace YaR.MailRuCloud.Api
             var count = await _linkManager.RemoveDeadLinks(true);
             if (count > 0) _itemCache.Invalidate();
         }
+
+        public async Task<StatusResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
+        {
+            var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
+                .MakeRequestAsync();
+
+            return res;
+        }
+
+        public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
+        {
+            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.Size, conflict);
+
+            return res;
+        }
     }
 
     public delegate void FileUploadedDelegate(IEnumerable<File> file);
