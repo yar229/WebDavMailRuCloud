@@ -7,6 +7,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class LocalToServerCopyCommand : SpecialCommand
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+
         public LocalToServerCopyCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
@@ -21,6 +23,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
                 string name = sourceFileInfo.Name;
                 string targetPath = WebDavPath.Combine(Path, name);
+
+                Logger.Info($"COMMAND:COPY:{Parames[0]}");
 
                 using (var source = System.IO.File.Open(Parames[0], FileMode.Open, FileAccess.Read, FileShare.Read))
                 using (var target = Cloud.GetFileUploadStream(targetPath, sourceFileInfo.Length))
