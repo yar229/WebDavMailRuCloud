@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         private readonly List<File> _files = new List<File>();
 
-        public SplittedUploadStream(string destinationPath, CloudApi cloud, long size, bool checkHash)
+        public SplittedUploadStream(string destinationPath, CloudApi cloud, long size, bool checkHash = true)
         {
             _destinationPath = destinationPath;
             _cloud = cloud;
