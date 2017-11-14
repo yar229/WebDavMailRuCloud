@@ -600,7 +600,28 @@ namespace YaR.MailRuCloud.Api
         {
             var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
 
-            var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
+            //var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
+            //Stream stream = await task;
+            //return stream;
+
+
+
+            var key1 = new byte[32];
+            var key2 = new byte[32];
+            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
+            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
+            var xts = XtsAes256.Create(key1, key2);
+
+
+
+            var task = Task.Run(() =>
+            {
+                var dstream = new DownloadStream(filelst, CloudApi, start, end);
+                var bufdstream = new BufferedStream(dstream, 64 * 1024);
+                var decdstream = new XtsStream(bufdstream, xts, 512);
+
+                return decdstream;
+            });
             Stream stream = await task;
             return stream;
         }
