@@ -79,6 +79,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
                 //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorBufferCount);
                 _baseStream.Write(_encriptedBuffer, 0, _sectorBufferCount);
             }
+            _baseStream.Dispose();
 
         }
 

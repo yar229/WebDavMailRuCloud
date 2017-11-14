@@ -608,10 +608,10 @@ namespace YaR.MailRuCloud.Api
 
         public Stream GetFileUploadStream(string destinationPath, long size)
         {
-            var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
 
-            // refresh linked folders
-            stream.FileUploaded += OnFileUploaded;
+            //// refresh linked folders
+            //stream.FileUploaded += OnFileUploaded;
 
             //return stream;
             //=============================================================================================================
@@ -631,24 +631,34 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
+            //================================================================================================================================
 
-            ////================================================================================================================================
-            var xtsa = XtsAes256.Create(key1, key2);
-            using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                sourceStream.Seek(0, SeekOrigin.End);
+            var ustream = new SplittedUploadStream(destinationPath, CloudApi, size, false);
+            var encustream = new XTSWriteOnlyStream(ustream, xts, 512);
 
-                FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
-                var encstream = new XtsStream(targetStream, xtsa, 512);
-                sourceStream.Seek(0, SeekOrigin.Begin);
-                sourceStream.CopyTo(encstream);
-                encstream.Flush();
-                encstream.Close();
-                targetStream.Flush();
-                targetStream.Close();
-            }
+            // refresh linked folders
+            ustream.FileUploaded += OnFileUploaded;
 
-            return stream;
+            return encustream;
+
+
+            //////================================================================================================================================
+            //var xtsa = XtsAes256.Create(key1, key2);
+            //using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //{
+            //    sourceStream.Seek(0, SeekOrigin.End);
+
+            //    FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
+            //    var encstream = new XtsStream(targetStream, xtsa, 512);
+            //    sourceStream.Seek(0, SeekOrigin.Begin);
+            //    sourceStream.CopyTo(encstream);
+            //    encstream.Flush();
+            //    encstream.Close();
+            //    targetStream.Flush();
+            //    targetStream.Close();
+            //}
+
+            //return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;
