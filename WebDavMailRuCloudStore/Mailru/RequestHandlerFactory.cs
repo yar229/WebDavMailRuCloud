@@ -14,6 +14,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             { "HEAD",      new NWebDav.Server.Handlers.GetAndHeadHandler() },
             { "LOCK",      new NWebDav.Server.Handlers.LockHandler() },
             { "MKCOL",     new MkcolHandler() },
+            { "MCOL",      new MkcolHandler() },
             { "MOVE",      new MoveHandler() },
             { "OPTIONS",   new NWebDav.Server.Handlers.OptionsHandler() },
             { "PROPFIND",  new NWebDav.Server.Handlers.PropFindHandler() },
