@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace WebDAV.Uploader
 {
@@ -36,17 +37,31 @@ namespace WebDAV.Uploader
                     Console.WriteLine($"Target: {targetfile}");
 
                     using (var source = System.IO.File.Open(line, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    using (var target = cloud.GetFileUploadStream(WebDavPath.Combine(targetfile, fileInfo.Name), fileInfo.Length))
                     {
-                        var buffer = new byte[64000];
-                        int read;
-                        long wrote = 0;
-                        while((read = source.Read(buffer, 0, buffer.Length)) > 0)
+                        var hasher = new MailRuSha1Hash();
+                        hasher.Append(source);
+                        var hash = hasher.HashString;
+                        if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.status == 200)
                         {
-                            target.Write(buffer, 0, read);
-                            wrote += read;
-                            Console.Write($"\r{wrote / fileInfo.Length * 100}%");
+                            Console.WriteLine("Added by hash");
                         }
+                        else
+                        {
+                            source.Seek(0, SeekOrigin.Begin);
+                            var buffer = new byte[64000];
+                            long wrote = 0;
+                            using (var target = cloud.GetFileUploadStream(WebDavPath.Combine(targetfile, fileInfo.Name), fileInfo.Length))
+                            {
+                                int read;
+                                while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    target.Write(buffer, 0, read);
+                                    wrote += read;
+                                    Console.Write($"\r{wrote / fileInfo.Length * 100}%");
+                                }
+                            }
+                        }
+
                         Console.WriteLine(" Done.");
                         //source.CopyTo(target);
                     }
