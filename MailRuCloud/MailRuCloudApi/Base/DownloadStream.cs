@@ -51,8 +51,6 @@ namespace YaR.MailRuCloud.Api.Base
             var t = GetFileStream();
         }
 
-        private Task<WebResponse> _task;
-
         private async Task<object> GetFileStream()
         {
             var totalLength = Length;
@@ -61,8 +59,6 @@ namespace YaR.MailRuCloud.Api.Base
 
             long fileStart = 0;
             long fileEnd = 0;
-
-            _task = Task.FromResult((WebResponse)null);
 
             foreach (var file in _files)
             {
@@ -79,52 +75,49 @@ namespace YaR.MailRuCloud.Api.Base
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                _task = _task.ContinueWith(task1 =>
-                {
-                    
-                    WebResponse response;
-                    int retryCnt = 0;
-                    while (true)
-                    {
-                        try
-                        {
-                            var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
-                            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
-
-                            response = request.GetResponse();
-                            break;
-                        }
-                        catch (Exception wex)
-                        {
-                            if (++retryCnt <= 3)
-                            {
-                                Logger.Warn($"HTTP: Failed with {wex.Message} ");
-                                continue;
-                            }
-                            Logger.Error($"GetFileStream failed with {wex}");
-                            _innerStream.Dispose();
-                            throw;
-                        }
-                    }
-
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        responseStream?.CopyTo(_innerStream);
-                    }
-
-                    return response;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
+                await GetWebResponce(clostart, cloend, clofile).ConfigureAwait(false);
 
                 fileStart += file.Size;
             }
 
-            _task = _task.ContinueWith(task1 =>
-            {
-                _innerStream.Flush();
-                return (WebResponse)null;
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _innerStream.Flush();
 
             return _innerStream;
+        }
+
+        private async Task<WebResponse> GetWebResponce(long clostart, long cloend, File clofile)
+        {
+            WebResponse response;
+            int retryCnt = 0;
+            while (true)
+            {
+                try
+                {
+                    var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
+                    Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
+
+                    response = await request.GetResponseAsync().ConfigureAwait(false);
+                    break;
+                }
+                catch (Exception wex)
+                {
+                    if (++retryCnt <= 3)
+                    {
+                        Logger.Warn($"HTTP: Failed with {wex.Message} ");
+                        continue;
+                    }
+                    Logger.Error($"GetFileStream failed with {wex}");
+                    _innerStream.Dispose();
+                    throw;
+                }
+            }
+
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
+            }
+
+            return response;
         }
 
         private ShardInfo GetShard(File file)
@@ -170,7 +163,7 @@ namespace YaR.MailRuCloud.Api.Base
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _task.Wait();
+            //_task.Wait();
             _innerStream.Close();
         }
 

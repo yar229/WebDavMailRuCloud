@@ -25,6 +25,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public File FileInfo => _fileInfo;
         public IEntry EntryInfo => FileInfo;
+        public long Length => _fileInfo.Size;
+        public bool IsReadable => true;
 
         public MailruStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
         {
