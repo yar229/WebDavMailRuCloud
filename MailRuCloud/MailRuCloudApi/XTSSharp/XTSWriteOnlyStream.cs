@@ -10,11 +10,10 @@ namespace YaR.MailRuCloud.Api.XTSSharp
     {
         public const int DefaultSectorSize = 512;
 
-        private readonly Xts _xts;
-        private XtsCryptoTransform _encryptor;
+        private readonly XtsCryptoTransform _encryptor;
         private readonly Stream _baseStream;
 
-        private ulong _currentSector = 0;
+        private ulong _currentSector;
         private readonly int _sectorSize;
         private readonly byte[] _encriptedBuffer;
         private readonly byte[] _sectorBuffer;
@@ -29,8 +28,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
         {
             _baseStream = baseStream;
 
-            _xts = xts;
-            _encryptor = _xts.CreateEncryptor();
+            _encryptor = xts.CreateEncryptor();
 
             _sectorSize = sectorSize;
             _encriptedBuffer = new byte[sectorSize];
@@ -38,7 +36,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
         }
 
 
-        private int _sectorBufferCount = 0;
+        private int _sectorBufferCount;
 
         public override void Write(byte[] buffer, int offset, int count)
         {
@@ -64,8 +62,6 @@ namespace YaR.MailRuCloud.Api.XTSSharp
                     _sectorBufferCount = 0;
                 }
             }
-
-
         }
 
         protected override void Dispose(bool disposing)
@@ -109,7 +105,5 @@ namespace YaR.MailRuCloud.Api.XTSSharp
         public override bool CanWrite => true;
         public override long Length { get; }
         public override long Position { get; set; }
-
-        //==================================================================================================================
     }
 }
