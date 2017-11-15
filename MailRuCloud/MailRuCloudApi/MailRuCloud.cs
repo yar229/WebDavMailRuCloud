@@ -617,8 +617,7 @@ namespace YaR.MailRuCloud.Api
             var task = Task.Run(() =>
             {
                 var dstream = new DownloadStream(filelst, CloudApi, start, end);
-                var bufdstream = new BufferedStream(dstream, 64 * 1024);
-                var decdstream = new XtsStream(bufdstream, xts, 512);
+                var decdstream = new XTSReadOnlyStream(dstream, xts, 512);
 
                 return decdstream;
             });
@@ -643,12 +642,23 @@ namespace YaR.MailRuCloud.Api
             Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
             var xts = XtsAes256.Create(key1, key2);
 
-            using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
+            //using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
+            using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
             {
                 using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
                 {
                     streamread.CopyTo(xtswritestream);
+                }
+            }
+
+            using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
+            {
+                using (var xtsreadstream = new XtsStream(streamread, xts, 512))
+                {
+                    xtsreadstream.CopyTo(streamwrite);
                 }
             }
 
