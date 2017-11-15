@@ -121,7 +121,8 @@ namespace YaR.MailRuCloud.Api.Base
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException("RingBufferedStream");
+                //throw new ObjectDisposedException("RingBufferedStream");
+                return;
             }
 
             Monitor.Enter(_store);

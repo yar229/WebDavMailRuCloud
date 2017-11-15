@@ -11,7 +11,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             { "COPY",      new CopyHandler() },
             { "DELETE",    new DeleteHandler() },
             { "GET",       new GetAndHeadHandler() },
-            { "HEAD",      new NWebDav.Server.Handlers.GetAndHeadHandler() },
+            { "HEAD",      new GetAndHeadHandler() },
             { "LOCK",      new NWebDav.Server.Handlers.LockHandler() },
             { "MKCOL",     new MkcolHandler() },
             { "MCOL",      new MkcolHandler() },

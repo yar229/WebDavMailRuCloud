@@ -27,6 +27,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         private readonly Folder _directoryInfo;
         public Folder DirectoryInfo => _directoryInfo;
         public IEntry EntryInfo => DirectoryInfo;
+        public long Length => _directoryInfo.Size;
+        public bool IsReadable => false;
 
         public MailruStoreCollection(IHttpContext context, ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
