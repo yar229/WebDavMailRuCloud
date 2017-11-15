@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
 
 namespace YaR.MailRuCloud.Api.XTSSharp
@@ -9,6 +7,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
     class XTSWriteOnlyStream : Stream
     {
         public const int DefaultSectorSize = 512;
+        public const int BlockSize = 16;
 
         private readonly XtsCryptoTransform _encryptor;
         private readonly Stream _baseStream;
@@ -71,9 +70,16 @@ namespace YaR.MailRuCloud.Api.XTSSharp
 
             if (_sectorBufferCount > 0)
             {
-                int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, _sectorBufferCount, _encriptedBuffer, 0, _currentSector);
+                int towrite = _sectorBufferCount % BlockSize == 0
+                    ? _sectorBufferCount
+                    : (_sectorBufferCount / BlockSize + 1) * BlockSize;
+
+                int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, towrite, _encriptedBuffer, 0, _currentSector);
                 //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorBufferCount);
-                _baseStream.Write(_encriptedBuffer, 0, _sectorBufferCount);
+
+
+
+                _baseStream.Write(_encriptedBuffer, 0, towrite);
             }
             _baseStream.Dispose();
 

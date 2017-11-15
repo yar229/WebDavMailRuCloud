@@ -664,6 +664,9 @@ namespace YaR.MailRuCloud.Api
 
             //================================================================================================================================
 
+            size = size % XTSWriteOnlyStream.BlockSize == 0
+                ? size
+                : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
             var ustream = new SplittedUploadStream(destinationPath, CloudApi, size, false);
             var encustream = new XTSWriteOnlyStream(ustream, xts, 512);
 
