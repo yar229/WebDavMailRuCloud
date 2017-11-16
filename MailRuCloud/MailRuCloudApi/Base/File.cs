@@ -91,11 +91,7 @@ namespace YaR.MailRuCloud.Api.Base
         public string FullPath
         {
             get => _fullPath;
-            protected set
-            {
-                _fullPath = WebDavPath.Clean(value);
-                ServiceInfo.CleanName = Name;
-            }
+            protected set => _fullPath = WebDavPath.Clean(value);
         }
 
         /// <summary>
@@ -130,14 +126,14 @@ namespace YaR.MailRuCloud.Api.Base
         public void SetName(string destinationName)
         {
             FullPath = WebDavPath.Combine(Path, destinationName);
+            if (ServiceInfo != null) ServiceInfo.CleanName = Name;
 
             if (Files.Count > 1)
             {
                 string path = Path;
                 foreach (var fiFile in Parts)
                 {
-                    fiFile.FullPath =
-                        WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
+                    fiFile.FullPath = WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
                 }
             }
 

@@ -193,6 +193,9 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
         {
+            try
+            {
+
             var path = string.IsNullOrEmpty(nameReplacement)
                 ? item.home
                 : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
@@ -207,6 +210,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             };
 
             return file;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
