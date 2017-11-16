@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -9,14 +8,24 @@ namespace YaR.MailRuCloud.Api.Base
     {
         public SplittedFile(IList<File> files)
         {
-            FileHeader = files.First(f => !Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success);
+            FileHeader = files.First(f => !f.ServiceInfo.SplitInfo.IsPart);
             Files = files;
             Parts = files
-                .Where(f => Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success)
-                .OrderBy(f => f.Name)
+                .Where(f => f.ServiceInfo.SplitInfo.IsPart)
+                .OrderBy(f => f.ServiceInfo.SplitInfo.PartNumber)
                 .ToList();
 
             FullPath = FileHeader.FullPath;
+
+            ServiceInfo = new FilenameServiceInfo
+            {
+                CleanName = FileHeader.Name,
+                CryptInfo = files.First().ServiceInfo.CryptInfo,
+                SplitInfo = new FileSplitInfo
+                {
+                    IsHeader = true
+                }
+            };
         }
 
 

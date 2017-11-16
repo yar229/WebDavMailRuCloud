@@ -2,8 +2,8 @@
 {
     public class CryptInfo
     {
-        public uint HeaderSize { get; set; } = 0;
+        public const uint HeaderSize = 1024;
         public uint AlignBytes { get; set; }
-
+        public byte[] PublicKey { get; set; }
     }
 }

@@ -652,7 +652,7 @@ namespace YaR.MailRuCloud.Api
 
             
 
-            var ustream = new SplittedUploadStream(destinationPath, CloudApi, size, false);
+            var ustream = new SplittedUploadStream(destinationPath, this, size, false);
             var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
 
             // refresh linked folders
@@ -709,20 +709,6 @@ namespace YaR.MailRuCloud.Api
                 string res = reader.ReadToEnd();
                 return res;
             }
-
-            ////TODO: refact, bad stream realization
-            //StreamReader reader = null;
-            //try
-            //{
-            //    var stream = new DownloadStream(file, CloudApi);
-            //    reader = new StreamReader(stream);
-            //    string res = reader.ReadToEnd();
-            //    return res;
-            //}
-            //finally
-            //{
-            //    reader?.Close();
-            //}
         }
 
         /// <summary>
@@ -755,9 +741,18 @@ namespace YaR.MailRuCloud.Api
             using (var stream = GetFileUploadStream(path, data.Length))
             {
                 stream.Write(data, 0, data.Length);
-                //stream.Close();
             }
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
+        }
+
+        public void UploadFileJson<T>(string fullFilePath, T data)
+        {
+            string content = JsonConvert.SerializeObject(data);
+            var bytes = Encoding.UTF8.GetBytes(content);
+            using (var stream = GetFileUploadStream(fullFilePath, bytes.Length))
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
         }
 
 

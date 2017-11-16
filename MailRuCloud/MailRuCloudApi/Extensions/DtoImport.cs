@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
@@ -207,23 +206,13 @@ namespace YaR.MailRuCloud.Api.Extensions
                 LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
             };
 
-            var m = Regex.Match(file.Name, @"\.c(?<delta>[0-9a-f])\.wdmrc\Z");
-            if (m.Success)
-            {
-                file.CryptInfo = new CryptInfo
-                {
-                    AlignBytes = Convert.ToUInt32(m.Groups["delta"].Value, 16)
-                };
-            }
-
             return file;
         }
 
         private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
         {
             var groupedFiles = list
-                .GroupBy(f => Regex.Match(f.Name, @"(?<name>.*?)(\.wdmrc\.(crc|\d\d\d))?\Z").Groups["name"].Value,
-                    file => file)
+                .GroupBy(f => f.ServiceInfo.CleanName, file => file)   //Regex.Match(f.Name, @"(?<name>.*?)(\.wdmrc\.(crc|\d\d\d))?\Z").Groups["name"].Value,
                 .Select(group => group.Count() == 1
                     ? group.First()
                     : new SplittedFile(group.ToList()));

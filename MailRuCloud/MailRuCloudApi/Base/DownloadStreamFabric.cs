@@ -18,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public Stream Create(File file, long? start = null, long? end = null)
         {
-            if (file.CryptInfo != null)
+            if (file.ServiceInfo.IsCrypted)
                 return CreateXTSStream(file, start, end);
 
             return new DownloadStream(file, _cloud, start, end);
