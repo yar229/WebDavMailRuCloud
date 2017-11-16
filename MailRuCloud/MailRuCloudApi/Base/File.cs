@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace YaR.MailRuCloud.Api.Base
@@ -115,11 +114,6 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
 
-        /// <summary>
-        /// If file splitted to several phisical files
-        /// </summary>
-        public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
-
         public bool IsFile => true;
         public FilenameServiceInfo ServiceInfo { get; protected set; }
 
@@ -136,7 +130,6 @@ namespace YaR.MailRuCloud.Api.Base
                     fiFile.FullPath = WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
                 }
             }
-
         }
 
         public void SetPath(string fullPath)

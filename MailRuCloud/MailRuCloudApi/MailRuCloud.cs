@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -745,7 +746,7 @@ namespace YaR.MailRuCloud.Api
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
         }
 
-        public void UploadFileJson<T>(string fullFilePath, T data)
+        public bool UploadFileJson<T>(string fullFilePath, T data)
         {
             string content = JsonConvert.SerializeObject(data);
             var bytes = Encoding.UTF8.GetBytes(content);
@@ -753,6 +754,7 @@ namespace YaR.MailRuCloud.Api
             {
                 stream.Write(bytes, 0, bytes.Length);
             }
+            return true;
         }
 
 
@@ -867,7 +869,42 @@ namespace YaR.MailRuCloud.Api
 
             return res;
         }
+
+        /// <summary>
+        /// Создаёт в каталоге признак, что файлы в нём будут шифроваться
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public async Task<bool> CryptInit(Folder folder)
+        {
+            // do not allow to crypt root path... don't know for what
+            if (WebDavPath.PathEquals(folder.FullPath, WebDavPath.Root))
+                return false;
+
+            string filepath = WebDavPath.Combine(folder.FullPath, CryptFileInfo.FileName);
+            var file = await GetItem(filepath).ConfigureAwait(false);
+
+            if (file != null)
+                return false;
+
+            var content = new CryptFileInfo
+            {
+                Initialized = DateTime.Now
+            };
+
+            var res = UploadFileJson(filepath, content);
+            return res;
+        }
     }
+
+    public class CryptFileInfo
+    {
+        public const string FileName = ".crypt.wdmrc";
+        public string WDMRCVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public DateTime Initialized { get; set; }
+
+    }
+
 
     public delegate void FileUploadedDelegate(IEnumerable<File> file);
 }
