@@ -24,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base
             return new DownloadStream(file, _cloud, start, end);
         }
 
-        private XTSReadOnlyStream CreateXTSStream(File file, long? start = null, long? end = null)
+        private Stream CreateXTSStream(File file, long? start = null, long? end = null)
         {
             // just testing crypt
             var key1 = new byte[32];
@@ -34,18 +34,22 @@ namespace YaR.MailRuCloud.Api.Base
             var xts = XtsAes256.Create(key1, key2);
 
             long fileLength = file.Parts.Sum(f => f.Size);
-            long offset = start ?? 0;
-            end = end ?? fileLength;
-            long length = (end ?? 0) - offset;
+            long requestedOffset = start ?? 0;
+            long requestedEnd = end ?? fileLength;
+            long requestedLength = requestedEnd - requestedOffset;
 
-            long alignedOffset = offset / XTSSectorSize * XTSSectorSize;
-            long alignedLength = (offset + length + XTSBlockSize) & ~XTSBlockSize - alignedOffset;
-            long alignedEnd = alignedOffset + alignedLength;
+            long alignedOffset = requestedOffset / XTSSectorSize * XTSSectorSize;
+            long alignedEnd = requestedEnd % XTSBlockSize == 0
+                ? requestedEnd
+                : (requestedEnd / XTSBlockSize + 1) * XTSBlockSize;
+            long alignedLength = alignedEnd - alignedOffset;
+            
 
             var downStream = new DownloadStream(file, _cloud, alignedOffset, alignedEnd);
-            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, alignedOffset - offset, alignedLength - length);
+            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, (int)(alignedOffset - requestedOffset), (int)(alignedLength - requestedLength));
 
             return xtsStream;
+            //return downStream;
         }
 
         public const int XTSSectorSize = 512;
