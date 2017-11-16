@@ -643,7 +643,7 @@ namespace YaR.MailRuCloud.Api
 
             //================================================================================================================================
 
-            long delta = size % XTSWriteOnlyStream.BlockSize;
+            long delta = XTSWriteOnlyStream.BlockSize - size % XTSWriteOnlyStream.BlockSize;
             destinationPath += $".c{delta:x}.wdmrc";
 
             size = size % XTSWriteOnlyStream.BlockSize == 0
