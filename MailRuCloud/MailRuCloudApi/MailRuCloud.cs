@@ -598,29 +598,8 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
-
-            //var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
-            //Stream stream = await task;
-            //return stream;
-
-
-
-            var key1 = new byte[32];
-            var key2 = new byte[32];
-            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
-            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-            var xts = XtsAes256.Create(key1, key2);
-
-
-
-            var task = Task.Run(() =>
-            {
-                var dstream = new DownloadStream(filelst, CloudApi, start, end);
-                var decdstream = new XTSReadOnlyStream(dstream, xts, 512);
-
-                return decdstream;
-            });
+            var task = Task.FromResult(new DownloadStreamFabric(CloudApi).Create(file, start, end))
+                .ConfigureAwait(false);
             Stream stream = await task;
             return stream;
         }
@@ -664,11 +643,17 @@ namespace YaR.MailRuCloud.Api
 
             //================================================================================================================================
 
+            long delta = size % XTSWriteOnlyStream.BlockSize;
+            destinationPath += $".c{delta:x}.wdmrc";
+
             size = size % XTSWriteOnlyStream.BlockSize == 0
                 ? size
                 : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
+
+            
+
             var ustream = new SplittedUploadStream(destinationPath, CloudApi, size, false);
-            var encustream = new XTSWriteOnlyStream(ustream, xts, 512);
+            var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
 
             // refresh linked folders
             ustream.FileUploaded += OnFileUploaded;

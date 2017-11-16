@@ -118,6 +118,7 @@ namespace YaR.MailRuCloud.Api.Base
         public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
 
         public bool IsFile => true;
+        public CryptInfo CryptInfo { get; set; }
 
         public void SetName(string destinationName)
         {

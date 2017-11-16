@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
         /// <param name="baseStream">The base stream</param>
         /// <param name="xts">The xts transform</param>
         /// <param name="sectorSize">Sector size</param>
-        public XTSReadOnlyStream(Stream baseStream, Xts xts, int sectorSize = DefaultSectorSize)
+        public XTSReadOnlyStream(Stream baseStream, Xts xts, int sectorSize = DefaultSectorSize, long trimStart = 0, long trimEnd = 0)
         {
             _baseStream = baseStream;
 

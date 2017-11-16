@@ -206,6 +206,16 @@ namespace YaR.MailRuCloud.Api.Extensions
                 LastAccessTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
             };
+
+            var m = Regex.Match(file.Name, @"\.c(?<delta>[0-9a-f])\.wdmrc\Z");
+            if (m.Success)
+            {
+                file.CryptInfo = new CryptInfo
+                {
+                    AlignBytes = Convert.ToUInt32(m.Groups["delta"].Value, 16)
+                };
+            }
+
             return file;
         }
 
