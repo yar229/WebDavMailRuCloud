@@ -14,6 +14,9 @@ namespace NWebDav.Server.Logging
             public void Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
             }
+            public void Log(LogLevel logLevel, string message, Exception exception)
+            {
+            }
         }
 
         private static readonly ILogger s_defaultLogger = new NullLogger();
