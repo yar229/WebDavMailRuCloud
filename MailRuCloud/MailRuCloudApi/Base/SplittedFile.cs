@@ -17,10 +17,12 @@ namespace YaR.MailRuCloud.Api.Base
 
             FullPath = FileHeader.FullPath;
 
+
+            var cryptofile = files.First(f => f.ServiceInfo.SplitInfo.IsPart && f.ServiceInfo.CryptInfo != null);
             ServiceInfo = new FilenameServiceInfo
             {
                 CleanName = FileHeader.Name,
-                CryptInfo = files.First(f => f.ServiceInfo.SplitInfo.IsPart).ServiceInfo.CryptInfo,
+                CryptInfo = cryptofile?.ServiceInfo?.CryptInfo,
                 SplitInfo = new FileSplitInfo
                 {
                     IsHeader = true
@@ -30,6 +32,8 @@ namespace YaR.MailRuCloud.Api.Base
 
 
         public override FileSize Size => Parts.Sum(f => f.Size);
+
+        public override FileSize OriginalSize => Parts.Sum(f => f.OriginalSize);
 
         public override string Hash => FileHeader.Hash;
 

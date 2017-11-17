@@ -56,7 +56,7 @@ namespace YaR.MailRuCloud.Api.Base
             _request.CookieContainer = _cloud.Account.Cookies;
             _request.Method = "POST";
 
-            _request.ContentLength = _file.Size + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
+            _request.ContentLength = _file.OriginalSize + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
 
             _request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}";
             _request.Headers.Add("Origin", ConstSettings.CloudDomain);
@@ -175,7 +175,7 @@ namespace YaR.MailRuCloud.Api.Base
                             var resp = ReadResponseAsText(response, _cloud.CancelToken)
                                             .ToUploadPathResult();
 
-                            _file.Size = resp.Size;
+                            _file.OriginalSize = resp.Size;
                             _file.Hash = resp.Hash;
 
                             if (CheckHashes)
@@ -200,7 +200,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         private async Task<bool> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
-            await new CreateFileRequest(_cloud, fileInfo.FullPath, fileInfo.Hash, fileInfo.Size, conflict)
+            await new CreateFileRequest(_cloud, fileInfo.FullPath, fileInfo.Hash, fileInfo.OriginalSize, conflict)
                 .MakeRequestAsync();
 
             return true;
@@ -304,7 +304,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public override void SetLength(long value)
         {
-            _file.Size = value;
+            _file.OriginalSize = value;
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -315,7 +315,7 @@ namespace YaR.MailRuCloud.Api.Base
         public override bool CanRead => true;
         public override bool CanSeek => true;
         public override bool CanWrite => true;
-        public override long Length => _file.Size;
+        public override long Length => _file.OriginalSize;
         public override long Position { get; set; }
 
         public static long BytesCount(string value)

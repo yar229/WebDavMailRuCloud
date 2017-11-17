@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Base
             Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
             var xts = XtsAes256.Create(key1, key2);
 
-            long fileLength = file.Parts.Sum(f => f.Size);
+            long fileLength = file.OriginalSize; //Parts.Sum(f => f.Size);
             long requestedOffset = start ?? 0;
             long requestedEnd = end ?? fileLength;
             long requestedLength = requestedEnd - requestedOffset;
@@ -46,7 +46,8 @@ namespace YaR.MailRuCloud.Api.Base
             
 
             var downStream = new DownloadStream(file, _cloud, alignedOffset, alignedEnd);
-            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, (int)(alignedOffset - requestedOffset), (int)(alignedLength - requestedLength));
+            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize,
+                (int) (alignedOffset - requestedOffset), file.ServiceInfo.CryptInfo.AlignBytes); //(int)(alignedLength - requestedLength));
 
             return xtsStream;
             //return downStream;

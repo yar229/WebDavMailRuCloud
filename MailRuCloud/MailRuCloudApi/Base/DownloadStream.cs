@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public DownloadStream(IList<File> files, CloudApi cloud, long? start = null, long? end = null)
         {
-            var globalLength = files.Sum(f => f.Size);
+            var globalLength = files.Sum(f => f.OriginalSize);
 
             _cloud = cloud;
             _files = files;
@@ -64,11 +64,11 @@ namespace YaR.MailRuCloud.Api.Base
             {
                 var clofile = file;
 
-                fileEnd += clofile.Size;
+                fileEnd += clofile.OriginalSize;
 
                 if (glostart >= fileEnd || gloend <= fileStart)
                 {
-                    fileStart += clofile.Size;
+                    fileStart += clofile.OriginalSize;
                     continue;
                 }
                 
@@ -77,7 +77,7 @@ namespace YaR.MailRuCloud.Api.Base
 
                 await GetWebResponce(clostart, cloend, clofile).ConfigureAwait(false);
 
-                fileStart += file.Size;
+                fileStart += file.OriginalSize;
             }
 
             _innerStream.Flush();

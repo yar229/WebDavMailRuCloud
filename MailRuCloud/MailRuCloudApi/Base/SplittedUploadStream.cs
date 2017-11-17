@@ -64,6 +64,8 @@ namespace YaR.MailRuCloud.Api.Base
                 for (int i = 1; i <= nfiles; i++)
                 {
                     sinfo.SplitInfo.PartNumber = i;
+                    sinfo.CryptInfo = i != nfiles ? null : _cryptInfo;
+
                     var f = new File($"{_origfile.FullPath}{sinfo}",
                         i != nfiles ? allowedSize : _size % allowedSize,
                         null);
@@ -85,7 +87,7 @@ namespace YaR.MailRuCloud.Api.Base
 
             _bytesWrote = 0;
             var currFile = _files[_currFileId];
-            _uploadStream = new UploadStream(currFile.FullPath, _cloud.CloudApi, currFile.Size) {CheckHashes = _checkHash};
+            _uploadStream = new UploadStream(currFile.FullPath, _cloud.CloudApi, currFile.OriginalSize) {CheckHashes = _checkHash};
         }
 
 
@@ -111,7 +113,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            long diff = _bytesWrote + count - _files[_currFileId].Size;
+            long diff = _bytesWrote + count - _files[_currFileId].OriginalSize;
 
             if (diff > 0)
             {

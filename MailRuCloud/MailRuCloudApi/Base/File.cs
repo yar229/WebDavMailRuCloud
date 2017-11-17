@@ -25,15 +25,14 @@ namespace YaR.MailRuCloud.Api.Base
         public File(string fullPath, long size, string hash = "")
         {
             FullPath = fullPath;
-            _size = size;
-            _hash = hash;
-
             ServiceInfo = FilenameServiceInfo.Parse(WebDavPath.Name(fullPath));
+
+            _originalSize = size;
+            _hash = hash;
         }
 
 
         private string _fullPath;
-        private FileSize _size;
         private string _hash;
 
         /// <summary>
@@ -77,11 +76,14 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets file size.
         /// </summary>
         /// <value>File size.</value>
-        public virtual FileSize Size
+        public virtual FileSize Size => OriginalSize - (ServiceInfo.CryptInfo?.AlignBytes ?? 0);
+
+        public virtual FileSize OriginalSize
         {
-            get => _size;
-            set => _size = value;
+            get => _originalSize;
+            set => _originalSize = value;
         }
+        private FileSize _originalSize;
 
         /// <summary>
         /// Gets full file path with name on server.
