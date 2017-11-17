@@ -177,13 +177,4 @@ namespace YaR.MailRuCloud.Api.Base
         public override long Position { get; set; }
 
     }
-
-    public class HeaderFileContent
-    {
-        public string Name { get; set; }
-        public long Size { get; set; }
-        public byte[] PublicKey { get; set; }
-        public DateTime CreationDate { get; set; }
-    }
-
 }

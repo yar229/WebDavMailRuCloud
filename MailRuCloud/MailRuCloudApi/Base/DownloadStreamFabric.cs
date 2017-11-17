@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
 using YaR.MailRuCloud.Api.XTSSharp;
@@ -26,13 +25,11 @@ namespace YaR.MailRuCloud.Api.Base
 
         private Stream CreateXTSStream(File file, long? start = null, long? end = null)
         {
-            // just testing crypt
-            var key = new byte[32];
-            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key, 32);
-            var iv = file.EnsurePublicKey(_cloud);
-            var xts = XtsAes256.Create(key, iv);
+            var pub = CryptoUtil.GetCryptoPublicInfo(_cloud, file);
+            var key = CryptoUtil.GetCryptoKey(_cloud.CloudApi.Account.Credentials.PasswordCrypt, pub.Salt);
+            var xts = XtsAes256.Create(key, pub.IV);
 
-            long fileLength = file.OriginalSize; //Parts.Sum(f => f.Size);
+            long fileLength = file.OriginalSize;
             long requestedOffset = start ?? 0;
             long requestedEnd = end ?? fileLength;
             //long requestedLength = requestedEnd - requestedOffset;
@@ -42,7 +39,6 @@ namespace YaR.MailRuCloud.Api.Base
                 ? requestedEnd
                 : (requestedEnd / XTSBlockSize + 1) * XTSBlockSize;
             //long alignedLength = alignedEnd - alignedOffset;
-            
 
             var downStream = new DownloadStream(file, _cloud.CloudApi, alignedOffset, alignedEnd);
             var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, (int) (alignedOffset - requestedOffset), file.ServiceInfo.CryptInfo.AlignBytes); 

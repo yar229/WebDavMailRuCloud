@@ -24,15 +24,12 @@ namespace YaR.MailRuCloud.Api.Base
 
             if (folder.CryptRequired && !discardEncryption)
             {
-                var key1 = new byte[32];
-                var key2 = new byte[32];
-                Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
-                Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-                var xts = XtsAes256.Create(key1, key2);
+                var info = CryptoUtil.GetCryptoKeyAndSalt(_cloud.CloudApi.Account.Credentials.PasswordCrypt);
+                var xts = XtsAes256.Create(info.Key, info.IV);
 
                 file.ServiceInfo.CryptInfo = new CryptInfo
                 {
-                    PublicKey = key2,
+                    PublicKey = new CryptoKeyInfo{Salt = info.Salt, IV = info.IV},
                     AlignBytes = (uint) (file.Size % XTSWriteOnlyStream.BlockSize != 0 ? XTSWriteOnlyStream.BlockSize - file.Size % XTSWriteOnlyStream.BlockSize : 0)
                 };
 

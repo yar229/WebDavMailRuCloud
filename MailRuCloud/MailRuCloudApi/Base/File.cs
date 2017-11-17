@@ -149,7 +149,7 @@ namespace YaR.MailRuCloud.Api.Base
 
 
         //TODO : refact, bad design
-        public byte[] EnsurePublicKey(MailRuCloud cloud)
+        public CryptoKeyInfo EnsurePublicKey(MailRuCloud cloud)
         {
             if (ServiceInfo.IsCrypted && null == ServiceInfo.CryptInfo.PublicKey)
             {
