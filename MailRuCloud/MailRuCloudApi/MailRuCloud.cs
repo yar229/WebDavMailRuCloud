@@ -600,7 +600,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var task = Task.FromResult(new DownloadStreamFabric(CloudApi).Create(file, start, end))
+            var task = Task.FromResult(new DownloadStreamFabric(this).Create(file, start, end))
                 .ConfigureAwait(false);
             Stream stream = await task;
             return stream;

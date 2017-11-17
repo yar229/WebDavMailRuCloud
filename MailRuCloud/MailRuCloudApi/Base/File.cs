@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -85,6 +84,8 @@ namespace YaR.MailRuCloud.Api.Base
         }
         private FileSize _originalSize;
 
+        protected virtual File FileHeader { get; } = null;
+
         /// <summary>
         /// Gets full file path with name on server.
         /// </summary>
@@ -119,6 +120,7 @@ namespace YaR.MailRuCloud.Api.Base
         public bool IsFile => true;
         public FilenameServiceInfo ServiceInfo { get; protected set; }
 
+        //TODO : refact, bad design
         public void SetName(string destinationName)
         {
             FullPath = WebDavPath.Combine(Path, destinationName);
@@ -134,6 +136,7 @@ namespace YaR.MailRuCloud.Api.Base
             }
         }
 
+        //TODO : refact, bad design
         public void SetPath(string fullPath)
         {
             FullPath = WebDavPath.Combine(fullPath, Name);
@@ -143,64 +146,17 @@ namespace YaR.MailRuCloud.Api.Base
                     fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
                 }
         }
-    }
 
-    public class FileSplitInfo
-    {
-        public bool IsHeader { get; set; }
-        public bool IsPart => PartNumber > 0;
-        public int PartNumber { get; set; }
-    }
 
-    public class FilenameServiceInfo
-    {
-        public string CleanName { get; set; }
-
-        public bool IsCrypted => CryptInfo != null;
-        public CryptInfo CryptInfo { get; set; }
-
-        public bool IsSplitted => SplitInfo != null;
-        public FileSplitInfo SplitInfo { get; set; }
-
-        public override string ToString()
+        //TODO : refact, bad design
+        public byte[] EnsurePublicKey(MailRuCloud cloud)
         {
-            return ".wdmrc." + (SplitInfo?.PartNumber.ToString("D3") ?? "000") + (CryptInfo?.AlignBytes.ToString("x") ?? string.Empty);
-        }
-
-        public string ToString(bool withName)
-        {
-            return withName
-                ? CleanName + ToString()
-                : ToString();
-        }
-
-        public static FilenameServiceInfo Parse(string filename)
-        {
-            var res = new FilenameServiceInfo();
-
-            var m = Regex.Match(filename, @"\A(?<cleanname>.*?)(\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?)?\Z", RegexOptions.Compiled);
-            if (!m.Success)
-                throw new InvalidOperationException("Cannot parse filename");
-
-            res.CleanName = m.Groups["cleanname"].Value;
-
-            string partnumber = m.Groups["partnumber"].Value;
-            res.SplitInfo = new FileSplitInfo
+            if (ServiceInfo.IsCrypted && null == ServiceInfo.CryptInfo.PublicKey)
             {
-                IsHeader = string.IsNullOrEmpty(partnumber),
-                PartNumber = string.IsNullOrEmpty(partnumber) ? 0 : int.Parse(m.Groups["partnumber"].Value)
-            };
-
-            string align = m.Groups["align"].Value;
-            if (!string.IsNullOrEmpty(align))
-            {
-                res.CryptInfo = new CryptInfo
-                {
-                    AlignBytes = Convert.ToUInt32(align, 16)
-                };
+                var info = cloud.DownloadFileAsJson<HeaderFileContent>(FileHeader ?? this);
+                ServiceInfo.CryptInfo.PublicKey = info.PublicKey;
             }
-
-            return res;
+            return ServiceInfo.CryptInfo.PublicKey;
         }
     }
 }

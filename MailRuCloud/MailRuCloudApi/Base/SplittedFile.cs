@@ -8,20 +8,20 @@ namespace YaR.MailRuCloud.Api.Base
     {
         public SplittedFile(IList<File> files)
         {
-            FileHeader = files.First(f => !f.ServiceInfo.SplitInfo.IsPart);
+            _fileHeader = files.First(f => !f.ServiceInfo.SplitInfo.IsPart);
             Files = files;
             Parts = files
                 .Where(f => f.ServiceInfo.SplitInfo.IsPart)
                 .OrderBy(f => f.ServiceInfo.SplitInfo.PartNumber)
                 .ToList();
 
-            FullPath = FileHeader.FullPath;
+            FullPath = _fileHeader.FullPath;
 
 
             var cryptofile = files.First(f => f.ServiceInfo.SplitInfo.IsPart && f.ServiceInfo.CryptInfo != null);
             ServiceInfo = new FilenameServiceInfo
             {
-                CleanName = FileHeader.Name,
+                CleanName = _fileHeader.Name,
                 CryptInfo = cryptofile?.ServiceInfo?.CryptInfo,
                 SplitInfo = new FileSplitInfo
                 {
@@ -41,7 +41,8 @@ namespace YaR.MailRuCloud.Api.Base
         public override DateTime LastWriteTimeUtc => FileHeader.LastWriteTimeUtc;
         public override DateTime LastAccessTimeUtc => FileHeader.LastAccessTimeUtc;
 
-        private File FileHeader { get; }
+        protected override File FileHeader => _fileHeader;
+        private readonly File _fileHeader;
 
         /// <summary>
         /// List of phisical files contains data
