@@ -50,7 +50,7 @@ namespace YaR.MailRuCloud.Api.Base
             _endBoundaryRequest = Encoding.UTF8.GetBytes(endBoundaryBuilder.ToString());
             var boundaryRequest = Encoding.UTF8.GetBytes(boundaryBuilder.ToString());
 
-            var url = new Uri($"{_shard.Url}?cloud_domain=2&{_cloud.Account.LoginName}");
+            var url = new Uri($"{_shard.Url}?cloud_domain=2&{_cloud.Account.Credentials.Login}");
             _request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
             _request.Proxy = _cloud.Account.Proxy;
             _request.CookieContainer = _cloud.Account.Cookies;

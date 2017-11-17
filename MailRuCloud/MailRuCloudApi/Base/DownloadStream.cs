@@ -12,7 +12,7 @@ namespace YaR.MailRuCloud.Api.Base
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
 
-        private const int InnerBufferSize = 65536;
+        private const int InnerBufferSize = 65536 * 2;
 
         private readonly IList<File> _files;
         private ShardInfo _shard;
