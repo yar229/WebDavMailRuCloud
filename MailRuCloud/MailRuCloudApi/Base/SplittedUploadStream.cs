@@ -21,9 +21,9 @@ namespace YaR.MailRuCloud.Api.Base
 
 
         private readonly List<File> _files = new List<File>();
+        private bool _performAsSplitted;
 
-        public SplittedUploadStream(string destinationPath, MailRuCloud cloud, long size, bool checkHash = true,
-            CryptInfo cryptInfo = null)
+        public SplittedUploadStream(string destinationPath, MailRuCloud cloud, long size, bool checkHash = true, CryptInfo cryptInfo = null)
         {
             _destinationPath = destinationPath;
             _cloud = cloud;
@@ -41,8 +41,10 @@ namespace YaR.MailRuCloud.Api.Base
         private void Initialize()
         {
             long allowedSize = _maxFileSize; //TODO: make it right //- BytesCount(_file.Name);
+            _performAsSplitted = _size > allowedSize || _cryptInfo != null;
             _origfile = new File(_destinationPath, _size, null);
-            if (_size <= allowedSize)
+
+            if (!_performAsSplitted) // crypted are performed alike splitted file
             {
                 _files.Add(_origfile);
             }
@@ -151,7 +153,7 @@ namespace YaR.MailRuCloud.Api.Base
 
             _uploadStream?.Close();
 
-            if (_files.Count > 1)
+            if (_performAsSplitted)
             {
                 var header = new HeaderFileContent
                 {
@@ -160,7 +162,7 @@ namespace YaR.MailRuCloud.Api.Base
                     Size = _origfile.Size,
                     PublicKey = _cryptInfo?.PublicKey
                 };
-                _cloud.UploadFileJson(_origfile.FullPath, header);
+                _cloud.UploadFileJson(_origfile.FullPath, header, true);
             }
 
             OnFileUploaded(_files);

@@ -17,7 +17,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public override async Task<SpecialCommandResult> Execute()
         {
-            var res = await Task.Run(() =>
+            var res = await Task.Run(async () =>
             {
                 var sourceFileInfo = new FileInfo(Parames[0]);
 
@@ -27,7 +27,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
                 Logger.Info($"COMMAND:COPY:{Parames[0]}");
 
                 using (var source = System.IO.File.Open(Parames[0], FileMode.Open, FileAccess.Read, FileShare.Read))
-                using (var target = Cloud.GetFileUploadStream(targetPath, sourceFileInfo.Length))
+                using (var target = await Cloud.GetFileUploadStream(targetPath, sourceFileInfo.Length).ConfigureAwait(false))
                 {
                     source.CopyTo(target);
                 }

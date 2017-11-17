@@ -162,7 +162,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public override string ToString()
         {
-            return ".wdmrc." + SplitInfo?.PartNumber.ToString("D3") ?? "000" + CryptInfo?.AlignBytes.ToString("x") ?? string.Empty;
+            return ".wdmrc." + (SplitInfo?.PartNumber.ToString("D3") ?? "000") + (CryptInfo?.AlignBytes.ToString("x") ?? string.Empty);
         }
 
         public string ToString(bool withName)

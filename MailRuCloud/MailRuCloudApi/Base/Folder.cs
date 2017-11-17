@@ -114,5 +114,6 @@ namespace YaR.MailRuCloud.Api.Base
         public FileAttributes Attributes { get; set; } = FileAttributes.Directory;
 
         public bool IsFile => false;
+        public bool CryptRequired => Files.Any(f => f.Name == CryptFileInfo.FileName);
     }
 }

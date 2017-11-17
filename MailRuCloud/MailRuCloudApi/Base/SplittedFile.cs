@@ -20,7 +20,7 @@ namespace YaR.MailRuCloud.Api.Base
             ServiceInfo = new FilenameServiceInfo
             {
                 CleanName = FileHeader.Name,
-                CryptInfo = files.First().ServiceInfo.CryptInfo,
+                CryptInfo = files.First(f => f.ServiceInfo.SplitInfo.IsPart).ServiceInfo.CryptInfo,
                 SplitInfo = new FileSplitInfo
                 {
                     IsHeader = true

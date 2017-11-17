@@ -357,13 +357,14 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Rename(File file, string newFileName)
         {
-            var result = await Rename(file.FullPath, newFileName);
-            if (file.Parts.Count > 1)
+            var result = await Rename(file.FullPath, newFileName).ConfigureAwait(false);
+
+            if (file.Files.Count > 1)
             {
                 foreach (var splitFile in file.Parts)
                 {
-                    string newSplitName = newFileName + ".wdmrc" + splitFile.Extension; //TODO: refact with .wdmrc
-                    await Rename(splitFile.FullPath, newSplitName);
+                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false); //+ ".wdmrc" + splitFile.Extension;
+                    await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
                 }
             }
 
@@ -606,8 +607,14 @@ namespace YaR.MailRuCloud.Api
         }
 
 
-        public Stream GetFileUploadStream(string destinationPath, long size)
+        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
         {
+            var file = new File(fullFilePath, size, string.Empty);
+            var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
+                .ConfigureAwait(false);
+            var stream = await task;
+            return stream;
+
             //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
 
             //// refresh linked folders
@@ -616,50 +623,50 @@ namespace YaR.MailRuCloud.Api
             //return stream;
             //=============================================================================================================
 
-            var key1 = new byte[32];
-            var key2 = new byte[32];
-            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
-            Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-            var xts = XtsAes256.Create(key1, key2);
+            //var key1 = new byte[32];
+            //var key2 = new byte[32];
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
+            //var xts = XtsAes256.Create(key1, key2);
 
-            //using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
-            using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
-            {
-                using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
-                {
-                    streamread.CopyTo(xtswritestream);
-                }
-            }
+            ////using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            ////using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
+            //using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
+            //{
+            //    using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
+            //    {
+            //        streamread.CopyTo(xtswritestream);
+            //    }
+            //}
 
-            using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
-            {
-                using (var xtsreadstream = new XtsStream(streamread, xts, 512))
-                {
-                    xtsreadstream.CopyTo(streamwrite);
-                }
-            }
+            //using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
+            //{
+            //    using (var xtsreadstream = new XtsStream(streamread, xts, 512))
+            //    {
+            //        xtsreadstream.CopyTo(streamwrite);
+            //    }
+            //}
 
             //================================================================================================================================
 
-            long delta = XTSWriteOnlyStream.BlockSize - size % XTSWriteOnlyStream.BlockSize;
-            destinationPath += $".c{delta:x}.wdmrc";
 
-            size = size % XTSWriteOnlyStream.BlockSize == 0
-                ? size
-                : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
+            //destinationPath += $".c{delta:x}.wdmrc";
 
-            
+            //size = size % XTSWriteOnlyStream.BlockSize == 0
+            //    ? size
+            //    : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
 
-            var ustream = new SplittedUploadStream(destinationPath, this, size, false);
-            var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
 
-            // refresh linked folders
-            ustream.FileUploaded += OnFileUploaded;
 
-            return encustream;
+            //var ustream = new SplittedUploadStream(destinationPath, this, size, false);
+            //var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
+
+            //// refresh linked folders
+            //ustream.FileUploaded += OnFileUploaded;
+
+            //return encustream;
 
 
             //////================================================================================================================================
@@ -739,18 +746,18 @@ namespace YaR.MailRuCloud.Api
         {
             var data = Encoding.UTF8.GetBytes(content);
 
-            using (var stream = GetFileUploadStream(path, data.Length))
+            using (var stream = GetFileUploadStream(path, data.Length).Result)
             {
                 stream.Write(data, 0, data.Length);
             }
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
         }
 
-        public bool UploadFileJson<T>(string fullFilePath, T data)
+        public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
         {
             string content = JsonConvert.SerializeObject(data);
             var bytes = Encoding.UTF8.GetBytes(content);
-            using (var stream = GetFileUploadStream(fullFilePath, bytes.Length))
+            using (var stream = GetFileUploadStream(fullFilePath, bytes.Length, discardEncryption).Result)
             {
                 stream.Write(bytes, 0, bytes.Length);
             }
@@ -904,7 +911,4 @@ namespace YaR.MailRuCloud.Api
         public DateTime Initialized { get; set; }
 
     }
-
-
-    public delegate void FileUploadedDelegate(IEnumerable<File> file);
 }

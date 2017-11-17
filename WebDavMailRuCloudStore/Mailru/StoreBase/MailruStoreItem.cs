@@ -193,7 +193,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 _fileInfo.Size = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -210,7 +210,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size) 
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
