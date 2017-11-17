@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Base
                 file.ServiceInfo.CryptInfo = new CryptInfo
                 {
                     PublicKey = key2,
-                    AlignBytes = (uint) (XTSWriteOnlyStream.BlockSize - file.Size % XTSWriteOnlyStream.BlockSize)
+                    AlignBytes = (uint) (file.Size % XTSWriteOnlyStream.BlockSize != 0 ? XTSWriteOnlyStream.BlockSize - file.Size % XTSWriteOnlyStream.BlockSize : 0)
                 };
 
                 var size = file.Size % XTSWriteOnlyStream.BlockSize == 0
