@@ -14,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base
                 throw new ArgumentException("Password is null or empty.");
 
 
-            int slashpos = login.IndexOf("/", StringComparison.InvariantCulture);
+            int slashpos = login.IndexOf(@"#", StringComparison.InvariantCulture);
             if (slashpos == login.Length - 1)
                 throw new InvalidCredentialException("Invalid credential format.");
 
@@ -26,6 +26,8 @@ namespace YaR.MailRuCloud.Api.Base
                 return;
             }
 
+            Login = login.Substring(0, slashpos);
+
             string separator = login.Substring(slashpos + 1);
 
             int seppos = password.IndexOf(separator, StringComparison.InvariantCulture);
@@ -33,7 +35,7 @@ namespace YaR.MailRuCloud.Api.Base
                 throw new InvalidCredentialException("Invalid credential format.");
 
             Password = password.Substring(0, seppos);
-            if (seppos + separator.Length >= Password.Length)
+            if (seppos + separator.Length >= password.Length)
                 throw new InvalidCredentialException("Invalid credential format.");
 
             PasswordCrypt = password.Substring(seppos + separator.Length);

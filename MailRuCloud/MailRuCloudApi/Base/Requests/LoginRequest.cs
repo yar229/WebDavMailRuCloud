@@ -8,11 +8,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     class LoginRequest : BaseRequest<LoginResult>
     {
-        private readonly IBasicCredentials _credentialses;
+        private readonly IBasicCredentials _credentials;
 
-        public LoginRequest(CloudApi cloudApi, IBasicCredentials credentialses) : base(cloudApi)
+        public LoginRequest(CloudApi cloudApi, IBasicCredentials credentials) : base(cloudApi)
         {
-            _credentialses = credentialses;
+            _credentials = credentials;
         }
 
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
@@ -26,7 +26,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"Login={Uri.EscapeUriString(_credentialses.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(_credentialses.Password)}";
+            string data = $"Login={Uri.EscapeUriString(_credentials.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(_credentials.Password)}";
 
             return Encoding.UTF8.GetBytes(data);
         }
