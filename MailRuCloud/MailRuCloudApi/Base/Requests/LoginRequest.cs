@@ -22,12 +22,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             return request;
         }
 
-        protected override string RelationalUri => "/cgi-bin/auth";
+        protected override string RelationalUri => "/cgi-bin/auth?lang=ru_RU&from=authpopup";
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"Login={Uri.EscapeUriString(_credentials.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(_credentials.Password)}";
-
+            string data = $"Login={Uri.EscapeUriString(_credentials.Login)}&Password={Uri.EscapeUriString(_credentials.Password)}";
+            data += $"&page={Uri.EscapeUriString("https://cloud.mail.ru/?from=promo")}&FailPage=&Domain=mail.ru&new_auth_form=1&saveauth=1";
             return Encoding.UTF8.GetBytes(data);
         }
 
