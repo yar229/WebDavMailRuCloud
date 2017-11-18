@@ -1,9 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
 
@@ -28,12 +30,10 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
         public bool CheckHashes { get; set; } = true;
-
-        private HttpWebRequest _request;
         private MailRuSha1Hash _sha1 = new MailRuSha1Hash();
+
+
         private byte[] _endBoundaryRequest;
-
-
 
         private void Initialize()
         {
@@ -51,106 +51,64 @@ namespace YaR.MailRuCloud.Api.Base
             var boundaryRequest = Encoding.UTF8.GetBytes(boundaryBuilder.ToString());
 
             var url = new Uri($"{_shard.Url}?cloud_domain=2&{_cloud.Account.Credentials.Login}");
-            _request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
-            _request.Proxy = _cloud.Account.Proxy;
-            _request.CookieContainer = _cloud.Account.Cookies;
-            _request.Method = "POST";
 
-            _request.ContentLength = _file.OriginalSize + boundaryRequest.LongLength + _endBoundaryRequest.LongLength;
 
-            _request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}";
-            _request.Headers.Add("Origin", ConstSettings.CloudDomain);
-            _request.Host = url.Host;
-            _request.ContentType = $"multipart/form-data; boundary=----{boundary}";
-            _request.Accept = "*/*";
-            _request.UserAgent = ConstSettings.UserAgent;
-            _request.AllowWriteStreamBuffering = false;
+            var config = new HttpClientHandler
+            {
+                UseProxy = true,
+                Proxy = _cloud.Account.Proxy, 
+                CookieContainer = _cloud.Account.Cookies,
+                UseCookies = true
+            };
 
-            Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
+            HttpClient client = new HttpClient(config);
 
-            _task = Task.Factory.FromAsync(_request.BeginGetRequestStream, asyncResult => _request.EndGetRequestStream(asyncResult), null);
+            var request = new HttpRequestMessage()
+            {
+                RequestUri = url,
+                Method = HttpMethod.Post,
+            };
+            request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
+            request.Headers.Add("Origin", ConstSettings.CloudDomain);
+            request.Headers.Add("Host", url.Host);
+            request.Headers.Add("ContentType", $"multipart / form - data; boundary = ----{ boundary}");
+            request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("UserAgent", ConstSettings.UserAgent);
 
-            _task = _task.ContinueWith
-                (
-                            (t, m) =>
-                            {
-                                try
-                                {
-                                    var token = (CancellationToken)m;
-                                    var s = t.Result;
-                                    WriteBytesInStream(boundaryRequest, s, token, boundaryRequest.Length);
-                                }
-                                catch (Exception)
-                                {
-                                    return (Stream)null;
-                                }
-                                return t.Result;
-                            },
-                        _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+
+            var content = new PushStreamContent(async (stream, httpContent, transportContext) =>
+            {
+                try
+                {
+                    await _ring.CopyToAsync(stream);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+                
+  
+                stream.Close();
+            });
+            request.Content = content;
+
+            
+
+            _requesta = client.SendAsync(request);
+            
+
+            _ring.Write(boundaryRequest, 0, boundaryRequest.Length);
         }
 
-        private Task<Stream> _task;
 
-        private const long MaxBufferSize = 3000000;
-
-        private readonly AutoResetEvent _canWrite = new AutoResetEvent(true);
-
-        private long BufferSize
-        {
-            set
-            {
-                lock (_bufferSizeLocker)
-                {
-                    _bufferSize = value;
-                    if (_bufferSize > MaxBufferSize)
-                        _canWrite.Reset();
-                    else _canWrite.Set();
-                }
-            }
-            get
-            {
-                lock (_bufferSizeLocker)
-                {
-                    return _bufferSize;
-                }
-            }
-        }
-
-        private long _bufferSize;
-
-        private readonly object _bufferSizeLocker = new object();
+        private readonly byte[] _readbuffer = new byte[65536];
+        private RingBufferedStream _ring = new RingBufferedStream(65536);
+        private Task<HttpResponseMessage> _requesta;
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            _canWrite.WaitOne();
-            BufferSize += count;
-
-            if (CheckHashes)
-                _sha1.Append(buffer, offset, count);
-
-            var zbuffer = new byte[count];
-            Array.Copy(buffer, offset, zbuffer, 0, count); //buffer.CopyTo(zbuffer, 0);
-            var zcount = count;
-            _task = _task.ContinueWith(
-                            (t, m) =>
-                            {
-                                try
-                                {
-                                    var token = (CancellationToken)m;
-                                    var s = t.Result;
-                                    WriteBytesInStream(zbuffer, s, token, zcount);
-                                }
-                                // ReSharper disable once UnusedVariable
-                                #pragma warning disable 168
-                                catch (Exception ex)
-                                {
-                                    return null;
-                                }
-                                #pragma warning restore 168
-
-                                return t.Result;
-                            },
-                        _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _ring.Write(buffer, offset, count);
         }
 
         protected override void Dispose(bool disposing)
@@ -158,43 +116,31 @@ namespace YaR.MailRuCloud.Api.Base
             base.Dispose(disposing);
             if (!disposing) return;
 
-            var z = _task.ContinueWith(
-                (t, m) =>
+            _ring.Write(_endBoundaryRequest, 0, _endBoundaryRequest.Length);
+
+            _ring.Flush();
+
+            using (var response = _requesta.Result)
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    var stream = t.Result;
-                    if (stream == null)
-                        return false;
-                    var token = (CancellationToken) m;
-                    WriteBytesInStream(_endBoundaryRequest, stream, token, _endBoundaryRequest.Length);
-                    stream.Dispose();
+                    var resp = response.Content.ToString().ToUploadPathResult();
 
-                    using (var response = (HttpWebResponse)_request.GetResponse())
+                    _file.OriginalSize = resp.Size;
+                    _file.Hash = resp.Hash;
+
+                    if (CheckHashes)
                     {
-                        if (response.StatusCode == HttpStatusCode.OK)
-                        {
-                            var resp = ReadResponseAsText(response, _cloud.CancelToken)
-                                            .ToUploadPathResult();
-
-                            _file.OriginalSize = resp.Size;
-                            _file.Hash = resp.Hash;
-
-                            if (CheckHashes)
-                            {
-                                var localHash = _sha1.HashString;
-                                if (localHash != resp.Hash)
-                                    throw new HashMatchException(localHash, resp.Hash);
-                            }
-
-                            var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
-                            return res;
-                        }
+                        var localHash = _sha1.HashString;
+                        if (localHash != resp.Hash)
+                            throw new HashMatchException(localHash, resp.Hash);
                     }
 
-                    return true;
-                },
-                _cloud.CancelToken.Token, TaskContinuationOptions.OnlyOnRanToCompletion);
+                    var res = AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
+                }
+            }
 
-            z.Wait();
+            //_stream.Close();
         }
 
 
@@ -240,56 +186,56 @@ namespace YaR.MailRuCloud.Api.Base
         }
 
 
-        // ReSharper disable once UnusedMethodReturnValue.Local
-        private long WriteBytesInStream(byte[] bytes, Stream outputStream, CancellationToken token, long length)
-        {
-            BufferSize -= bytes.Length;
-            Stream stream = null;
+        //// ReSharper disable once UnusedMethodReturnValue.Local
+        //private long WriteBytesInStream(byte[] bytes, Stream outputStream, CancellationToken token, long length)
+        //{
+        //    BufferSize -= bytes.Length;
+        //    Stream stream = null;
 
-            try
-            {
-                stream = new MemoryStream(bytes);
-                using (var source = new BinaryReader(stream))
-                {
-                    stream = null;
-                    return WriteBytesInStream(source, outputStream, token, length);
-                }
-            }
-            finally
-            {
-                stream?.Dispose();
-            }
-        }
+        //    try
+        //    {
+        //        stream = new MemoryStream(bytes);
+        //        using (var source = new BinaryReader(stream))
+        //        {
+        //            stream = null;
+        //            return WriteBytesInStream(source, outputStream, token, length);
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        stream?.Dispose();
+        //    }
+        //}
 
-        private long WriteBytesInStream(BinaryReader sourceStream, Stream outputStream, CancellationToken token, long length)
-        {
-            int bufferLength = 65536;
-            var totalWritten = 0L;
-            if (length < bufferLength)
-            {
-                var z = sourceStream.ReadBytes((int)length);
-                outputStream.Write(z, 0, (int)length);
-            }
-            else
-            {
-                while (length > totalWritten)
-                {
-                    token.ThrowIfCancellationRequested();
+        //private long WriteBytesInStream(BinaryReader sourceStream, Stream outputStream, CancellationToken token, long length)
+        //{
+        //    int bufferLength = 65536;
+        //    var totalWritten = 0L;
+        //    if (length < bufferLength)
+        //    {
+        //        var z = sourceStream.ReadBytes((int)length);
+        //        outputStream.Write(z, 0, (int)length);
+        //    }
+        //    else
+        //    {
+        //        while (length > totalWritten)
+        //        {
+        //            token.ThrowIfCancellationRequested();
 
-                    var bytes = sourceStream.ReadBytes(bufferLength);
-                    outputStream.Write(bytes, 0, bufferLength);
+        //            var bytes = sourceStream.ReadBytes(bufferLength);
+        //            outputStream.Write(bytes, 0, bufferLength);
 
-                    totalWritten += bufferLength;
-                    if (length - totalWritten < bufferLength)
-                    {
-                        bufferLength = (int)(length - totalWritten);
-                    }
-                }
+        //            totalWritten += bufferLength;
+        //            if (length - totalWritten < bufferLength)
+        //            {
+        //                bufferLength = (int)(length - totalWritten);
+        //            }
+        //        }
 
 
-            }
-            return totalWritten;
-        }
+        //    }
+        //    return totalWritten;
+        //}
 
 
         public override void Flush()
