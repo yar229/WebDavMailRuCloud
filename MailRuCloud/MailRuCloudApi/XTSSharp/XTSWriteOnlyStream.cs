@@ -54,7 +54,6 @@ namespace YaR.MailRuCloud.Api.XTSSharp
                 {
                     //sector filled
                     int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
-                    //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorSize);
                     _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
 
                     _currentSector++;
@@ -75,14 +74,10 @@ namespace YaR.MailRuCloud.Api.XTSSharp
                     : (_sectorBufferCount / BlockSize + 1) * BlockSize;
 
                 int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, towrite, _encriptedBuffer, 0, _currentSector);
-                //Array.Copy(_sectorBuffer, 0, _encriptedBuffer, 0, _sectorBufferCount);
-
-
-
                 _baseStream.Write(_encriptedBuffer, 0, towrite);
             }
-            _baseStream.Dispose();
 
+            _baseStream.Dispose();
         }
 
 

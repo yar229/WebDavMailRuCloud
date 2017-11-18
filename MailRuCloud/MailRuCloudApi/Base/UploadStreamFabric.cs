@@ -33,9 +33,9 @@ namespace YaR.MailRuCloud.Api.Base
                     AlignBytes = (uint) (file.Size % XTSWriteOnlyStream.BlockSize != 0 ? XTSWriteOnlyStream.BlockSize - file.Size % XTSWriteOnlyStream.BlockSize : 0)
                 };
 
-                var size = file.Size % XTSWriteOnlyStream.BlockSize == 0
-                    ? file.Size.DefaultValue
-                    : (file.Size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
+                var size = file.OriginalSize % XTSWriteOnlyStream.BlockSize == 0
+                    ? file.OriginalSize.DefaultValue
+                    : (file.OriginalSize / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
 
                 var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, false, file.ServiceInfo.CryptInfo);
                 if (onUploaded != null) ustream.FileUploaded += onUploaded;

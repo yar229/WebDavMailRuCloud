@@ -61,6 +61,8 @@ namespace YaR.MailRuCloud.Api.Base
                 int nfiles = (int) (_size / allowedSize + 1);
                 if (nfiles > 999)
                     throw new OverflowException("Cannot upload more than 999 file parts");
+
+                //TODO: move file splitting in File class
                 for (int i = 1; i <= nfiles; i++)
                 {
                     sinfo.SplitInfo.PartNumber = i;
@@ -153,7 +155,7 @@ namespace YaR.MailRuCloud.Api.Base
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _uploadStream?.Close();
+            _uploadStream?.Dispose();
 
             if (_performAsSplitted)
             {

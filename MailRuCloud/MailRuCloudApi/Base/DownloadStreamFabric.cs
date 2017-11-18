@@ -38,10 +38,12 @@ namespace YaR.MailRuCloud.Api.Base
             long alignedEnd = requestedEnd % XTSBlockSize == 0
                 ? requestedEnd
                 : (requestedEnd / XTSBlockSize + 1) * XTSBlockSize;
+
+            if (alignedEnd == 0) alignedEnd = 16;
             //long alignedLength = alignedEnd - alignedOffset;
 
             var downStream = new DownloadStream(file, _cloud.CloudApi, alignedOffset, alignedEnd);
-            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, (int) (alignedOffset - requestedOffset), file.ServiceInfo.CryptInfo.AlignBytes); 
+            var xtsStream = new XTSReadOnlyStream(downStream, xts, XTSSectorSize, 0, file.ServiceInfo.CryptInfo.AlignBytes); // (int)(alignedOffset - requestedOffset)
 
             return xtsStream;
         }
