@@ -872,7 +872,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
-            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.Size, conflict);
+            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
 
             return res;
         }
