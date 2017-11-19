@@ -89,7 +89,7 @@ namespace YaR.MailRuCloud.Api.Base
 
             _bytesWrote = 0;
             var currFile = _files[_currFileId];
-            _uploadStream = new UploadStream(currFile.FullPath, _cloud.CloudApi, currFile.OriginalSize) {CheckHashes = _checkHash};
+            _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.OriginalSize) {CheckHashes = _checkHash};
         }
 
 

@@ -18,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base
             FullPath = _fileHeader.FullPath;
 
 
-            var cryptofile = files.First(f => f.ServiceInfo.SplitInfo.IsPart && f.ServiceInfo.CryptInfo != null);
+            var cryptofile = files.FirstOrDefault(f => f.ServiceInfo.SplitInfo.IsPart && f.ServiceInfo.CryptInfo != null);
             ServiceInfo = new FilenameServiceInfo
             {
                 CleanName = _fileHeader.Name,
