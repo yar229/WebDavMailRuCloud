@@ -10,14 +10,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using YaR.MailRuCloud.Api.XTSSharp;
+using YaR.WebDavMailRu.CloudStore.XTSSharp;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -354,13 +358,14 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Rename(File file, string newFileName)
         {
-            var result = await Rename(file.FullPath, newFileName);
-            if (file.Parts.Count > 1)
+            var result = await Rename(file.FullPath, newFileName).ConfigureAwait(false);
+
+            if (file.Files.Count > 1)
             {
                 foreach (var splitFile in file.Parts)
                 {
-                    string newSplitName = newFileName + ".wdmrc" + splitFile.Extension; //TODO: refact with .wdmrc
-                    await Rename(splitFile.FullPath, newSplitName);
+                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false); //+ ".wdmrc" + splitFile.Extension;
+                    await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
                 }
             }
 
@@ -596,22 +601,92 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
-
-            var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
+            var task = Task.FromResult(new DownloadStreamFabric(this).Create(file, start, end))
+                .ConfigureAwait(false);
             Stream stream = await task;
             return stream;
         }
 
 
-        public Stream GetFileUploadStream(string destinationPath, long size)
+        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
         {
-            var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
-
-            // refresh linked folders
-            stream.FileUploaded += OnFileUploaded;
-
+            var file = new File(fullFilePath, size, string.Empty);
+            var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
+                .ConfigureAwait(false);
+            var stream = await task;
             return stream;
+
+            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+
+            //// refresh linked folders
+            //stream.FileUploaded += OnFileUploaded;
+
+            //return stream;
+            //=============================================================================================================
+
+            //var key1 = new byte[32];
+            //var key2 = new byte[32];
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
+            //var xts = XtsAes256.Create(key1, key2);
+
+            ////using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            ////using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
+            //using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
+            //{
+            //    using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
+            //    {
+            //        streamread.CopyTo(xtswritestream);
+            //    }
+            //}
+
+            //using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
+            //{
+            //    using (var xtsreadstream = new XtsStream(streamread, xts, 512))
+            //    {
+            //        xtsreadstream.CopyTo(streamwrite);
+            //    }
+            //}
+
+            //================================================================================================================================
+
+
+            //destinationPath += $".c{delta:x}.wdmrc";
+
+            //size = size % XTSWriteOnlyStream.BlockSize == 0
+            //    ? size
+            //    : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
+
+
+
+            //var ustream = new SplittedUploadStream(destinationPath, this, size, false);
+            //var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
+
+            //// refresh linked folders
+            //ustream.FileUploaded += OnFileUploaded;
+
+            //return encustream;
+
+
+            //////================================================================================================================================
+            //var xtsa = XtsAes256.Create(key1, key2);
+            //using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //{
+            //    sourceStream.Seek(0, SeekOrigin.End);
+
+            //    FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
+            //    var encstream = new XtsStream(targetStream, xtsa, 512);
+            //    sourceStream.Seek(0, SeekOrigin.Begin);
+            //    sourceStream.CopyTo(encstream);
+            //    encstream.Flush();
+            //    encstream.Close();
+            //    targetStream.Flush();
+            //    targetStream.Close();
+            //}
+
+            //return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;
@@ -643,20 +718,6 @@ namespace YaR.MailRuCloud.Api
                 string res = reader.ReadToEnd();
                 return res;
             }
-
-            ////TODO: refact, bad stream realization
-            //StreamReader reader = null;
-            //try
-            //{
-            //    var stream = new DownloadStream(file, CloudApi);
-            //    reader = new StreamReader(stream);
-            //    string res = reader.ReadToEnd();
-            //    return res;
-            //}
-            //finally
-            //{
-            //    reader?.Close();
-            //}
         }
 
         /// <summary>
@@ -686,12 +747,22 @@ namespace YaR.MailRuCloud.Api
         {
             var data = Encoding.UTF8.GetBytes(content);
 
-            using (var stream = GetFileUploadStream(path, data.Length))
+            using (var stream = GetFileUploadStream(path, data.Length).Result)
             {
                 stream.Write(data, 0, data.Length);
-                //stream.Close();
             }
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
+        }
+
+        public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
+        {
+            string content = JsonConvert.SerializeObject(data);
+            var bytes = Encoding.UTF8.GetBytes(content);
+            using (var stream = GetFileUploadStream(fullFilePath, bytes.Length, discardEncryption).Result)
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
+            return true;
         }
 
 
@@ -802,11 +873,43 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
-            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.Size, conflict);
+            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
 
+            return res;
+        }
+
+        /// <summary>
+        /// Создаёт в каталоге признак, что файлы в нём будут шифроваться
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public async Task<bool> CryptInit(Folder folder)
+        {
+            // do not allow to crypt root path... don't know for what
+            if (WebDavPath.PathEquals(folder.FullPath, WebDavPath.Root))
+                return false;
+
+            string filepath = WebDavPath.Combine(folder.FullPath, CryptFileInfo.FileName);
+            var file = await GetItem(filepath).ConfigureAwait(false);
+
+            if (file != null)
+                return false;
+
+            var content = new CryptFileInfo
+            {
+                Initialized = DateTime.Now
+            };
+
+            var res = UploadFileJson(filepath, content);
             return res;
         }
     }
 
-    public delegate void FileUploadedDelegate(IEnumerable<File> file);
+    public class CryptFileInfo
+    {
+        public const string FileName = ".crypt.wdmrc";
+        public string WDMRCVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        public DateTime Initialized { get; set; }
+
+    }
 }

@@ -52,6 +52,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             {
                 Commands = new [] {"lcopy"},
                 CreateFunc = (cloud, path, param) => new LocalToServerCopyCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"crypt", "init"},
+                CreateFunc = (cloud, path, param) => new CryptInitCommand(cloud, path, param)
             }
         };
 

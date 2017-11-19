@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
@@ -194,6 +193,9 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
         {
+            try
+            {
+
             var path = string.IsNullOrEmpty(nameReplacement)
                 ? item.home
                 : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
@@ -206,17 +208,31 @@ namespace YaR.MailRuCloud.Api.Extensions
                 LastAccessTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
             };
+
             return file;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
         {
             var groupedFiles = list
-                .GroupBy(f => Regex.Match(f.Name, @"(?<name>.*?)(\.wdmrc\.(crc|\d\d\d))?\Z").Groups["name"].Value,
+                .GroupBy(f => f.ServiceInfo.CleanName,
                     file => file)
-                .Select(group => group.Count() == 1
-                    ? group.First()
-                    : new SplittedFile(group.ToList()));
+                //.Select(group => group.Count() == 1
+                //    ? group.First()
+                //    : new SplittedFile(group.ToList()));
+                .SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
+                    ? group.Take(1)
+                    : group.Any(f => f.Name == f.ServiceInfo.CleanName)
+                        ? Enumerable.Repeat(new SplittedFile(group.ToList()), 1) 
+                        : group.Select(file => file));
+
             return groupedFiles;
         }
 

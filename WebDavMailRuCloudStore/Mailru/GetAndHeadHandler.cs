@@ -142,7 +142,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
                     // HEAD method doesn't require the actual item data
                     if (!head)
-                        await CopyToAsync(stream, response.Stream, range?.Start ?? 0, range?.End).ConfigureAwait(false);
+                        //await CopyToAsync(stream, response.Stream, range?.Start ?? 0, range?.End).ConfigureAwait(false);
+                        await CopyToAsync(stream, response.Stream, 0, stream.Length - 1).ConfigureAwait(false);
                 }
                 else
                 {
@@ -189,5 +190,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
                 bytesToRead -= bytesRead;
             }
         }
+
+
     }
 }

@@ -50,7 +50,7 @@ namespace WebDAV.Uploader
                             source.Seek(0, SeekOrigin.Begin);
                             var buffer = new byte[64000];
                             long wrote = 0;
-                            using (var target = cloud.GetFileUploadStream(WebDavPath.Combine(targetfile, fileInfo.Name), fileInfo.Length))
+                            using (var target = cloud.GetFileUploadStream(WebDavPath.Combine(targetfile, fileInfo.Name), fileInfo.Length).Result)
                             {
                                 int read;
                                 while ((read = source.Read(buffer, 0, buffer.Length)) > 0)

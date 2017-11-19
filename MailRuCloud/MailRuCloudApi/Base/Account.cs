@@ -33,8 +33,7 @@ namespace YaR.MailRuCloud.Api.Base
         public Account(CloudApi cloudApi, string login, string password, ITwoFaHandler twoFaHandler)
         {
             _cloudApi = cloudApi;
-            LoginName = login;
-            Password = password;
+            Credentials = new Credentials(login, password);
 
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
             Proxy = WebRequest.DefaultWebProxy;
@@ -74,17 +73,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Account cookies.</value>
         public CookieContainer Cookies => _cookies ?? (_cookies = new CookieContainer());
 
-        /// <summary>
-        /// Gets or sets login name.
-        /// </summary>
-        /// <value>Account email.</value>
-        public string LoginName { get; }
-
-        /// <summary>
-        /// Gets or sets email password.
-        /// </summary>
-        /// <value>Password related with login.</value>
-        private string Password { get; }
+        internal Credentials Credentials { get; }
 
         public AccountInfo Info { get; private set; }
 
@@ -103,24 +92,14 @@ namespace YaR.MailRuCloud.Api.Base
         /// <returns>True or false result operation.</returns>
         public async Task<bool> LoginAsync()
         {
-            if (string.IsNullOrEmpty(LoginName))
-            {
-                throw new ArgumentException("LoginName is null or empty.");
-            }
-
-            if (string.IsNullOrEmpty(Password))
-            {
-                throw new ArgumentException("Password is null or empty.");
-            }
-
-            var loginResult = await new LoginRequest(_cloudApi, LoginName, Password)
+            var loginResult = await new LoginRequest(_cloudApi, Credentials)
                 .MakeRequestAsync();
 
             // 2FA
             if (!string.IsNullOrEmpty(loginResult.Csrf))
             {
-                string authCode = OnAuthCodeRequired(LoginName, false);
-                await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, LoginName, authCode)
+                string authCode = OnAuthCodeRequired(Credentials.Login, false);
+                await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, Credentials.Login, authCode)
                     .MakeRequestAsync();
             }
 

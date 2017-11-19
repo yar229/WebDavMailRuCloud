@@ -1,10 +1,52 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class Extensions
     {
+        public static string ReadAsText(this WebResponse resp, CancellationTokenSource cancelToken)
+        {
+            using (var stream = new MemoryStream())
+            {
+                try
+                {
+                    resp.ReadAsByte(cancelToken.Token, stream);
+                    return Encoding.UTF8.GetString(stream.ToArray());
+                }
+                catch
+                {
+                    //// Cancellation token.
+                    return "7035ba55-7d63-4349-9f73-c454529d4b2e";
+                }
+            }
+        }
+
+        public static void ReadAsByte(this WebResponse resp, CancellationToken token, Stream outputStream = null)
+        {
+            using (Stream responseStream = resp.GetResponseStream())
+            {
+                var buffer = new byte[65536];
+                int bytesRead;
+
+                while (responseStream != null && (bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    token.ThrowIfCancellationRequested();
+                    outputStream?.Write(buffer, 0, bytesRead);
+                }
+            }
+        }
+
+        public static T ThrowIf<T>(this T data, Func<T, bool> func, Func<T, Exception> ex)
+        {
+            if (func(data)) throw ex(data);
+            return data;
+        }
+
         public static T ThrowIf<T>(this Task<T> data, Func<T, bool> func, Exception ex)
         {
             var res = data.Result;
