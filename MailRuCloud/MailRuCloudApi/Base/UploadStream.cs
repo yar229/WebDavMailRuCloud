@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
@@ -37,23 +39,27 @@ namespace YaR.MailRuCloud.Api.Base
                         Proxy = _cloud.CloudApi.Account.Proxy,
                         CookieContainer = _cloud.CloudApi.Account.Cookies,
                         UseCookies = true,
-                        AllowAutoRedirect = true
+                        AllowAutoRedirect = true,
+                        //MaxRequestContentBufferSize = 65536
                     };
 
-                    client = new HttpClient(config);
 
-                    request = new HttpRequestMessage()
+                    _client = new HttpClient(config);
+                    _client.Timeout = Timeout.InfiniteTimeSpan;
+
+                    _request = new HttpRequestMessage()
                     {
                         RequestUri = url,
                         Method = HttpMethod.Post,
                     };
-                    request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
-                    request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                    request.Headers.Add("Host", url.Host);
-                    request.Headers.Add("Accept", "*/*");
-                    //request.Headers.Add("User-Agent", ConstSettings.UserAgent);
-                    //.TryAddWithoutValidation("Authorization", "key=XXX");
-                    request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
+                    
+                    _request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
+                    _request.Headers.Add("Origin", ConstSettings.CloudDomain);
+                    _request.Headers.Add("Host", url.Host);
+                    _request.Headers.Add("Accept", "*/*");
+                    //request.Headers.Add("Content-Length", _file.OriginalSize);
+                    
+                    _request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
                     
                     var guid = Guid.NewGuid();
                     var content = new MultipartFormDataContent($"----{guid}");
@@ -69,19 +75,29 @@ namespace YaR.MailRuCloud.Api.Base
                     //streamContent.Headers.Add("Content-Type", "application/octet-stream");
                     //content.Add(streamContent);
 
-
-                    var pushContent = new PushStreamContent((stream, httpContent, arg3) =>
+                    //var pushContent = new StreamContent(_ringBuffer);
+                    _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {
-                        _ringBuffer.CopyTo(stream);
-                        stream.Close();
+                        try
+                        {
+                            _ringBuffer.CopyTo(stream);
+                            stream.Close();
+
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            throw;
+                        }
                     });
-                    pushContent.Headers.Add("Content-Disposition", $"form-data; name=\"file\"; filename=\"{_file.Name}\"");
-                    content.Add(pushContent);
+                    _pushContent.Headers.Add("Content-Disposition", $"form-data; name=\"file\"; filename=\"{_file.Name}\"");
+                    content.Add(_pushContent);
 
 
-                    request.Content = content;
+                    _request.Content = content;
+                    _request.Content.Headers.ContentLength = _file.OriginalSize + 192 + Encoding.UTF8.GetBytes(_file.Name).Length;
 
-                    responseMessage = client.SendAsync(request).Result;
+                    _responseMessage = _client.SendAsync(_request).Result;
 
                     var zz = 1;
 
@@ -118,9 +134,10 @@ namespace YaR.MailRuCloud.Api.Base
             });
         }
 
-        private HttpResponseMessage responseMessage;
-        private HttpClient client;
-        private HttpRequestMessage request;
+        private PushStreamContent _pushContent;
+        private HttpResponseMessage _responseMessage;
+        private HttpClient _client;
+        private HttpRequestMessage _request;
 
         public bool CheckHashes { get; set; } = true;
 
@@ -139,14 +156,15 @@ namespace YaR.MailRuCloud.Api.Base
 
             _ringBuffer.Flush();
 
-            _requestTask.Wait();
+            _requestTask.GetAwaiter().GetResult();
 
             //using (var response = _request. )
             {
-                if (responseMessage.StatusCode != HttpStatusCode.OK)
-                    throw new Exception("Cannot upload file, status " + responseMessage.StatusCode);
+                if (_responseMessage.StatusCode != HttpStatusCode.OK)
+                    throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
 
-                var ures = responseMessage.Content.ReadAsStringAsync().Result
+                var resb = _responseMessage.Content.ReadAsByteArrayAsync().Result;
+                var ures = _responseMessage.Content.ReadAsStringAsync().Result
                     .ToUploadPathResult();
 
                 _file.OriginalSize = ures.Size;
@@ -165,7 +183,6 @@ namespace YaR.MailRuCloud.Api.Base
         private readonly File _file;
 
         private readonly MailRuSha1Hash _sha1 = new MailRuSha1Hash();
-        private HttpWebRequest _request;
         private Task _requestTask;
         private readonly RingBufferedStream _ringBuffer = new RingBufferedStream(65536);
 
