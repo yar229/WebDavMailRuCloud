@@ -41,6 +41,11 @@ namespace YaR.MailRuCloud.Api.Extensions
             }
         }
 
+        public static T ThrowIf<T>(this T data, Func<T, bool> func, Func<T, Exception> ex)
+        {
+            if (func(data)) throw ex(data);
+            return data;
+        }
 
         public static T ThrowIf<T>(this Task<T> data, Func<T, bool> func, Exception ex)
         {
