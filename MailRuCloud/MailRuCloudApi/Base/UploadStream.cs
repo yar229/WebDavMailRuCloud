@@ -14,9 +14,7 @@ namespace YaR.MailRuCloud.Api.Base
         public UploadStream(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
-
             _file = new File(destinationPath, size, null);
-            _shard = _cloud.CloudApi.Account.GetShardInfo(ShardType.Upload).Result;
 
             Initialize();
         }
@@ -28,7 +26,8 @@ namespace YaR.MailRuCloud.Api.Base
                 try
                 {
                     var boundary = new UploadMultipartBoundary(_file);
-                    var url = new Uri($"{_shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
+                    var shard = _cloud.CloudApi.Account.GetShardInfo(ShardType.Upload).Result;
+                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
 
                     _request = (HttpWebRequest) WebRequest.Create(url.OriginalString);
                     _request.Proxy = _cloud.CloudApi.Account.Proxy;
@@ -104,7 +103,6 @@ namespace YaR.MailRuCloud.Api.Base
 
         private readonly MailRuCloud _cloud;
         private readonly File _file;
-        private readonly ShardInfo _shard;
 
         private readonly MailRuSha1Hash _sha1 = new MailRuSha1Hash();
         private HttpWebRequest _request;
