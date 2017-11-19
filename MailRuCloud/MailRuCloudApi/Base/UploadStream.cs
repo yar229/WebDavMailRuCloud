@@ -81,21 +81,21 @@ namespace YaR.MailRuCloud.Api.Base
 
             using (var response = _requestTask.Result)
             {
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    var resp = response.ReadAsText(_cloud.CloudApi.CancelToken)
-                        .ToUploadPathResult();
-
-                    _file.OriginalSize = resp.Size;
-                    _file.Hash = resp.Hash;
-
-                    if (CheckHashes && _sha1.HashString != resp.Hash)
-                        throw new HashMatchException(_sha1.HashString, resp.Hash);
-
-                    var res = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite).Result;
-                }
-                else
+                if (response.StatusCode != HttpStatusCode.OK)
                     throw new Exception("Cannot upload file, status " + response.StatusCode);
+
+                var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
+                    .ToUploadPathResult();
+
+                _file.OriginalSize = ures.Size;
+                _file.Hash = ures.Hash;
+
+                if (CheckHashes && _sha1.HashString != ures.Hash)
+                    throw new HashMatchException(_sha1.HashString, ures.Hash);
+
+                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                    .Result
+                    .ThrowIf(r => r.status != 200, r => new Exception("Cannot add file, status " + r.status));
             }
 
         }
