@@ -5,14 +5,17 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Threads
 {
-#if NET45 
-    internal class UploadStream : Stream
+    /// <summary>
+    /// Upload stream based on HttpWebRequest
+    /// </summary>
+    /// <remarks>Suitable for .NET desktop, large file uploading does not work on .NET Core</remarks>
+    abstract class UploadStreamHttpWebRequest : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
 
-        public UploadStream(string destinationPath, MailRuCloud cloud, long size)
+        protected UploadStreamHttpWebRequest(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
@@ -135,6 +138,4 @@ namespace YaR.MailRuCloud.Api.Base
             throw new NotImplementedException();
         }
     }
-
-#endif
 }

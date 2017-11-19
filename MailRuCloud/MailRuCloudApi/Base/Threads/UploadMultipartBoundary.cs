@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Threads
 {
     public class UploadMultipartBoundary
     {

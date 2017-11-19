@@ -9,15 +9,17 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Threads
 {
-#if NETCOREAPP2_0
-
-    internal class UploadStream : Stream
+    /// <summary>
+    /// Upload stream based on HttpClient
+    /// </summary>
+    /// <remarks>Suitable for .NET Core, on .NET desktop POST requests does not return response content.</remarks>
+    abstract class UploadStreamHttpClient : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
 
-        public UploadStream(string destinationPath, MailRuCloud cloud, long size)
+        protected UploadStreamHttpClient(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
@@ -171,5 +173,4 @@ namespace YaR.MailRuCloud.Api.Base
             throw new NotImplementedException();
         }
     }
-#endif
 }
