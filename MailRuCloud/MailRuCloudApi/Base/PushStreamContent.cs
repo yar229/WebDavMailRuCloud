@@ -1,16 +1,13 @@
-﻿// Decompiled with JetBrains decompiler
-// Type: System.Net.Http.PushStreamContent
-// Assembly: System.Net.Http.Formatting, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35
-// MVID: FC82F88E-6F07-4942-9E94-C00AFE6E1DD7
-// Assembly location: C:\Users\yar229\.nuget\packages\microsoft.aspnet.webapi.client\5.2.4-alpha1-170218\lib\netstandard1.1\System.Net.Http.Formatting.dll
-
+﻿using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace System.Net.Http
+namespace YaR.MailRuCloud.Api.Base
 {
     /// <summary>
     /// Provides an <see cref="T:System.Net.Http.HttpContent" /> implementation that exposes an output <see cref="T:System.IO.Stream" />
