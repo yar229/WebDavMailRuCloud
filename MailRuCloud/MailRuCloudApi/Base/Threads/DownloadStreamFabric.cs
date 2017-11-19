@@ -1,10 +1,8 @@
 ﻿using System.IO;
-using System.Linq;
-using System.Text;
 using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Threads
 {
     public class DownloadStreamFabric
     {
