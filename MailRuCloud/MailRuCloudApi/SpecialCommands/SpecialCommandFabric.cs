@@ -57,6 +57,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             {
                 Commands = new [] {"crypt", "init"},
                 CreateFunc = (cloud, path, param) => new CryptInitCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"share"},
+                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, param)
             }
         };
 

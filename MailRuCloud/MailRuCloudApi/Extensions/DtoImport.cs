@@ -9,6 +9,16 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+        public static PublishInfo ToPublishInfo(this PublishResult data)
+        {
+            var res = new PublishInfo
+            {
+                Url = ConstSettings.PublishFileLink + data.body,
+                DateTime = DateTime.Now
+            };
+            return res;
+        }
+
         public static UploadFileResult ToUploadPathResult(this string data)
         {
             var resp = data.Split(';');
