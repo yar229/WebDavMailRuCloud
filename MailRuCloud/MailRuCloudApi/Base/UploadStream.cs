@@ -43,8 +43,7 @@ namespace YaR.MailRuCloud.Api.Base
                     _request.AllowWriteStreamBuffering = false;
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
-                    
-                    var requeststream = await _request.GetRequestStreamAsync();
+                    using (var requeststream = await _request.GetRequestStreamAsync())
                     {
                         await requeststream.WriteAsync(boundary.Start, 0, boundary.Start.Length);
                         await _ringBuffer.CopyToAsync(requeststream);
@@ -97,9 +96,7 @@ namespace YaR.MailRuCloud.Api.Base
                     .Result
                     .ThrowIf(r => r.status != 200, r => new Exception("Cannot add file, status " + r.status));
             }
-
         }
-
 
         private readonly MailRuCloud _cloud;
         private readonly File _file;
