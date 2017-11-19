@@ -96,12 +96,12 @@ namespace YaR.MailRuCloud.Api.Base
                 .MakeRequestAsync();
 
             // 2FA
-            //if (!string.IsNullOrEmpty(loginResult.Csrf))
-            //{
-            //    string authCode = OnAuthCodeRequired(Credentials.Login, false);
-            //    await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, Credentials.Login, authCode)
-            //        .MakeRequestAsync();
-            //}
+            if (!string.IsNullOrEmpty(loginResult.Csrf))
+            {
+                string authCode = OnAuthCodeRequired(Credentials.Login, false);
+                await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, Credentials.Login, authCode)
+                    .MakeRequestAsync();
+            }
 
             await new EnsureSdcCookieRequest(_cloudApi)
                 .MakeRequestAsync();
