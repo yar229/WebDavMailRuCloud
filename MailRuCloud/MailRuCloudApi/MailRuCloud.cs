@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -20,8 +19,6 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
-using YaR.MailRuCloud.Api.XTSSharp;
-using YaR.WebDavMailRu.CloudStore.XTSSharp;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -155,27 +152,56 @@ namespace YaR.MailRuCloud.Api
             return entry;
         }
 
-
-
-
-        /// <summary>
-        /// Get disk usage for account.
-        /// </summary>
-        /// <returns>Returns Total/Free/Used size.</returns>
-        public async Task<DiskUsage> GetDiskUsage()
+        #region == Publish ==========================================================================================================================
+        private async Task<PublishInfo> Publish(string fullPath)
         {
-            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
-            return data.ToDiskUsage();
+            var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
+                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"))
+                .ToPublishInfo();
+
+            return res;
         }
 
-        /// <summary>
-        /// Abort all prolonged async operations.
-        /// </summary>
-        public void AbortAllAsyncThreads()
+        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
         {
-            CloudApi.CancelToken.Cancel(true);
+            var info = await Publish(file.FullPath);
+
+            if (makeShareFile)
+            {
+                string path = $"{file.FullPath}{PublishInfo.SharedFilePostfix}";
+                UploadFileJson(path, info)
+                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+            }
+
+            return info;
         }
 
+        public async Task<PublishInfo> Publish(Folder folder, bool makeShareFile = true)
+        {
+            var info = await Publish(folder.FullPath);
+
+            if (makeShareFile)
+            {
+                string path = WebDavPath.Combine(folder.FullPath, PublishInfo.SharedFilePostfix);
+                UploadFileJson(path, info)
+                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+            }
+
+            return info;
+        }
+
+        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true)
+        {
+            if (null == entry) throw new ArgumentNullException(nameof(entry));
+
+            if (entry is File file)
+                return await Publish(file, makeShareFile);
+            if (entry is Folder folder)
+                return await Publish(folder, makeShareFile);
+
+            throw new Exception($"Unknow entry type, type = {entry.GetType()},path = {entry.FullPath}");
+        }
+        #endregion == Publish =======================================================================================================================
 
         #region == Copy =============================================================================================================================
 
@@ -554,6 +580,24 @@ namespace YaR.MailRuCloud.Api
 
         #endregion == Remove ========================================================================================================================
 
+        /// <summary>
+        /// Get disk usage for account.
+        /// </summary>
+        /// <returns>Returns Total/Free/Used size.</returns>
+        public async Task<DiskUsage> GetDiskUsage()
+        {
+            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
+            return data.ToDiskUsage();
+        }
+
+        /// <summary>
+        /// Abort all prolonged async operations.
+        /// </summary>
+        public void AbortAllAsyncThreads()
+        {
+            CloudApi.CancelToken.Cancel(true);
+        }
+
         public byte MaxInnerParallelRequests
         {
             get => _maxInnerParallelRequests;
@@ -903,13 +947,5 @@ namespace YaR.MailRuCloud.Api
             var res = UploadFileJson(filepath, content);
             return res;
         }
-    }
-
-    public class CryptFileInfo
-    {
-        public const string FileName = ".crypt.wdmrc";
-        public string WDMRCVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        public DateTime Initialized { get; set; }
-
     }
 }
