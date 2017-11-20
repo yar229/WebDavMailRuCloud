@@ -153,6 +153,26 @@ namespace YaR.MailRuCloud.Api
         }
 
         #region == Publish ==========================================================================================================================
+        
+        private async Task<string> Unpublish(string publicLink)
+        {
+            var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
+                .ThrowIf(r => r.status != 200, r => new Exception($"Unpublish error, link = {publicLink}, status = {r.status}"));
+
+            return res.body;
+        }
+
+        public async Task  Unpublish(File file)
+        {
+            foreach (var innerFile in file.Files)
+            {
+                await Unpublish(innerFile.PublicLink);
+                innerFile.PublicLink = string.Empty;
+            }
+            _itemCache.Invalidate(file.FullPath, file.Path);
+        }
+
+
         private async Task<string> Publish(string fullPath)
         {
             var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
@@ -581,11 +601,25 @@ namespace YaR.MailRuCloud.Api
                 });
             bool res = (await Task.WhenAll(qry)).All(r => r);
 
-            //remove share description (.wdmrc.share)
             if (res)
             {
-                if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
-                    await Remove(sharefile, false);
+                //unshare master item
+                if (file.Name.EndsWith(PublishInfo.SharedFilePostfix))
+                {
+                    var mpath = WebDavPath.Clean(file.FullPath.Substring(0, file.FullPath.Length - PublishInfo.SharedFilePostfix.Length));
+                    var item = await GetItem(mpath);
+                    if (item is Folder folder)
+                        await Unpublish(folder.PublicLink);
+                    else if (item is File ifile)
+                        await Unpublish(ifile);
+                }
+                else
+                {
+                    //remove share description (.wdmrc.share)
+                    if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                        await Remove(sharefile, false);
+                }
+
             }
 
 
@@ -802,11 +836,11 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
-        public void UploadFile(string path, string content)
+        public void UploadFile(string path, string content, bool discardEncryption = false)
         {
             var data = Encoding.UTF8.GetBytes(content);
 
-            using (var stream = GetFileUploadStream(path, data.Length).Result)
+            using (var stream = GetFileUploadStream(path, data.Length, discardEncryption).Result)
             {
                 stream.Write(data, 0, data.Length);
             }
@@ -816,11 +850,7 @@ namespace YaR.MailRuCloud.Api
         public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
         {
             string content = JsonConvert.SerializeObject(data, Formatting.Indented);
-            var bytes = Encoding.UTF8.GetBytes(content);
-            using (var stream = GetFileUploadStream(fullFilePath, bytes.Length, discardEncryption).Result)
-            {
-                stream.Write(bytes, 0, bytes.Length);
-            }
+            UploadFile(fullFilePath, content, discardEncryption);
             return true;
         }
 

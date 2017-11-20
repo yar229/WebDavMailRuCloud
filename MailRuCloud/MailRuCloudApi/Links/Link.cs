@@ -63,7 +63,9 @@ namespace YaR.MailRuCloud.Api.Links
         }
 
         public string Href { get; }
-            
+
+        public string PublicLink => Href;
+
         public FileSize Size { get; set; }
         public DateTime CreationTimeUtc { get; set; }
 

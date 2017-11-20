@@ -9,5 +9,6 @@ namespace YaR.MailRuCloud.Api.Base
         string Name { get; }
         string FullPath { get; }
         DateTime CreationTimeUtc { get; }
+        string PublicLink { get; }
     }
 }
