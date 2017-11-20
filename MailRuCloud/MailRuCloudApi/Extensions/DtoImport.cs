@@ -9,16 +9,6 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
-        public static PublishInfo ToPublishInfo(this PublishResult data)
-        {
-            var res = new PublishInfo
-            {
-                Url = ConstSettings.PublishFileLink + data.body,
-                DateTime = DateTime.Now
-            };
-            return res;
-        }
-
         public static UploadFileResult ToUploadPathResult(this string data)
         {
             var resp = data.Split(';');
@@ -197,7 +187,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static Folder ToFolder(this FolderInfoProps item)
         {
-            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
+            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : item.weblink);
             return folder;
         }
 

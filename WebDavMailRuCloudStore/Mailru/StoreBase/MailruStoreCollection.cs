@@ -235,11 +235,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavSharedLink<MailruStoreCollection>
-            {
-                Getter = (context, item) => item.DirectoryInfo.PublicLink,
-                Setter = (context, item, value) => DavStatusCode.Ok
-            },
             new DavGetContentLength<MailruStoreCollection>
             {
                 Getter = (context, item) => item.DirectoryInfo.Size
@@ -247,6 +242,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             new DavGetContentType<MailruStoreCollection>
             {
                 Getter = (context, item) => "httpd/unix-directory" //"application/octet-stream"
+            },
+            new DavSharedLink<MailruStoreCollection>
+            {
+                Getter = (context, item) => string.IsNullOrEmpty(item.DirectoryInfo.PublicLink)
+                    ? string.Empty
+                    : ConstSettings.PublishFileLink + item.DirectoryInfo.PublicLink,
+                Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
 
