@@ -138,9 +138,11 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             if (_shard.Type == ShardType.WeblinkGet)
                 downloadkey = _cloud.Account.DownloadToken.Value;
 
-            var request = _shard.Type == ShardType.Get
-                ? (HttpWebRequest)WebRequest.Create($"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}")
-                : (HttpWebRequest)WebRequest.Create($"{_shard.Url}{new Uri(file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}");
+            string url = _shard.Type == ShardType.Get
+                ? $"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+                : $"{_shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+            var request = (HttpWebRequest) WebRequest.Create(url);
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);

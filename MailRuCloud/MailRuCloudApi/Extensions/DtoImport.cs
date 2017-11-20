@@ -213,7 +213,7 @@ namespace YaR.MailRuCloud.Api.Extensions
             var file = new File(path ?? item.name, item.size, item.hash)
             {
                 PublicLink =
-                    string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink,
+                    string.IsNullOrEmpty(item.weblink) ? string.Empty : item.weblink,
                 CreationTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
