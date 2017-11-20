@@ -566,9 +566,11 @@ namespace YaR.MailRuCloud.Api
         /// Remove the file on server.
         /// </summary>
         /// <param name="file">File info.</param>
+        /// <param name="removeShareDescription">Also remove share description file (.share.wdmrc)</param>
         /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file)
+        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true)
         {
+            // remove all parts if file splitted
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
@@ -577,8 +579,16 @@ namespace YaR.MailRuCloud.Api
                     var removed = await Remove(pfile.FullPath);
                     return removed;
                 });
-
             bool res = (await Task.WhenAll(qry)).All(r => r);
+
+            //remove share description (.wdmrc.share)
+            if (res)
+            {
+                if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                    await Remove(sharefile, false);
+            }
+
+
             _itemCache.Invalidate(file.Path, file.FullPath);
             return res;
         }
