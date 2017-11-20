@@ -142,7 +142,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavSharedLink<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.PublicLink,
+                Getter = (context, item) => ConstSettings.PublishFileLink + item._fileInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
