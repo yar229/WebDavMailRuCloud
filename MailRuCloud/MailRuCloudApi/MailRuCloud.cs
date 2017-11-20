@@ -140,7 +140,7 @@ namespace YaR.MailRuCloud.Api
                         else
                         {
                             if (folder.Files.All(inf => inf.FullPath != linkpath))
-                                folder.Files.Add(new File(linkpath, flink.Size));
+                                folder.Files.Add(new File(linkpath, flink.Size){PublicLink = flink.Href});
                         }
                     }
                 }
