@@ -158,6 +158,17 @@ namespace YaR.MailRuCloud.Api.Base
             }
             return ServiceInfo.CryptInfo.PublicKey;
         }
+
+        public PublishInfo ToPublishInfo()
+        {
+            var info = new PublishInfo();
+            foreach (var innerFile in Files)
+            {
+                if (!string.IsNullOrEmpty(innerFile.PublicLink))
+                    info.Items.Add(new PublishInfoItem{Path = innerFile.FullPath, Url = ConstSettings.PublishFileLink + innerFile.PublicLink});
+            }
+            return info;
+        }
     }
 }
 

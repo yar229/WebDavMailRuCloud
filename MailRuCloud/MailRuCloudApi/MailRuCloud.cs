@@ -153,18 +153,22 @@ namespace YaR.MailRuCloud.Api
         }
 
         #region == Publish ==========================================================================================================================
-        private async Task<PublishInfo> Publish(string fullPath)
+        private async Task<string> Publish(string fullPath)
         {
             var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
-                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"))
-                .ToPublishInfo();
-
-            return res;
+                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"));
+                
+            return res.body;
         }
 
         public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
         {
-            var info = await Publish(file.FullPath);
+            foreach (var innerFile in file.Files)
+            {
+                var url = await Publish(innerFile.FullPath);
+                innerFile.PublicLink = url;
+            }
+            var info = file.ToPublishInfo();
 
             if (makeShareFile)
             {
@@ -172,13 +176,14 @@ namespace YaR.MailRuCloud.Api
                 UploadFileJson(path, info)
                     .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
             }
-
             return info;
         }
 
         public async Task<PublishInfo> Publish(Folder folder, bool makeShareFile = true)
         {
-            var info = await Publish(folder.FullPath);
+            var url = await Publish(folder.FullPath);
+            folder.PublicLink = url;
+            var info = folder.ToPublishInfo();
 
             if (makeShareFile)
             {
@@ -800,7 +805,7 @@ namespace YaR.MailRuCloud.Api
 
         public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
         {
-            string content = JsonConvert.SerializeObject(data);
+            string content = JsonConvert.SerializeObject(data, Formatting.Indented);
             var bytes = Encoding.UTF8.GetBytes(content);
             using (var stream = GetFileUploadStream(fullFilePath, bytes.Length, discardEncryption).Result)
             {
