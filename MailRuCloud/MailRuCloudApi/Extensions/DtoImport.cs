@@ -148,7 +148,7 @@ namespace YaR.MailRuCloud.Api.Extensions
         {
             PatchEntryPath(data, home, link);
 
-            var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
+            var folder = new Folder(data.body.size, data.body.home ?? data.body.name, data.body.weblink)
             {
                 Folders = data.body.list?
                     .Where(it => FolderKinds.Contains(it.kind))
