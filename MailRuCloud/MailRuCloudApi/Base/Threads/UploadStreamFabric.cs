@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
@@ -19,9 +20,18 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             if (!(await _cloud.GetItem(file.Path, MailRuCloud.ItemType.Folder) is Folder folder))
                 throw new DirectoryNotFoundException(file.Path);
 
-            var stream = folder.CryptRequired && !discardEncryption
-                ? GetCryptoStream(file, onUploaded)
-                : GetPlainStream(file, onUploaded);
+            Stream stream;
+
+            if (folder.CryptRequired && !discardEncryption)
+            {
+                if (!_cloud.CloudApi.Account.Credentials.CanCrypt)
+                    throw new Exception($"Cannot upload {file.FullPath} to crypt folder without additional password!");
+                stream = GetCryptoStream(file, onUploaded);
+            }
+            else
+            {
+                stream = GetPlainStream(file, onUploaded);
+            }
 
             return stream;
         }
