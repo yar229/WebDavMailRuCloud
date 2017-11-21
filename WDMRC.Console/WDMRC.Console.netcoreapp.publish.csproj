@@ -11,8 +11,8 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.9.0.0</AssemblyVersion>
-    <FileVersion>1.9.0.0</FileVersion>
+    <AssemblyVersion>1.9.0.1</AssemblyVersion>
+    <FileVersion>1.9.0.1</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
     <StartupObject></StartupObject>
@@ -37,6 +37,7 @@
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
+    <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj" />
   </ItemGroup>
 
