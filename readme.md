@@ -26,6 +26,15 @@
 	--version         Display version information.
 ```
 
+***How to use encryption  !!!Beta version!!!***
+
+Using XTS AES-256 on-the-fly encryption/decryption
+
+* Mark folder as encrypted using `>>crypt init` command
+* Add `#` and separator string to your login: `login@mail.ru#_SEP_`
+* After your mail.ru password add separator string and password for encrypting: `MyLoginPassword_SEP_MyCryptingPassword`
+* After that files uploaded to this folder will be encrypted
+
 ***Commands*** <br/>
 Commands executed by making directory with special name.<br/>
 Parameters with spaces must be screened by quotes.
@@ -34,10 +43,12 @@ Parameters with spaces must be screened by quotes.
   * `>>link check` Remove all dead links (may take time if there's a lot of links)
 * `>>move` `/full/path/from /full/path/to` Fast move (if your client moves inner items recursively)
 * `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
+* `>>lcopy` `x:/local/path/from /full/server/path/to` If file already in cloud, add it by hash without uploading
 * `>>del` Fast delete (if your client makes recursive deletions of inner items)
   * `>>del` current folder
   * `>>del abc/cde` current folder/abc/cde
   * `>>del /abc/cde` root/abc/cde
+* `>>crypt init` Mark current folder as encrypted
 
 ***Settings*** in `wdmrc.exe.config`
 * Logging <br/>
@@ -166,6 +177,7 @@ Use any client supports webdav.
 #### Big thanks
 * [Ramon de Klein](https://github.com/ramondeklein) for [nwebdav server](https://github.com/ramondeklein/nwebdav)
 * [Erast Korolev](https://github.com/erastmorgan) for [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)
+* [Gareth Lennox](https://bitbucket.org/garethl/) for [XTSSharp](https://bitbucket.org/garethl/xtssharp)
 * [C-A-T](https://github.com/C-A-T9LIFE) for testing and essential information
 
 
