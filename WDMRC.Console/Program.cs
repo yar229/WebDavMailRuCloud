@@ -100,37 +100,26 @@ namespace YaR.CloudMailRu.Console
                         if (httpListenerContext == null)
                             break;
 
-                        //if (httpListenerContext.Request.IsAuthenticated)
-                        //    httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == webdavUsername && i.Password == webdavPassword);
-                        //else httpContext = new HttpContext(httpListenerContext);
-
                         HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)httpListenerContext.User.Identity;
                         IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
 
                         await semclo.WaitAsync(cancellationToken);
 
-                        // ReSharper disable once UnusedVariable
-                        Task tsk = Task
-                            .Run(async () =>
+                        Task.Run(async () =>
                             {
                                 try
                                 {
-                                    await webDavDispatcher.DispatchRequestAsync(httpContext);
+                                    await webDavDispatcher.DispatchRequestAsync(httpContext)
+                                        .ConfigureAwait(false);
                                 }
-                                catch (Exception ex)
+                                finally
                                 {
-                                    Logger.Error("Exception", ex);
+                                    semclo.Release();
                                 }
 
-                            }, cancellationToken)
-                            .ContinueWith(t => semclo.Release(), cancellationToken);
+                            }, cancellationToken);
                     }
                 }
-            }
-            catch (HttpListenerException excListener)
-            {
-                if (excListener.ErrorCode != ERROR_OPERATION_ABORTED)
-                    throw;
             }
             catch (Exception e)
             {
@@ -165,8 +154,5 @@ namespace YaR.CloudMailRu.Console
             T attribute = (T)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(T));
             return null == attribute ? null : value.Invoke(attribute);
         }
-
-        // ReSharper disable once InconsistentNaming
-        private const int ERROR_OPERATION_ABORTED = 995;
     }
 }

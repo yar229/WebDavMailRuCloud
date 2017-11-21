@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -9,18 +8,32 @@ namespace YaR.MailRuCloud.Api.Base
     {
         public SplittedFile(IList<File> files)
         {
-            FileHeader = files.First(f => !Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success);
+            _fileHeader = files.First(f => !f.ServiceInfo.SplitInfo.IsPart);
             Files = files;
             Parts = files
-                .Where(f => Regex.Match(f.Name, @".wdmrc.\d\d\d\Z").Success)
-                .OrderBy(f => f.Name)
+                .Where(f => f.ServiceInfo.SplitInfo.IsPart)
+                .OrderBy(f => f.ServiceInfo.SplitInfo.PartNumber)
                 .ToList();
 
-            FullPath = FileHeader.FullPath;
+            FullPath = _fileHeader.FullPath;
+
+
+            var cryptofile = files.FirstOrDefault(f => f.ServiceInfo.SplitInfo.IsPart && f.ServiceInfo.CryptInfo != null);
+            ServiceInfo = new FilenameServiceInfo
+            {
+                CleanName = _fileHeader.Name,
+                CryptInfo = cryptofile?.ServiceInfo?.CryptInfo,
+                SplitInfo = new FileSplitInfo
+                {
+                    IsHeader = true
+                }
+            };
         }
 
 
         public override FileSize Size => Parts.Sum(f => f.Size);
+
+        public override FileSize OriginalSize => Parts.Sum(f => f.OriginalSize);
 
         public override string Hash => FileHeader.Hash;
 
@@ -28,7 +41,8 @@ namespace YaR.MailRuCloud.Api.Base
         public override DateTime LastWriteTimeUtc => FileHeader.LastWriteTimeUtc;
         public override DateTime LastAccessTimeUtc => FileHeader.LastAccessTimeUtc;
 
-        private File FileHeader { get; }
+        protected override File FileHeader => _fileHeader;
+        private readonly File _fileHeader;
 
         /// <summary>
         /// List of phisical files contains data

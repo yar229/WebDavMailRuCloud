@@ -45,6 +45,11 @@ namespace YaR.WebDavMailRu
                     msg = "Failed to get error message: " + e.Message;
                 }
 
+                Log(logLevel, msg, exception);
+            }
+
+            public void Log(LogLevel logLevel, string message, Exception exception = null)
+            {
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
@@ -53,19 +58,19 @@ namespace YaR.WebDavMailRu
                         break;
                     case LogLevel.Info:
                         if (_log.IsInfoEnabled)
-                            _log.Info(msg, exception);
+                            _log.Info(message, exception);
                         break;
                     case LogLevel.Warning:
                         if (_log.IsWarnEnabled)
-                            _log.Warn(msg, exception);
+                            _log.Warn(message, exception);
                         break;
                     case LogLevel.Error:
                         if (_log.IsErrorEnabled)
-                            _log.Error(msg, exception);
+                            _log.Error(message, exception);
                         break;
                     case LogLevel.Fatal:
                         if (_log.IsFatalEnabled)
-                            _log.Fatal(msg, exception);
+                            _log.Fatal(message, exception);
                         break;
                     default:
                         throw new ArgumentException($"Log level '{logLevel}' is not supported.", nameof(logLevel));

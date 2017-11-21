@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -128,7 +129,7 @@ namespace NWebDav.Server
                 catch (Exception exc)
                 {
                     // Log error
-                    s_log.Log(LogLevel.Error, () => $"Unexpected exception while trying to obtain the request handler (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
+                    s_log.Log(LogLevel.Error, $"Unexpected exception while trying to obtain the request handler (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
 
                     // Abort
                     return;
@@ -139,7 +140,6 @@ namespace NWebDav.Server
                     // Handle the request
                     if (await requestHandler.HandleRequestAsync(httpContext, _store).ConfigureAwait(false))
                     {
-                        // Log processing duration
                         s_log.Log(LogLevel.Info, () => $"{logRequest} - Finished ({sw.ElapsedMilliseconds}ms, HTTP {httpContext.Response.Status})");
                     }
                     else
@@ -151,10 +151,29 @@ namespace NWebDav.Server
                         httpContext.Response.SetStatus(DavStatusCode.NotImplemented);
                     }
                 }
+                catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_OPERATION_ABORTED)
+                {
+                    s_log.Log(LogLevel.Error, $"Operation aborted at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
+                }
+                // happens when client cancel operation, usially nothing to scare
+                catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_CONNECTION_INVALID)
+                {
+                    s_log.Log(LogLevel.Error, $"An operation was attempted on a nonexistent network connection at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
+                }
+                // happens when client cancel operation, usially nothing to scare
+                catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_NETNAME_DELETED)
+                {
+                    s_log.Log(LogLevel.Error, $"The specified network name is no longer available at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
+                }
+                catch (HttpListenerException excListener)
+                {
+                    if (excListener.ErrorCode != ERROR_OPERATION_ABORTED)
+                        throw;
+                }
+
                 catch (Exception exc)
                 {
-                    // Log what's going wrong
-                    s_log.Log(LogLevel.Error, () => $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
+                    s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
 
                     try
                     {
@@ -179,6 +198,13 @@ namespace NWebDav.Server
                 await httpContext.CloseAsync().ConfigureAwait(false);
             }
         }
+
+        // https://msdn.microsoft.com/en-us/library/windows/desktop/ms681383(v=vs.85).aspx
+        // An operation was attempted on a nonexistent network connection.
+        private const int ERROR_CONNECTION_INVALID = 1229;
+        // The specified network name is no longer available.
+        private const int ERROR_NETNAME_DELETED = 64;
+        private const int ERROR_OPERATION_ABORTED = 995;
     }
 }
 

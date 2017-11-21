@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
@@ -10,8 +9,20 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class DtoImport
     {
+        public static UploadFileResult ToUploadPathResult(this string data)
+        {
+            var resp = data.Split(';');
 
-        public static MailRuCloud.PathResult ToPathResult(this CloneItemResult data)
+            var res = new UploadFileResult
+            {
+                Hash = resp[0],
+                Size = long.Parse(resp[1].Trim('\r', '\n', ' '))
+            };
+            return res;
+        }
+
+
+        public static MailRuCloud.PathResult ToPathResult(this StatusResult data)
         {
             var res = new MailRuCloud.PathResult
             {
@@ -137,7 +148,7 @@ namespace YaR.MailRuCloud.Api.Extensions
         {
             PatchEntryPath(data, home, link);
 
-            var folder = new Folder(data.body.size, data.body.home ?? data.body.name)
+            var folder = new Folder(data.body.size, data.body.home ?? data.body.name, data.body.weblink)
             {
                 Folders = data.body.list?
                     .Where(it => FolderKinds.Contains(it.kind))
@@ -176,12 +187,15 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static Folder ToFolder(this FolderInfoProps item)
         {
-            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink);
+            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : item.weblink);
             return folder;
         }
 
         private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
         {
+            try
+            {
+
             var path = string.IsNullOrEmpty(nameReplacement)
                 ? item.home
                 : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
@@ -189,22 +203,36 @@ namespace YaR.MailRuCloud.Api.Extensions
             var file = new File(path ?? item.name, item.size, item.hash)
             {
                 PublicLink =
-                    string.IsNullOrEmpty(item.weblink) ? "" : ConstSettings.PublishFileLink + item.weblink,
+                    string.IsNullOrEmpty(item.weblink) ? string.Empty : item.weblink,
                 CreationTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(item.mtime),
                 LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
             };
+
             return file;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
 
         private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
         {
             var groupedFiles = list
-                .GroupBy(f => Regex.Match(f.Name, @"(?<name>.*?)(\.wdmrc\.(crc|\d\d\d))?\Z").Groups["name"].Value,
+                .GroupBy(f => f.ServiceInfo.CleanName,
                     file => file)
-                .Select(group => group.Count() == 1
-                    ? group.First()
-                    : new SplittedFile(group.ToList()));
+                //.Select(group => group.Count() == 1
+                //    ? group.First()
+                //    : new SplittedFile(group.ToList()));
+                .SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
+                    ? group.Take(1)
+                    : group.Any(f => f.Name == f.ServiceInfo.CleanName)
+                        ? Enumerable.Repeat(new SplittedFile(group.ToList()), 1) 
+                        : group.Select(file => file));
+
             return groupedFiles;
         }
 

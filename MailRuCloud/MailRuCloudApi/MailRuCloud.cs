@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 using File = YaR.MailRuCloud.Api.Base.File;
@@ -95,9 +96,8 @@ namespace YaR.MailRuCloud.Api
                 datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
                     .MakeRequestAsync().ConfigureAwait(false);
             }
-            catch (Exception e)
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
-                Logger.Warn($"Cannot get {path} with exception {e}");
                 return null;
             }
 
@@ -140,7 +140,7 @@ namespace YaR.MailRuCloud.Api
                         else
                         {
                             if (folder.Files.All(inf => inf.FullPath != linkpath))
-                                folder.Files.Add(new File(linkpath, flink.Size));
+                                folder.Files.Add(new File(linkpath, flink.Size){PublicLink = flink.Href});
                         }
                     }
                 }
@@ -152,27 +152,81 @@ namespace YaR.MailRuCloud.Api
             return entry;
         }
 
-
-
-
-        /// <summary>
-        /// Get disk usage for account.
-        /// </summary>
-        /// <returns>Returns Total/Free/Used size.</returns>
-        public async Task<DiskUsage> GetDiskUsage()
+        #region == Publish ==========================================================================================================================
+        
+        private async Task<string> Unpublish(string publicLink)
         {
-            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
-            return data.ToDiskUsage();
+            var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
+                .ThrowIf(r => r.status != 200, r => new Exception($"Unpublish error, link = {publicLink}, status = {r.status}"));
+
+            return res.body;
         }
 
-        /// <summary>
-        /// Abort all prolonged async operations.
-        /// </summary>
-        public void AbortAllAsyncThreads()
+        public async Task  Unpublish(File file)
         {
-            CloudApi.CancelToken.Cancel(true);
+            foreach (var innerFile in file.Files)
+            {
+                await Unpublish(innerFile.PublicLink);
+                innerFile.PublicLink = string.Empty;
+            }
+            _itemCache.Invalidate(file.FullPath, file.Path);
         }
 
+
+        private async Task<string> Publish(string fullPath)
+        {
+            var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
+                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"));
+                
+            return res.body;
+        }
+
+        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
+        {
+            foreach (var innerFile in file.Files)
+            {
+                var url = await Publish(innerFile.FullPath);
+                innerFile.PublicLink = url;
+            }
+            var info = file.ToPublishInfo();
+
+            if (makeShareFile)
+            {
+                string path = $"{file.FullPath}{PublishInfo.SharedFilePostfix}";
+                UploadFileJson(path, info)
+                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+            }
+            return info;
+        }
+
+        public async Task<PublishInfo> Publish(Folder folder, bool makeShareFile = true)
+        {
+            var url = await Publish(folder.FullPath);
+            folder.PublicLink = url;
+            var info = folder.ToPublishInfo();
+
+            if (makeShareFile)
+            {
+                string path = WebDavPath.Combine(folder.FullPath, PublishInfo.SharedFilePostfix);
+                UploadFileJson(path, info)
+                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+            }
+
+            return info;
+        }
+
+        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true)
+        {
+            if (null == entry) throw new ArgumentNullException(nameof(entry));
+
+            if (entry is File file)
+                return await Publish(file, makeShareFile);
+            if (entry is Folder folder)
+                return await Publish(folder, makeShareFile);
+
+            throw new Exception($"Unknow entry type, type = {entry.GetType()},path = {entry.FullPath}");
+        }
+        #endregion == Publish =======================================================================================================================
 
         #region == Copy =============================================================================================================================
 
@@ -355,13 +409,14 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Rename(File file, string newFileName)
         {
-            var result = await Rename(file.FullPath, newFileName);
-            if (file.Parts.Count > 1)
+            var result = await Rename(file.FullPath, newFileName).ConfigureAwait(false);
+
+            if (file.Files.Count > 1)
             {
                 foreach (var splitFile in file.Parts)
                 {
-                    string newSplitName = newFileName + ".wdmrc" + splitFile.Extension; //TODO: refact with .wdmrc
-                    await Rename(splitFile.FullPath, newSplitName);
+                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false); //+ ".wdmrc" + splitFile.Extension;
+                    await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
                 }
             }
 
@@ -531,9 +586,11 @@ namespace YaR.MailRuCloud.Api
         /// Remove the file on server.
         /// </summary>
         /// <param name="file">File info.</param>
+        /// <param name="removeShareDescription">Also remove share description file (.share.wdmrc)</param>
         /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file)
+        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true)
         {
+            // remove all parts if file splitted
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
@@ -542,13 +599,53 @@ namespace YaR.MailRuCloud.Api
                     var removed = await Remove(pfile.FullPath);
                     return removed;
                 });
-
             bool res = (await Task.WhenAll(qry)).All(r => r);
+
+            if (res)
+            {
+                //unshare master item
+                if (file.Name.EndsWith(PublishInfo.SharedFilePostfix))
+                {
+                    var mpath = WebDavPath.Clean(file.FullPath.Substring(0, file.FullPath.Length - PublishInfo.SharedFilePostfix.Length));
+                    var item = await GetItem(mpath);
+                    if (item is Folder folder)
+                        await Unpublish(folder.PublicLink);
+                    else if (item is File ifile)
+                        await Unpublish(ifile);
+                }
+                else
+                {
+                    //remove share description (.wdmrc.share)
+                    if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                        await Remove(sharefile, false);
+                }
+
+            }
+
+
             _itemCache.Invalidate(file.Path, file.FullPath);
             return res;
         }
 
         #endregion == Remove ========================================================================================================================
+
+        /// <summary>
+        /// Get disk usage for account.
+        /// </summary>
+        /// <returns>Returns Total/Free/Used size.</returns>
+        public async Task<DiskUsage> GetDiskUsage()
+        {
+            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
+            return data.ToDiskUsage();
+        }
+
+        /// <summary>
+        /// Abort all prolonged async operations.
+        /// </summary>
+        public void AbortAllAsyncThreads()
+        {
+            CloudApi.CancelToken.Cancel(true);
+        }
 
         public byte MaxInnerParallelRequests
         {
@@ -597,22 +694,92 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
         {
-            var filelst = file.Parts.Count == 0 ? new List<File>{file} : file.Parts;
-
-            var task = Task.FromResult(new DownloadStream(filelst, CloudApi, start, end));
+            var task = Task.FromResult(new DownloadStreamFabric(this).Create(file, start, end))
+                .ConfigureAwait(false);
             Stream stream = await task;
             return stream;
         }
 
 
-        public Stream GetFileUploadStream(string destinationPath, long size)
+        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
         {
-            var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
-
-            // refresh linked folders
-            stream.FileUploaded += OnFileUploaded;
-
+            var file = new File(fullFilePath, size, string.Empty);
+            var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
+                .ConfigureAwait(false);
+            var stream = await task;
             return stream;
+
+            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
+
+            //// refresh linked folders
+            //stream.FileUploaded += OnFileUploaded;
+
+            //return stream;
+            //=============================================================================================================
+
+            //var key1 = new byte[32];
+            //var key2 = new byte[32];
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
+            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
+            //var xts = XtsAes256.Create(key1, key2);
+
+            ////using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            ////using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
+            //using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
+            //{
+            //    using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
+            //    {
+            //        streamread.CopyTo(xtswritestream);
+            //    }
+            //}
+
+            //using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
+            //{
+            //    using (var xtsreadstream = new XtsStream(streamread, xts, 512))
+            //    {
+            //        xtsreadstream.CopyTo(streamwrite);
+            //    }
+            //}
+
+            //================================================================================================================================
+
+
+            //destinationPath += $".c{delta:x}.wdmrc";
+
+            //size = size % XTSWriteOnlyStream.BlockSize == 0
+            //    ? size
+            //    : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
+
+
+
+            //var ustream = new SplittedUploadStream(destinationPath, this, size, false);
+            //var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
+
+            //// refresh linked folders
+            //ustream.FileUploaded += OnFileUploaded;
+
+            //return encustream;
+
+
+            //////================================================================================================================================
+            //var xtsa = XtsAes256.Create(key1, key2);
+            //using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
+            //{
+            //    sourceStream.Seek(0, SeekOrigin.End);
+
+            //    FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
+            //    var encstream = new XtsStream(targetStream, xtsa, 512);
+            //    sourceStream.Seek(0, SeekOrigin.Begin);
+            //    sourceStream.CopyTo(encstream);
+            //    encstream.Flush();
+            //    encstream.Close();
+            //    targetStream.Flush();
+            //    targetStream.Close();
+            //}
+
+            //return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;
@@ -644,20 +811,6 @@ namespace YaR.MailRuCloud.Api
                 string res = reader.ReadToEnd();
                 return res;
             }
-
-            ////TODO: refact, bad stream realization
-            //StreamReader reader = null;
-            //try
-            //{
-            //    var stream = new DownloadStream(file, CloudApi);
-            //    reader = new StreamReader(stream);
-            //    string res = reader.ReadToEnd();
-            //    return res;
-            //}
-            //finally
-            //{
-            //    reader?.Close();
-            //}
         }
 
         /// <summary>
@@ -683,16 +836,22 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
-        public void UploadFile(string path, string content)
+        public void UploadFile(string path, string content, bool discardEncryption = false)
         {
             var data = Encoding.UTF8.GetBytes(content);
 
-            using (var stream = GetFileUploadStream(path, data.Length))
+            using (var stream = GetFileUploadStream(path, data.Length, discardEncryption).Result)
             {
                 stream.Write(data, 0, data.Length);
-                //stream.Close();
             }
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
+        }
+
+        public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
+        {
+            string content = JsonConvert.SerializeObject(data, Formatting.Indented);
+            UploadFile(fullFilePath, content, discardEncryption);
+            return true;
         }
 
 
@@ -792,7 +951,46 @@ namespace YaR.MailRuCloud.Api
             var count = await _linkManager.RemoveDeadLinks(true);
             if (count > 0) _itemCache.Invalidate();
         }
-    }
 
-    public delegate void FileUploadedDelegate(IEnumerable<File> file);
+        public async Task<StatusResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
+        {
+            var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
+                .MakeRequestAsync();
+
+            return res;
+        }
+
+        public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
+        {
+            var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
+
+            return res;
+        }
+
+        /// <summary>
+        /// Создаёт в каталоге признак, что файлы в нём будут шифроваться
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public async Task<bool> CryptInit(Folder folder)
+        {
+            // do not allow to crypt root path... don't know for what
+            if (WebDavPath.PathEquals(folder.FullPath, WebDavPath.Root))
+                return false;
+
+            string filepath = WebDavPath.Combine(folder.FullPath, CryptFileInfo.FileName);
+            var file = await GetItem(filepath).ConfigureAwait(false);
+
+            if (file != null)
+                return false;
+
+            var content = new CryptFileInfo
+            {
+                Initialized = DateTime.Now
+            };
+
+            var res = UploadFileJson(filepath, content);
+            return res;
+        }
+    }
 }

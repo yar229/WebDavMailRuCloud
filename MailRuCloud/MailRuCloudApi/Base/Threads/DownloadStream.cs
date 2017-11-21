@@ -6,13 +6,13 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Threads
 {
     public class DownloadStream : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
 
-        private const int InnerBufferSize = 65536;
+        private const int InnerBufferSize = 65536 * 2;
 
         private readonly IList<File> _files;
         private ShardInfo _shard;
@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public DownloadStream(IList<File> files, CloudApi cloud, long? start = null, long? end = null)
         {
-            var globalLength = files.Sum(f => f.Size);
+            var globalLength = files.Sum(f => f.OriginalSize);
 
             _cloud = cloud;
             _files = files;
@@ -51,8 +51,6 @@ namespace YaR.MailRuCloud.Api.Base
             var t = GetFileStream();
         }
 
-        private Task<WebResponse> _task;
-
         private async Task<object> GetFileStream()
         {
             var totalLength = Length;
@@ -62,69 +60,64 @@ namespace YaR.MailRuCloud.Api.Base
             long fileStart = 0;
             long fileEnd = 0;
 
-            _task = Task.FromResult((WebResponse)null);
-
             foreach (var file in _files)
             {
                 var clofile = file;
 
-                fileEnd += clofile.Size;
+                fileEnd += clofile.OriginalSize;
 
                 if (glostart >= fileEnd || gloend <= fileStart)
                 {
-                    fileStart += clofile.Size;
+                    fileStart += clofile.OriginalSize;
                     continue;
                 }
                 
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                _task = _task.ContinueWith(task1 =>
-                {
-                    
-                    WebResponse response;
-                    int retryCnt = 0;
-                    while (true)
-                    {
-                        try
-                        {
-                            var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
-                            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
+                await GetWebResponce(clostart, cloend, clofile).ConfigureAwait(false);
 
-                            response = request.GetResponse();
-                            break;
-                        }
-                        catch (Exception wex)
-                        {
-                            if (++retryCnt <= 3)
-                            {
-                                Logger.Warn($"HTTP: Failed with {wex.Message} ");
-                                continue;
-                            }
-                            Logger.Error($"GetFileStream failed with {wex}");
-                            _innerStream.Dispose();
-                            throw;
-                        }
-                    }
-
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        responseStream?.CopyTo(_innerStream);
-                    }
-
-                    return response;
-                }, TaskContinuationOptions.OnlyOnRanToCompletion);
-
-                fileStart += file.Size;
+                fileStart += file.OriginalSize;
             }
 
-            _task = _task.ContinueWith(task1 =>
-            {
-                _innerStream.Flush();
-                return (WebResponse)null;
-            }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            _innerStream.Flush();
 
             return _innerStream;
+        }
+
+        private async Task<WebResponse> GetWebResponce(long clostart, long cloend, File clofile)
+        {
+            WebResponse response;
+            int retryCnt = 0;
+            while (true)
+            {
+                try
+                {
+                    var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
+                    Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
+
+                    response = await request.GetResponseAsync().ConfigureAwait(false);
+                    break;
+                }
+                catch (Exception wex)
+                {
+                    if (++retryCnt <= 3)
+                    {
+                        Logger.Warn($"HTTP: Failed with {wex.Message} ");
+                        continue;
+                    }
+                    Logger.Error($"GetFileStream failed with {wex}");
+                    _innerStream.Dispose();
+                    throw;
+                }
+            }
+
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
+            }
+
+            return response;
         }
 
         private ShardInfo GetShard(File file)
@@ -145,9 +138,11 @@ namespace YaR.MailRuCloud.Api.Base
             if (_shard.Type == ShardType.WeblinkGet)
                 downloadkey = _cloud.Account.DownloadToken.Value;
 
-            var request = _shard.Type == ShardType.Get
-                ? (HttpWebRequest)WebRequest.Create($"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}")
-                : (HttpWebRequest)WebRequest.Create($"{_shard.Url}{new Uri(file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}");
+            string url = _shard.Type == ShardType.Get
+                ? $"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+                : $"{_shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+            var request = (HttpWebRequest) WebRequest.Create(url);
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
@@ -170,7 +165,7 @@ namespace YaR.MailRuCloud.Api.Base
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _task.Wait();
+            //_task.Wait();
             _innerStream.Close();
         }
 

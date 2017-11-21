@@ -25,6 +25,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public File FileInfo => _fileInfo;
         public IEntry EntryInfo => FileInfo;
+        public long Length => _fileInfo.Size;
+        public bool IsReadable => true;
 
         public MailruStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
         {
@@ -140,7 +142,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
             new DavSharedLink<MailruStoreItem>
             {
-                Getter = (context, item) => item._fileInfo.PublicLink,
+                Getter = (context, item) => string.IsNullOrEmpty(item._fileInfo.PublicLink) 
+                                                    ? string.Empty
+                                                    : ConstSettings.PublishFileLink + item._fileInfo.PublicLink,
                 Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
@@ -188,10 +192,10 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 var memStream = new MemoryStream();
                 await inputStream.CopyToAsync(memStream).ConfigureAwait(false);
 
-                _fileInfo.Size = new FileSize(memStream.Length);
+                _fileInfo.OriginalSize = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -208,7 +212,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size) 
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);

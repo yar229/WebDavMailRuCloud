@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         protected override byte[] CreateHttpContent()
         {
             var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
-                Uri.EscapeDataString(_sourceFullPath), 2, CloudApi.Account.AuthToken, CloudApi.Account.LoginName, 
+                Uri.EscapeDataString(_sourceFullPath), 2, CloudApi.Account.AuthToken, CloudApi.Account.Credentials.Login, 
                 _conflictResolver,
                 Uri.EscapeDataString(_destinationPath)));
 

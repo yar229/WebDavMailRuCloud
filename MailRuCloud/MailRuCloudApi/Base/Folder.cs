@@ -101,7 +101,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets public folder link.
         /// </summary>
         /// <value>Public link.</value>
-        public string PublicLink { get; }
+        public string PublicLink { get; set; }
 
         public DateTime CreationTimeUtc { get; set; } = DateTime.Now.AddDays(-1);
 
@@ -114,5 +114,14 @@ namespace YaR.MailRuCloud.Api.Base
         public FileAttributes Attributes { get; set; } = FileAttributes.Directory;
 
         public bool IsFile => false;
+        public bool CryptRequired => Files.Any(f => f.Name == CryptFileInfo.FileName);
+
+        public PublishInfo ToPublishInfo()
+        {
+            var info = new PublishInfo();
+            if (!string.IsNullOrEmpty(PublicLink))
+                info.Items.Add(new PublishInfoItem { Path = FullPath, Url = ConstSettings.PublishFileLink + PublicLink });
+            return info;
+        }
     }
 }

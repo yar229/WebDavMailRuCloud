@@ -42,6 +42,26 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             {
                 Commands = new [] {"move"},
                 CreateFunc = (cloud, path, param) => new MoveCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"fish"},
+                CreateFunc = (cloud, path, param) => new FishCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"lcopy"},
+                CreateFunc = (cloud, path, param) => new LocalToServerCopyCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"crypt", "init"},
+                CreateFunc = (cloud, path, param) => new CryptInitCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"share"},
+                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, param)
             }
         };
 

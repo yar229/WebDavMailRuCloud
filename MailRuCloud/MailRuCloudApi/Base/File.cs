@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -25,13 +24,14 @@ namespace YaR.MailRuCloud.Api.Base
         public File(string fullPath, long size, string hash = "")
         {
             FullPath = fullPath;
-            _size = size;
+            ServiceInfo = FilenameServiceInfo.Parse(WebDavPath.Name(fullPath));
+
+            _originalSize = size;
             _hash = hash;
         }
 
 
         private string _fullPath;
-        private FileSize _size;
         private string _hash;
 
         /// <summary>
@@ -75,11 +75,16 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets file size.
         /// </summary>
         /// <value>File size.</value>
-        public virtual FileSize Size
+        public virtual FileSize Size => OriginalSize - (ServiceInfo.CryptInfo?.AlignBytes ?? 0);
+
+        public virtual FileSize OriginalSize
         {
-            get => _size;
-            set => _size = value;
+            get => _originalSize;
+            set => _originalSize = value;
         }
+        private FileSize _originalSize;
+
+        protected virtual File FileHeader { get; } = null;
 
         /// <summary>
         /// Gets full file path with name on server.
@@ -112,24 +117,26 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
 
-        /// <summary>
-        /// If file splitted to several phisical files
-        /// </summary>
-        public bool IsSplitted => Parts.Any(f => f.FullPath != FullPath);
-
         public bool IsFile => true;
+        public FilenameServiceInfo ServiceInfo { get; protected set; }
 
+        //TODO : refact, bad design
         public void SetName(string destinationName)
         {
-            string path = WebDavPath.Parent(FullPath);
-            FullPath = WebDavPath.Combine(path, destinationName);
-            if (Parts.Count > 1)
+            FullPath = WebDavPath.Combine(Path, destinationName);
+            if (ServiceInfo != null) ServiceInfo.CleanName = Name;
+
+            if (Files.Count > 1)
+            {
+                string path = Path;
                 foreach (var fiFile in Parts)
                 {
-                    fiFile.FullPath = WebDavPath.Combine(path, destinationName + ".wdmrc" + fiFile.Extension); //TODO: refact
+                    fiFile.FullPath = WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
                 }
+            }
         }
 
+        //TODO : refact, bad design
         public void SetPath(string fullPath)
         {
             FullPath = WebDavPath.Combine(fullPath, Name);
@@ -138,6 +145,30 @@ namespace YaR.MailRuCloud.Api.Base
                 {
                     fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
                 }
-        }}
+        }
+
+
+        //TODO : refact, bad design
+        public CryptoKeyInfo EnsurePublicKey(MailRuCloud cloud)
+        {
+            if (ServiceInfo.IsCrypted && null == ServiceInfo.CryptInfo.PublicKey)
+            {
+                var info = cloud.DownloadFileAsJson<HeaderFileContent>(FileHeader ?? this);
+                ServiceInfo.CryptInfo.PublicKey = info.PublicKey;
+            }
+            return ServiceInfo.CryptInfo.PublicKey;
+        }
+
+        public PublishInfo ToPublishInfo()
+        {
+            var info = new PublishInfo();
+            foreach (var innerFile in Files)
+            {
+                if (!string.IsNullOrEmpty(innerFile.PublicLink))
+                    info.Items.Add(new PublishInfoItem{Path = innerFile.FullPath, Url = ConstSettings.PublishFileLink + innerFile.PublicLink});
+            }
+            return info;
+        }
+    }
 }
 

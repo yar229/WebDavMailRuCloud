@@ -9,5 +9,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         string FullPath { get; }
 
         IEntry EntryInfo { get; }
+        long Length { get;}
+        bool IsReadable { get;}
     }
 }

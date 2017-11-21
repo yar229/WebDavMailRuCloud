@@ -57,6 +57,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Types
         public string type { get; set; }
         public string home { get; set; }
         public List<FolderInfoProps> list { get; set; }
+        public string weblink { get; set; }
     }
 
 }
