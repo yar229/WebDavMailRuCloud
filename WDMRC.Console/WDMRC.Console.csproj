@@ -38,6 +38,7 @@
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
+    <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj" />
   </ItemGroup>
 
