@@ -50,9 +50,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             // Determine the requested range
             var range = request.GetRange();
 
-            // Obtain the WebDAV collection
-            var mrstore = (MailruStore) store;
-
             var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false); //mrstore.ItemCache.Get(request.Url, httpContext); // 
             if (entry == null)
             {
