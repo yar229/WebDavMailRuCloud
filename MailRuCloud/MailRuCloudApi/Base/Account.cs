@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Extensions;
 
@@ -59,6 +60,14 @@ namespace YaR.MailRuCloud.Api.Base
                     return token;
                 },
                 TimeSpan.FromSeconds(AuthTokenExpiresInSec));
+
+            AuthTokenMobile = new Cached<string>(() =>
+                {
+                    Logger.Debug("AuthTokenMobile expired, refreshing.");
+                    var token = new MobAuthRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
+                    return token;
+                },
+                TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
         }
 
         /// <summary>
@@ -118,6 +127,13 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         public readonly Cached<string> AuthToken;
         private const int AuthTokenExpiresInSec = 23 * 60 * 60;
+
+        /// <summary>
+        /// Token for authorization in mobile version
+        /// </summary>
+        public readonly Cached<string> AuthTokenMobile;
+        private const int AuthTokenMobileExpiresInSec = 58 * 60;
+
 
         /// <summary>
         /// Token for downloading files

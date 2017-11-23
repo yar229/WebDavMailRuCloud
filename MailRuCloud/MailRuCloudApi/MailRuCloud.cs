@@ -968,6 +968,26 @@ namespace YaR.MailRuCloud.Api
             return res;
         }
 
+        public async Task<bool> SetFileDateTime(File file, DateTime dateTime)
+        {
+            //TODO: refact
+            //var utc = dateTime.ToUniversalTime();
+            if (file.LastWriteTimeUtc == dateTime)
+                return true;
+
+            //DANGER! but no way, we need to delete file and add it back with required datetime
+            var removed = await Remove(file, false);
+            if (removed)
+            {
+                var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
+                    .MakeRequestAsync();
+            }
+
+            file.LastWriteTimeUtc = dateTime;
+
+            return true;
+        }
+
         /// <summary>
         /// Создаёт в каталоге признак, что файлы в нём будут шифроваться
         /// </summary>

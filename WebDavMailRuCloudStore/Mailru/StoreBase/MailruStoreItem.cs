@@ -76,8 +76,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    item._fileInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
+                    //item._fileInfo.LastWriteTimeUtc = value;
+
+                    var cloud = CloudManager.Instance((HttpListenerBasicIdentity)context.Session.Principal.Identity);
+                    bool res = cloud.SetFileDateTime(item._fileInfo, value).Result;
+                    return res
+                        ? DavStatusCode.Ok
+                        : DavStatusCode.InternalServerError;
                 }
             },
 
@@ -113,8 +118,13 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 Getter = (context, item) => item._fileInfo.CreationTimeUtc,
                 Setter = (context, item, value) =>
                 {
-                    item._fileInfo.CreationTimeUtc = value;
-                    return DavStatusCode.Ok;
+                    //item._fileInfo.CreationTimeUtc = value;
+
+                    var cloud = CloudManager.Instance((HttpListenerBasicIdentity)context.Session.Principal.Identity);
+                    bool res = cloud.SetFileDateTime(item._fileInfo, value).Result;
+                    return res
+                        ? DavStatusCode.Ok
+                        : DavStatusCode.InternalServerError;
                 }
             },
             new Win32LastAccessTime<MailruStoreItem>
@@ -170,7 +180,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) //=> 
         {
-            
             var cloud = CloudManager.Instance((HttpListenerBasicIdentity)httpContext.Session.Principal.Identity);
             var range = httpContext.Request.GetRange();
             return Task.FromResult(OpenReadStream(cloud, range?.Start, range?.End));

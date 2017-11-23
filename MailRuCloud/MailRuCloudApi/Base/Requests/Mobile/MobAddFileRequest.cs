@@ -13,13 +13,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         private readonly long _size;
         private readonly DateTime _dateTime;
 
-        public MobAddFileRequest(CloudApi cloudApi, string token, string fullPath, byte[] hash, long size, DateTime? dateTime) : base(cloudApi)
+        public MobAddFileRequest(CloudApi cloudApi, string fullPath, byte[] hash, long size, DateTime? dateTime) 
+            : base(cloudApi)
         {
-            _token = token;
+            _token = cloudApi.Account.AuthTokenMobile.Value;
             _fullPath = fullPath;
             _hash = hash;
             _size = size;
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
+        }
+
+        public MobAddFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, DateTime? dateTime) 
+            : this(cloudApi, fullPath, StringToByteArray(hash), size, dateTime)
+        {
         }
 
         protected override string RelationalUri => $"https://cloclo2.datacloudmail.ru/meta/?token={_token}&client_id=cloud-android";
@@ -32,7 +38,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             stream.WriteString(_fullPath);
             stream.WritePu64(_size);
 
-            var unixtime = (long)(_dateTime - _epoch).TotalSeconds;
+            var unixtime = ConvertToUnixTimestamp(_dateTime);
             stream.WritePu64(unixtime);
             stream.WritePu32(00);
 
@@ -41,6 +47,22 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
             var body = stream.GetBytes();
             return body;
+        }
+
+        public static long ConvertToUnixTimestamp(DateTime date)
+        {
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            TimeSpan diff = date.ToUniversalTime() - origin;
+            return (long)Math.Floor(diff.TotalSeconds);
+        }
+
+        private static byte[] StringToByteArray(String hex)
+        {
+            int len = hex.Length;
+            byte[] bytes = new byte[len / 2];
+            for (int i = 0; i < len; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
         }
 
         private static DateTime _epoch = new DateTime(1970, 1, 1);

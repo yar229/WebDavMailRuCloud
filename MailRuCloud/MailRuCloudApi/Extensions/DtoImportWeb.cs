@@ -7,7 +7,7 @@ using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
-    public static class DtoImport
+    internal static class DtoImportWeb
     {
         public static UploadFileResult ToUploadPathResult(this string data)
         {
