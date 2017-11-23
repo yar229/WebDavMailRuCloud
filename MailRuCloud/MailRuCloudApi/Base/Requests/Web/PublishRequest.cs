@@ -2,19 +2,18 @@
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-
-   class RemoveRequest : BaseRequest<RemoveResult>
+    class PublishRequest : BaseRequest<PublishResult>
     {
         private readonly string _fullPath;
 
-        public RemoveRequest(CloudApi cloudApi, string fullPath) : base(cloudApi)
+        public PublishRequest(CloudApi cloudApi, string fullPath) : base(cloudApi)
         {
             _fullPath = fullPath;
         }
 
-        protected override string RelationalUri => "/api/v2/file/remove";
+        protected override string RelationalUri => "/api/v2/file/publish";
 
         protected override byte[] CreateHttpContent()
         {

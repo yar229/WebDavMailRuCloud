@@ -2,7 +2,7 @@
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class CopyRequest : BaseRequest<MoveOrCopyResult>
     {

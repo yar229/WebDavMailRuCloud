@@ -1,11 +1,5 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    //public enum ResolveFileConflictMethod
-    //{
-    //    Rename,
-    //    Rewrite
-    //}
-
     public struct ConflictResolver
     {
         private readonly string _value;

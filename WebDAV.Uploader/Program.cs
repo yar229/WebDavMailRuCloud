@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace WebDAV.Uploader
 {
