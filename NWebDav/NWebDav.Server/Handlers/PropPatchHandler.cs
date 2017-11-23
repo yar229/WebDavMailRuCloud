@@ -140,7 +140,7 @@ namespace NWebDav.Server.Handlers
             }
 
             // Scan each property
-            foreach (var propSet in propSetCollection)
+            foreach (var propSet in propSetCollection.PropertySetters)
             {
                 // Set the property
                 DavStatusCode result;
@@ -148,7 +148,7 @@ namespace NWebDav.Server.Handlers
                 {
                     result = await item.PropertyManager.SetPropertyAsync(httpContext, item, propSet.Name, propSet.Value).ConfigureAwait(false);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     result = DavStatusCode.Forbidden;
                 }
