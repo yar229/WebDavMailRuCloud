@@ -26,7 +26,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
             await Cloud.Remove(entry, false);
 
-            var addreq = await new MobAddFileRequest(Cloud.CloudApi, auth.access_token, entry.FullPath, StringToByteArray(entry.Hash), entry.Size)
+            var addreq = await new MobAddFileRequest(Cloud.CloudApi, auth.access_token, entry.FullPath, StringToByteArray(entry.Hash), entry.Size, new DateTime(2010, 1, 1))
                 .MakeRequestAsync();
 
             return SpecialCommandResult.Success;
