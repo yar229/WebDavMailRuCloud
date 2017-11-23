@@ -955,31 +955,10 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<StatusResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            var auth = await new MobAuthRequest(CloudApi, CloudApi.Account.Credentials.Login,
-                    CloudApi.Account.Credentials.Password)
+            var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
                 .MakeRequestAsync();
 
-            var addreq = await new MobAddFileRequest(CloudApi, auth.access_token, fullFilePath, StringToByteArray(hash), size)
-                .MakeRequestAsync();
-
-            //var body = addreq.Test();
-
-
-            //var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
-            //    .MakeRequestAsync();
-
-
-
-            return new StatusResult();
-        }
-
-        public static byte[] StringToByteArray(String hex)
-        {
-            int len = hex.Length;
-            byte[] bytes = new byte[len / 2];
-            for (int i = 0; i < len; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
+            return res;
         }
 
         public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
