@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
@@ -169,7 +171,30 @@ namespace NWebDav.Server.Props
         private class Rfc1123DateConverter : IConverter
         {
             public object ToXml(IHttpContext httpContext, DateTime value) => value.ToString("R");
-            public DateTime FromXml(IHttpContext httpContext, object value) => DateTime.Parse((string)value, CultureInfo.InvariantCulture);
+            public DateTime FromXml(IHttpContext httpContext, object value)
+            {
+                bool parsed = DateTime.TryParse((string) value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date);
+                if (!parsed)
+                {
+                    // try to fix wrong datetime, for example, Far+NetBox send "0023, 23 11 2017 21:0223 'GMT'"
+                    var m = Regex.Match((string) value,
+                        @"(?<day>\d\d)(-|\s+)(?<month>\d\d)(-|\s)(?<year>\d\d\d\d)(-|\s)(?<hour>\d\d):(?<min>\d\d):?(?<sec>\d\d)?");
+                    if (m.Success)
+                    {
+                        int year = int.Parse(m.Groups["year"].Value),
+                            month = int.Parse(m.Groups["month"].Value),
+                            day = int.Parse(m.Groups["day"].Value),
+                            hour = int.Parse(m.Groups["hour"].Value),
+                            min = int.Parse(m.Groups["min"].Value),
+                            sec = string.IsNullOrEmpty(m.Groups["sec"].Value) ? 0 : int.Parse(m.Groups["sec"].Value);
+
+                        date = new DateTime(year, month, day, hour, min, sec).ToLocalTime();
+                    }
+                    else
+                        throw new FormatException($"\"{(string)value}\" does not contain a valid string representation of a date and time.");
+                }
+                return date;
+            }
         }
 
         private static IConverter TypeConverter { get; } = new Rfc1123DateConverter();
