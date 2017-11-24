@@ -588,8 +588,9 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         /// <param name="file">File info.</param>
         /// <param name="removeShareDescription">Also remove share description file (.share.wdmrc)</param>
+        /// <param name="doInvalidateCache"></param>
         /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true)
+        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true, bool doInvalidateCache = true)
         {
             // remove all parts if file splitted
             var qry = file.Files
@@ -617,14 +618,19 @@ namespace YaR.MailRuCloud.Api
                 else
                 {
                     //remove share description (.wdmrc.share)
-                    if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
-                        await Remove(sharefile, false);
+                    if (removeShareDescription)
+                    {
+                        if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                            await Remove(sharefile, false);
+                    }
                 }
 
             }
 
 
-            _itemCache.Invalidate(file.Path, file.FullPath);
+            if (doInvalidateCache)
+                _itemCache.Invalidate(file.Path, file.FullPath);
+
             return res;
         }
 
@@ -906,7 +912,7 @@ namespace YaR.MailRuCloud.Api
                 return true;
 
             //DANGER! but no way, we need to delete file and add it back with required datetime
-            var removed = await Remove(file, false);
+            var removed = await Remove(file, false, false);
             if (removed)
             {
                 var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
@@ -914,6 +920,8 @@ namespace YaR.MailRuCloud.Api
             }
 
             file.LastWriteTimeUtc = dateTime;
+
+            _itemCache.Invalidate(file.Path, file.FullPath);
 
             return true;
         }
