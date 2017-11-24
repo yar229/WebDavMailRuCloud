@@ -1,16 +1,16 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class ItemInfoRequest : BaseRequest<FolderInfoResult>
+    class FolderInfoRequest : BaseRequest<FolderInfoResult>
     {
         private readonly string _path;
         private readonly bool _isWebLink;
         private readonly int _offset;
         private readonly int _limit;
 
-        public ItemInfoRequest(CloudApi cloudApi, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) : base(cloudApi)
+        public FolderInfoRequest(CloudApi cloudApi, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) : base(cloudApi)
         {
             _path = path;
             _isWebLink = isWebLink;
@@ -23,8 +23,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             get
             {
                 var uri = _isWebLink
-                    ? $"/api/v2/file?token={CloudApi.Account.AuthToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
-                    : $"/api/v2/file?token={CloudApi.Account.AuthToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
+                    ? $"/api/v2/folder?token={CloudApi.Account.AuthToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
+                    : $"/api/v2/folder?token={CloudApi.Account.AuthToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
                 return uri;
             }
         }

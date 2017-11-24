@@ -14,8 +14,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
@@ -965,6 +966,26 @@ namespace YaR.MailRuCloud.Api
             var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
 
             return res;
+        }
+
+        public async Task<bool> SetFileDateTime(File file, DateTime dateTime)
+        {
+            //TODO: refact
+            //var utc = dateTime.ToUniversalTime();
+            if (file.LastWriteTimeUtc == dateTime)
+                return true;
+
+            //DANGER! but no way, we need to delete file and add it back with required datetime
+            var removed = await Remove(file, false);
+            if (removed)
+            {
+                var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
+                    .MakeRequestAsync();
+            }
+
+            file.LastWriteTimeUtc = dateTime;
+
+            return true;
         }
 
         /// <summary>

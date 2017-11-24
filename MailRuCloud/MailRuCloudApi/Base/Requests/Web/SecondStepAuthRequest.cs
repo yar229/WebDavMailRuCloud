@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class SecondStepAuthRequest : BaseRequest<string>
     {

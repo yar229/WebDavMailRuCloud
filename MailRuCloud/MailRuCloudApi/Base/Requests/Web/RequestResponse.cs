@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     public class RequestResponse<T>
     {

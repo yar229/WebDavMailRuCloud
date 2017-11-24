@@ -1,7 +1,7 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class CloneItemRequest : BaseRequest<StatusResult>
     {

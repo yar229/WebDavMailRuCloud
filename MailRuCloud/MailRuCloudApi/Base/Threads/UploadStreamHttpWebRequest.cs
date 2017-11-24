@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
