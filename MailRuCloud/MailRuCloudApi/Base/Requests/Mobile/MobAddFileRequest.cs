@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
 using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
@@ -39,27 +37,29 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         protected override byte[] CreateHttpContent()
         {
-            var stream = new RequestBodyStream();
-            stream.WritePu16(AddFileOperation);
-            stream.WritePu16(Revision);
-            stream.WriteString(_fullPath);
-            stream.WritePu64(_size);
+            using (var stream = new RequestBodyStream())
+            {
+                stream.WritePu16(AddFileOperation);
+                stream.WritePu16(Revision);
+                stream.WriteString(_fullPath);
+                stream.WritePu64(_size);
 
-            var unixtime = ConvertToUnixTimestamp(_dateTime);
-            stream.WritePu64(unixtime);
-            stream.WritePu32(00);
+                var unixtime = ConvertToUnixTimestamp(_dateTime);
+                stream.WritePu64(unixtime);
+                stream.WritePu32(00);
 
-            stream.Write(_hash);
-            stream.WritePu32(UnknownFinal);
+                stream.Write(_hash);
+                stream.WritePu32(UnknownFinal);
 
-            var body = stream.GetBytes();
-            return body;
+                var body = stream.GetBytes();
+                return body;
+            }
+            
         }
 
-        public static long ConvertToUnixTimestamp(DateTime date)
+        private static long ConvertToUnixTimestamp(DateTime date)
         {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            TimeSpan diff = date.ToUniversalTime() - origin;
+            TimeSpan diff = date.ToUniversalTime() - Epoch;
 
             long seconds = diff.Ticks / TimeSpan.TicksPerSecond;
             return seconds;
@@ -74,7 +74,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             return bytes;
         }
 
-        private static DateTime _epoch = new DateTime(1970, 1, 1);
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
         private const byte AddFileOperation = 103;
         private const int Revision = 0;
         private const byte UnknownFinal = 03;

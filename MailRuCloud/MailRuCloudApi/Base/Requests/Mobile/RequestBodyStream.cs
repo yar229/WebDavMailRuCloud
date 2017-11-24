@@ -4,7 +4,7 @@ using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class RequestBodyStream 
+    class RequestBodyStream : IDisposable
     {
         private readonly MemoryStream _stream = new MemoryStream();
 
@@ -64,6 +64,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         {
             _stream.Seek(0, SeekOrigin.Begin);
             return _stream.ToArray();
+        }
+
+        public void Dispose()
+        {
+            _stream?.Dispose();
         }
     }
 }

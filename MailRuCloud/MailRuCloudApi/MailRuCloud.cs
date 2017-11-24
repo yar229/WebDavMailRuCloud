@@ -705,82 +705,12 @@ namespace YaR.MailRuCloud.Api
         public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
         {
             var file = new File(fullFilePath, size, string.Empty);
+
             var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
                 .ConfigureAwait(false);
             var stream = await task;
+
             return stream;
-
-            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
-
-            //// refresh linked folders
-            //stream.FileUploaded += OnFileUploaded;
-
-            //return stream;
-            //=============================================================================================================
-
-            //var key1 = new byte[32];
-            //var key2 = new byte[32];
-            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
-            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-            //var xts = XtsAes256.Create(key1, key2);
-
-            ////using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            ////using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
-            //using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
-            //{
-            //    using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
-            //    {
-            //        streamread.CopyTo(xtswritestream);
-            //    }
-            //}
-
-            //using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
-            //{
-            //    using (var xtsreadstream = new XtsStream(streamread, xts, 512))
-            //    {
-            //        xtsreadstream.CopyTo(streamwrite);
-            //    }
-            //}
-
-            //================================================================================================================================
-
-
-            //destinationPath += $".c{delta:x}.wdmrc";
-
-            //size = size % XTSWriteOnlyStream.BlockSize == 0
-            //    ? size
-            //    : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
-
-
-
-            //var ustream = new SplittedUploadStream(destinationPath, this, size, false);
-            //var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
-
-            //// refresh linked folders
-            //ustream.FileUploaded += OnFileUploaded;
-
-            //return encustream;
-
-
-            //////================================================================================================================================
-            //var xtsa = XtsAes256.Create(key1, key2);
-            //using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //{
-            //    sourceStream.Seek(0, SeekOrigin.End);
-
-            //    FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
-            //    var encstream = new XtsStream(targetStream, xtsa, 512);
-            //    sourceStream.Seek(0, SeekOrigin.Begin);
-            //    sourceStream.CopyTo(encstream);
-            //    encstream.Flush();
-            //    encstream.Close();
-            //    targetStream.Flush();
-            //    targetStream.Close();
-            //}
-
-            //return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;
