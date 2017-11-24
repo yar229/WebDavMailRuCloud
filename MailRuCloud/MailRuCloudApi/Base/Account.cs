@@ -68,6 +68,14 @@ namespace YaR.MailRuCloud.Api.Base
                     return token;
                 },
                 TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
+
+            MetaServer = new Cached<MobMetaServerRequest.Result>(() =>
+                {
+                    Logger.Debug("MetaServer expired, refreshing.");
+                    var server = new MobMetaServerRequest(_cloudApi).MakeRequestAsync().Result;
+                    return server;
+                },
+                TimeSpan.FromSeconds(MetaServerExpiresSec));
         }
 
         /// <summary>
@@ -144,6 +152,10 @@ namespace YaR.MailRuCloud.Api.Base
         private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
         private readonly Cached<List<ShardInfo>> _bannedShards;
         private const int ShardsExpiresInSec = 30 * 60;
+
+
+        public readonly Cached<MobMetaServerRequest.Result> MetaServer;
+        private const int MetaServerExpiresSec = 20 * 60;
 
 
         public void BanShardInfo(ShardInfo banShard)

@@ -28,7 +28,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         {
         }
 
-        protected override string RelationalUri => $"https://cloclo2.datacloudmail.ru/meta/?token={_token}&client_id=cloud-android";
+        protected override string RelationalUri
+        {
+            get
+            {
+                var meta = CloudApi.Account.MetaServer.Value;
+                return $"{meta.Url}?token={_token}&client_id=cloud-android";
+            }
+        }
 
         protected override byte[] CreateHttpContent()
         {
