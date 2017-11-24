@@ -51,7 +51,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         public async Task<T> MakeRequestAsync()
         {
             var httprequest = CreateRequest();
-            Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri}");
 
             var content = CreateHttpContent();
             if (content != null)
@@ -60,6 +59,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
                 var stream = httprequest.GetRequestStream();
                 stream.Write(content, 0, content.Length);
             }
+            Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri}");
 
             using (var response = (HttpWebResponse)await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
             {
