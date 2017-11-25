@@ -25,15 +25,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         {
         }
 
-        protected override string RelationalUri
-        {
-            get
-            {
-                var meta = CloudApi.Account.MetaServer.Value;
-                return $"{meta.Url}?token={Token}&client_id=cloud-android";
-            }
-        }
-
         protected override byte[] CreateHttpContent()
         {
             using (var stream = new RequestBodyStream())
