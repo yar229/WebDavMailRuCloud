@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Net;
 using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {

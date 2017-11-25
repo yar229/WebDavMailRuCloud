@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {

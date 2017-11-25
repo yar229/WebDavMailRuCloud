@@ -1,9 +1,10 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using System.Linq;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class MobAddFileRequest : BaseRequestString
+    class MobAddFileRequest : BaseRequestMobile<MobAddFileRequest.Result>
     {
         private readonly string _token;
         private readonly string _fullPath;
@@ -22,7 +23,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         }
 
         public MobAddFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, DateTime? dateTime) 
-            : this(cloudApi, fullPath, StringToByteArray(hash), size, dateTime)
+            : this(cloudApi, fullPath, hash.HexStringToByteArray(), size, dateTime)
         {
         }
 
@@ -39,13 +40,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         {
             using (var stream = new RequestBodyStream())
             {
-                stream.WritePu16(AddFileOperation);
+                stream.WritePu16((byte)Operation.AddFile);
                 stream.WritePu16(Revision);
                 stream.WriteString(_fullPath);
                 stream.WritePu64(_size);
 
-                var unixtime = ConvertToUnixTimestamp(_dateTime);
-                stream.WritePu64(unixtime);
+                stream.WritePu64(_dateTime.ToUnix());
                 stream.WritePu32(00);
 
                 stream.Write(_hash);
@@ -56,31 +56,30 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             }
         }
 
-        //protected override RequestResponse<string> DeserializeMessage(string json)
-        //{
-        //    return base.DeserializeMessage(json);
-        //}
+        private static readonly OperationResult[] SuccessCodes = {OperationResult.Ok, OperationResult.Dunno04, OperationResult.Dunno09};
 
-        private static long ConvertToUnixTimestamp(DateTime date)
+        protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            TimeSpan diff = date.ToUniversalTime() - Epoch;
+            if (!SuccessCodes.Contains(data.OperationResult))
+                throw new Exception($"{nameof(MobAddFileRequest)} failed with operation result code {data.OperationResult}");
 
-            long seconds = diff.Ticks / TimeSpan.TicksPerSecond;
-            return seconds;
+            var res = new RequestResponse<Result>
+            {
+                Ok = data.OperationResult == OperationResult.Ok,
+                Result = new Result
+                {
+                    OperationResult = data.OperationResult
+                }
+            };
+
+            return res;
         }
 
-        private static byte[] StringToByteArray(String hex)
-        {
-            int len = hex.Length;
-            byte[] bytes = new byte[len / 2];
-            for (int i = 0; i < len; i += 2)
-                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
-
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        private const byte AddFileOperation = 103;
         private const int Revision = 0;
         private const byte UnknownFinal = 03;
+
+        public class Result : BaseResponseResult
+        {
+        }
     }
 }
