@@ -5,7 +5,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     
-    class RenameRequest : BaseRequest<RenameResult>
+    class RenameRequest : BaseRequestJson<RenameResult>
     {
         private readonly string _fullPath;
         private readonly string _newName;

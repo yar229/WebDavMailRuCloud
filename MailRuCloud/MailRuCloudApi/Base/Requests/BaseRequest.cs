@@ -1,16 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    public abstract class BaseRequest<T> where T : class
+    public abstract class BaseRequest<TConvert, T> where T : class
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<T>));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));
 
         protected readonly CloudApi CloudApi;
 
@@ -63,19 +60,22 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
             using (var response = (HttpWebResponse)await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
             {
-
                 if ((int)response.StatusCode >= 500)
                     throw new RequestException("Server fault") {StatusCode = response.StatusCode}; // Let's throw exception. It's server fault
 
-                var responseText = ReadResponseAsText(response, CloudApi.CancelToken.Token); //await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                var result = DeserializeMessage(responseText);
+                RequestResponse<T> result;
+                using (var responseStream = response.GetResponseStream())
+                {
+                    result = DeserializeMessage(Transport(responseStream));
+                }
+
                 if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
                 {
                     var exceptionMessage = $"Request failed (status code {(int)response.StatusCode}): {result.Description}";
                     throw new RequestException(exceptionMessage)
                     {
                         StatusCode = response.StatusCode,
-                        ResponseBody = responseText,
+                        ResponseBody = string.Empty, //responseText,
                         Description = result.Description,
                         ErrorCode = result.ErrorCode
                     };
@@ -85,62 +85,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             }
         }
 
-        protected virtual RequestResponse<T> DeserializeMessage(string json)
-        {
+        protected abstract TConvert Transport(Stream stream);
 
-            var msg = new RequestResponse<T>
-            {
-                Ok = true,
-                Result = typeof(T) == typeof(string) ? json as T : JsonConvert.DeserializeObject<T>(json)
-            };
-            return msg;
-        }
-
-        private static string ReadResponseAsText(WebResponse resp, CancellationToken token)
-        {
-            using (var stream = new MemoryStream())
-            {
-                try
-                {
-                    ReadResponseAsByte(resp, token, stream);
-                    return Encoding.UTF8.GetString(stream.ToArray());
-                }
-                catch
-                {
-                    //// Cancellation token.
-                    return "7035ba55-7d63-4349-9f73-c454529d4b2e";
-                }
-            }
-        }
-
-        private static void ReadResponseAsByte(WebResponse resp, CancellationToken token, Stream outputStream = null)
-        {
-            int bufSizeChunk = 30000;
-            int totalBufSize = bufSizeChunk;
-            byte[] fileBytes = new byte[totalBufSize];
-
-            int totalBytesRead = 0;
-
-            var responseStream = resp.GetResponseStream();
-            if (responseStream != null)
-                using (var reader = new BinaryReader(responseStream))
-                {
-                    int bytesRead;
-                    while ((bytesRead = reader.Read(fileBytes, totalBytesRead, totalBufSize - totalBytesRead)) > 0)
-                    {
-                        token.ThrowIfCancellationRequested();
-
-                        outputStream?.Write(fileBytes, totalBytesRead, bytesRead);
-
-                        totalBytesRead += bytesRead;
-
-                        if (totalBufSize - totalBytesRead == 0)
-                        {
-                            totalBufSize += bufSizeChunk;
-                            Array.Resize(ref fileBytes, totalBufSize);
-                        }
-                    }
-                }
-        }
+        protected abstract RequestResponse<T> DeserializeMessage(TConvert data);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Web
+﻿namespace YaR.MailRuCloud.Api.Base.Requests
 {
     public struct ConflictResolver
     {

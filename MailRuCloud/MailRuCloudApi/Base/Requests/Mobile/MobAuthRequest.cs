@@ -6,7 +6,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class MobAuthRequest: BaseRequest<MobAuthRequest.Result>
+    class MobAuthRequest: BaseRequestJson<MobAuthRequest.Result>
     {
         private readonly string _login;
         private readonly string _password;

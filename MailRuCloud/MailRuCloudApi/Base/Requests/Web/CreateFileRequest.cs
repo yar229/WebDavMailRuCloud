@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-   class CreateFileRequest : BaseRequest<StatusResult>
+   class CreateFileRequest : BaseRequestJson<StatusResult>
     {
         private readonly string _fullPath;
         private readonly string _hash;
@@ -23,11 +23,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
         protected override byte[] CreateHttpContent()
         {
-            //using (var stream = System.IO.File.OpenRead(""))
-            //{
-            //    string localHash = new MailRuShaEncoding().Sha1(stream);
-            //}
-
             string filePart = $"&hash={_hash}&size={_size}";
             string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={CloudApi.Account.AuthToken}" + filePart;
 

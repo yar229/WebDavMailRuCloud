@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class DownloadTokenRequest : BaseRequest<DownloadTokenResult>
+    class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {
         public DownloadTokenRequest(CloudApi cloudApi) : base(cloudApi)
         {
@@ -22,7 +22,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
 
 
-    class DownloadTokenHtmlRequest : BaseRequest<DownloadTokenResult>
+    class DownloadTokenHtmlRequest : BaseRequestString<DownloadTokenResult>
     {
         private readonly string _url;
 

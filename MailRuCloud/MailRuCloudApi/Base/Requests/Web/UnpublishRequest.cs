@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class UnpublishRequest : BaseRequest<PublishResult>
+    class UnpublishRequest : BaseRequestJson<PublishResult>
     {
         private readonly string _publicLink;
 

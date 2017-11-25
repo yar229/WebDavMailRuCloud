@@ -3,7 +3,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class MobAddFileRequest : BaseRequest<string>
+    class MobAddFileRequest : BaseRequestString
     {
         private readonly string _token;
         private readonly string _fullPath;
@@ -54,8 +54,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 var body = stream.GetBytes();
                 return body;
             }
-            
         }
+
+        //protected override RequestResponse<string> DeserializeMessage(string json)
+        //{
+        //    return base.DeserializeMessage(json);
+        //}
 
         private static long ConvertToUnixTimestamp(DateTime date)
         {

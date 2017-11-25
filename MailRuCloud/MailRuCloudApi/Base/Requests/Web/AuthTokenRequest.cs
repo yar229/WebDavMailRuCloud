@@ -2,7 +2,7 @@
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class AuthTokenRequest : BaseRequest<AuthTokenResult>
+    class AuthTokenRequest : BaseRequestJson<AuthTokenResult>
     {
         public AuthTokenRequest(CloudApi cloudApi) : base(cloudApi)
         {

@@ -2,7 +2,7 @@
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class ShardInfoRequest : BaseRequest<ShardInfoResult>
+    class ShardInfoRequest : BaseRequestJson<ShardInfoResult>
     {
         public ShardInfoRequest(CloudApi cloudApi) : base(cloudApi)
         {

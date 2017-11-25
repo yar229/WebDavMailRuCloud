@@ -6,7 +6,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class LoginRequest : BaseRequest<LoginResult>
+    class LoginRequest : BaseRequestString<LoginResult>
     {
         private readonly IBasicCredentials _credentials;
 

@@ -2,7 +2,7 @@
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class AccountInfoRequest : BaseRequest<AccountInfoResult>
+    class AccountInfoRequest : BaseRequestJson<AccountInfoResult>
     {
         public AccountInfoRequest(CloudApi cloudApi) : base(cloudApi)
         {

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    public class MobMetaServerRequest : BaseRequest<MobMetaServerRequest.Result>
+    public class MobMetaServerRequest : BaseRequestString<MobMetaServerRequest.Result>
     {
         public MobMetaServerRequest(CloudApi cloudApi) : base(cloudApi)
         {
@@ -12,17 +13,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/m";
 
-        protected override RequestResponse<Result> DeserializeMessage(string json)
+        protected override RequestResponse<Result> DeserializeMessage(string data)
         {
-            var data = json.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries);
+            var datas = data.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries);
             var msg = new RequestResponse<Result>
             {
                 Ok = true,
                 Result = new Result
                 {
-                    Url = data[0],
-                    Ip = data[1],
-                    Unknown = int.Parse(data[2])
+                    Url = datas[0],
+                    Ip = datas[1],
+                    Unknown = int.Parse(datas[2])
                 }
             };
             return msg;

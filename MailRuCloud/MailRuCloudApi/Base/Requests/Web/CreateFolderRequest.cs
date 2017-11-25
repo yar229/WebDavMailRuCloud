@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-   class CreateFolderRequest : BaseRequest<CreateFolderResult>
+   class CreateFolderRequest : BaseRequestJson<CreateFolderResult>
     {
         private readonly string _fullPath;
 

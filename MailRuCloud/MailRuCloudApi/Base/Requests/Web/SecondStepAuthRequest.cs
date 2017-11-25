@@ -3,7 +3,7 @@ using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class SecondStepAuthRequest : BaseRequest<string>
+    class SecondStepAuthRequest : BaseRequestString
     {
         private readonly string _csrf;
         private readonly string _login;

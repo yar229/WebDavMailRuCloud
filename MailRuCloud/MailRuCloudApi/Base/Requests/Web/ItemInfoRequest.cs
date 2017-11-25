@@ -3,7 +3,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class ItemInfoRequest : BaseRequest<FolderInfoResult>
+    class ItemInfoRequest : BaseRequestJson<FolderInfoResult>
     {
         private readonly string _path;
         private readonly bool _isWebLink;

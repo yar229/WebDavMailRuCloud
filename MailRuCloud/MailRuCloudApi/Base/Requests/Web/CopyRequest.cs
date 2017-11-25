@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class CopyRequest : BaseRequest<MoveOrCopyResult>
+    class CopyRequest : BaseRequestJson<MoveOrCopyResult>
     {
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;

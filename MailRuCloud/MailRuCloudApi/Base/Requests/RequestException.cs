@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests
 {
     [Serializable]
     public class RequestException : Exception

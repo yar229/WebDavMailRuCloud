@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class PublishRequest : BaseRequest<PublishResult>
+    class PublishRequest : BaseRequestJson<PublishResult>
     {
         private readonly string _fullPath;
 
