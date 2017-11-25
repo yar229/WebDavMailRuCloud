@@ -44,10 +44,8 @@ Parameters with spaces must be screened by quotes.
 * `>>move` `/full/path/from /full/path/to` Fast move (if your client moves inner items recursively)
 * `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
 * `>>lcopy` `x:/local/path/from /full/server/path/to` If file already in cloud, add it by hash without uploading
-* `>>del` Fast delete (if your client makes recursive deletions of inner items)
-  * `>>del` current folder
-  * `>>del abc/cde` current folder/abc/cde
-  * `>>del /abc/cde` root/abc/cde
+* `>>del [[/]path]` Fast delete (if your client makes recursive deletions of inner items)
+* `>>share [[/]path]` Make file/folder public
 * `>>crypt init` Mark current folder as encrypted
 
 ***Settings*** in `wdmrc.exe.config`
