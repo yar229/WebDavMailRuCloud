@@ -4,11 +4,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
     abstract class BaseRequestMobile<T> : BaseRequest<ResponseBodyStream, T> where T : class 
     {
-        protected readonly string Token;
+        private readonly string _token;
 
         protected BaseRequestMobile(CloudApi cloudApi) : base(cloudApi)
         {
-            Token = cloudApi.Account.AuthTokenMobile.Value;
+            _token = cloudApi.Account.AuthTokenMobile.Value;
         }
 
         protected override string RelationalUri
@@ -16,7 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             get
             {
                 var meta = CloudApi.Account.MetaServer.Value;
-                return $"{meta.Url}?token={Token}&client_id=cloud-android";
+                return $"{meta.Url}?token={_token}&client_id=cloud-android";
             }
         }
 
