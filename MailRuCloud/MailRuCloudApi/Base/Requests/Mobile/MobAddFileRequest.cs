@@ -6,7 +6,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
     class MobAddFileRequest : BaseRequestMobile<MobAddFileRequest.Result>
     {
-        private readonly string _token;
         private readonly string _fullPath;
         private readonly byte[] _hash;
         private readonly long _size;
@@ -15,7 +14,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         public MobAddFileRequest(CloudApi cloudApi, string fullPath, byte[] hash, long size, DateTime? dateTime) 
             : base(cloudApi)
         {
-            _token = cloudApi.Account.AuthTokenMobile.Value;
             _fullPath = fullPath;
             _hash = hash;
             _size = size;
@@ -32,7 +30,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             get
             {
                 var meta = CloudApi.Account.MetaServer.Value;
-                return $"{meta.Url}?token={_token}&client_id=cloud-android";
+                return $"{meta.Url}?token={Token}&client_id=cloud-android";
             }
         }
 
