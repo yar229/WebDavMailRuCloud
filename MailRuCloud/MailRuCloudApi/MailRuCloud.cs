@@ -675,7 +675,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            var req = await new CreateFolderRequest(CloudApi, fullPath)
+            var req = await new Base.Requests.Mobile.CreateFolderRequest(CloudApi, fullPath)
                 .MakeRequestAsync();
             var res = req.ToPathResult();
 

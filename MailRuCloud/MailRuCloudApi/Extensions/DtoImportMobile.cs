@@ -9,5 +9,15 @@ namespace YaR.MailRuCloud.Api.Extensions
             var res = data.access_token;
             return res;
         }
+
+        public static MailRuCloud.PathResult ToPathResult(this CreateFolderRequest.Result data)
+        {
+            var res = new MailRuCloud.PathResult
+            {
+                IsSuccess = data.OperationResult == OperationResult.Ok,
+                Path = data.Path
+            };
+            return res;
+        }
     }
 }

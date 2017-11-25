@@ -45,7 +45,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             }
         }
 
-        private static readonly OperationResult[] SuccessCodes = {OperationResult.Ok, OperationResult.Dunno04, OperationResult.Dunno09};
+        private static readonly OperationResult[] SuccessCodes = {OperationResult.Ok, OperationResult.AlreadyExists04, OperationResult.AlreadyExists09};
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
