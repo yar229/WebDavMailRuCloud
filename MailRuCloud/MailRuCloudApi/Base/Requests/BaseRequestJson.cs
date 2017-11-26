@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     public abstract class BaseRequestJson<T> : BaseRequest<Stream, T> where T : class
     {
-        protected BaseRequestJson(CloudApi cloudApi) : base(cloudApi)
+        protected BaseRequestJson(RequestInit init) : base(init)
         {
         }
 

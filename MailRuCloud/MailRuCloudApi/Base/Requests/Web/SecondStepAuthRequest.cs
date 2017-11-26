@@ -6,13 +6,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
     class SecondStepAuthRequest : BaseRequestString
     {
         private readonly string _csrf;
-        private readonly string _login;
         private readonly string _authCode;
 
-        public SecondStepAuthRequest(CloudApi cloudApi, string csrf, string login, string authCode) : base(cloudApi)
+        public SecondStepAuthRequest(RequestInit init, string csrf, string authCode) : base(init)
         {
             _csrf = csrf;
-            _login = login;
             _authCode = authCode;
         }
 
@@ -20,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"csrf={_csrf}&Login={Uri.EscapeUriString(_login)}&AuthCode={_authCode}";
+            string data = $"csrf={_csrf}&Login={Uri.EscapeUriString(Init.Login)}&AuthCode={_authCode}";
 
             return Encoding.UTF8.GetBytes(data);
         }

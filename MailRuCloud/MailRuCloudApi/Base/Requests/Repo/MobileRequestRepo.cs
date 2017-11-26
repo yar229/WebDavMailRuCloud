@@ -11,6 +11,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
         private readonly CloudApi _cloudApi;
+        private readonly RequestInit _init;
 
         public MobileRequestRepo(CloudApi cloudApi)
         {
@@ -24,10 +25,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 },
                 TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
 
+            _init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authTokenMobile, _cloudApi.Account.Credentials.Login);
+
             _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(_cloudApi).MakeRequestAsync().Result;
+                    var server = new MobMetaServerRequest(_init).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(MetaServerExpiresSec));
@@ -63,7 +66,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AuthTokenResult> Auth()
         {
-            var req = await new MobAuthRequest(_cloudApi, _cloudApi.Account.Credentials.Login, _cloudApi.Account.Credentials.Password).MakeRequestAsync();
+            var init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authTokenMobile, _cloudApi.Account.Credentials.Login);
+            var req = await new MobAuthRequest(init, _cloudApi.Account.Credentials.Password).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
             return res;
         }
@@ -127,13 +131,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Mobile.CreateFolderRequest(_cloudApi, _authTokenMobile.Value.Token, _metaServer.Value.Url, path).MakeRequestAsync())
+            return (await new Mobile.CreateFolderRequest(_init, _metaServer.Value.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Mobile.MobAddFileRequest(_cloudApi, _authTokenMobile.Value.Token, _metaServer.Value.Url,
+            var res = await new Mobile.MobAddFileRequest(_init, _metaServer.Value.Url,
                     fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 

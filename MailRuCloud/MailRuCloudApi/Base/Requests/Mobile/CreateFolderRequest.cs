@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
-using System.IO.Compression;
-using System.Linq;
-using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
@@ -10,8 +6,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
     {
         private readonly string _fullPath;
 
-        public CreateFolderRequest(CloudApi cloudApi, string token, string metaServer, string fullPath)
-            : base(cloudApi, token, metaServer)
+        public CreateFolderRequest(RequestInit init, string metaServer, string fullPath)
+            : base(init, metaServer)
         {
             _fullPath = fullPath;
         }

@@ -14,14 +14,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebRequestRepo));
         private readonly CloudApi _cloudApi;
 
+        private readonly RequestInit _init;
+
         public WebRequestRepo(CloudApi cloudApi)
         {
             _cloudApi = cloudApi;
 
-            _cachedDownloadToken = new Cached<string>(() => new DownloadTokenRequest(_cloudApi, AuthToken.Value.Token).MakeRequestAsync().Result.ToToken(),
-                TimeSpan.FromSeconds(DownloadTokenExpiresSec));
-
-            AuthToken = new Cached<AuthTokenResult>(() =>
+            _authToken = new Cached<AuthTokenResult>(() =>
                 {
                     Logger.Debug("AuthToken expired, refreshing.");
                     var token = Auth().Result;
@@ -30,28 +29,32 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 },
                 TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 
+            _init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authToken, _cloudApi.Account.Credentials.Login);
+
+            _cachedDownloadToken = new Cached<string>(() => new DownloadTokenRequest(_init).MakeRequestAsync().Result.ToToken(),
+                TimeSpan.FromSeconds(DownloadTokenExpiresSec));
 
             _bannedShards = new Cached<List<ShardInfo>>(() => new List<ShardInfo>(),
                 TimeSpan.FromMinutes(2));
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_cloudApi, AuthToken.Value.Token).MakeRequestAsync().Result.ToShardInfo(),
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_init).MakeRequestAsync().Result.ToShardInfo(),
                 TimeSpan.FromSeconds(ShardsExpiresInSec));
         }
 
         public async  Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            var loginResult = await new LoginRequest(_cloudApi, _cloudApi.Account.Credentials)
+            var loginResult = await new LoginRequest(_init, _cloudApi.Account.Credentials)
                 .MakeRequestAsync();
 
             // 2FA
             if (!string.IsNullOrEmpty(loginResult.Csrf))
             {
                 string authCode = onAuthCodeRequired(_cloudApi.Account.Credentials.Login, false);
-                await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, _cloudApi.Account.Credentials.Login, authCode)
+                await new SecondStepAuthRequest(_init, loginResult.Csrf, authCode)
                     .MakeRequestAsync();
             }
 
-            await new EnsureSdcCookieRequest(_cloudApi)
+            await new EnsureSdcCookieRequest(_init)
                 .MakeRequestAsync();
 
             return true;
@@ -62,7 +65,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         /// <summary>
         /// Token for authorization
         /// </summary>
-        public readonly Cached<AuthTokenResult> AuthToken;
+        private readonly Cached<AuthTokenResult> _authToken;
         private const int AuthTokenExpiresInSec = 23 * 60 * 60;
 
         /// <summary>
@@ -120,84 +123,85 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AuthTokenResult> Auth()
         {
-            var req = await new AuthTokenRequest(_cloudApi).MakeRequestAsync();
+            var init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, null, _cloudApi.Account.Credentials.Login);
+            var req = await new AuthTokenRequest(init).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
             return res;
         }
 
         public async Task<CloneItemResult> CloneItem(string fromUrl, string toPath)
         {
-            var req = await new CloneItemRequest(_cloudApi, AuthToken.Value.Token, fromUrl, toPath).MakeRequestAsync();
+            var req = await new CloneItemRequest(_init, fromUrl, toPath).MakeRequestAsync();
             var res = req.ToCloneItemResult();
             return res;
         }
 
         public async Task<CopyResult> Copy(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new CopyRequest(_cloudApi, AuthToken.Value.Token, sourceFullPath, destinationPath, conflictResolver).MakeRequestAsync();
+            var req = await new CopyRequest(_init, sourceFullPath, destinationPath, conflictResolver).MakeRequestAsync();
             var res = req.ToCopyResult();
             return res;
         }
 
         public async Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new MoveRequest(_cloudApi, AuthToken.Value.Token, sourceFullPath, destinationPath).MakeRequestAsync();
+            var req = await new MoveRequest(_init, sourceFullPath, destinationPath).MakeRequestAsync();
             var res = req.ToCopyResult();
             return res;
         }
 
         public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new FolderInfoRequest(_cloudApi, AuthToken.Value.Token, path, isWebLink, offset, limit).MakeRequestAsync();
+            var req = await new FolderInfoRequest(_init, path, isWebLink, offset, limit).MakeRequestAsync();
             var res = req;
             return res;
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new ItemInfoRequest(_cloudApi, AuthToken.Value.Token, path, isWebLink, offset, limit).MakeRequestAsync();
+            var req = await new ItemInfoRequest(_init, path, isWebLink, offset, limit).MakeRequestAsync();
             var res = req;
             return res;
         }
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new AccountInfoRequest(_cloudApi, AuthToken.Value.Token).MakeRequestAsync();
+            var req = await new AccountInfoRequest(_init).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }
 
         public async Task<PublishResult> Publish(string fullPath)
         {
-            var req = await new PublishRequest(_cloudApi, AuthToken.Value.Token, _cloudApi.Account.Credentials.Login, fullPath).MakeRequestAsync();
+            var req = await new PublishRequest(_init, fullPath).MakeRequestAsync();
             var res = req.ToPublishResult();
             return res;
         }
 
         public async Task<UnpublishResult> Unpublish(string publicLink)
         {
-            var req = await new UnpublishRequest(_cloudApi, AuthToken.Value.Token, publicLink).MakeRequestAsync();
+            var req = await new UnpublishRequest(_init, publicLink).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
         }
 
         public async Task<RemoveResult> Remove(string fullPath)
         {
-            var req = await new RemoveRequest(_cloudApi, AuthToken.Value.Token, fullPath).MakeRequestAsync();
+            var req = await new RemoveRequest(_init, fullPath).MakeRequestAsync();
             var res = req.ToRemoveResult();
             return res;
         }
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            var req = await new RenameRequest(_cloudApi, AuthToken.Value.Token, fullPath, newName).MakeRequestAsync();
+            var req = await new RenameRequest(_init, fullPath, newName).MakeRequestAsync();
             var res = req.ToRenameResult();
             return res;
         }
 
         public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
         {
-            var req = await new ShardInfoRequest(_cloudApi, AuthToken.Value.Token).MakeRequestAsync();
+            var req = await new ShardInfoRequest(_init).MakeRequestAsync();
             var res = req.ToShardInfo();
             return res;
         }
@@ -207,13 +211,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Web.CreateFolderRequest(_cloudApi, AuthToken.Value.Token, path).MakeRequestAsync())
+            return (await new Web.CreateFolderRequest(_init, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Web.CreateFileRequest(_cloudApi, AuthToken.Value.Token, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new Web.CreateFileRequest(_init, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

@@ -19,6 +19,8 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         private CookieContainer _cookies;
 
+        private IRequestRepo _requestRepo;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
@@ -39,11 +41,10 @@ namespace YaR.MailRuCloud.Api.Base
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
-            RequestRepo = new MixedRepo(cloudApi);
+            
         }
 
-
-        internal IRequestRepo RequestRepo { get; }
+        internal IRequestRepo RequestRepo => _requestRepo ?? (_requestRepo = new MixedRepo(_cloudApi));
 
         /// <summary>
         /// Gets connection proxy.

@@ -4,11 +4,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class ShardInfoRequest : BaseRequestJson<ShardInfoRequest.Result>
     {
-        private readonly string _token;
-
-        public ShardInfoRequest(CloudApi cloudApi, string token) : base(cloudApi)
+        public ShardInfoRequest(RequestInit init) : base(init)
         {
-            _token = token;
         }
 
         protected override string RelationalUri
@@ -16,8 +13,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             get
             {
                 var uri = string.Format("{0}/api/v2/dispatcher?api=2", ConstSettings.CloudDomain);
-                if (!string.IsNullOrEmpty(_token))
-                    uri += $"&token={_token}";
+                if (!string.IsNullOrEmpty(Init.Token))
+                    uri += $"&token={Init.Token}";
                 return uri;
             }
         }
@@ -29,28 +26,27 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             public ShardInfoResultBody body { get; set; }
             public long time { get; set; }
             public int status { get; set; }
-        }
 
-        public class ShardInfoResultBody
-        {
-            public List<ShardSection> video { get; set; }
-            public List<ShardSection> view_direct { get; set; }
-            public List<ShardSection> weblink_view { get; set; }
-            public List<ShardSection> weblink_video { get; set; }
-            public List<ShardSection> weblink_get { get; set; }
-            public List<ShardSection> weblink_thumbnails { get; set; }
-            public List<ShardSection> auth { get; set; }
-            public List<ShardSection> view { get; set; }
-            public List<ShardSection> get { get; set; }
-            public List<ShardSection> upload { get; set; }
-            public List<ShardSection> thumbnails { get; set; }
-        }
+            public class ShardInfoResultBody
+            {
+                public List<ShardSection> video { get; set; }
+                public List<ShardSection> view_direct { get; set; }
+                public List<ShardSection> weblink_view { get; set; }
+                public List<ShardSection> weblink_video { get; set; }
+                public List<ShardSection> weblink_get { get; set; }
+                public List<ShardSection> weblink_thumbnails { get; set; }
+                public List<ShardSection> auth { get; set; }
+                public List<ShardSection> view { get; set; }
+                public List<ShardSection> get { get; set; }
+                public List<ShardSection> upload { get; set; }
+                public List<ShardSection> thumbnails { get; set; }
 
-        public class ShardSection
-        {
-            public string count { get; set; }
-            public string url { get; set; }
+                public class ShardSection
+                {
+                    public string count { get; set; }
+                    public string url { get; set; }
+                }
+            }
         }
-
     }
 }

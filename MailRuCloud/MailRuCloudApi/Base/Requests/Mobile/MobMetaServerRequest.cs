@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Net;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
     public class MobMetaServerRequest : BaseRequestString<MobMetaServerRequest.Result>
     {
-        public MobMetaServerRequest(CloudApi cloudApi) : base(cloudApi)
+        public MobMetaServerRequest(RequestInit init) : base(init)
         {
         }
 

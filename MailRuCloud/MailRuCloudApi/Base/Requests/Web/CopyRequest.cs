@@ -5,7 +5,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class CopyRequest : BaseRequestJson<CopyRequest.Result>
     {
-        private readonly string _token;
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;
         private readonly ConflictResolver _conflictResolver;
@@ -13,14 +12,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cloudApi"></param>
-        /// <param name="token"></param>
+        /// <param name="init"></param>
         /// <param name="sourceFullPath"></param>
         /// <param name="destinationPath">(without item name)</param>
         /// <param name="conflictResolver"></param>
-        public CopyRequest(CloudApi cloudApi, string token, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) : base(cloudApi)
+        public CopyRequest(RequestInit init, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
+            : base(init)
         {
-            _token = token;
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;
             _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
@@ -31,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
-                Uri.EscapeDataString(_sourceFullPath), 2, _token, CloudApi.Account.Credentials.Login, 
+                Uri.EscapeDataString(_sourceFullPath), 2, Init.Token, Init.Login, 
                 _conflictResolver,
                 Uri.EscapeDataString(_destinationPath)));
 

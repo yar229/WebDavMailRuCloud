@@ -2,18 +2,37 @@
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
+    public class RequestInit
+    {
+        private readonly Cached<AuthTokenResult> _auth;
+
+        public RequestInit(IWebProxy proxy, CookieContainer cookies, Cached<AuthTokenResult> auth, string login)
+        {
+            _auth = auth;
+            Proxy = proxy;
+            Cookies = cookies;
+            Login = login;
+        }
+
+        public IWebProxy Proxy { get; }
+        public CookieContainer Cookies { get; }
+        public string Token => _auth.Value.Token;
+        public string Login { get; }
+    }
+
     public abstract class BaseRequest<TConvert, T> where T : class
     {
+        protected readonly RequestInit Init;
+
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));
 
-        protected readonly CloudApi CloudApi;
-
-        protected BaseRequest(CloudApi cloudApi)
+        protected BaseRequest(RequestInit init)
         {
-            CloudApi = cloudApi;
+            Init = init;
         }
 
         protected abstract string RelationalUri { get; }
@@ -29,8 +48,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             //var udriz = new Uri(new Uri(domain), RelationalUri, true);
 
             var request = (HttpWebRequest)WebRequest.Create(uriz);
-            request.Proxy = CloudApi.Account.Proxy;
-            request.CookieContainer = CloudApi.Account.Cookies;
+            request.Proxy = Init.Proxy;
+            request.CookieContainer = Init.Cookies;
             request.Method = "GET";
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
