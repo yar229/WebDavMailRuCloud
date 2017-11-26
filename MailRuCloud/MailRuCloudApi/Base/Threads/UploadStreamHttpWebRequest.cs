@@ -99,7 +99,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
-                    .ThrowIf(r => r.status != 200, r => new Exception("Cannot add file, status " + r.status));
+                    .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
             }
         }
 

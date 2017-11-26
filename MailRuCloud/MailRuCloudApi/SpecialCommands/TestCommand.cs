@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
@@ -26,8 +27,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             bool removed = await Cloud.Remove(entry, false);
             if (removed)
             {
-                var addreq = await new MobAddFileRequest(Cloud.CloudApi, entry.FullPath, entry.Hash, entry.Size, new DateTime(2010, 1, 1))
-                    .MakeRequestAsync();
+                //var addreq = await new MobAddFileRequest(Cloud.CloudApi, entry.FullPath, entry.Hash, entry.Size, new DateTime(2010, 1, 1), ConflictResolver.Rename)
+                //    .MakeRequestAsync();
             }
 
             return SpecialCommandResult.Success;

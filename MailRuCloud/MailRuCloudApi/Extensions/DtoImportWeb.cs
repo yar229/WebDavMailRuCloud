@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
     internal static class DtoImportWeb
     {
+        public static AddFileResult ToAddFileResult(this CreateFileRequest.Result data)
+        {
+            var res = new AddFileResult
+            {
+                Success = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
+
         public static UploadFileResult ToUploadPathResult(this string data)
         {
             var resp = data.Split(';');
@@ -22,9 +34,9 @@ namespace YaR.MailRuCloud.Api.Extensions
         }
 
 
-        public static MailRuCloud.PathResult ToPathResult(this StatusResult data)
+        public static PathResult ToPathResult(this StatusResult data)
         {
-            var res = new MailRuCloud.PathResult
+            var res = new PathResult
             {
                 IsSuccess = data.status == 200,
                 Path = data.body
@@ -32,9 +44,9 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
-        public static MailRuCloud.PathResult ToPathResult(this CreateFolderResult data)
+        public static CreateFolderResult ToCreateFolderResult(this CreateFolderRequest.Result data)
         {
-            var res = new MailRuCloud.PathResult
+            var res = new CreateFolderResult
             {
                 IsSuccess = data.status == 200,
                 Path = data.body

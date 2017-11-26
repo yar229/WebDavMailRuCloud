@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-   class CreateFolderRequest : BaseRequestJson<CreateFolderResult>
+   class CreateFolderRequest : BaseRequestJson<CreateFolderRequest.Result>
     {
         private readonly string _fullPath;
 
@@ -19,6 +18,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         {
             var data = $"home={Uri.EscapeDataString(_fullPath)}&conflict=rename&api={2}&token={CloudApi.Account.AuthToken}";
             return Encoding.UTF8.GetBytes(data);
+        }
+
+
+        internal class Result
+        {
+            public string email { get; set; }
+            public string body { get; set; }
+            public long time { get; set; }
+            public int status { get; set; }
         }
     }
 }

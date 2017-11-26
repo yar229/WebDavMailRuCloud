@@ -2,9 +2,7 @@
 {
     public class CreateFolderResult
     {
-        public string email { get; set; }
-        public string body { get; set; }
-        public long time { get; set; }
-        public int status { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Path{ get; set; }
     }
 }
