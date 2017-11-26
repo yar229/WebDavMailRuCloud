@@ -10,8 +10,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
     {
         private readonly string _fullPath;
 
-        public CreateFolderRequest(CloudApi cloudApi, string fullPath)
-            : base(cloudApi)
+        public CreateFolderRequest(CloudApi cloudApi, string token, string metaServer, string fullPath)
+            : base(cloudApi, token, metaServer)
         {
             _fullPath = fullPath;
         }

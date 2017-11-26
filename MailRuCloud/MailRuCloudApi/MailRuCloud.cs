@@ -30,7 +30,7 @@ namespace YaR.MailRuCloud.Api
     /// <summary>
     /// Cloud client.
     /// </summary>
-    public class MailRuCloud : IDisposable
+    public partial class MailRuCloud : IDisposable
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
@@ -675,9 +675,10 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            var req = await new Base.Requests.Mobile.CreateFolderRequest(CloudApi, fullPath)
-                .MakeRequestAsync();
-            var res = req.ToPathResult();
+            //var req = await new Base.Requests.Mobile.CreateFolderRequest(CloudApi, fullPath)
+            //    .MakeRequestAsync();
+            //var res = req.ToPathResult();
+            var res = await CloudApi.Account.RequestRepo.CreateFolder(fullPath);
 
             if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             return res.IsSuccess;
@@ -691,13 +692,6 @@ namespace YaR.MailRuCloud.Api
             var res = data.ToPathResult();
             if (res.IsSuccess) _itemCache.Invalidate(path);
             return res;
-        }
-
-        //TODO : move upper
-        public class PathResult
-        {
-            public bool IsSuccess { get; set; }
-            public string Path { get; set; }
         }
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
@@ -890,15 +884,15 @@ namespace YaR.MailRuCloud.Api
             if (count > 0) _itemCache.Invalidate();
         }
 
-        public async Task<StatusResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
+        public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
-                .MakeRequestAsync();
+            var res = (await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict).MakeRequestAsync())
+                .ToAddFileResult();
 
             return res;
         }
 
-        public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
+        public async Task<AddFileResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
             var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
 
@@ -916,8 +910,9 @@ namespace YaR.MailRuCloud.Api
             var removed = await Remove(file, false, false);
             if (removed)
             {
-                var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
-                    .MakeRequestAsync();
+                //var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
+                //    .MakeRequestAsync();
+                var added = CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
             }
 
             file.LastWriteTimeUtc = dateTime;
