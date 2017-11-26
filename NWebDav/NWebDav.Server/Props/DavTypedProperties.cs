@@ -178,7 +178,7 @@ namespace NWebDav.Server.Props
                 {
                     // try to fix wrong datetime, for example, Far+NetBox send "0023, 23 11 2017 21:0223 'GMT'"
                     var m = Regex.Match((string) value,
-                        @"(?<day>\d\d)(-|\s+)(?<month>\d\d)(-|\s)(?<year>\d\d\d\d)(-|\s)(?<hour>\d\d):(?<min>\d\d):?(?<sec>\d\d)?");
+                        @"(?<day>\d{1,2})(-|\s+)(?<month>\d\d)(-|\s)(?<year>\d\d\d\d)(-|\s)(?<hour>\d\d):(?<min>\d\d):?(?<sec>\d\d)?");
                     if (m.Success)
                     {
                         int year = int.Parse(m.Groups["year"].Value),
