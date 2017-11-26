@@ -1,15 +1,16 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class CloneItemRequest : BaseRequestJson<StatusResult>
+    class CloneItemRequest : BaseRequestJson<CloneItemRequest.Result>
     {
+        private readonly string _token;
         private readonly string _fromUrl;
         private readonly string _toPath;
 
-        public CloneItemRequest(CloudApi cloudApi, string fromUrl, string toPath) : base(cloudApi)
+        public CloneItemRequest(CloudApi cloudApi, string token, string fromUrl, string toPath) : base(cloudApi)
         {
+            _token = token;
             _fromUrl = fromUrl;
             _toPath = toPath;
         }
@@ -18,9 +19,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         {
             get
             {
-                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?conflict=rename&folder={Uri.EscapeDataString(_toPath)}&weblink={Uri.EscapeDataString(_fromUrl)}&token={CloudApi.Account.AuthToken}";
+                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?conflict=rename&folder={Uri.EscapeDataString(_toPath)}&weblink={Uri.EscapeDataString(_fromUrl)}&token={_token}";
                 return uri;
             }
         }
+
+        public class Result
+        {
+            public string email { get; set; }
+            public string body { get; set; }
+            public long time { get; set; }
+            public int status { get; set; }
+        }
+
     }
 }

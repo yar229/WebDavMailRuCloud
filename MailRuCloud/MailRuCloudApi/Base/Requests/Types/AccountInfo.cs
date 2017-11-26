@@ -1,6 +1,6 @@
-﻿namespace YaR.MailRuCloud.Api.Base
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class AccountInfo
+    public class AccountInfoResult
     {
         private long _fileSizeLimit;
 
@@ -9,6 +9,8 @@
             get => _fileSizeLimit <= 0 ? long.MaxValue : _fileSizeLimit;
             set => _fileSizeLimit = value;
         }
+
+        public DiskUsage DiskUsage { get; set; }
     }
 }
 

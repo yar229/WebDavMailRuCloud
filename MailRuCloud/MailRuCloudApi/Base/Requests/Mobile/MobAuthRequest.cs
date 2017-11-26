@@ -8,10 +8,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         private readonly string _login;
         private readonly string _password;
 
-        public MobAuthRequest(CloudApi cloudApi) : base(cloudApi)
+        public MobAuthRequest(CloudApi cloudApi, string login, string password) : base(cloudApi)
         {
-            _login = Uri.EscapeDataString(cloudApi.Account.Credentials.Login);
-            _password = Uri.EscapeDataString(cloudApi.Account.Credentials.Password);
+            _login = Uri.EscapeDataString(login);
+            _password = Uri.EscapeDataString(password);
         }
 
         protected override string RelationalUri => "https://o2.mail.ru/token";

@@ -6,15 +6,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {
-        public DownloadTokenRequest(CloudApi cloudApi) : base(cloudApi)
+        private readonly string _token;
+
+        public DownloadTokenRequest(CloudApi cloudApi, string token) : base(cloudApi)
         {
+            _token = token;
         }
 
         protected override string RelationalUri
         {
             get
             {
-                var uri = $"/api/v2/tokens/download?token={CloudApi.Account.AuthToken}";
+                var uri = $"/api/v2/tokens/download?token={_token}";
                 return uri;
             }
         }

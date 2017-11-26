@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
@@ -21,7 +20,8 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             if (!m.Success) return SpecialCommandResult.Fail;
 
             //TODO: make method in MailRuCloud to get entry by url
-            var item = await new ItemInfoRequest(Cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync();
+            //var item = await new ItemInfoRequest(Cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync();
+            var item = await Cloud.CloudApi.Account.RequestRepo.ItemInfo(m.Groups["url"].Value, true);
             var entry = item.ToEntry();
             if (null == entry)
                 return SpecialCommandResult.Fail;

@@ -1,4 +1,5 @@
-﻿using YaR.MailRuCloud.Api.Base.Requests.Mobile;
+﻿using System;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Extensions
@@ -16,10 +17,16 @@ namespace YaR.MailRuCloud.Api.Extensions
         }
 
 
-
-        public static string ToToken(this MobAuthRequest.Result data)
+        public static AuthTokenResult ToAuthTokenResult(this MobAuthRequest.Result data)
         {
-            var res = data.access_token;
+            var res = new AuthTokenResult
+            {
+                IsSuccess = true,
+                Token = data.access_token,
+                ExpiresIn = TimeSpan.FromSeconds(data.expires_in),
+                RefreshToken = data.refresh_token
+            };
+
             return res;
         }
 

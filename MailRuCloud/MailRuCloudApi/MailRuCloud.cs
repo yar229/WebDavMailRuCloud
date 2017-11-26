@@ -15,9 +15,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
@@ -95,8 +93,8 @@ namespace YaR.MailRuCloud.Api
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
-                    .MakeRequestAsync().ConfigureAwait(false);
+                //datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null).MakeRequestAsync().ConfigureAwait(false);
+                datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
@@ -156,12 +154,13 @@ namespace YaR.MailRuCloud.Api
 
         #region == Publish ==========================================================================================================================
         
-        private async Task<string> Unpublish(string publicLink)
+        private async Task<bool> Unpublish(string publicLink)
         {
-            var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
-                .ThrowIf(r => r.status != 200, r => new Exception($"Unpublish error, link = {publicLink}, status = {r.status}"));
+            //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
+            var res = (await  CloudApi.Account.RequestRepo.Unpublish(publicLink))
+                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Unpublish error, link = {publicLink}"));
 
-            return res.body;
+            return res.IsSuccess;
         }
 
         public async Task  Unpublish(File file)
@@ -177,10 +176,11 @@ namespace YaR.MailRuCloud.Api
 
         private async Task<string> Publish(string fullPath)
         {
-            var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
-                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"));
+            //var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
+            var res = (await CloudApi.Account.RequestRepo.Publish(fullPath))
+                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
-            return res.body;
+            return res.Url;
         }
 
         public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
@@ -255,9 +255,9 @@ namespace YaR.MailRuCloud.Api
                 return cloneres.IsSuccess;
             }
 
-            var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath)
-                .MakeRequestAsync();
-            if (copyRes.status != 200) return false;
+            //var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath).MakeRequestAsync();
+            var copyRes = await CloudApi.Account.RequestRepo.Copy(folder.FullPath, destinationPath);
+            if (!copyRes.IsSuccess) return false;
 
             //clone all inner links
             var links = _linkManager.GetChilds(folder.FullPath);
@@ -348,13 +348,13 @@ namespace YaR.MailRuCloud.Api
                     .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                     .Select(async pfile =>
                     {
-                        var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite)
-                            .MakeRequestAsync();
-                        if (copyRes.status != 200) return false;
+                        //var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite).MakeRequestAsync();
+                        var copyRes = await CloudApi.Account.RequestRepo.Copy(pfile.FullPath, destPath, ConflictResolver.Rewrite);
+                        if (!copyRes.IsSuccess) return false;
 
-                        if (doRename || WebDavPath.Name(copyRes.body) != newname)
+                        if (doRename || WebDavPath.Name(copyRes.NewName) != newname)
                         {
-                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.body));
+                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.NewName));
                             var renameRes = await Rename(newFullPath, pfile.Name.Replace(file.Name, newname));
                             if (!renameRes) return false;
                         }
@@ -439,16 +439,16 @@ namespace YaR.MailRuCloud.Api
             //rename item
             if (link == null)
             {
-                var data = await new RenameRequest(CloudApi, fullPath, newName)
-                    .MakeRequestAsync();
+                //var data = await new RenameRequest(CloudApi, fullPath, newName).MakeRequestAsync();
+                var data = await CloudApi.Account.RequestRepo.Rename(fullPath, newName);
 
-                if (data.status == 200)
+                if (data.IsSuccess)
                 {
                     _linkManager.ProcessRename(fullPath, newName);
                     _itemCache.Invalidate(WebDavPath.Parent(fullPath));
                 }
 
-                return data.status == 200;
+                return data.IsSuccess;
             }
 
             //rename link
@@ -499,8 +499,9 @@ namespace YaR.MailRuCloud.Api
                 return remapped;
             }
 
-            var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
-            if (!string.IsNullOrEmpty(res)) return false;
+            //var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
+            var res = await Move(folder, destinationPath);
+            if (!res) return false;
 
             //clone all inner links
             var links = _linkManager.GetChilds(folder.FullPath).ToList();
@@ -548,10 +549,10 @@ namespace YaR.MailRuCloud.Api
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
-                .Select(async pfile => await MoveOrCopy(pfile.FullPath, destinationPath, true));
+                .Select(async pfile => await Move(pfile, destinationPath));
 
             bool res = (await Task.WhenAll(qry))
-                .All(r => !string.IsNullOrEmpty(r));
+                .All(r => r);
             return res;
         }
 
@@ -643,8 +644,9 @@ namespace YaR.MailRuCloud.Api
         /// <returns>Returns Total/Free/Used size.</returns>
         public async Task<DiskUsage> GetDiskUsage()
         {
-            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
-            return data.ToDiskUsage();
+            //var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
+            var data = await CloudApi.Account.RequestRepo.AccountInfo();
+            return data.DiskUsage;
         }
 
         /// <summary>
@@ -684,12 +686,12 @@ namespace YaR.MailRuCloud.Api
             return res.IsSuccess;
         }
 
-        public async Task<PathResult> CloneItem(string path, string url)
+        public async Task<CloneItemResult> CloneItem(string path, string url)
         {
-            var data = await new CloneItemRequest(CloudApi, url, path)
-                .MakeRequestAsync();
+            //var data = await new CloneItemRequest(CloudApi, url, path).MakeRequestAsync();
+            //var res = data.ToPathResult();
+            var res = await CloudApi.Account.RequestRepo.CloneItem(url, path);
 
-            var res = data.ToPathResult();
             if (res.IsSuccess) _itemCache.Invalidate(path);
             return res;
         }
@@ -794,21 +796,21 @@ namespace YaR.MailRuCloud.Api
         /// <param name="destinationPath">Destination path to cope or move.</param>
         /// <param name="move">Move or copy operation.</param>
         /// <returns>New created file name.</returns>
-        public async Task<string> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
-        {
-            //TODO: refact
-            if (!move)
-            {
-                var entry = await GetItem(sourceFullPath);
-                await Copy(entry, destinationPath);
-            }
+        //public async Task<bool> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
+        //{
+        //    //TODO: refact
+        //    if (!move)
+        //    {
+        //        var entry = await GetItem(sourceFullPath);
+        //        var res = await Copy(entry, destinationPath);
+        //    }
 
-            var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
-                .MakeRequestAsync();
+        //    var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
+        //        .MakeRequestAsync();
 
-            if (data.status == 200) _itemCache.Invalidate(WebDavPath.Parent(sourceFullPath), destinationPath);
-            return data.ToString();
-        }
+        //    if (data.status == 200) _itemCache.Invalidate(WebDavPath.Parent(sourceFullPath), destinationPath);
+        //    return data.ToString();
+        //}
 
 
 
@@ -833,9 +835,9 @@ namespace YaR.MailRuCloud.Api
                 return true;
             }
 
-            var res = await new RemoveRequest(CloudApi, fullPath)
-                .MakeRequestAsync();
-            if (res.status == 200)
+            //var res = await new RemoveRequest(CloudApi, fullPath) .MakeRequestAsync();
+            var res = await CloudApi.Account.RequestRepo.Remove(fullPath);
+            if (res.IsSuccess)
             {
                 //remove inner links
                 var innerLinks = _linkManager.GetChilds(fullPath);
@@ -843,7 +845,7 @@ namespace YaR.MailRuCloud.Api
 
                 _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             }
-            return res.status == 200;
+            return res.IsSuccess;
         }
 
         #region IDisposable Support
@@ -886,8 +888,8 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            var res = (await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict).MakeRequestAsync())
-                .ToAddFileResult();
+            //var res = (await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict).MakeRequestAsync()) .ToAddFileResult();
+            var res = await CloudApi.Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
 
             return res;
         }
