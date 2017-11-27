@@ -33,7 +33,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return await _webRepo.CreateFolder(path);
+            //return await _webRepo.CreateFolder(path);
+            return await _mobileRepo.CreateFolder(path);
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
