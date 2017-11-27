@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
     /// <summary>
     /// Shard types.

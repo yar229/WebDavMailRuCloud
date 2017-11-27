@@ -11,8 +11,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         private readonly long _size;
         private readonly DateTime _dateTime;
 
-        public MobAddFileRequest(CloudApi cloudApi, string fullPath, byte[] hash, long size, DateTime? dateTime) 
-            : base(cloudApi)
+        public MobAddFileRequest(RequestInit init, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime) 
+            : base(init, metaServer)
         {
             _fullPath = fullPath;
             _hash = hash;
@@ -20,8 +20,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
         }
 
-        public MobAddFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, DateTime? dateTime) 
-            : this(cloudApi, fullPath, hash.HexStringToByteArray(), size, dateTime)
+        public MobAddFileRequest(RequestInit init, string metaServer, string fullPath, string hash, long size, DateTime? dateTime) 
+            : this(init, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime)
         {
         }
 
@@ -57,7 +57,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 Ok = data.OperationResult == OperationResult.Ok,
                 Result = new Result
                 {
-                    OperationResult = data.OperationResult
+                    OperationResult = data.OperationResult,
+                    Path = _fullPath
                 }
             };
 
@@ -69,6 +70,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         public class Result : BaseResponseResult
         {
+            public string Path { get; set; }
         }
     }
 }

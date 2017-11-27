@@ -3,12 +3,85 @@ using System.Collections.Generic;
 using System.Linq;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
     internal static class DtoImportWeb
     {
+        public static UnpublishResult ToUnpublishResult(this UnpublishRequest.Result data)
+        {
+            var res = new UnpublishResult
+            {
+                IsSuccess = data.status == 200
+            };
+            return res;
+        }
+
+        public static RenameResult ToRenameResult(this RenameRequest.Result data)
+        {
+            var res = new RenameResult
+            {
+                IsSuccess = data.status == 200
+            };
+            return res;
+        }
+
+
+        public static RemoveResult ToRemoveResult(this RemoveRequest.Result data)
+        {
+            var res = new RemoveResult
+            {
+                IsSuccess = data.status == 200
+            };
+            return res;
+        }
+
+        public static PublishResult ToPublishResult(this PublishRequest.Result data)
+        {
+            var res = new PublishResult
+            {
+                IsSuccess = data.status == 200,
+                Url = data.body
+            };
+            return res;
+        }
+
+
+        public static CopyResult ToCopyResult(this CopyRequest.Result data)
+        {
+            var res = new CopyResult
+            {
+                IsSuccess = data.status == 200,
+                NewName = data.body
+            };
+            return res;
+        }
+
+
+        public static CloneItemResult ToCloneItemResult(this CloneItemRequest.Result data)
+        {
+            var res = new CloneItemResult
+            {
+                IsSuccess = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
+
+        public static AddFileResult ToAddFileResult(this CreateFileRequest.Result data)
+        {
+            var res = new AddFileResult
+            {
+                Success = data.status == 200,
+                Path = data.body
+            };
+            return res;
+        }
+
+
         public static UploadFileResult ToUploadPathResult(this string data)
         {
             var resp = data.Split(';');
@@ -21,10 +94,9 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
-
-        public static MailRuCloud.PathResult ToPathResult(this StatusResult data)
+        public static CreateFolderResult ToCreateFolderResult(this CreateFolderRequest.Result data)
         {
-            var res = new MailRuCloud.PathResult
+            var res = new CreateFolderResult
             {
                 IsSuccess = data.status == 200,
                 Path = data.body
@@ -32,40 +104,33 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
-        public static MailRuCloud.PathResult ToPathResult(this CreateFolderResult data)
+        public static AccountInfoResult ToAccountInfo(this AccountInfoRequest.Result data)
         {
-            var res = new MailRuCloud.PathResult
+            var res = new AccountInfoResult
             {
-                IsSuccess = data.status == 200,
-                Path = data.body
+                FileSizeLimit = data.body.cloud.file_size_limit,
+
+                DiskUsage = new DiskUsage
+                {
+                    Total = data.body.cloud.space.total * 1024 * 1024,
+                    Used = data.body.cloud.space.used * 1024 * 1024,
+                    OverQuota = data.body.cloud.space.overquota
+                }
             };
+
             return res;
         }
 
-        public static AccountInfo ToAccountInfo(this AccountInfoResult data)
+        public static AuthTokenResult ToAuthTokenResult(this AuthTokenRequest.Result data)
         {
-            var res = new AccountInfo
+            var res = new AuthTokenResult
             {
-                FileSizeLimit = data.body.cloud.file_size_limit
+                IsSuccess = true,
+                Token = data.body.token,
+                ExpiresIn = TimeSpan.FromMinutes(58),
+                RefreshToken = string.Empty
             };
-            return res;
-        }
 
-
-        public static DiskUsage ToDiskUsage(this AccountInfoResult data)
-        {
-            var res = new DiskUsage
-            {
-                Total = data.body.cloud.space.total * 1024 * 1024,
-                Used = data.body.cloud.space.used * 1024 * 1024,
-                OverQuota = data.body.cloud.space.overquota
-            };
-            return res;
-        }
-
-        public static string ToToken(this AuthTokenResult data)
-        {
-            var res = data.body.token;
             return res;
         }
 
@@ -77,7 +142,7 @@ namespace YaR.MailRuCloud.Api.Extensions
         }
 
 
-        public static Dictionary<ShardType, ShardInfo> ToShardInfo(this ShardInfoResult webdata)
+        public static Dictionary<ShardType, ShardInfo> ToShardInfo(this ShardInfoRequest.Result webdata)
         {
             var dict = new Dictionary<ShardType, ShardInfo>
             {
@@ -185,13 +250,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             return groupedFile;
         }
 
-        private static Folder ToFolder(this FolderInfoProps item)
+        private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item)
         {
             var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : item.weblink);
             return folder;
         }
 
-        private static File ToFile(this FolderInfoProps item, string nameReplacement = null)
+        private static File ToFile(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string nameReplacement = null)
         {
             try
             {

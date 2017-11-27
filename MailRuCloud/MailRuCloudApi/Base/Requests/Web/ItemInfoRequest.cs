@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         private readonly int _offset;
         private readonly int _limit;
 
-        public ItemInfoRequest(CloudApi cloudApi, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) : base(cloudApi)
+        public ItemInfoRequest(RequestInit init, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) : base(init)
         {
             _path = path;
             _isWebLink = isWebLink;
@@ -23,8 +23,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             get
             {
                 var uri = _isWebLink
-                    ? $"/api/v2/file?token={CloudApi.Account.AuthToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
-                    : $"/api/v2/file?token={CloudApi.Account.AuthToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
+                    ? $"/api/v2/file?token={Init.Token}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
+                    : $"/api/v2/file?token={Init.Token}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
                 return uri;
             }
         }

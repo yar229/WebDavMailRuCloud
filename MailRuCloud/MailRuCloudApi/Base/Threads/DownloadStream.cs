@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
 {
@@ -123,20 +124,20 @@ namespace YaR.MailRuCloud.Api.Base.Threads
         private ShardInfo GetShard(File file)
         {
             var res = string.IsNullOrEmpty(file.PublicLink)
-                ? _cloud.Account.GetShardInfo(ShardType.Get).Result
-                : _cloud.Account.GetShardInfo(ShardType.WeblinkGet).Result;
+                ? _cloud.Account.RequestRepo.GetShardInfo(ShardType.Get).Result
+                : _cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkGet).Result;
             return res;
         }
         private HttpWebRequest CreateRequest(long instart, long inend, File file, bool doBanCurrentShard)
         {
             if (doBanCurrentShard)
-                _cloud.Account.BanShardInfo(_shard);
+                _cloud.Account.RequestRepo.BanShardInfo(_shard);
 
             _shard = GetShard(file);
 
             string downloadkey = string.Empty;
             if (_shard.Type == ShardType.WeblinkGet)
-                downloadkey = _cloud.Account.DownloadToken.Value;
+                downloadkey = _cloud.Account.RequestRepo.DownloadToken;
 
             string url = _shard.Type == ShardType.Get
                 ? $"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}"

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class PublishRequest : BaseRequestJson<PublishResult>
+    class PublishRequest : BaseRequestJson<PublishRequest.Result>
     {
         private readonly string _fullPath;
 
-        public PublishRequest(CloudApi cloudApi, string fullPath) : base(cloudApi)
+        public PublishRequest(RequestInit init, string fullPath) : base(init)
         {
             _fullPath = fullPath;
         }
@@ -18,8 +17,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             var data = string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}", Uri.EscapeDataString(_fullPath),
-                2, CloudApi.Account.AuthToken, CloudApi.Account.Credentials.Login);
+                2, Init.Token, Init.Login);
             return Encoding.UTF8.GetBytes(data);
+        }
+
+        public class Result
+        {
+            public string email { get; set; }
+            public string body { get; set; }
+            public long time { get; set; }
+            public int status { get; set; }
         }
     }
 }

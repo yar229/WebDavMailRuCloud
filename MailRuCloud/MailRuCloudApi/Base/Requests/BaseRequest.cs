@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -7,13 +8,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     public abstract class BaseRequest<TConvert, T> where T : class
     {
+        protected readonly RequestInit Init;
+
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));
 
-        protected readonly CloudApi CloudApi;
-
-        protected BaseRequest(CloudApi cloudApi)
+        protected BaseRequest(RequestInit init)
         {
-            CloudApi = cloudApi;
+            Init = init;
         }
 
         protected abstract string RelationalUri { get; }
@@ -29,8 +30,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             //var udriz = new Uri(new Uri(domain), RelationalUri, true);
 
             var request = (HttpWebRequest)WebRequest.Create(uriz);
-            request.Proxy = CloudApi.Account.Proxy;
-            request.CookieContainer = CloudApi.Account.Cookies;
+            request.Proxy = Init.Proxy;
+            request.CookieContainer = Init.Cookies;
             request.Method = "GET";
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
@@ -47,6 +48,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         public async Task<T> MakeRequestAsync()
         {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+
             var httprequest = CreateRequest();
 
             var content = CreateHttpContent();
@@ -56,33 +60,45 @@ namespace YaR.MailRuCloud.Api.Base.Requests
                 var stream = httprequest.GetRequestStream();
                 stream.Write(content, 0, content.Length);
             }
-            Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri}");
-
-            using (var response = (HttpWebResponse)await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
+            try
             {
-                if ((int)response.StatusCode >= 500)
-                    throw new RequestException("Server fault") {StatusCode = response.StatusCode}; // Let's throw exception. It's server fault
-
-                RequestResponse<T> result;
-                using (var responseStream = response.GetResponseStream())
+                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
                 {
-                    result = DeserializeMessage(Transport(responseStream));
-                }
+                    if ((int) response.StatusCode >= 500)
+                        throw new RequestException("Server fault")
+                        {
+                            StatusCode = response.StatusCode
+                        }; // Let's throw exception. It's server fault
 
-                if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
-                {
-                    var exceptionMessage = $"Request failed (status code {(int)response.StatusCode}): {result.Description}";
-                    throw new RequestException(exceptionMessage)
+                    RequestResponse<T> result;
+                    using (var responseStream = response.GetResponseStream())
                     {
-                        StatusCode = response.StatusCode,
-                        ResponseBody = string.Empty, //responseText,
-                        Description = result.Description,
-                        ErrorCode = result.ErrorCode
-                    };
+                        result = DeserializeMessage(Transport(responseStream));
+                    }
+
+                    if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
+                    {
+                        var exceptionMessage = $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
+                        throw new RequestException(exceptionMessage)
+                        {
+                            StatusCode = response.StatusCode,
+                            ResponseBody = string.Empty, //responseText,
+                            Description = result.Description,
+                            ErrorCode = result.ErrorCode
+                        };
+                    }
+                    var retVal = result.Result;
+
+                    return retVal;
                 }
-                var retVal = result.Result;
-                return retVal;
             }
+            finally
+            {
+                watch.Stop();
+                Logger.Debug($"HTTP:{httprequest.Method}:{httprequest.RequestUri.AbsoluteUri} ({watch.Elapsed.Milliseconds} ms)");
+            }
+
+
         }
 
         protected abstract TConvert Transport(Stream stream);

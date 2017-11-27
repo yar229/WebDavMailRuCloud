@@ -6,7 +6,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {
-        public DownloadTokenRequest(CloudApi cloudApi) : base(cloudApi)
+        public DownloadTokenRequest(RequestInit init) : base(init)
         {
         }
 
@@ -14,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         {
             get
             {
-                var uri = $"/api/v2/tokens/download?token={CloudApi.Account.AuthToken}";
+                var uri = $"/api/v2/tokens/download?token={Init.Token}";
                 return uri;
             }
         }
@@ -26,7 +26,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
     {
         private readonly string _url;
 
-        public DownloadTokenHtmlRequest(CloudApi cloudApi, string url) : base(cloudApi)
+        public DownloadTokenHtmlRequest(RequestInit init, string url) : base(init)
         {
             _url = url;
         }

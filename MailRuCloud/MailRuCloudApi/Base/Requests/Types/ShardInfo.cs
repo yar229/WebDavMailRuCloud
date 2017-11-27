@@ -1,13 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <created file="ShardInfo.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using YaR.MailRuCloud.Api.Base;
-
-namespace YaR.MailRuCloud.Api
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
     /// <summary>
     /// Servers info class.

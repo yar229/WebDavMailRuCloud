@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Links.Dto;
 using File = YaR.MailRuCloud.Api.Base.File;
 
@@ -258,7 +257,8 @@ namespace YaR.MailRuCloud.Api.Links
         {
             try
             {
-                var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
+                //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
+                var infores = await _cloud.CloudApi.Account.RequestRepo.ItemInfo(link.Href, true);
                 link.ItemType = infores.body.kind == "file"
                     ? MailRuCloud.ItemType.File
                     : MailRuCloud.ItemType.Folder;

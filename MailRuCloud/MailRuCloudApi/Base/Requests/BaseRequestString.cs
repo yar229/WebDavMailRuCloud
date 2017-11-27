@@ -2,7 +2,7 @@
 {
     public abstract class BaseRequestString : BaseRequestString<string>
     {
-        protected BaseRequestString(CloudApi cloudApi) : base(cloudApi)
+        protected BaseRequestString(RequestInit init) : base(init)
         {
         }
 

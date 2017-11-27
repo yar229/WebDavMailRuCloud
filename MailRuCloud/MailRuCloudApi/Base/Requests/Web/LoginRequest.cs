@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
     {
         private readonly IBasicCredentials _credentials;
 
-        public LoginRequest(CloudApi cloudApi, IBasicCredentials credentials) : base(cloudApi)
+        public LoginRequest(RequestInit init, IBasicCredentials credentials) : base(init)
         {
             _credentials = credentials;
         }

@@ -1,11 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <created file="DiskUsage.cs">
-//     Mail.ru cloud client created in 2017.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-namespace YaR.MailRuCloud.Api.Base
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
     /// <summary>
     /// Get cloud disk usage for current account.

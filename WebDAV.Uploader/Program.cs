@@ -42,7 +42,7 @@ namespace WebDAV.Uploader
                         var hasher = new MailRuSha1Hash();
                         hasher.Append(source);
                         var hash = hasher.HashString;
-                        if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.status == 200)
+                        if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.Success)
                         {
                             Console.WriteLine("Added by hash");
                         }

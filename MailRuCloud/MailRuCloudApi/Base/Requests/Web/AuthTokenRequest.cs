@@ -1,10 +1,8 @@
-﻿using YaR.MailRuCloud.Api.Base.Requests.Types;
-
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-    class AuthTokenRequest : BaseRequestJson<AuthTokenResult>
+    class AuthTokenRequest : BaseRequestJson<AuthTokenRequest.Result>
     {
-        public AuthTokenRequest(CloudApi cloudApi) : base(cloudApi)
+        public AuthTokenRequest(RequestInit init) : base(init)
         {
         }
 
@@ -16,5 +14,20 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
                 return uri;
             }
         }
+
+        public class Result
+        {
+            public string email { get; set; }
+            public AuthTokenResultBody body { get; set; }
+            public long time { get; set; }
+            public int status { get; set; }
+
+            public class AuthTokenResultBody
+            {
+                public string token { get; set; }
+            }
+        }
+
+
     }
 }

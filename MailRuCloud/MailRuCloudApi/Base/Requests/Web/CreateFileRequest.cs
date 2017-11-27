@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
-   class CreateFileRequest : BaseRequestJson<StatusResult>
+   class CreateFileRequest : BaseRequestJson<CreateFileRequest.Result>
     {
         private readonly string _fullPath;
         private readonly string _hash;
         private readonly long _size;
         private readonly ConflictResolver _conflictResolver;
 
-        public CreateFileRequest(CloudApi cloudApi, string fullPath, string hash, long size, ConflictResolver? conflictResolver) : base(cloudApi)
+        public CreateFileRequest(RequestInit init, string fullPath, string hash, long size, ConflictResolver? conflictResolver) 
+            : base(init)
         {
             _fullPath = fullPath;
             _hash = hash;
@@ -24,9 +24,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             string filePart = $"&hash={_hash}&size={_size}";
-            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={CloudApi.Account.AuthToken}" + filePart;
+            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={Init.Token}" + filePart;
 
             return Encoding.UTF8.GetBytes(data);
+        }
+
+        internal class Result
+        {
+            public string email { get; set; }
+            public string body { get; set; }
+            public long time { get; set; }
+            public int status { get; set; }
         }
     }
 }

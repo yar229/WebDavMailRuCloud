@@ -1,8 +1,8 @@
 ﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class RemoveResult
+    public class CloneItemResult
     {
         public bool IsSuccess { get; set; }
-
+        public string Path{ get; set; }
     }
 }

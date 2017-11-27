@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
@@ -34,7 +34,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
-                    var shard = _cloud.CloudApi.Account.GetShardInfo(ShardType.Upload).Result;
+                    var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
                     var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
 
                     var config = new HttpClientHandler
@@ -135,7 +135,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
-                    .ThrowIf(r => r.status != 200, r => new Exception("Cannot add file, status " + r.status));
+                    .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
             }
         }
 

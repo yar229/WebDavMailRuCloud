@@ -4,7 +4,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class EnsureSdcCookieRequest : BaseRequestString
     {
-        public EnsureSdcCookieRequest(CloudApi cloudApi) : base(cloudApi)
+        public EnsureSdcCookieRequest(RequestInit init) : base(init)
         {
         }
 
