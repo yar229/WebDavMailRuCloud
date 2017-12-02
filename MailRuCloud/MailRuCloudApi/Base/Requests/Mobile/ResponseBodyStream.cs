@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
@@ -44,7 +45,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             return bArr;
         }
 
-        public ulong ReadBigNumber()
+        public ulong ReadULong()
         {
             int i = 0;
             byte[] buffer = new byte[8];
@@ -72,6 +73,36 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             return Convert.ToUInt64(buffer);
         }
 
+        public long ReadPu32()
+        {
+            long j = 0;
+            int shift = 0;
+            int b;
+            do
+            {
+                b = ReadInt();
+                j |= (long) (b & 127) << shift;
+                shift = (byte) (shift + 7);
+            } while ((b & 128) != 0);
+
+            return j;
+        }
+
+
+        public byte[] ReadBytesByLength()
+        {
+            return ReadNBytes((int)ReadPu32());
+        }
+
+        public string ReadNBytesAsString(int bytesCount)
+        {
+            var data = ReadNBytes(bytesCount);
+            string res = Encoding.UTF8.GetString(data);
+            return res;
+        }
+
+
+
         public byte[] ReadAllBytes()
         {
             const int bufferSize = 4096;
@@ -84,6 +115,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 return ms.ToArray();
             }
 
+        }
+
+        public TreeId ReadTreeId()
+        {
+            return TreeId.FromStream(this);
+        }
+
+        public DateTime ReadDate()
+        {
+            return ReadULong().ToDateTime();
         }
     }
 }
