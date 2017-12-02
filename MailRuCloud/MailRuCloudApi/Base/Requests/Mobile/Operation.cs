@@ -3,6 +3,7 @@
     internal enum Operation : byte
     {
         AddFile = 103,
-        CreateFolder = 106
+        CreateFolder = 106,
+        ItemInfo = 154
     }
 }

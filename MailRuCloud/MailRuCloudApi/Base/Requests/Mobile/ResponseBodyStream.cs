@@ -28,5 +28,48 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         }
 
         public OperationResult OperationResult { get; }
+
+        public int ReadIntSpl()
+        {
+            return (ReadInt() & 255) | ((ReadInt() & 255) << 8);
+        }
+
+        public byte[] ReadNBytes(int count)
+        {
+            byte[] bArr = new byte[count];
+            for (int i = 0; i < count; i++)
+            {
+                bArr[i] = (byte)ReadInt();
+            }
+            return bArr;
+        }
+
+        public ulong ReadBigNumber()
+        {
+            int i = 0;
+            byte[] buffer = new byte[8];
+            int b;
+            do
+            {
+                b = ReadInt();
+                int lo = b & 127;
+                int rem = 7 - (i / 8);
+                int div = i % 8;
+                buffer[rem] = (byte) (buffer[rem] | ((lo << div) & 255));
+                lo >>= 8 - div;
+                if (lo == 0 || rem != 0)
+                {
+                    if (lo != 0 && div > 0)
+                    {
+                        rem--;
+                        buffer[rem] = (byte)(lo | buffer[rem]);
+                    }
+                    i = (byte) (i + 7);
+                }
+                else
+                    throw new Exception("Pu64 error");
+            } while ((b & 128) != 0);
+            return Convert.ToUInt64(buffer);
+        }
     }
 }
