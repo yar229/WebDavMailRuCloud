@@ -64,7 +64,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            return await _webRepo.FolderInfo(path, isWebLink, offset, limit);
+            //return await _webRepo.FolderInfo(path, isWebLink, offset, limit);
+            return await _mobileRepo.FolderInfo(path, isWebLink, offset, limit);
+
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)

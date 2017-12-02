@@ -4,6 +4,7 @@
     {
         AddFile = 103,
         CreateFolder = 106,
+        FolderList = 117,
         ItemInfo = 154
     }
 }

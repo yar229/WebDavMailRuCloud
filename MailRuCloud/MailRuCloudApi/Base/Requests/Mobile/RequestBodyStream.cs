@@ -8,6 +8,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
     {
         private readonly MemoryStream _stream = new MemoryStream();
 
+
+
+
         public void WritePu16(int value)
         {
             if (value < 0 || (long)value > 65535)
@@ -60,7 +63,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             _stream.Write(bytes, 0, bytes.Length);
         }
 
-        public byte[] GetBytes()
+        public void WriteWithLength(byte[] buffer)
+        {
+            WritePu32(buffer.Length);
+            Write(buffer);
+        }
+
+
+    public byte[] GetBytes()
         {
             _stream.Seek(0, SeekOrigin.Begin);
             return _stream.ToArray();

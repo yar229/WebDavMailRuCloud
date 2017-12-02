@@ -87,9 +87,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        public Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            throw new NotImplementedException();
+            var z = await new Mobile.ListRequest(_init, _metaServer.Value.Url, path)
+                .MakeRequestAsync();
+
+            return null;
         }
 
         public Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
