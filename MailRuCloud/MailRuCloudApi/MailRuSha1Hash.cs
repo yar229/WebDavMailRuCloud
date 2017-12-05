@@ -5,7 +5,7 @@ using System.Text;
 
 namespace YaR.MailRuCloud.Api
 {
-    public class MailRuSha1Hash
+    public class MailRuSha1Hash : IDisposable
     {
         public MailRuSha1Hash()
         {
@@ -83,6 +83,11 @@ namespace YaR.MailRuCloud.Api
         {
             var finalBuffer = Encoding.UTF8.GetBytes(_length.ToString());
             _sha1.TransformBlock(finalBuffer, 0, finalBuffer.Length, null, 0);
+        }
+
+        public void Dispose()
+        {
+            _sha1?.Dispose();
         }
     }
 }

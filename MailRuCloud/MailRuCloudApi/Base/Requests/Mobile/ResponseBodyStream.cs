@@ -5,7 +5,7 @@ using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class ResponseBodyStream
+    class ResponseBodyStream : IDisposable
     {
         private readonly BinaryReader _stream;
 
@@ -28,5 +28,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         }
 
         public OperationResult OperationResult { get; }
+
+        public void Dispose()
+        {
+            _stream?.Dispose();
+        }
     }
 }

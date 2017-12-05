@@ -93,7 +93,6 @@ namespace YaR.MailRuCloud.Api
             FolderInfoResult datares;
             try
             {
-                //datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null).MakeRequestAsync().ConfigureAwait(false);
                 datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
@@ -903,25 +902,20 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> SetFileDateTime(File file, DateTime dateTime)
         {
-            //TODO: refact
-            //var utc = dateTime.ToUniversalTime();
             if (file.LastWriteTimeUtc == dateTime)
                 return true;
 
             //DANGER! but no way, we need to delete file and add it back with required datetime
-            var removed = await Remove(file, false, false);
-            if (removed)
+            var res = await Remove(file, false, false);
+            if (res)
             {
-                //var added = await new MobAddFileRequest(CloudApi, file.FullPath, file.Hash, file.Size, dateTime)
-                //    .MakeRequestAsync();
-                var added = CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
+                var added = await CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
+                res = added.Success;
+                if (res) file.LastWriteTimeUtc = dateTime;
             }
-
-            file.LastWriteTimeUtc = dateTime;
-
             _itemCache.Invalidate(file.Path, file.FullPath);
 
-            return true;
+            return res;
         }
 
         /// <summary>

@@ -114,5 +114,13 @@ namespace YaR.MailRuCloud.Api.XTSSharp
         {
             throw new NotSupportedException();
         }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposing) return;
+
+            _decryptor.Dispose();
+        }
     }
 }

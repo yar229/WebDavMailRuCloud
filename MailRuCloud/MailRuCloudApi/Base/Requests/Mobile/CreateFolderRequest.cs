@@ -31,7 +31,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             {
                 return new RequestResponse<Result>
                 {
-                    Ok = data.OperationResult == OperationResult.Ok,
+                    Ok = true,
                     Result = new Result
                     {
                         OperationResult = data.OperationResult,

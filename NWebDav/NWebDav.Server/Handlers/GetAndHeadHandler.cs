@@ -103,7 +103,7 @@ namespace NWebDav.Server.Handlers
                             var length = stream.Length;
 
                             // Check if an 'If-Range' was specified
-                            if (range?.If != null)
+                            if (range?.If != null && propertyManager != null)
                             {
                                 var lastModifiedText = (string)await propertyManager.GetPropertyAsync(httpContext, entry, DavGetLastModified<IStoreItem>.PropertyName, true).ConfigureAwait(false);
                                 var lastModified = DateTime.Parse(lastModifiedText, CultureInfo.InvariantCulture);
