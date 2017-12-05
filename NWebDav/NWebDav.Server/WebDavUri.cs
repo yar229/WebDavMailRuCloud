@@ -55,7 +55,7 @@ namespace NWebDav.Server
                 var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
                 requestedPath = "/" + requestedPath.TrimEnd('/');
 
-                if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+                //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
                 requestedPath = Uri.UnescapeDataString(requestedPath);
 
@@ -73,7 +73,7 @@ namespace NWebDav.Server
                 var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
                 requestedPath = "/" + requestedPath.TrimEnd('/');
 
-                if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+                //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
 
                 return requestedPath;
             }

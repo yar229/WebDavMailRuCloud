@@ -116,11 +116,14 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _ringBuffer.Flush();
 
-            _requestTask.GetAwaiter().GetResult();
-
+            try
             {
+                _ringBuffer.Flush();
+
+                _requestTask.GetAwaiter().GetResult();
+
+            
                 if (_responseMessage.StatusCode != HttpStatusCode.OK)
                     throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
 
@@ -136,6 +139,11 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
                     .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
+            }
+            finally 
+            {
+                _ringBuffer?.Dispose();
+                _sha1?.Dispose();
             }
         }
 

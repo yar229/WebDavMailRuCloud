@@ -81,25 +81,33 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _ringBuffer.Flush();
-
-            using (var response = _requestTask.Result)
+            try
             {
-                if (response.StatusCode != HttpStatusCode.OK)
-                    throw new Exception("Cannot upload file, status " + response.StatusCode);
+                _ringBuffer.Flush();
 
-                var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
-                    .ToUploadPathResult();
+                using (var response = _requestTask.Result)
+                {
+                    if (response.StatusCode != HttpStatusCode.OK)
+                        throw new Exception("Cannot upload file, status " + response.StatusCode);
 
-                _file.OriginalSize = ures.Size;
-                _file.Hash = ures.Hash;
+                    var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
+                        .ToUploadPathResult();
 
-                if (CheckHashes && _sha1.HashString != ures.Hash)
-                    throw new HashMatchException(_sha1.HashString, ures.Hash);
+                    _file.OriginalSize = ures.Size;
+                    _file.Hash = ures.Hash;
 
-                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                    .Result
-                    .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
+                    if (CheckHashes && _sha1.HashString != ures.Hash)
+                        throw new HashMatchException(_sha1.HashString, ures.Hash);
+
+                    _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                        .Result
+                        .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
+                }
+            }
+            finally 
+            {
+                _ringBuffer?.Dispose();
+                _sha1?.Dispose();
             }
         }
 

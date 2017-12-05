@@ -244,7 +244,8 @@ namespace YaR.MailRuCloud.Api.Extensions
                                 ? it.ToFile(nameReplacement)
                                 : it.ToFile())
                 .ToList();
-            var groupedFile = z.ToGroupedFiles()
+            var groupedFile = z?
+                .ToGroupedFiles()
                 .First(it => it.Name == (string.IsNullOrEmpty(nameReplacement) ? filename : nameReplacement));
 
             return groupedFile;

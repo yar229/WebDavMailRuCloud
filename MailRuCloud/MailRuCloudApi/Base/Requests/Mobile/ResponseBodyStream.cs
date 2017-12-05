@@ -6,7 +6,7 @@ using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class ResponseBodyStream
+    class ResponseBodyStream : IDisposable
     {
         private readonly BinaryReader _stream;
 
@@ -125,6 +125,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         public DateTime ReadDate()
         {
             return ReadULong().ToDateTime();
+        }
+
+        public void Dispose()
+        {
+            _stream?.Dispose();
         }
     }
 }
