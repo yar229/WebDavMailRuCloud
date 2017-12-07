@@ -80,6 +80,9 @@ namespace YaR.MailRuCloud.Api.Links
             {
                 lock (_lockContainer)
                 {
+
+                    throw new Exception("temp");
+
                     string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
                     var file = (File)_cloud.GetItem(filepath, MailRuCloud.ItemType.File, false).Result;
 

@@ -33,6 +33,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             return bytes;
         }
 
+        public static string ToHexString(this byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex;
+            //return hex.Replace("-", "");
+        }
+
         public static string ReadAsText(this WebResponse resp, CancellationTokenSource cancelToken)
         {
             using (var stream = new MemoryStream())

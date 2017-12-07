@@ -13,14 +13,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             _fullPath = fullPath;
         }
 
-        public Option Options { get; set; } = Option.TotalSpace | Option.UsedSpace;
+
+        public long Depth { get; set; } = 1;
+        public Option Options { get; set; } = Option.Unknown128 | Option.Unknown256 | Option.Unknown32 | Option.TotalSpace | Option.UsedSpace;
     
         [Flags]
         internal enum Option : Int32
         {
             TotalSpace = 1,
-            Unknown2 = 2,
-            Unknown4 = 4,
+            Delete = 2,
+            Fingerprint = 4,
             Unknown8 = 8,
             Unknown16 = 16,
             Unknown32 = 32,
@@ -36,7 +38,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             {
                 stream.WritePu16((byte)Operation.FolderList);
                 stream.WriteString(_fullPath);
-                stream.WritePu32(LongAlways1Unknown);
+                stream.WritePu32(Depth);
 
                 stream.WritePu32((int)Options);
 
@@ -124,7 +126,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                     ulong unk1 = data.ReadULong();  // dunno
                     ulong unk2 = data.ReadULong();  // dunno
 
-                    if ((Options & Option.Unknown2) != 0)
+                    if ((Options & Option.Delete) != 0)
                     {
                         long unk3 = data.ReadPu32();  // dunno
                         long unk4 = data.ReadPu32();  // dunno
@@ -149,8 +151,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             return item;
         }
 
-        private const long LongAlways1Unknown = 1;
-        
 
         public class Result : RevisionResponseResult
         {

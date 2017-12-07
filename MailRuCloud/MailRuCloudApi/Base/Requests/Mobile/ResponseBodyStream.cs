@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using YaR.MailRuCloud.Api.Extensions;
@@ -8,11 +8,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
     class ResponseBodyStream : IDisposable
     {
-        private readonly BinaryReader _stream;
+        private readonly Stream _stream;
 
         public ResponseBodyStream(Stream stream)
         {
-            _stream = new BinaryReader(stream);
+            _stream = stream;
             OperationResult = (OperationResult)ReadShort();
         }
         public short ReadShort()
@@ -22,7 +22,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         public int ReadInt()
         {
-            int b = _stream.ReadInt16();
+            int b = _stream.ReadByte();
+
+            Debug.Write($"{b:X} ");
+
             if (b == -1)
                 throw new Exception("End of stream");
             return b;
@@ -32,21 +35,30 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         public int ReadIntSpl()
         {
-            return (ReadInt() & 255) | ((ReadInt() & 255) << 8);
+            Debug.Write($"{nameof(ReadIntSpl)}() = ");
+
+            int res = (ReadInt() & 255) | ((ReadInt() & 255) << 8);
+
+            Debug.WriteLine($" = {res}");
+            return res;
         }
 
         public byte[] ReadNBytes(int count)
         {
-            byte[] bArr = new byte[count];
+            Debug.Write($"{nameof(ReadNBytes)}({count}) = ");
+            byte[] bytes = new byte[count];
             for (int i = 0; i < count; i++)
             {
-                bArr[i] = (byte)ReadInt();
+                bytes[i] = (byte)ReadInt();
             }
-            return bArr;
+            Debug.WriteLine("");
+
+            return bytes;
         }
 
         public ulong ReadULong()
         {
+            Debug.Write($"{nameof(ReadULong)}() = ");
             int i = 0;
             byte[] buffer = new byte[8];
             int b;
@@ -70,11 +82,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 else
                     throw new Exception("Pu64 error");
             } while ((b & 128) != 0);
-            return Convert.ToUInt64(buffer);
+
+            UInt64 res = BitConverter.ToUInt64(buffer, 0);
+            Debug.WriteLine($" = {res}");
+            return res;
         }
 
         public long ReadPu32()
         {
+            Debug.Write($"(");
             long j = 0;
             int shift = 0;
             int b;
@@ -85,19 +101,22 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 shift = (byte) (shift + 7);
             } while ((b & 128) != 0);
 
+            Debug.Write($" = {j}) ");
             return j;
         }
 
 
         public byte[] ReadBytesByLength()
         {
-            return ReadNBytes((int)ReadPu32());
+            var len = ReadPu32();
+            return ReadNBytes((int)len);
         }
 
         public string ReadNBytesAsString(int bytesCount)
         {
             var data = ReadNBytes(bytesCount);
             string res = Encoding.UTF8.GetString(data);
+            Debug.WriteLine($"string = {res}");
             return res;
         }
 
