@@ -89,7 +89,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var z = await new Mobile.ListRequest(_init, _metaServer.Value.Url, path)
+            var z = await new ListRequest(_init, _metaServer.Value.Url, path)
                 .MakeRequestAsync();
 
             return null;

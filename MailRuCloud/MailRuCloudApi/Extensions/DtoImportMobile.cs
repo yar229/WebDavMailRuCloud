@@ -1,5 +1,6 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Extensions

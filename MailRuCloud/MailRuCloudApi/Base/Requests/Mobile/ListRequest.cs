@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    class ListRequest : BaseRequestMobile<ListRequest.Result>
+    internal class ListRequest : BaseRequestMobile<ListRequest.Result>
     {
         private readonly string _fullPath;
 
@@ -13,19 +13,34 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             _fullPath = fullPath;
         }
 
-
+        /// <summary>
+        /// Folder list depth
+        /// </summary>
         public long Depth { get; set; } = 1;
-        public Option Options { get; set; } = Option.Unknown128 | Option.Unknown256 | Option.Unknown32 | Option.TotalSpace | Option.UsedSpace;
+
+        public Option Options { get; set; } = Option.Unknown128 | Option.Unknown256 | Option.FolderSize | Option.TotalSpace | Option.UsedSpace;
     
         [Flags]
-        internal enum Option : Int32
+        internal enum Option
         {
+            /// <summary>
+            /// Request total cloud space
+            /// </summary>
             TotalSpace = 1,
+            /// <summary>
+            /// Dunno, something when delete
+            /// </summary>
             Delete = 2,
             Fingerprint = 4,
             Unknown8 = 8,
             Unknown16 = 16,
-            Unknown32 = 32,
+            /// <summary>
+            /// Request folders size
+            /// </summary>
+            FolderSize = 32,
+            /// <summary>
+            /// Request used cloud space
+            /// </summary>
             UsedSpace = 64,
             Unknown128 = 128,
             Unknown256 = 256
@@ -67,7 +82,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
             res.FingerPrint = data.ReadBytesByLength();
 
-            res.Item = GetItem01(data, _fullPath);
+            res.Item = Deserialize(data, _fullPath);
             
 
             return new RequestResponse<Result>
@@ -77,41 +92,38 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             };
         }
 
-        private FsItem GetItem01(ResponseBodyStream data, string fullPath)
+        private FsItem Deserialize(ResponseBodyStream data, string fullPath)
         {
-            var fakeFolder = new FsFolder(fullPath, null, CloudFolderType.Generic, null);
+            var fakeFolder = new FsFolder(fullPath, null, CloudFolderType.Generic, null, null);
             FsFolder currentFolder = fakeFolder;
             FsFolder lastFolder = null;
 
             int itemStart = data.ReadShort();
             while (itemStart != 0)
             {
-                //FsFolder tmpFolder;
                 switch (itemStart)
                 {
                     case 1:
                         break;
+
                     case 2:
                         if (lastFolder != null)
                         {
                             currentFolder = lastFolder;
                             itemStart = data.ReadShort();
                             continue;
-                            //break;
                         }
                         else
                             throw new Exception("lastFolder = null");
+
                     case 3:
                         if (currentFolder == fakeFolder)
                         {
-                            //tmpFolder = currentFolder;
                             itemStart = data.ReadShort();
                             continue;
-                            //break;
                         }
                         else if (currentFolder.Parent != null)
                         {
-                            //tmpFolder = currentFolder.Parent;
                             currentFolder = currentFolder.Parent;
                             if (currentFolder == null)
                                 throw new Exception("No parent folder");
@@ -120,6 +132,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                         }
                         else
                             throw new Exception("No parent folder");
+
                     case 15:
                         var skip = data.ReadPu32();
                         for (int i = 0; i < skip; i++)
@@ -135,13 +148,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 currentFolder.Items.Add(item);
 
                 if (item is FsFolder fsFolder) lastFolder = fsFolder;
-                //else parentFolder = null;
 
-                
-                //tmpFolder = currentFolder;
-                //currentFolder = tmpFolder;
-
-                //folder.Items.Add(item);
                 itemStart = data.ReadShort();
             }
 
@@ -154,40 +161,38 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         private FsItem GetItem(ResponseBodyStream data, FsFolder folder)
         {
-            FsItem item = null;
+            FsItem item;
             int head = data.ReadIntSpl();
-            byte[] nodeId = null;
             if ((head & 4096) != 0)
             {
-                nodeId = data.ReadNBytes(16);
+                byte[] nodeId = data.ReadNBytes(16);
             }
             string name = data.ReadNBytesAsString(data.ReadShort());
 
             data.ReadULong(); // dunno
 
-            long? l;
-            long? l2;
+            ulong? fsize;
+            TreeId treeId;
 
             int opresult = head & 3;
             switch (opresult)
             {
                 case 0: // folder?
-                    var treeId = data.ReadTreeId();
-                    ulong unk1 = data.ReadULong();  // dunno
-                    ulong unk2 = data.ReadULong();  // dunno
+                    treeId = data.ReadTreeId();
+                    data.ReadULong();  // dunno
+                    data.ReadULong();  // dunno
 
                     if ((Options & Option.Delete) != 0)
                     {
-                        long unk3 = data.ReadPu32();  // dunno
-                        long unk4 = data.ReadPu32();  // dunno
+                        data.ReadPu32();  // dunno
+                        data.ReadPu32();  // dunno
                     }
 
-                    if ((Options & Option.Unknown32) != 0)
-                    {
-                        ulong unk5 = data.ReadULong();  // dunno
-                    }
+                    fsize = (Options & Option.FolderSize) != 0
+                        ? (ulong?)data.ReadULong()
+                        : null;
 
-                    item = new FsFolder(WebDavPath.Combine(_fullPath, name), treeId, CloudFolderType.MountPoint, folder);
+                    item = new FsFolder(WebDavPath.Combine(_fullPath, name), treeId, CloudFolderType.MountPoint, folder, fsize);
                     break;
 
                 case 1:
@@ -199,38 +204,36 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                     break;
 
                 case 2:
-                    ulong unk7 = data.ReadULong();
-                    object z = null;
-                    object z1 = null;
+                    data.ReadULong(); // dunno
+
                     if ((Options & Option.Delete) != 0)
                     {
-                        l = data.ReadPu32();
-                        l2 = data.ReadPu32();
+                        data.ReadPu32(); // dunno
+                        data.ReadPu32(); // dunno
                     }
-                    ulong? bgVar = null;
-                    if ((Options & Option.Unknown32) != 0)
-                    {
-                        bgVar = data.ReadULong();
-                    }
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder);
+
+                    fsize = (Options & Option.FolderSize) != 0
+                        ? (ulong?)data.ReadULong()
+                        : null;
+
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder, fsize);
                     break;
 
                 case 3:
-                    var e = data.ReadULong();
+                    data.ReadULong(); // dunno
                     treeId = data.ReadTreeId();
-                    l = null;
-                    l2 = null;
+
                     if ((Options & Option.Delete) != 0)
                     {
-                        l = data.ReadPu32();
-                        l2 = data.ReadPu32();
+                        data.ReadPu32();  // dunno
+                        data.ReadPu32(); // dunno
                     }
-                    bgVar = null;
-                    if ((Options & Option.Unknown32) != 0)
-                    {
-                        bgVar = data.ReadULong();
-                    }
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Shared, folder);
+
+                    fsize = (Options & Option.FolderSize) != 0
+                        ? (ulong?)data.ReadULong()
+                        : null;
+
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.Shared, folder, fsize);
                     break;
                 default:
                     throw new Exception("unknown opresult " + opresult);
@@ -250,55 +253,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
             public FsItem Item { get; set; }
             
-        }
-
-        public class FsItem
-        {
-            public List<FsItem> Items { get; } = new List<FsItem>();
-        }
-
-        public enum CloudFolderType
-        {
-            Generic,
-            MountPoint,
-            Shared,
-            MountPointChild,
-            SharedChild
-        }
-
-        public class FsFolder : FsItem
-        {
-            public string FullPath { get; }
-            public CloudFolderType Type { get; }
-            
-            private TreeId _treeId;
-
-            public FsFolder Parent { get; }
-
-            public FsFolder(string fullPath, TreeId treeId, CloudFolderType cloudFolderType, FsFolder parent)
-            {
-                FullPath = fullPath;
-                _treeId = treeId;
-                Type = cloudFolderType;
-                Parent = parent;
-            }
-        }
-
-        public class FsFile : FsItem
-        {
-            public string FullPath { get; }
-            public ulong Size { get; }
-            public DateTime ModifDate { get; }
-            public byte[] Sha1 { get; }
-
-
-            public FsFile(string fullPath, DateTime modifDate, byte[] sha1, ulong size)
-            {
-                FullPath = fullPath;
-                ModifDate = modifDate;
-                Sha1 = sha1;
-                Size = size;
-            }
         }
     }
 }

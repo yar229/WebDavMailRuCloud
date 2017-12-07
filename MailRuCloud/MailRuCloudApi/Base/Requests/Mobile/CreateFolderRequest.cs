@@ -1,4 +1,5 @@
 ﻿using System;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {

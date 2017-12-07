@@ -2,14 +2,11 @@
 using System.IO;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.Mobile.Types
 {
     class RequestBodyStream : IDisposable
     {
         private readonly MemoryStream _stream = new MemoryStream();
-
-
-
 
         public void WritePu16(int value)
         {

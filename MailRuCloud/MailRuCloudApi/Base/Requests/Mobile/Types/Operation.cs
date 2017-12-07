@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Mobile.Types
 {
     internal enum Operation : byte
     {

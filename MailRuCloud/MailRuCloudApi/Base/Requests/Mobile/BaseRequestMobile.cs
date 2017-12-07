@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
