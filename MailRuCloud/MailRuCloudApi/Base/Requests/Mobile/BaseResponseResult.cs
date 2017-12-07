@@ -23,8 +23,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         public TreeId(byte[] treeId)
         {
-            if (treeId == null || treeId.Length != 12)
-                throw new Exception("TreeId must be 12b");
+            //if (treeId == null || treeId.Length != 12)
+            //    throw new Exception("TreeId must be 12b");
             _treeId = treeId;
         }
 
