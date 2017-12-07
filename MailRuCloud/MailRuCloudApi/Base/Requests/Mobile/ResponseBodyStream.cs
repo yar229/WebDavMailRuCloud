@@ -145,8 +145,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         public DateTime ReadDate()
         {
-            var val = ReadULong();
-            return (val / 1000).ToDateTime();
+            var res = ReadULong().ToDateTime();
+
+            Debug.WriteLine($"datetime = {res}");
+
+            return res;
         }
 
         public void Dispose()

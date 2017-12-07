@@ -187,9 +187,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                     break;
 
                 case 1:
-                    var val = data.ReadULong();
-                    //var modifDate = data.ReadDate();  // ??? exception
-                    var modifDate = DateTime.Now;
+                    var modifDate = data.ReadDate();  // ??? exception
 
 
                     ulong unk6 = data.ReadULong();  // dunno
