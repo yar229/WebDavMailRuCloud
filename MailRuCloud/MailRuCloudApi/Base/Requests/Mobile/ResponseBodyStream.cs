@@ -59,31 +59,33 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         public ulong ReadULong()
         {
             Debug.Write($"{nameof(ReadULong)}() = ");
+
             int i = 0;
-            byte[] buffer = new byte[8];
-            int b;
+            byte[] bytes = new byte[8];
+            int val;
             do
             {
-                b = ReadInt();
-                int lo = b & 127;
+                val = ReadInt();
+                int high = val & 127;
                 int rem = 7 - (i / 8);
                 int div = i % 8;
-                buffer[rem] = (byte) (buffer[rem] | ((lo << div) & 255));
-                lo >>= 8 - div;
-                if (lo == 0 || rem != 0)
+                bytes[rem] = (byte) (bytes[rem] | ((high << div) & 255));
+                high >>= 8 - div;
+                if (high == 0 || rem != 0)
                 {
-                    if (lo != 0 && div > 0)
+                    if (high != 0 && div > 0)
                     {
                         rem--;
-                        buffer[rem] = (byte)(lo | buffer[rem]);
+                        bytes[rem] = (byte)(high | bytes[rem]);
                     }
                     i = (byte) (i + 7);
                 }
                 else
                     throw new Exception("Pu64 error");
-            } while ((b & 128) != 0);
+            } while ((val & 128) != 0);
 
-            UInt64 res = BitConverter.ToUInt64(buffer, 0);
+            Array.Reverse(bytes);
+            UInt64 res = BitConverter.ToUInt64(bytes, 0);
             Debug.WriteLine($" = {res}");
             return res;
         }
