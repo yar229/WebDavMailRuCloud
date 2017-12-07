@@ -90,23 +90,24 @@ namespace YaR.MailRuCloud.Api
                 return res;
             }
 
-            FolderInfoResult datares;
-            try
-            {
-                datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
-            }
-            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
             if (itemType == ItemType.Unknown && ulink != null)
                 itemType = ulink.ItemType;
 
-            if (itemType == ItemType.Unknown && null == ulink)
-                itemType = datares.body.home == path
-                    ? ItemType.Folder
-                    : ItemType.File;
+            //FolderInfoResult datares;
+            //try
+            //{
+            //    datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
+            //}
+            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+
+
+            //if (itemType == ItemType.Unknown && null == ulink)
+            //    itemType = datares.body.home == path
+            //        ? ItemType.Folder
+            //        : ItemType.File;
 
             // TODO: cache (parent) folder for file 
             //if (itemType == ItemType.File)
@@ -116,13 +117,16 @@ namespace YaR.MailRuCloud.Api
             //    //_itemCache.Add(cachefolder.Files);
             //}
 
-            var entry = itemType == ItemType.File
-                ? (IEntry)datares.ToFile(
-                    home: WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder(path, ulink);
+            //var entry = itemType == ItemType.File
+            //    ? (IEntry)datares.ToFile(
+            //        home: WebDavPath.Parent(path),
+            //        ulink: ulink,
+            //        filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+            //        nameReplacement: WebDavPath.Name(path))
+            //    : datares.ToFolder(path, ulink);
+
+            var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
+
 
             // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)

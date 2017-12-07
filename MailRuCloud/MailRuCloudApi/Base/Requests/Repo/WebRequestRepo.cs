@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Web;
 using YaR.MailRuCloud.Api.Extensions;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
@@ -150,11 +152,36 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return res;
         }
 
-        public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new FolderInfoRequest(_init, path, isWebLink, offset, limit).MakeRequestAsync();
-            var res = req;
-            return res;
+
+            FolderInfoResult datares;
+            try
+            {
+                datares = await new FolderInfoRequest(_init, path, isWebLink, offset, limit).MakeRequestAsync();
+            }
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            MailRuCloud.ItemType itemType = datares.body.home == path
+                ? MailRuCloud.ItemType.Folder
+                : MailRuCloud.ItemType.File;
+
+
+            var entry = itemType == MailRuCloud.ItemType.File
+                ? (IEntry)datares.ToFile(
+                    home: WebDavPath.Parent(path),
+                    ulink: ulink,
+                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+                    nameReplacement: WebDavPath.Name(path))
+                : datares.ToFolder(path, ulink);
+
+            return entry;
+
+            //var res = req;
+            //return res;
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)

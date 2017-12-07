@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
@@ -87,10 +89,46 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        //public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var z = await new ListRequest(_init, _metaServer.Value.Url, path)
-                .MakeRequestAsync();
+            var req = new ListRequest(_init, _metaServer.Value.Url, path) { Depth = 1};
+            var res = await req.MakeRequestAsync();
+
+            if (res.Item is FsFolder fsf)
+            {
+                var f = new Folder(fsf.Size == null ? 0 : (long)fsf.Size.Value, fsf.FullPath);
+                foreach (var fsi in fsf.Items)
+                {
+                    if (fsi is FsFile fsfi)
+                    {
+                        var fi = new File(fsfi.FullPath, (long)fsfi.Size, fsfi.Sha1.ToHexString())
+                        {
+                            CreationTimeUtc = fsfi.ModifDate,
+                            LastWriteTimeUtc = fsfi.ModifDate,
+                        };
+                        f.Files.Add(fi);
+                    }
+                    else if (fsi is FsFolder fsfo)
+                    {
+                        var fo = new Folder(fsfo.Size == null ? 0 : (long) fsfo.Size.Value, fsfo.FullPath);
+                        f.Folders.Add(fo);
+                    }
+                    else throw new Exception($"Unknown item type {fsi.GetType()}");
+                }
+                return f;
+            }
+
+            if (res.Item is FsFile fsfi1)
+            {
+                var fi = new File(fsfi1.FullPath, (long)fsfi1.Size, fsfi1.Sha1.ToHexString())
+                {
+                    CreationTimeUtc = fsfi1.ModifDate,
+                    LastWriteTimeUtc = fsfi1.ModifDate,
+                };
+
+                return fi;
+            }
 
             return null;
         }

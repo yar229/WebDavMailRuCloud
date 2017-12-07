@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
@@ -22,7 +23,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null);
 
-        Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
+        Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
 
         Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
 

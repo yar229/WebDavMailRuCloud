@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
@@ -62,10 +63,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return await _webRepo.Move(sourceFullPath, destinationPath, conflictResolver);
         }
 
-        public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        //public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
             //return await _webRepo.FolderInfo(path, isWebLink, offset, limit);
-            return await _mobileRepo.FolderInfo(path, isWebLink, offset, limit);
+            return await _mobileRepo.FolderInfo(path, ulink, isWebLink, offset, limit);
 
         }
 
