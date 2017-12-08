@@ -62,7 +62,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             }
             try
             {
-                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
+                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse,
+                    asyncResult => httprequest.EndGetResponse(asyncResult), null))
                 {
                     if ((int) response.StatusCode >= 500)
                         throw new RequestException("Server fault")
@@ -78,7 +79,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
                     if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
                     {
-                        var exceptionMessage = $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
+                        var exceptionMessage =
+                            $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
                         throw new RequestException(exceptionMessage)
                         {
                             StatusCode = response.StatusCode,
@@ -91,6 +93,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
                     return retVal;
                 }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
             finally
             {

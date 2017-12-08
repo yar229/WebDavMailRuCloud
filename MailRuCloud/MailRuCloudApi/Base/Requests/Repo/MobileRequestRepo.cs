@@ -90,7 +90,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        //public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
             var req = new ListRequest(_init, _metaServer.Value.Url, path) { Depth = 1};
@@ -139,9 +138,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        public Task<AccountInfoResult> AccountInfo()
+        public async Task<AccountInfoResult> AccountInfo()
         {
-            throw new NotImplementedException();
+            var req = await new AccountInfoRequest(_init).MakeRequestAsync();
+            var res = req.ToAccountInfo();
+            return res;
         }
 
         public Task<PublishResult> Publish(string fullPath)
