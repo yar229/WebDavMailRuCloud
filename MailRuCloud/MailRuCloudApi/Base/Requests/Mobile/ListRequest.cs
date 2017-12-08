@@ -94,7 +94,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
         private FsItem Deserialize(ResponseBodyStream data, string fullPath)
         {
-            var fakeFolder = new FsFolder(fullPath, null, CloudFolderType.Generic, null, null);
+            var fakeFolder = new FsFolder(string.Empty, null, CloudFolderType.Generic, null, null);
             FsFolder currentFolder = fakeFolder;
             FsFolder lastFolder = null;
 
@@ -152,10 +152,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                 itemStart = data.ReadShort();
             }
 
-            if (fakeFolder.Items[0] is FsFolder ff)
-                fakeFolder = ff;
-
-            return fakeFolder;
+            var res = fakeFolder.Items[0];
+            return res;
         }
 
 
@@ -200,7 +198,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                     ulong size = data.ReadULong();
                     byte[] sha1 = data.ReadNBytes(20);
 
-                    item = new FsFile(WebDavPath.Combine(_fullPath, name), modifDate, sha1, size);
+                    item = new FsFile(WebDavPath.Combine(folder.FullPath, name), modifDate, sha1, size);
                     break;
 
                 case 2:
