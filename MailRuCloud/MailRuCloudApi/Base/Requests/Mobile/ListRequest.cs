@@ -160,6 +160,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         private FsItem GetItem(ResponseBodyStream data, FsFolder folder)
         {
             FsItem item;
+            TreeId treeId;
+
             int head = data.ReadIntSpl();
             if ((head & 4096) != 0)
             {
@@ -169,8 +171,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
             data.ReadULong(); // dunno
 
-            ulong? fsize;
-            TreeId treeId;
+            ulong? GetFolderSize() => (Options & Option.FolderSize) != 0
+                ? (ulong?) data.ReadULong()
+                : null;
+            void ProcessDelete()
+            {
+                if ((Options & Option.Delete) != 0)
+                {
+                    data.ReadPu32();  // dunno
+                    data.ReadPu32();  // dunno
+                }
+            }
 
             int opresult = head & 3;
             switch (opresult)
@@ -179,18 +190,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
                     treeId = data.ReadTreeId();
                     data.ReadULong();  // dunno
                     data.ReadULong();  // dunno
+                    ProcessDelete();
 
-                    if ((Options & Option.Delete) != 0)
-                    {
-                        data.ReadPu32();  // dunno
-                        data.ReadPu32();  // dunno
-                    }
-
-                    fsize = (Options & Option.FolderSize) != 0
-                        ? (ulong?)data.ReadULong()
-                        : null;
-
-                    item = new FsFolder(WebDavPath.Combine(_fullPath, name), treeId, CloudFolderType.MountPoint, folder, fsize);
+                    item = new FsFolder(WebDavPath.Combine(_fullPath, name), treeId, CloudFolderType.MountPoint, folder, GetFolderSize());
                     break;
 
                 case 1:
@@ -203,35 +205,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 
                 case 2:
                     data.ReadULong(); // dunno
+                    ProcessDelete();
 
-                    if ((Options & Option.Delete) != 0)
-                    {
-                        data.ReadPu32(); // dunno
-                        data.ReadPu32(); // dunno
-                    }
-
-                    fsize = (Options & Option.FolderSize) != 0
-                        ? (ulong?)data.ReadULong()
-                        : null;
-
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder, fsize);
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder, GetFolderSize());
                     break;
 
                 case 3:
                     data.ReadULong(); // dunno
                     treeId = data.ReadTreeId();
+                    ProcessDelete();
 
-                    if ((Options & Option.Delete) != 0)
-                    {
-                        data.ReadPu32();  // dunno
-                        data.ReadPu32(); // dunno
-                    }
-
-                    fsize = (Options & Option.FolderSize) != 0
-                        ? (ulong?)data.ReadULong()
-                        : null;
-
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.Shared, folder, fsize);
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.Shared, folder, GetFolderSize());
                     break;
                 default:
                     throw new Exception("unknown opresult " + opresult);
