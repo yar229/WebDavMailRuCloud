@@ -49,9 +49,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private const int MetaServerExpiresSec = 20 * 60;
 
 
-        public Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
+        public async Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            throw new NotImplementedException();
+            //TODO: check for additional init
+            return await Task.FromResult(true);
         }
 
         public void BanShardInfo(ShardInfo banShard)

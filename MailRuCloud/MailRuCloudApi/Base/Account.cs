@@ -44,7 +44,7 @@ namespace YaR.MailRuCloud.Api.Base
             
         }
 
-        internal IRequestRepo RequestRepo => _requestRepo ?? (_requestRepo = new MixedRepo(_cloudApi));
+        internal IRequestRepo RequestRepo => _requestRepo ?? (_requestRepo = new MobileRequestRepo(_cloudApi)); //MixedRepo(_cloudApi));
 
         /// <summary>
         /// Gets connection proxy.
