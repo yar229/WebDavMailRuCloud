@@ -1,0 +1,47 @@
+
+TOKEN
+POST https://o2.mail.ru/token
+client_id=cloud-win&grant_type=password&username=email&password=pass
+
+{"error":"invalid username or pass-word","error_code":3,"error_description":"username or password is incorrect"}
+{"expires_in":3600,"refresh_token":"","access_token":""}
+=======================================================================================================================
+
+REFRESH_TOKEN
+POST https://o2.mail.ru/token
+client_id=cloud-win&grant_type=refresh_token&refresh_token=...
+
+{"expires_in":3600,"access_token":""}
+=======================================================================================================================
+
+CGIBIN_AUTH		dispatcher.cloud.mail.ru/a		https://swa.mail.ru/cgi-bin/auth				94.100.180.62	500
+GET				dispatcher.cloud.mail.ru/d		https://cloclo8.datacloudmail.ru/oauth-get/		94.100.178.108	100
+VIDEO			dispatcher.cloud.mail.ru/e		https://cloclo8.datacloudmail.ru/video/			94.100.178.108	3
+METADATA		dispatcher.cloud.mail.ru/m		https://cloclo24.datacloudmail.ru/meta/			94.100.185.237	250
+NOTIFY			dispatcher.cloud.mail.ru/n		https://znotify.cloud.mail.ru/notify/			94.100.180.153	80
+AUTH			dispatcher.cloud.mail.ru/o		https://o2.mail.ru/token						94.100.180.61	500
+REGINFO			dispatcher.cloud.mail.ru/r		http://cloclo23.cloud.mail.ru/reginfo/			94.100.185.233	100
+??MAIL			dispatcher.cloud.mail.ru/s		https://s.mail.ru/								94.100.180.6	1000
+THUMB			dispatcher.cloud.mail.ru/t		https://cloclo10.cloud.mail.ru/thumb/			94.100.178.60	250
+UPLOAD			dispatcher.cloud.mail.ru/u		https://cloclo17-upload.cloud.mail.ru/upload/	217.69.128.107	5
+VIEW			dispatcher.cloud.mail.ru/v		https://cloclo24.datacloudmail.ru/view/			94.100.185.237	250
+WEBLINK			dispatcher.cloud.mail.ru/w		https://cloclo8.datacloudmail.ru/weblink/		94.100.178.108	50
+DMETA			dispatcher.cloud.mail.ru/x		http://cloclo10.cloud.mail.ru/dmeta/			94.100.178.60	250
+??DWL			dispatcher.cloud.mail.ru/y		http://cloclo17.cloud.mail.ru/dwl/				217.69.128.104	250
+DOCDL			dispatcher.cloud.mail.ru/z		http://cloclo24.cloud.mail.ru/docdl/			94.100.185.236	250
+EAPI			dispatcher.cloud.mail.ru/A		http://cloclo40.cloud.mail.ru/eapi/				217.69.128.129	250
+WEB_API			dispatcher.cloud.mail.ru/B		https://cloud.mail.ru/							217.69.139.5	1000
+WEB_DL			dispatcher.cloud.mail.ru/D		http://cloclo8.cloud.mail.ru/webdl/				94.100.178.58	3
+VIDEO_PUBLIC	dispatcher.cloud.mail.ru/E		https://cloclo18.datacloudmail.ru/videowl/		217.69.128.109	3
+WEBLINK_GET		dispatcher.cloud.mail.ru/G		https://cloclo18.datacloudmail.ru/weblink/get/	217.69.128.109	50
+WEBLINK			dispatcher.cloud.mail.ru/L		https://cloclo10.datacloudmail.ru/weblink/		94.100.178.40	50
+DMETA			dispatcher.cloud.mail.ru/M		http://cloclo10.cloud.mail.ru/dmeta/			94.100.178.60	250
+REVOKE			dispatcher.cloud.mail.ru/O		https://o2.mail.ru/revoke						217.69.139.61	500
+DUPLOAD			dispatcher.cloud.mail.ru/U		http://cloclo24.cloud.mail.ru/dupload/			94.100.185.236	50
+WEBLINK_VIEW	dispatcher.cloud.mail.ru/V		https://cloclo16.datacloudmail.ru/weblink/view/	217.69.128.99	50
+WEBLINK_HOST	dispatcher.cloud.mail.ru/W		https://cloud.mail.ru/public/					94.100.180.6	1000
+??X				dispatcher.cloud.mail.ru/X		https://cloclo16.cldmail.ru/					217.69.142.216	50
+I_THUMB			dispatcher.cloud.mail.ru/i
+RECOGNIZER_API	dispatcher.cloud.mail.ru/R
+
+=======================================================================================================================
