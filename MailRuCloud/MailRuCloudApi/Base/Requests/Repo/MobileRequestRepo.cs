@@ -41,7 +41,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
                 {
-                    Logger.Debug("MetaServer expired, refreshing.");
+                    Logger.Debug("DownloadServer expired, refreshing.");
                     var server = new MobDownloadServerRequest(_init).MakeRequestAsync().Result;
                     return server;
                 },
