@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
@@ -86,7 +87,7 @@ namespace YaR.MailRuCloud.Api
             if (ulink != null && ulink.IsBad)
             {
                 var res = ulink.ToBadEntry();
-                _itemCache.Add(res.FullPath, res);
+                //_itemCache.Add(res.FullPath, res);
                 return res;
             }
 
@@ -127,6 +128,10 @@ namespace YaR.MailRuCloud.Api
 
             var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
 
+            if (itemType == ItemType.Unknown)
+                itemType = entry is Folder 
+                    ? ItemType.Folder 
+                    : ItemType.File;
 
             // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -149,9 +154,9 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
-            _itemCache.Add(entry.FullPath, entry);
-            if (entry is Folder cfolder)
-                _itemCache.Add(cfolder.Files);
+            //_itemCache.Add(entry.FullPath, entry);
+            //if (entry is Folder cfolder)
+            //    _itemCache.Add(cfolder.Files);
             return entry;
         }
 
