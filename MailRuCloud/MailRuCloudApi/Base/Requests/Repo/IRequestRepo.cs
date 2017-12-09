@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
@@ -16,6 +17,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver);
 
         Task<AuthTokenResult> Auth();
+
+
+        HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard);
 
         Task<CloneItemResult> CloneItem(string fromUrl, string toPath);
 
@@ -38,8 +42,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         Task<RenameResult> Rename(string fullPath, string newName);
 
         Task<Dictionary<ShardType, ShardInfo>> ShardInfo();
-
-
-        string DownloadToken { get; }
     }
 }

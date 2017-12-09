@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
@@ -36,6 +38,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                     return server;
                 },
                 TimeSpan.FromSeconds(MetaServerExpiresSec));
+
+            _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
+                {
+                    Logger.Debug("MetaServer expired, refreshing.");
+                    var server = new MobDownloadServerRequest(_init).MakeRequestAsync().Result;
+                    return server;
+                },
+                TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
 
@@ -48,6 +58,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private readonly Cached<MobMetaServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
 
+        private readonly Cached<MobDownloadServerRequest.Result> _downloadServer;
+        private const int DownloadServerExpiresSec = 20 * 60;
+
 
         public async Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
         {
@@ -55,17 +68,47 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return await Task.FromResult(true);
         }
 
+
+        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        {
+            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={_authTokenMobile.Value.Token}&client_id=cloud-android";
+
+            var request = (HttpWebRequest)WebRequest.Create(url);
+
+            request.Headers.Add("Accept-Ranges", "bytes");
+            request.AddRange(instart, inend);
+            request.Proxy = _init.Proxy;
+            request.CookieContainer = _init.Cookies;
+            request.Method = "GET";
+            request.ContentType = MediaTypeNames.Application.Octet;
+            request.Accept = "*/*";
+            request.UserAgent = ConstSettings.UserAgent;
+            request.AllowReadStreamBuffering = false;
+
+            request.Timeout = 15 * 1000;
+
+            return request;
+        }
+
+
         public void BanShardInfo(ShardInfo banShard)
         {
-            throw new NotImplementedException();
+            //TODO: implement
+            Logger.Warn($"{nameof(MobileRequestRepo)}.{nameof(BanShardInfo)} not implemented");
         }
 
         public Task<ShardInfo> GetShardInfo(ShardType shardType)
         {
-            throw new NotImplementedException();
+            //TODO: must hide shard functionality into repo after DownloadStream and UploadStream refact
+
+            var shi = new ShardInfo
+            {
+                Url = _metaServer.Value.Url,
+                Type = shardType
+            };
+
+            return Task.FromResult(shi);
         }
-
-
 
         public async Task<AuthTokenResult> Auth()
         {
@@ -169,8 +212,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             throw new NotImplementedException();
         }
-
-        public string DownloadToken => throw new NotImplementedException();
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {

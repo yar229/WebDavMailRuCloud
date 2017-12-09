@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
@@ -20,6 +21,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         public async Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             return await _webRepo.Login(onAuthCodeRequired);
+        }
+
+        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        {
+            return _webRepo.DownloadRequest(instart, inend, file, shard);
         }
 
         public void BanShardInfo(ShardInfo banShard)
@@ -63,12 +69,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return await _webRepo.Move(sourceFullPath, destinationPath, conflictResolver);
         }
 
-        //public async Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
             //return await _webRepo.FolderInfo(path, isWebLink, offset, limit);
             return await _mobileRepo.FolderInfo(path, ulink, isWebLink, offset, limit);
-
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
@@ -105,7 +109,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             return await _webRepo.ShardInfo();
         }
-
-        public string DownloadToken => _webRepo.DownloadToken;
     }
 }

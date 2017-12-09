@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -79,6 +80,35 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
         private readonly Cached<List<ShardInfo>> _bannedShards;
         private const int ShardsExpiresInSec = 30 * 60;
+
+
+
+        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        {
+            string downloadkey = string.Empty;
+            if (shard.Type == ShardType.WeblinkGet)
+                downloadkey = _cachedDownloadToken.Value;
+
+            string url = shard.Type == ShardType.Get
+                ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+                : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+            var request = (HttpWebRequest)WebRequest.Create(url);
+
+            request.Headers.Add("Accept-Ranges", "bytes");
+            request.AddRange(instart, inend);
+            request.Proxy = _init.Proxy;
+            request.CookieContainer = _init.Cookies;
+            request.Method = "GET";
+            request.ContentType = MediaTypeNames.Application.Octet;
+            request.Accept = "*/*";
+            request.UserAgent = ConstSettings.UserAgent;
+            request.AllowReadStreamBuffering = false;
+
+            request.Timeout = 15 * 1000;
+
+            return request;
+        }
 
 
         public void BanShardInfo(ShardInfo banShard)
@@ -232,9 +262,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             var res = req.ToShardInfo();
             return res;
         }
-
-        public string DownloadToken => _cachedDownloadToken.Value;
-
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
