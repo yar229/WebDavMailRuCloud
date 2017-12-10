@@ -1,11 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <created file="MailRuCloudApi.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,7 +8,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
@@ -29,7 +21,7 @@ namespace YaR.MailRuCloud.Api
     /// <summary>
     /// Cloud client.
     /// </summary>
-    public partial class MailRuCloud : IDisposable
+    public class MailRuCloud : IDisposable
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
@@ -426,7 +418,7 @@ namespace YaR.MailRuCloud.Api
             {
                 foreach (var splitFile in file.Parts)
                 {
-                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false); //+ ".wdmrc" + splitFile.Extension;
+                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false);
                     await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
                 }
             }
@@ -448,7 +440,6 @@ namespace YaR.MailRuCloud.Api
             //rename item
             if (link == null)
             {
-                //var data = await new RenameRequest(CloudApi, fullPath, newName).MakeRequestAsync();
                 var data = await CloudApi.Account.RequestRepo.Rename(fullPath, newName);
 
                 if (data.IsSuccess)
@@ -653,7 +644,6 @@ namespace YaR.MailRuCloud.Api
         /// <returns>Returns Total/Free/Used size.</returns>
         public async Task<DiskUsage> GetDiskUsage()
         {
-            //var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
             var data = await CloudApi.Account.RequestRepo.AccountInfo();
             return data.DiskUsage;
         }
@@ -686,9 +676,6 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            //var req = await new Base.Requests.Mobile.CreateFolderRequest(CloudApi, fullPath)
-            //    .MakeRequestAsync();
-            //var res = req.ToPathResult();
             var res = await CloudApi.Account.RequestRepo.CreateFolder(fullPath);
 
             if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
@@ -697,8 +684,6 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<CloneItemResult> CloneItem(string path, string url)
         {
-            //var data = await new CloneItemRequest(CloudApi, url, path).MakeRequestAsync();
-            //var res = data.ToPathResult();
             var res = await CloudApi.Account.RequestRepo.CloneItem(url, path);
 
             if (res.IsSuccess) _itemCache.Invalidate(path);
@@ -797,33 +782,6 @@ namespace YaR.MailRuCloud.Api
             return true;
         }
 
-
-        /// <summary>
-        /// Move or copy item on server.
-        /// </summary>
-        /// <param name="sourceFullPath">Full path source or file name.</param>
-        /// <param name="destinationPath">Destination path to cope or move.</param>
-        /// <param name="move">Move or copy operation.</param>
-        /// <returns>New created file name.</returns>
-        //public async Task<bool> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
-        //{
-        //    //TODO: refact
-        //    if (!move)
-        //    {
-        //        var entry = await GetItem(sourceFullPath);
-        //        var res = await Copy(entry, destinationPath);
-        //    }
-
-        //    var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
-        //        .MakeRequestAsync();
-
-        //    if (data.status == 200) _itemCache.Invalidate(WebDavPath.Parent(sourceFullPath), destinationPath);
-        //    return data.ToString();
-        //}
-
-
-
-
         /// <summary>
         /// Remove file or folder.
         /// </summary>
@@ -844,7 +802,6 @@ namespace YaR.MailRuCloud.Api
                 return true;
             }
 
-            //var res = await new RemoveRequest(CloudApi, fullPath) .MakeRequestAsync();
             var res = await CloudApi.Account.RequestRepo.Remove(fullPath);
             if (res.IsSuccess)
             {
@@ -897,7 +854,6 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            //var res = (await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict).MakeRequestAsync()) .ToAddFileResult();
             var res = await CloudApi.Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
 
             return res;
