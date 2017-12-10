@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class AccountInfoRequest : BaseRequestJson<AccountInfoRequest.Result>
     {
-        public AccountInfoRequest(RequestInit init) : base(init)
+        public AccountInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 
-        protected override string RelationalUri => $"{ConstSettings.CloudDomain}/api/v2/user?token={Init.Token}";
+        protected override string RelationalUri => $"{ConstSettings.CloudDomain}/api/v2/user?token={Auth.AccessToken}";
 
 
         public class Result

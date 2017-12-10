@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -7,7 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         private readonly string _fromUrl;
         private readonly string _toPath;
 
-        public CloneItemRequest(RequestInit init, string fromUrl, string toPath) : base(init)
+        public CloneItemRequest(IWebProxy proxy, IAuth auth, string fromUrl, string toPath) 
+            : base(proxy, auth)
         {
             _fromUrl = fromUrl;
             _toPath = toPath;
@@ -17,7 +20,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         {
             get
             {
-                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?conflict=rename&folder={Uri.EscapeDataString(_toPath)}&weblink={Uri.EscapeDataString(_fromUrl)}&token={Init.Token}";
+                var uri = $"{ConstSettings.CloudDomain}/api/v2/clone?conflict=rename&folder={Uri.EscapeDataString(_toPath)}&weblink={Uri.EscapeDataString(_fromUrl)}&token={Auth.AccessToken}";
                 return uri;
             }
         }

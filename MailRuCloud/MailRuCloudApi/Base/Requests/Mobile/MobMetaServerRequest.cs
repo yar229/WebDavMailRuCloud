@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    public class MobMetaServerRequest : BaseRequestString<MobMetaServerRequest.Result>
+    internal class MobMetaServerRequest : BaseRequestString<MobMetaServerRequest.Result>
     {
-        public MobMetaServerRequest(RequestInit init) : base(init)
+        public MobMetaServerRequest(IWebProxy proxy) : base(proxy, null)
         {
         }
 

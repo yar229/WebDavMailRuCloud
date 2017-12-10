@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {
-        public DownloadTokenRequest(RequestInit init) : base(init)
+        public DownloadTokenRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 
@@ -14,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         {
             get
             {
-                var uri = $"/api/v2/tokens/download?token={Init.Token}";
+                var uri = $"/api/v2/tokens/download?token={Auth.AccessToken}";
                 return uri;
             }
         }
@@ -26,7 +27,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
     {
         private readonly string _url;
 
-        public DownloadTokenHtmlRequest(RequestInit init, string url) : base(init)
+        public DownloadTokenHtmlRequest(IWebProxy proxy, IAuth auth, string url) : base(proxy, auth)
         {
             _url = url;
         }

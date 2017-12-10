@@ -1,8 +1,11 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Web
+﻿using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
+
+namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class AuthTokenRequest : BaseRequestJson<AuthTokenRequest.Result>
     {
-        public AuthTokenRequest(RequestInit init) : base(init)
+        public AuthTokenRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 

@@ -2,17 +2,16 @@
 using System.Linq;
 using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class LoginRequest : BaseRequestString<LoginResult>
     {
-        private readonly IBasicCredentials _credentials;
-
-        public LoginRequest(RequestInit init, IBasicCredentials credentials) : base(init)
+        public LoginRequest(IWebProxy proxy, IAuth auth) 
+            : base(proxy, auth)
         {
-            _credentials = credentials;
         }
 
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
@@ -26,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"Login={Uri.EscapeUriString(_credentials.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(_credentials.Password)}";
+            string data = $"Login={Uri.EscapeUriString(Auth.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(Auth.Password)}";
 
             return Encoding.UTF8.GetBytes(data);
         }

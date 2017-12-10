@@ -1,11 +1,13 @@
 ﻿using System.IO;
+using System.Net;
 using Newtonsoft.Json;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    public abstract class BaseRequestJson<T> : BaseRequest<Stream, T> where T : class
+    internal abstract class BaseRequestJson<T> : BaseRequest<Stream, T> where T : class
     {
-        protected BaseRequestJson(RequestInit init) : base(init)
+        protected BaseRequestJson(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 

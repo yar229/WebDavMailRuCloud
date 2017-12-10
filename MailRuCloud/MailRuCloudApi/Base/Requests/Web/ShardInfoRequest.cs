@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class ShardInfoRequest : BaseRequestJson<ShardInfoRequest.Result>
     {
-        public ShardInfoRequest(RequestInit init) : base(init)
+        public ShardInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 
@@ -13,8 +15,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             get
             {
                 var uri = string.Format("{0}/api/v2/dispatcher?api=2", ConstSettings.CloudDomain);
-                if (!string.IsNullOrEmpty(Init.Token))
-                    uri += $"&token={Init.Token}";
+                if (!string.IsNullOrEmpty(Auth.AccessToken))
+                    uri += $"&token={Auth.AccessToken}";
                 return uri;
             }
         }

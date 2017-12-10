@@ -126,7 +126,8 @@ namespace YaR.MailRuCloud.Api
             //        nameReplacement: WebDavPath.Name(path))
             //    : datares.ToFolder(path, ulink);
 
-            var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
+            //var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
+            var entry = await CloudApi.Account.RequestRepo.FolderInfo(path, ulink);
 
             if (itemType == ItemType.Unknown)
                 itemType = entry is Folder 

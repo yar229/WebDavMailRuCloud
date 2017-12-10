@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -8,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;
 
-        public MoveRequest(RequestInit init, string sourceFullPath, string destinationPath) : base(init)
+        public MoveRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath) : base(proxy, auth)
         {
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;
@@ -19,7 +21,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict=rename&folder={4}",
-                Uri.EscapeDataString(_sourceFullPath), 2, Init.Token, Init.Login, Uri.EscapeDataString(_destinationPath)));
+                Uri.EscapeDataString(_sourceFullPath), 2, Auth.AccessToken, Auth.Login, Uri.EscapeDataString(_destinationPath)));
 
             return data;
         }

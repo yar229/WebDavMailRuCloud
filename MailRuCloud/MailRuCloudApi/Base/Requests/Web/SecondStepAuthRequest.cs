@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -8,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         private readonly string _csrf;
         private readonly string _authCode;
 
-        public SecondStepAuthRequest(RequestInit init, string csrf, string authCode) : base(init)
+        public SecondStepAuthRequest(IWebProxy proxy, string csrf, string authCode) : base(proxy, null)
         {
             _csrf = csrf;
             _authCode = authCode;
@@ -18,7 +20,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"csrf={_csrf}&Login={Uri.EscapeUriString(Init.Login)}&AuthCode={_authCode}";
+            string data = $"csrf={_csrf}&Login={Uri.EscapeUriString(Auth.Login)}&AuthCode={_authCode}";
 
             return Encoding.UTF8.GetBytes(data);
         }

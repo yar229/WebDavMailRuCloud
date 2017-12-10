@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
@@ -13,28 +14,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
     class MobileRequestRepo : IRequestRepo
     {
+        private readonly IWebProxy _proxy;
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
-        private readonly CloudApi _cloudApi;
-        private readonly RequestInit _init;
 
-        public MobileRequestRepo(CloudApi cloudApi)
+        public MobileRequestRepo(IWebProxy proxy, IBasicCredentials creds)
         {
-            _cloudApi = cloudApi;
+            _proxy = proxy;
 
-            _authTokenMobile = new Cached<AuthTokenResult>(() =>
-                {
-                    Logger.Debug("AuthTokenMobile expired, refreshing.");
-                    var token = Auth().Result;
-                    return token;
-                },
-                TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
-
-            _init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authTokenMobile, _cloudApi.Account.Credentials.Login);
+            Authent = new OAuth(_proxy, creds);
 
             _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(_init).MakeRequestAsync().Result;
+                    var server = new MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(MetaServerExpiresSec));
@@ -42,18 +34,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(_init).MakeRequestAsync().Result;
+                    var server = new MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
 
-        /// <summary>
-        /// Token for authorization in mobile version
-        /// </summary>
-        private readonly Cached<AuthTokenResult> _authTokenMobile;
-        private const int AuthTokenMobileExpiresInSec = 58 * 60;
+
 
         private readonly Cached<MobMetaServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
@@ -62,23 +50,32 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private const int DownloadServerExpiresSec = 20 * 60;
 
 
-        public async Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired)
+        public IAuth Authent { get; }
+        public IWebProxy Proxy { get; }
+        public CookieContainer Cookies { get; }
+
+        public async Task<bool> Login(AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            //TODO: check for additional init
+            //TODO: check for additional repo
             return await Task.FromResult(true);
         }
 
 
+        public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
+        {
+            throw new NotImplementedException();
+        }
+
         public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
         {
-            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={_authTokenMobile.Value.Token}&client_id=cloud-android";
+            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id=cloud-android";
 
             var request = (HttpWebRequest)WebRequest.Create(url);
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
-            request.Proxy = _init.Proxy;
-            request.CookieContainer = _init.Cookies;
+            request.Proxy = Proxy;
+            request.CookieContainer = Authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;
             request.Accept = "*/*";
@@ -110,14 +107,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return Task.FromResult(shi);
         }
 
-        public async Task<AuthTokenResult> Auth()
-        {
-            var init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authTokenMobile, _cloudApi.Account.Credentials.Login);
-            var req = await new MobAuthRequest(init, _cloudApi.Account.Credentials.Password).MakeRequestAsync();
-            var res = req.ToAuthTokenResult();
-            return res;
-        }
-
         public Task<CloneItemResult> CloneItem(string fromUrl, string toPath)
         {
             throw new NotImplementedException();
@@ -133,9 +122,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = new ListRequest(_init, _metaServer.Value.Url, path) { Depth = 1};
+            var req = new ListRequest(_proxy, Authent, _metaServer.Value.Url, path) { Depth = 1};
             var res = await req.MakeRequestAsync();
 
             if (res.Item is FsFolder fsf)
@@ -183,7 +172,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new AccountInfoRequest(_init).MakeRequestAsync();
+            var req = await new AccountInfoRequest(_proxy, Authent).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }
@@ -208,6 +197,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
+        public HttpWebRequest CreateUploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
         {
             throw new NotImplementedException();
@@ -215,13 +209,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Mobile.CreateFolderRequest(_init, _metaServer.Value.Url, path).MakeRequestAsync())
+            return (await new Mobile.CreateFolderRequest(_proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Mobile.MobAddFileRequest(_init, _metaServer.Value.Url,
+            var res = await new Mobile.MobAddFileRequest(_proxy, Authent, _metaServer.Value.Url,
                     fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -12,12 +14,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="init"></param>
+        /// <param name="repo"></param>
         /// <param name="sourceFullPath"></param>
         /// <param name="destinationPath">(without item name)</param>
         /// <param name="conflictResolver"></param>
-        public CopyRequest(RequestInit init, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
-            : base(init)
+        public CopyRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
+            : base(proxy, auth)
         {
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;
@@ -29,7 +31,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
-                Uri.EscapeDataString(_sourceFullPath), 2, Init.Token, Init.Login, 
+                Uri.EscapeDataString(_sourceFullPath), 2, Auth.AccessToken, Auth.Login, 
                 _conflictResolver,
                 Uri.EscapeDataString(_destinationPath)));
 

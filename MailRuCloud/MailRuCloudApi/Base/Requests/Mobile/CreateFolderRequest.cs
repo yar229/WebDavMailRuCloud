@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
@@ -7,8 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
     {
         private readonly string _fullPath;
 
-        public CreateFolderRequest(RequestInit init, string metaServer, string fullPath)
-            : base(init, metaServer)
+        public CreateFolderRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath)
+            : base(proxy, auth, metaServer)
         {
             _fullPath = fullPath;
         }

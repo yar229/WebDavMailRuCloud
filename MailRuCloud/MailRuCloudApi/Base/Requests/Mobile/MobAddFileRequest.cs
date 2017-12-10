@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
@@ -12,8 +14,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
         private readonly long _size;
         private readonly DateTime _dateTime;
 
-        public MobAddFileRequest(RequestInit init, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime) 
-            : base(init, metaServer)
+        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime) 
+            : base(proxy, auth, metaServer)
         {
             _fullPath = fullPath;
             _hash = hash;
@@ -21,8 +23,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
         }
 
-        public MobAddFileRequest(RequestInit init, string metaServer, string fullPath, string hash, long size, DateTime? dateTime) 
-            : this(init, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime)
+        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime) 
+            : this(proxy, auth, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime)
         {
         }
 

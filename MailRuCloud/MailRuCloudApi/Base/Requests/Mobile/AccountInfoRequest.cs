@@ -1,11 +1,14 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+﻿using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
+
+namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
     class AccountInfoRequest : BaseRequestJson<Web.AccountInfoRequest.Result>
     {
-        public AccountInfoRequest(RequestInit init) : base(init)
+        public AccountInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 
-        protected override string RelationalUri => $"{ConstSettings.CloudDomain}/api/m1/user?access_token={Init.Token}";
+        protected override string RelationalUri => $"{ConstSettings.CloudDomain}/api/m1/user?access_token={Auth.AccessToken}";
     }
 }

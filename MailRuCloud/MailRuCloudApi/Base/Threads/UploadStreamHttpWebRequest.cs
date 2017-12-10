@@ -32,20 +32,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 {
                     var boundary = new UploadMultipartBoundary(_file);
                     var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
+                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, boundary);
 
-                    _request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
-                    _request.Proxy = _cloud.CloudApi.Account.Proxy;
-                    _request.CookieContainer = _cloud.CloudApi.Account.Cookies;
-                    _request.Method = "POST";
-                    _request.ContentLength = _file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
-                    _request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}";
-                    _request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                    _request.Host = url.Host;
-                    _request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
-                    _request.Accept = "*/*";
-                    _request.UserAgent = ConstSettings.UserAgent;
-                    _request.AllowWriteStreamBuffering = false;
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
                     using (var requeststream = await _request.GetRequestStreamAsync())

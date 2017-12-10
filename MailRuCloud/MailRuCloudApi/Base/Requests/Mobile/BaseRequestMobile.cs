@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
@@ -8,12 +9,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
     {
         private readonly string _metaServer;
 
-        protected BaseRequestMobile(RequestInit init, string metaServer) : base(init)
+        protected BaseRequestMobile(IWebProxy proxy, IAuth auth, string metaServer) : base(proxy, auth)
         {
             _metaServer = metaServer;
         }
 
-        protected override string RelationalUri => $"{_metaServer}?token={Init.Token}&client_id=cloud-android";
+        protected override string RelationalUri => $"{_metaServer}?token={Auth.AccessToken}&client_id=cloud-android";
 
         protected override ResponseBodyStream Transport(Stream stream)
         {

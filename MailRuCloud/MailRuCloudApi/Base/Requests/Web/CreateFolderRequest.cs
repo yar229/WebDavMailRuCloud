@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -7,7 +9,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
     {
         private readonly string _fullPath;
 
-        public CreateFolderRequest(RequestInit init, string fullPath) : base(init)
+        public CreateFolderRequest(IWebProxy proxy, IAuth auth, string fullPath) : base(proxy, auth)
         {
             _fullPath = fullPath;
         }
@@ -16,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
 
         protected override byte[] CreateHttpContent()
         {
-            var data = $"home={Uri.EscapeDataString(_fullPath)}&conflict=rename&api={2}&token={Init.Token}";
+            var data = $"home={Uri.EscapeDataString(_fullPath)}&conflict=rename&api={2}&token={Auth.AccessToken}";
             return Encoding.UTF8.GetBytes(data);
         }
 

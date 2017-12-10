@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Text;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
@@ -10,8 +12,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         private readonly long _size;
         private readonly ConflictResolver _conflictResolver;
 
-        public CreateFileRequest(RequestInit init, string fullPath, string hash, long size, ConflictResolver? conflictResolver) 
-            : base(init)
+        public CreateFileRequest(IWebProxy proxy, IAuth auth, string fullPath, string hash, long size, ConflictResolver? conflictResolver) 
+            : base(proxy, auth)
         {
             _fullPath = fullPath;
             _hash = hash;
@@ -24,7 +26,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
         protected override byte[] CreateHttpContent()
         {
             string filePart = $"&hash={_hash}&size={_size}";
-            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={Init.Token}" + filePart;
+            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={Auth.AccessToken}" + filePart;
 
             return Encoding.UTF8.GetBytes(data);
         }

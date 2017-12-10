@@ -1,10 +1,11 @@
 ﻿using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Web
 {
     class EnsureSdcCookieRequest : BaseRequestString
     {
-        public EnsureSdcCookieRequest(RequestInit init) : base(init)
+        public EnsureSdcCookieRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 

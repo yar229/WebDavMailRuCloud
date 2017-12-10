@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    public class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
+    internal class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
     {
-        public MobDownloadServerRequest(RequestInit init) : base(init)
+        public MobDownloadServerRequest(IWebProxy proxy) : base(proxy, null)
         {
         }
 
