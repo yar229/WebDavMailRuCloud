@@ -89,7 +89,9 @@ namespace YaR.MailRuCloud.Api.Extensions
             var res = new UploadFileResult
             {
                 Hash = resp[0],
-                Size = long.Parse(resp[1].Trim('\r', '\n', ' '))
+                Size = resp.Length > 1 
+                    ? long.Parse(resp[1].Trim('\r', '\n', ' '))
+                    : 0
             };
             return res;
         }

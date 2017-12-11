@@ -30,17 +30,17 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
-                    var boundary = new UploadMultipartBoundary(_file);
+                    //var boundary = new UploadMultipartBoundary(_file);
                     var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, boundary);
+                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, null);
 
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
                     using (var requeststream = await _request.GetRequestStreamAsync())
                     {
-                        await requeststream.WriteAsync(boundary.Start, 0, boundary.Start.Length);
+                        //await requeststream.WriteAsync(boundary.Start, 0, boundary.Start.Length);
                         await _ringBuffer.CopyToAsync(requeststream);
-                        await requeststream.WriteAsync(boundary.End, 0, boundary.End.Length);
+                        //await requeststream.WriteAsync(boundary.End, 0, boundary.End.Length);
                     }
 
                     var response = _request.GetResponse();
@@ -75,13 +75,14 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 using (var response = _requestTask.Result)
                 {
-                    if (response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
                         throw new Exception("Cannot upload file, status " + response.StatusCode);
 
                     var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
                         .ToUploadPathResult();
 
-                    _file.OriginalSize = ures.Size;
+                    if (ures.Size > 0 && _file.OriginalSize != ures.Size)
+                        throw new Exception("Local and remote file size does not match");
                     _file.Hash = ures.Hash;
 
                     if (CheckHashes && _sha1.HashString != ures.Hash)

@@ -21,12 +21,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
         }
 
-        protected override string RelationalUri => "/api/m1/file/add";
+        protected override string RelationalUri => $"/api/m1/file/add?access_token={Auth.AccessToken}";
 
         protected override byte[] CreateHttpContent()
         {
-            string filePart = $"&hash={_hash}&size={_size}";
-            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&access_token={Auth.AccessToken}" + filePart;
+            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&hash={_hash}&size={_size}";
 
             return Encoding.UTF8.GetBytes(data);
         }

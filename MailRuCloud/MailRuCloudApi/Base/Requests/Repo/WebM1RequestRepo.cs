@@ -67,17 +67,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
         {
-            var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
+            //var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
+            var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");
 
-            var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
+            var request = (HttpWebRequest)WebRequest.Create(url); //.OriginalString);
             request.Proxy = _proxy;
             request.CookieContainer = Authent.Cookies;
-            request.Method = "POST";
-            request.ContentLength = file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
-            request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-            request.Headers.Add("Origin", ConstSettings.CloudDomain);
-            request.Host = url.Host;
-            request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
+            request.Method = "PUT";
+            request.ContentLength = file.OriginalSize; // + boundary.Start.LongLength + boundary.End.LongLength;
+            //request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
+            //request.Headers.Add("Origin", ConstSettings.CloudDomain);
+            //request.Host = url.Host;
+            //request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
             request.Accept = "*/*";
             request.UserAgent = ConstSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
