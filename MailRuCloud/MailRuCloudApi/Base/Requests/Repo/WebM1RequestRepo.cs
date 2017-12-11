@@ -239,13 +239,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            //string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
-
-            //await new Mobile.RenameRequest(_proxy, Authent, _metaServer.Value.Url, fullPath, target)
-            //    .MakeRequestAsync();
-            //var res = new RenameResult {IsSuccess = true};
-            //return res;
-
             var req = await new RenameRequest(_proxy, Authent, fullPath, newName).MakeRequestAsync();
             var res = req.ToRenameResult();
             return res;

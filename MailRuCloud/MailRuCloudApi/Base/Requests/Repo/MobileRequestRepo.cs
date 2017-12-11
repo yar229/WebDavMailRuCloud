@@ -191,9 +191,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             throw new NotImplementedException();
         }
 
-        public Task<RenameResult> Rename(string fullPath, string newName)
+        public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            throw new NotImplementedException();
+            string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+
+            await new Mobile.RenameRequest(_proxy, Authent, _metaServer.Value.Url, fullPath, target)
+                .MakeRequestAsync();
+            var res = new RenameResult { IsSuccess = true };
+            return res;
         }
 
         public HttpWebRequest CreateUploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
