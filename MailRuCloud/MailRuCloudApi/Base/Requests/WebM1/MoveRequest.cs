@@ -16,13 +16,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _destinationPath = destinationPath;
         }
 
-        protected override string RelationalUri => "/api/m1/file/move";
+        protected override string RelationalUri => $"/api/m1/file/move?access_token={Auth.AccessToken}";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}&conflict=rename&folder={4}",
-                Uri.EscapeDataString(_sourceFullPath), 2, Auth.AccessToken, Auth.Login, Uri.EscapeDataString(_destinationPath)));
-
+            var data = Encoding.UTF8.GetBytes($"home={Uri.EscapeDataString(_sourceFullPath)}&email={Auth.Login}&conflict=rename&folder={Uri.EscapeDataString(_destinationPath)}");
             return data;
         }
     }

@@ -255,13 +255,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new WebV2.CreateFolderRequest(_proxy, Authent, path).MakeRequestAsync())
+            return (await new CreateFolderRequest(_proxy, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new WebV2.CreateFileRequest(_proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new CreateFileRequest(_proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();
