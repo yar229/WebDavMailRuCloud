@@ -3,13 +3,13 @@ using System.Net;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
 {
-    internal class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
+    internal class WeblinkGetServerRequest : BaseRequestString<WeblinkGetServerRequest.Result>
     {
-        public MobDownloadServerRequest(IWebProxy proxy) : base(proxy, null)
+        public WeblinkGetServerRequest(IWebProxy proxy) : base(proxy, null)
         {
         }
 
-        protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/d";
+        protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/y";
 
         protected override RequestResponse<Result> DeserializeMessage(string data)
         {

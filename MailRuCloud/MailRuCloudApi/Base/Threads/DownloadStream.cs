@@ -145,7 +145,6 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
-            //_task.Wait();
             _innerStream.Close();
         }
 

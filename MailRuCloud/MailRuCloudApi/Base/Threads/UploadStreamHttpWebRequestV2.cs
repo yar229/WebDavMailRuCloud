@@ -8,15 +8,11 @@ using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
 {
-    /// <summary>
-    /// Upload stream based on HttpWebRequest
-    /// </summary>
-    /// <remarks>Suitable for .NET desktop, large file uploading does not work on .NET Core</remarks>
-    abstract class UploadStreamHttpWebRequest : Stream
+    abstract class UploadStreamHttpWebRequestV2 : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
 
-        protected UploadStreamHttpWebRequest(string destinationPath, MailRuCloud cloud, long size)
+        protected UploadStreamHttpWebRequestV2(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
@@ -30,14 +26,17 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
+                    var boundary = new UploadMultipartBoundary(_file);
                     var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, null);
+                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, boundary);
 
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
                     using (var requeststream = await _request.GetRequestStreamAsync())
                     {
+                        await requeststream.WriteAsync(boundary.Start, 0, boundary.Start.Length);
                         await _ringBuffer.CopyToAsync(requeststream);
+                        await requeststream.WriteAsync(boundary.End, 0, boundary.End.Length);
                     }
 
                     var response = _request.GetResponse();
@@ -72,14 +71,13 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 using (var response = _requestTask.Result)
                 {
-                    if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
+                    if (response.StatusCode != HttpStatusCode.OK)
                         throw new Exception("Cannot upload file, status " + response.StatusCode);
 
                     var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
                         .ToUploadPathResult();
 
-                    if (ures.Size > 0 && _file.OriginalSize != ures.Size)
-                        throw new Exception("Local and remote file size does not match");
+                    _file.OriginalSize = ures.Size;
                     _file.Hash = ures.Hash;
 
                     if (CheckHashes && _sha1.HashString != ures.Hash)
@@ -90,7 +88,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                         .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
                 }
             }
-            finally 
+            finally
             {
                 _ringBuffer?.Dispose();
                 _sha1?.Dispose();

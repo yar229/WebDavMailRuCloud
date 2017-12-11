@@ -13,15 +13,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         IAuth Authent { get; }
 
+        IWebProxy Proxy { get; }
 
-        //Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired);
+
         void BanShardInfo(ShardInfo banShard);
         Task<ShardInfo> GetShardInfo(ShardType shardType);
 
         Task<CreateFolderResult> CreateFolder(string path);
         Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver);
 
-        //Task<AuthTokenResult> Auth();
+        
 
 
         HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary);

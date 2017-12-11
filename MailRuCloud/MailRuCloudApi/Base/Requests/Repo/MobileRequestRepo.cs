@@ -14,19 +14,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
     class MobileRequestRepo : IRequestRepo
     {
-        private readonly IWebProxy _proxy;
+        public IWebProxy Proxy { get; }
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
 
         public MobileRequestRepo(IWebProxy proxy, IAuth auth)
         {
-            _proxy = proxy;
+            Proxy = proxy;
 
             Authent = auth;
 
             _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(_proxy).MakeRequestAsync().Result;
+                    var server = new MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(MetaServerExpiresSec));
@@ -34,7 +34,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(_proxy).MakeRequestAsync().Result;
+                    var server = new MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(DownloadServerExpiresSec));
@@ -73,7 +73,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
-            request.Proxy = _proxy;
+            request.Proxy = Proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;
@@ -123,7 +123,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = new ListRequest(_proxy, Authent, _metaServer.Value.Url, path) { Depth = 1};
+            var req = new ListRequest(Proxy, Authent, _metaServer.Value.Url, path) { Depth = 1};
             var res = await req.MakeRequestAsync();
 
             if (res.Item is FsFolder fsf)
@@ -171,7 +171,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new AccountInfoRequest(_proxy, Authent).MakeRequestAsync();
+            var req = await new AccountInfoRequest(Proxy, Authent).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }
@@ -195,7 +195,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new Mobile.RenameRequest(_proxy, Authent, _metaServer.Value.Url, fullPath, target)
+            await new Mobile.RenameRequest(Proxy, Authent, _metaServer.Value.Url, fullPath, target)
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;
@@ -213,13 +213,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Mobile.CreateFolderRequest(_proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
+            return (await new Mobile.CreateFolderRequest(Proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Mobile.MobAddFileRequest(_proxy, Authent, _metaServer.Value.Url,
+            var res = await new Mobile.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url,
                     fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 

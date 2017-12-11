@@ -12,15 +12,11 @@ using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
 {
-    /// <summary>
-    /// Upload stream based on HttpClient
-    /// </summary>
-    /// <remarks>Suitable for .NET Core, on .NET desktop POST requests does not return response content.</remarks>
-    abstract class UploadStreamHttpClient : Stream
+    abstract class UploadStreamHttpClientV2 : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
 
-        protected UploadStreamHttpClient(string destinationPath, MailRuCloud cloud, long size)
+        protected UploadStreamHttpClientV2(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
@@ -35,45 +31,36 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 try
                 {
                     var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-
-
-                    //var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");
-
-                    //var request = (HttpWebRequest)WebRequest.Create(url); //.OriginalString);
-                    //request.Proxy = _proxy;
-                    //request.CookieContainer = Authent.Cookies;
-                    //request.Method = "PUT";
-                    //request.ContentLength = file.OriginalSize; // + boundary.Start.LongLength + boundary.End.LongLength;
-                    //request.Accept = "*/*";
-                    //request.UserAgent = ConstSettings.UserAgent;
-                    //request.AllowWriteStreamBuffering = false;
-                    //return request;
-
-                    var url = new Uri($"{shard.Url}?token={_cloud.CloudApi.Account.RequestRepo.Authent.AccessToken}");
+                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
 
                     var config = new HttpClientHandler
                     {
                         UseProxy = true,
-                        Proxy = _cloud.CloudApi.Account.RequestRepo.Proxy,
-                        CookieContainer = _cloud.CloudApi.Account.RequestRepo.Authent.Cookies,
+                        Proxy = _cloud.CloudApi.Account.Proxy,
+                        CookieContainer = _cloud.CloudApi.Account.Cookies,
                         UseCookies = true,
                         AllowAutoRedirect = true,
                     };
 
-                    _client = new HttpClient(config) {Timeout = Timeout.InfiniteTimeSpan};
+                    _client = new HttpClient(config) { Timeout = Timeout.InfiniteTimeSpan };
 
                     _request = new HttpRequestMessage
                     {
                         RequestUri = url,
-                        Method = HttpMethod.Put
+                        Method = HttpMethod.Post,
                     };
 
-                    //_request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
-                    //_request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                    //_request.Headers.Add("Host", url.Host);
+                    _request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
+                    _request.Headers.Add("Origin", ConstSettings.CloudDomain);
+                    _request.Headers.Add("Host", url.Host);
                     _request.Headers.Add("Accept", "*/*");
 
                     _request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
+
+                    var guid = Guid.NewGuid();
+                    var content = new MultipartFormDataContent($"----{guid}");
+                    var boundaryValue = content.Headers.ContentType.Parameters.First(p => p.Name == "boundary");
+                    boundaryValue.Value = boundaryValue.Value.Replace("\"", String.Empty);
 
                     _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {
@@ -89,9 +76,11 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                             throw;
                         }
                     });
+                    _pushContent.Headers.Add("Content-Disposition", $"form-data; name=\"file\"; filename=\"{_file.Name}\"");
+                    content.Add(_pushContent);
 
-                    _request.Content = _pushContent;
-                    _request.Content.Headers.ContentLength = _file.OriginalSize;
+                    _request.Content = content;
+                    _request.Content.Headers.ContentLength = _file.OriginalSize + 192 + Encoding.UTF8.GetBytes(_file.Name).Length;
 
                     _responseMessage = _client.SendAsync(_request).Result;
                 }
@@ -131,14 +120,13 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 _requestTask.GetAwaiter().GetResult();
 
 
-                if (_responseMessage.StatusCode != HttpStatusCode.Created && _responseMessage.StatusCode != HttpStatusCode.OK)
+                if (_responseMessage.StatusCode != HttpStatusCode.OK)
                     throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
 
                 var ures = _responseMessage.Content.ReadAsStringAsync().Result
                     .ToUploadPathResult();
 
-                if (ures.Size > 0 && _file.OriginalSize != ures.Size)
-                    throw new Exception("Local and remote file size does not match");
+                _file.OriginalSize = ures.Size;
                 _file.Hash = ures.Hash;
 
                 if (CheckHashes && _sha1.HashString != ures.Hash)
@@ -148,7 +136,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     .Result
                     .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
             }
-            finally 
+            finally
             {
                 _ringBuffer?.Dispose();
                 _sha1?.Dispose();
