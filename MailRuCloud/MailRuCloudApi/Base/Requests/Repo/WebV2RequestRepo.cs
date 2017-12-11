@@ -41,6 +41,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private const int ShardsExpiresInSec = 30 * 60;
 
 
+        //TODO: broken now, replace with PUT request
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
         {
             var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
