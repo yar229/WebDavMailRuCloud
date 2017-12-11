@@ -80,11 +80,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");
 
-            var request = (HttpWebRequest)WebRequest.Create(url); //.OriginalString);
+            var request = (HttpWebRequest)WebRequest.Create(url);
             request.Proxy = Proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "PUT";
-            request.ContentLength = file.OriginalSize; // + boundary.Start.LongLength + boundary.End.LongLength;
+            request.ContentLength = file.OriginalSize;
             request.Accept = "*/*";
             request.UserAgent = ConstSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
@@ -95,14 +95,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             string url = shard.Type == ShardType.Get
                 ? $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}"
-                : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?token={Authent.AccessToken}";
-                //: $"{_weblinkGetServer.Value.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?token={Authent.AccessToken}";
-                //: $"{_weblinkGetServer.Value.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public/".Length)}?token={Authent.AccessToken}";
+                : $"{shard.Url}/{file.PublicLink}?token={Authent.AccessToken}";
+            var uri = new Uri(url);
 
-
-
-            var request = (HttpWebRequest)WebRequest.Create(url);
-
+            var request = (HttpWebRequest)WebRequest.Create(uri);
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
             request.Proxy = Proxy;
@@ -111,7 +107,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             request.ContentType = MediaTypeNames.Application.Octet;
             request.Accept = "*/*";
             request.UserAgent = ConstSettings.UserAgent;
-            request.AllowReadStreamBuffering = false;
+            request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
+            request.Headers.Add("Origin", ConstSettings.CloudDomain);
+            request.Host = uri.Host;
+            request.AllowWriteStreamBuffering = false;
 
             request.Timeout = 15 * 1000;
 
