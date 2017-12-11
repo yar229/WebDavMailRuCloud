@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Base.Threads;
@@ -33,27 +32,27 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
-                {
-                    Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(_proxy).MakeRequestAsync().Result;
-                    return server;
-                },
-                TimeSpan.FromSeconds(MetaServerExpiresSec));
+            //_metaServer = new Cached<MobMetaServerRequest.Result>(() =>
+            //    {
+            //        Logger.Debug("MetaServer expired, refreshing.");
+            //        var server = new MobMetaServerRequest(_proxy).MakeRequestAsync().Result;
+            //        return server;
+            //    },
+            //    TimeSpan.FromSeconds(MetaServerExpiresSec));
 
-            _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
+            _downloadServer = new Cached<Mobile.MobDownloadServerRequest.Result>(() =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(_proxy).MakeRequestAsync().Result;
+                    var server = new Mobile.MobDownloadServerRequest(_proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
-        private readonly Cached<MobMetaServerRequest.Result> _metaServer;
-        private const int MetaServerExpiresSec = 20 * 60;
+        //private readonly Cached<MobMetaServerRequest.Result> _metaServer;
+        //private const int MetaServerExpiresSec = 20 * 60;
 
-        private readonly Cached<MobDownloadServerRequest.Result> _downloadServer;
+        private readonly Cached<Mobile.MobDownloadServerRequest.Result> _downloadServer;
         private const int DownloadServerExpiresSec = 20 * 60;
 
 
@@ -240,11 +239,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+            //string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new Mobile.RenameRequest(_proxy, Authent, _metaServer.Value.Url, fullPath, target)
-                .MakeRequestAsync();
-            var res = new RenameResult {IsSuccess = true};
+            //await new Mobile.RenameRequest(_proxy, Authent, _metaServer.Value.Url, fullPath, target)
+            //    .MakeRequestAsync();
+            //var res = new RenameResult {IsSuccess = true};
+            //return res;
+
+            var req = await new RenameRequest(_proxy, Authent, fullPath, newName).MakeRequestAsync();
+            var res = req.ToRenameResult();
             return res;
         }
 
