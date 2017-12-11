@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {

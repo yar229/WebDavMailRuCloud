@@ -3,7 +3,7 @@ using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using YaR.MailRuCloud.Api.Base.Requests.WebV2;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
@@ -19,8 +19,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         public WebAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             _proxy = proxy;
-            Cookies = new CookieContainer();
             _creds = creds;
+            Cookies = new CookieContainer();
 
             var logged = MakeLogin(onAuthCodeRequired).Result;
             if (!logged)

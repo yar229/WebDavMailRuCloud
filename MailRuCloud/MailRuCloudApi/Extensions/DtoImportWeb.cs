@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using YaR.MailRuCloud.Api.Base.Requests.WebV2;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions

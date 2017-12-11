@@ -14,10 +14,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private readonly IWebProxy _proxy;
         private readonly IBasicCredentials _creds;
 
-        public OAuth(IWebProxy proxy, IBasicCredentials creds)
+        public OAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             _proxy = proxy;
             _creds = creds;
+            Cookies = new CookieContainer();
 
             _authTokenMobile = new Cached<AuthTokenResult>(() =>
                 {
@@ -28,10 +29,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
         }
 
-        public string Login { get; }
-        public string Password { get; }
-        public string AccessToken { get; }
-        public string DownloadToken { get; }
+        public string Login => _creds.Login;
+        public string Password => _creds.Password;
+        public string AccessToken => _authTokenMobile.Value.Token;
+        public string DownloadToken => _authTokenMobile.Value.Token;
         public CookieContainer Cookies { get; }
 
 
@@ -49,7 +50,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AuthTokenResult> Auth()
         {
-            //var init = new RequestInit(_cloudApi.Account.Proxy, _cloudApi.Account.Cookies, _authTokenMobile, _cloudApi.Account.Credentials.Login);
             var req = await new MobAuthRequest(_proxy, _creds).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
             return res;

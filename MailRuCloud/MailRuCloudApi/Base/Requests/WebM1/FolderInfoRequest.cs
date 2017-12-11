@@ -3,7 +3,7 @@ using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
     internal class FolderInfoRequest : BaseRequestJson<FolderInfoResult>
     {
@@ -26,8 +26,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             get
             {
                 var uri = _isWebLink
-                    ? $"/api/v2/folder?token={Auth.AccessToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
-                    : $"/api/v2/folder?token={Auth.AccessToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
+                    ? $"/api/m1/folder?access_token={Auth.AccessToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
+                    : $"/api/m1/folder?access_token={Auth.AccessToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
                 return uri;
             }
         }

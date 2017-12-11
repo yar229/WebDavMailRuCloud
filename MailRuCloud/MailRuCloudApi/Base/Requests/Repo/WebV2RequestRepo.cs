@@ -6,20 +6,20 @@ using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using YaR.MailRuCloud.Api.Base.Requests.WebV2;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
-    class WebRequestRepo: IRequestRepo
+    class WebV2RequestRepo: IRequestRepo
     {
         private readonly IWebProxy _proxy;
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebRequestRepo));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
 
-        public WebRequestRepo(IWebProxy proxy, IAuth auth)
+        public WebV2RequestRepo(IWebProxy proxy, IAuth auth)
         {
             _proxy = proxy;
 
@@ -238,13 +238,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Web.CreateFolderRequest(_proxy, Authent, path).MakeRequestAsync())
+            return (await new WebV2.CreateFolderRequest(_proxy, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Web.CreateFileRequest(_proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new WebV2.CreateFileRequest(_proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

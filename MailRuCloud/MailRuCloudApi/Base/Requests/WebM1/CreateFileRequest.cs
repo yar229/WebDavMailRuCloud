@@ -3,9 +3,9 @@ using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-   class CreateFileRequest : BaseRequestJson<CreateFileRequest.Result>
+   class CreateFileRequest : BaseRequestJson<WebV2.CreateFileRequest.Result>
     {
         private readonly string _fullPath;
         private readonly string _hash;
@@ -21,22 +21,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
         }
 
-        protected override string RelationalUri => "/api/v2/file/add";
+        protected override string RelationalUri => "/api/m1/file/add";
 
         protected override byte[] CreateHttpContent()
         {
             string filePart = $"&hash={_hash}&size={_size}";
-            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={Auth.AccessToken}" + filePart;
+            string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&access_token={Auth.AccessToken}" + filePart;
 
             return Encoding.UTF8.GetBytes(data);
-        }
-
-        internal class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }

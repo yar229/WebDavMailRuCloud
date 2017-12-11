@@ -5,7 +5,7 @@ using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class LoginRequest : BaseRequestString<LoginResult>
     {

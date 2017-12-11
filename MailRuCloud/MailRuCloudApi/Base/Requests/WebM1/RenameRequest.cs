@@ -3,10 +3,10 @@ using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
     
-    class RenameRequest : BaseRequestJson<RenameRequest.Result>
+    class RenameRequest : BaseRequestJson<WebV2.RenameRequest.Result>
     {
         private readonly string _fullPath;
         private readonly string _newName;
@@ -17,21 +17,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             _newName = newName;
         }
 
-        protected override string RelationalUri => "/api/v2/file/rename";
+        protected override string RelationalUri => "/api/m1/file/rename";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict=rename&name={4}", Uri.EscapeDataString(_fullPath),
+            var data = string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}&conflict=rename&name={4}", Uri.EscapeDataString(_fullPath),
                 2, Auth.AccessToken, Auth.Login, Uri.EscapeDataString(_newName));
             return Encoding.UTF8.GetBytes(data);
-        }
-
-        public class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }

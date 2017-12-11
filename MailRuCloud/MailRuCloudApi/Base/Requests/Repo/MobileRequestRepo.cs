@@ -17,16 +17,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         private readonly IWebProxy _proxy;
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
 
-        public MobileRequestRepo(IWebProxy proxy, IBasicCredentials creds)
+        public MobileRequestRepo(IWebProxy proxy, IAuth auth)
         {
             _proxy = proxy;
 
-            Authent = new OAuth(_proxy, creds);
+            Authent = auth;
 
             _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new MobMetaServerRequest(_proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(MetaServerExpiresSec));
@@ -34,7 +34,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new MobDownloadServerRequest(_proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 TimeSpan.FromSeconds(DownloadServerExpiresSec));
@@ -51,7 +51,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
 
         public IAuth Authent { get; }
-        public IWebProxy Proxy { get; }
         public CookieContainer Cookies { get; }
 
         public async Task<bool> Login(AuthCodeRequiredDelegate onAuthCodeRequired)
@@ -74,7 +73,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
-            request.Proxy = Proxy;
+            request.Proxy = _proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;

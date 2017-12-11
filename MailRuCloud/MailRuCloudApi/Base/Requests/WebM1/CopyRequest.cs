@@ -3,9 +3,9 @@ using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Web
+namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class CopyRequest : BaseRequestJson<CopyRequest.Result>
+    class CopyRequest : BaseRequestJson<WebV2.CopyRequest.Result>
     {
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;
@@ -26,25 +26,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Web
             _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
         }
 
-        protected override string RelationalUri => "/api/v2/file/copy";
+        protected override string RelationalUri => "/api/m1/file/copy";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
+            var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
                 Uri.EscapeDataString(_sourceFullPath), 2, Auth.AccessToken, Auth.Login, 
                 _conflictResolver,
                 Uri.EscapeDataString(_destinationPath)));
 
             return data;
-        }
-
-
-        internal class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }
