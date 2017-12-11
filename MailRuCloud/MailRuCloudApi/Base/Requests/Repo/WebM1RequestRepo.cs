@@ -10,7 +10,6 @@ using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
-using AccountInfoRequest = YaR.MailRuCloud.Api.Base.Requests.WebM1.AccountInfoRequest;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
@@ -32,14 +31,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            //_metaServer = new Cached<MobMetaServerRequest.Result>(() =>
-            //    {
-            //        Logger.Debug("MetaServer expired, refreshing.");
-            //        var server = new MobMetaServerRequest(_proxy).MakeRequestAsync().Result;
-            //        return server;
-            //    },
-            //    TimeSpan.FromSeconds(MetaServerExpiresSec));
-
             _downloadServer = new Cached<Mobile.MobDownloadServerRequest.Result>(() =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
@@ -47,29 +38,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                     return server;
                 },
                 TimeSpan.FromSeconds(DownloadServerExpiresSec));
-
-            _weblinkGetServer = new Cached<Mobile.WeblinkGetServerRequest.Result>(() =>
-                {
-                    Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new Mobile.WeblinkGetServerRequest(Proxy).MakeRequestAsync().Result;
-                    return server;
-                },
-                TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
-
-        //private readonly Cached<MobMetaServerRequest.Result> _metaServer;
-        //private const int MetaServerExpiresSec = 20 * 60;
 
         private readonly Cached<Mobile.MobDownloadServerRequest.Result> _downloadServer;
         private const int DownloadServerExpiresSec = 20 * 60;
 
-        private readonly Cached<Mobile.WeblinkGetServerRequest.Result> _weblinkGetServer;
-        private const int WeblinkGetServerExpiresSec = 20 * 60;
-
-
         public IAuth Authent { get; }
-
-
 
         private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
         private readonly Cached<List<ShardInfo>> _bannedShards;

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -52,13 +51,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public IAuth Authent { get; }
         public CookieContainer Cookies { get; }
-
-        public async Task<bool> Login(AuthCodeRequiredDelegate onAuthCodeRequired)
-        {
-            //TODO: check for additional repo
-            return await Task.FromResult(true);
-        }
-
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
         {
@@ -199,16 +191,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;
-        }
-
-        public HttpWebRequest CreateUploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)
