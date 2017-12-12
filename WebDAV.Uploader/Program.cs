@@ -11,6 +11,9 @@ namespace WebDAV.Uploader
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
+
+
             string user = args[0].Trim('"');
             string password = args[1].Trim('"');
             string listname = args[2].Trim('"');
