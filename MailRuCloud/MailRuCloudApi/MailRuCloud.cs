@@ -1,11 +1,4 @@
-﻿//-----------------------------------------------------------------------
-// <created file="MailRuCloudApi.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -74,6 +67,8 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
+            path = WebDavPath.Clean(path);
+
             var cached = _itemCache.Get(path);
             if (null != cached)
                 return cached;
@@ -90,24 +85,24 @@ namespace YaR.MailRuCloud.Api
                 return res;
             }
 
-            FolderInfoResult datares;
-            try
-            {
-                datares = await new FolderInfoRequest(CloudApi, null == ulink ? path : ulink.Href, ulink != null)
-                    .MakeRequestAsync().ConfigureAwait(false);
-            }
-            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
             if (itemType == ItemType.Unknown && ulink != null)
                 itemType = ulink.ItemType;
 
-            if (itemType == ItemType.Unknown && null == ulink)
-                itemType = datares.body.home == path
-                    ? ItemType.Folder
-                    : ItemType.File;
+            //FolderInfoResult datares;
+            //try
+            //{
+            //    datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
+            //}
+            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+
+
+            //if (itemType == ItemType.Unknown && null == ulink)
+            //    itemType = datares.body.home == path
+            //        ? ItemType.Folder
+            //        : ItemType.File;
 
             // TODO: cache (parent) folder for file 
             //if (itemType == ItemType.File)
@@ -117,13 +112,25 @@ namespace YaR.MailRuCloud.Api
             //    //_itemCache.Add(cachefolder.Files);
             //}
 
-            var entry = itemType == ItemType.File
-                ? (IEntry)datares.ToFile(
-                    home: WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
-                : datares.ToFolder(path, ulink);
+            //var entry = itemType == ItemType.File
+            //    ? (IEntry)datares.ToFile(
+            //        home: WebDavPath.Parent(path),
+            //        ulink: ulink,
+            //        filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+            //        nameReplacement: WebDavPath.Name(path))
+            //    : datares.ToFolder(path, ulink);
+
+            //var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
+
+
+            var entry = await CloudApi.Account.RequestRepo.FolderInfo(path, ulink);
+            if (null == entry)
+                return null;
+
+            if (itemType == ItemType.Unknown)
+                itemType = entry is Folder 
+                    ? ItemType.Folder 
+                    : ItemType.File;
 
             // fill folder with links if any
             if (itemType == ItemType.Folder && entry is Folder folder)
@@ -154,12 +161,13 @@ namespace YaR.MailRuCloud.Api
 
         #region == Publish ==========================================================================================================================
         
-        private async Task<string> Unpublish(string publicLink)
+        private async Task<bool> Unpublish(string publicLink)
         {
-            var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
-                .ThrowIf(r => r.status != 200, r => new Exception($"Unpublish error, link = {publicLink}, status = {r.status}"));
+            //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
+            var res = (await  CloudApi.Account.RequestRepo.Unpublish(publicLink))
+                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Unpublish error, link = {publicLink}"));
 
-            return res.body;
+            return res.IsSuccess;
         }
 
         public async Task  Unpublish(File file)
@@ -175,10 +183,10 @@ namespace YaR.MailRuCloud.Api
 
         private async Task<string> Publish(string fullPath)
         {
-            var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
-                .ThrowIf(r => r.status != 200, r => new Exception($"Publish error, path = {fullPath}, status = {r.status}"));
+            var res = (await CloudApi.Account.RequestRepo.Publish(fullPath))
+                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
-            return res.body;
+            return res.Url;
         }
 
         public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
@@ -253,9 +261,9 @@ namespace YaR.MailRuCloud.Api
                 return cloneres.IsSuccess;
             }
 
-            var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath)
-                .MakeRequestAsync();
-            if (copyRes.status != 200) return false;
+            //var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath).MakeRequestAsync();
+            var copyRes = await CloudApi.Account.RequestRepo.Copy(folder.FullPath, destinationPath);
+            if (!copyRes.IsSuccess) return false;
 
             //clone all inner links
             var links = _linkManager.GetChilds(folder.FullPath);
@@ -346,13 +354,13 @@ namespace YaR.MailRuCloud.Api
                     .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                     .Select(async pfile =>
                     {
-                        var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite)
-                            .MakeRequestAsync();
-                        if (copyRes.status != 200) return false;
+                        //var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite).MakeRequestAsync();
+                        var copyRes = await CloudApi.Account.RequestRepo.Copy(pfile.FullPath, destPath, ConflictResolver.Rewrite);
+                        if (!copyRes.IsSuccess) return false;
 
-                        if (doRename || WebDavPath.Name(copyRes.body) != newname)
+                        if (doRename || WebDavPath.Name(copyRes.NewName) != newname)
                         {
-                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.body));
+                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.NewName));
                             var renameRes = await Rename(newFullPath, pfile.Name.Replace(file.Name, newname));
                             if (!renameRes) return false;
                         }
@@ -415,7 +423,7 @@ namespace YaR.MailRuCloud.Api
             {
                 foreach (var splitFile in file.Parts)
                 {
-                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false); //+ ".wdmrc" + splitFile.Extension;
+                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false);
                     await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
                 }
             }
@@ -437,21 +445,20 @@ namespace YaR.MailRuCloud.Api
             //rename item
             if (link == null)
             {
-                var data = await new RenameRequest(CloudApi, fullPath, newName)
-                    .MakeRequestAsync();
+                var data = await CloudApi.Account.RequestRepo.Rename(fullPath, newName);
 
-                if (data.status == 200)
+                if (data.IsSuccess)
                 {
                     _linkManager.ProcessRename(fullPath, newName);
-                    _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+                    _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
                 }
 
-                return data.status == 200;
+                return data.IsSuccess;
             }
 
             //rename link
             var res = _linkManager.RenameLink(link, newName);
-            if (res) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            if (res) _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
 
             return res;
         }
@@ -497,8 +504,9 @@ namespace YaR.MailRuCloud.Api
                 return remapped;
             }
 
-            var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
-            if (!string.IsNullOrEmpty(res)) return false;
+            //var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
+            var res = await CloudApi.Account.RequestRepo.Move(folder.FullPath, destinationPath);
+            if (!res.IsSuccess) return false;
 
             //clone all inner links
             var links = _linkManager.GetChilds(folder.FullPath).ToList();
@@ -519,7 +527,6 @@ namespace YaR.MailRuCloud.Api
                         if (!renRes) return false;
                     }
                 }
-                //await _linkManager.RemapLink(linka, linkdest, false);
             }
             if (links.Any()) _linkManager.Save();
 
@@ -532,7 +539,7 @@ namespace YaR.MailRuCloud.Api
         /// <param name="file">File info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, string destinationPath)
+        public async Task<bool> Move(File file, string destinationPath, bool moveSplitted = true)
         {
             var link = await _linkManager.GetItemLink(file.FullPath, false);
             if (link != null)
@@ -546,10 +553,10 @@ namespace YaR.MailRuCloud.Api
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
-                .Select(async pfile => await MoveOrCopy(pfile.FullPath, destinationPath, true));
+                .Select(async pfile => await CloudApi.Account.RequestRepo.Move(pfile.FullPath, destinationPath));
 
             bool res = (await Task.WhenAll(qry))
-                .All(r => !string.IsNullOrEmpty(r));
+                .All(r => r.IsSuccess);
             return res;
         }
 
@@ -587,8 +594,9 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         /// <param name="file">File info.</param>
         /// <param name="removeShareDescription">Also remove share description file (.share.wdmrc)</param>
+        /// <param name="doInvalidateCache"></param>
         /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true)
+        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true, bool doInvalidateCache = true)
         {
             // remove all parts if file splitted
             var qry = file.Files
@@ -616,14 +624,19 @@ namespace YaR.MailRuCloud.Api
                 else
                 {
                     //remove share description (.wdmrc.share)
-                    if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
-                        await Remove(sharefile, false);
+                    if (removeShareDescription)
+                    {
+                        if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                            await Remove(sharefile, false);
+                    }
                 }
 
             }
 
 
-            _itemCache.Invalidate(file.Path, file.FullPath);
+            if (doInvalidateCache)
+                _itemCache.Invalidate(file.Path, file.FullPath);
+
             return res;
         }
 
@@ -635,8 +648,8 @@ namespace YaR.MailRuCloud.Api
         /// <returns>Returns Total/Free/Used size.</returns>
         public async Task<DiskUsage> GetDiskUsage()
         {
-            var data = await new AccountInfoRequest(CloudApi).MakeRequestAsync();
-            return data.ToDiskUsage();
+            var data = await CloudApi.Account.RequestRepo.AccountInfo();
+            return data.DiskUsage;
         }
 
         /// <summary>
@@ -667,29 +680,18 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            var req = await new CreateFolderRequest(CloudApi, fullPath)
-                .MakeRequestAsync();
-            var res = req.ToPathResult();
+            var res = await CloudApi.Account.RequestRepo.CreateFolder(fullPath);
 
             if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             return res.IsSuccess;
         }
 
-        public async Task<PathResult> CloneItem(string path, string url)
+        public async Task<CloneItemResult> CloneItem(string path, string url)
         {
-            var data = await new CloneItemRequest(CloudApi, url, path)
-                .MakeRequestAsync();
+            var res = await CloudApi.Account.RequestRepo.CloneItem(url, path);
 
-            var res = data.ToPathResult();
             if (res.IsSuccess) _itemCache.Invalidate(path);
             return res;
-        }
-
-        //TODO : move upper
-        public class PathResult
-        {
-            public bool IsSuccess { get; set; }
-            public string Path { get; set; }
         }
 
         public async Task<Stream> GetFileDownloadStream(File file, long? start, long? end)
@@ -704,82 +706,12 @@ namespace YaR.MailRuCloud.Api
         public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
         {
             var file = new File(fullFilePath, size, string.Empty);
+
             var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
                 .ConfigureAwait(false);
             var stream = await task;
+
             return stream;
-
-            //var stream = new SplittedUploadStream(destinationPath, CloudApi, size);
-
-            //// refresh linked folders
-            //stream.FileUploaded += OnFileUploaded;
-
-            //return stream;
-            //=============================================================================================================
-
-            //var key1 = new byte[32];
-            //var key2 = new byte[32];
-            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key1, 32);
-            //Array.Copy(Encoding.ASCII.GetBytes("01234567890123456789012345678900zzzzzzzzzzzzzzzzzzzzzz"), key2, 32);
-            //var xts = XtsAes256.Create(key1, key2);
-
-            ////using (var streamread = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            ////using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\local_encoded_xtsw.pdf"))
-            //using (var streamread = System.IO.File.Open(@"d:\4\1.txt", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_encoded_xtsw.pdf"))
-            //{
-            //    using (var xtswritestream = new XTSWriteOnlyStream(streamwrite, xts, 512))
-            //    {
-            //        streamread.CopyTo(xtswritestream);
-            //    }
-            //}
-
-            //using (var streamread = System.IO.File.Open(@"d:\4\1_local_encoded_xtsw.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //using (var streamwrite = System.IO.File.OpenWrite(@"d:\4\1_local_decoded_xtsw.pdf"))
-            //{
-            //    using (var xtsreadstream = new XtsStream(streamread, xts, 512))
-            //    {
-            //        xtsreadstream.CopyTo(streamwrite);
-            //    }
-            //}
-
-            //================================================================================================================================
-
-
-            //destinationPath += $".c{delta:x}.wdmrc";
-
-            //size = size % XTSWriteOnlyStream.BlockSize == 0
-            //    ? size
-            //    : (size / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
-
-
-
-            //var ustream = new SplittedUploadStream(destinationPath, this, size, false);
-            //var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
-
-            //// refresh linked folders
-            //ustream.FileUploaded += OnFileUploaded;
-
-            //return encustream;
-
-
-            //////================================================================================================================================
-            //var xtsa = XtsAes256.Create(key1, key2);
-            //using (FileStream sourceStream = System.IO.File.Open(@"d:\4\original.pdf", FileMode.Open, FileAccess.Read, FileShare.Read))
-            //{
-            //    sourceStream.Seek(0, SeekOrigin.End);
-
-            //    FileStream targetStream = System.IO.File.Open(@"d:\4\local_encoded_xts.pdf", FileMode.OpenOrCreate);
-            //    var encstream = new XtsStream(targetStream, xtsa, 512);
-            //    sourceStream.Seek(0, SeekOrigin.Begin);
-            //    sourceStream.CopyTo(encstream);
-            //    encstream.Flush();
-            //    encstream.Close();
-            //    targetStream.Flush();
-            //    targetStream.Close();
-            //}
-
-            //return stream;
         }
 
         public event FileUploadedDelegate FileUploaded;
@@ -854,33 +786,6 @@ namespace YaR.MailRuCloud.Api
             return true;
         }
 
-
-        /// <summary>
-        /// Move or copy item on server.
-        /// </summary>
-        /// <param name="sourceFullPath">Full path source or file name.</param>
-        /// <param name="destinationPath">Destination path to cope or move.</param>
-        /// <param name="move">Move or copy operation.</param>
-        /// <returns>New created file name.</returns>
-        public async Task<string> MoveOrCopy(string sourceFullPath, string destinationPath, bool move)
-        {
-            //TODO: refact
-            if (!move)
-            {
-                var entry = await GetItem(sourceFullPath);
-                await Copy(entry, destinationPath);
-            }
-
-            var data = await new MoveOrCopyRequest(CloudApi, sourceFullPath, destinationPath, move)
-                .MakeRequestAsync();
-
-            if (data.status == 200) _itemCache.Invalidate(WebDavPath.Parent(sourceFullPath), destinationPath);
-            return data.ToString();
-        }
-
-
-
-
         /// <summary>
         /// Remove file or folder.
         /// </summary>
@@ -901,9 +806,8 @@ namespace YaR.MailRuCloud.Api
                 return true;
             }
 
-            var res = await new RemoveRequest(CloudApi, fullPath)
-                .MakeRequestAsync();
-            if (res.status == 200)
+            var res = await CloudApi.Account.RequestRepo.Remove(fullPath);
+            if (res.IsSuccess)
             {
                 //remove inner links
                 var innerLinks = _linkManager.GetChilds(fullPath);
@@ -911,7 +815,7 @@ namespace YaR.MailRuCloud.Api
 
                 _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             }
-            return res.status == 200;
+            return res.IsSuccess;
         }
 
         #region IDisposable Support
@@ -952,17 +856,32 @@ namespace YaR.MailRuCloud.Api
             if (count > 0) _itemCache.Invalidate();
         }
 
-        public async Task<StatusResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
+        public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            var res = await new CreateFileRequest(CloudApi, fullFilePath, hash, size, conflict)
-                .MakeRequestAsync();
+            var res = await CloudApi.Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
 
             return res;
         }
 
-        public async Task<StatusResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
+        public async Task<AddFileResult> AddFileInCloud(File fileInfo, ConflictResolver? conflict = null)
         {
             var res = await AddFile(fileInfo.Hash, fileInfo.FullPath, fileInfo.OriginalSize, conflict);
+
+            return res;
+        }
+
+        public async Task<bool> SetFileDateTime(File file, DateTime dateTime)
+        {
+            if (file.LastWriteTimeUtc == dateTime)
+                return true;
+
+            var added = await CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
+            bool res = added.Success;
+            if (res)
+            {
+                file.LastWriteTimeUtc = dateTime;
+                _itemCache.Invalidate(file.Path, file.FullPath);
+            }
 
             return res;
         }

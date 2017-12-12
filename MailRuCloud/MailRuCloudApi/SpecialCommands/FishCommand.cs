@@ -36,9 +36,9 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
             try
             {
-                var res = await new CreateFileRequest(Cloud.CloudApi, target, strRandomHash, randomSize, ConflictResolver.Rename)
-                    .MakeRequestAsync();
-                if (res.status == 200)
+                //var res = await new CreateFileRequest(Cloud.CloudApi, target, strRandomHash, randomSize, ConflictResolver.Rename).MakeRequestAsync();
+                var res = await Cloud.CloudApi.Account.RequestRepo.AddFile(target, strRandomHash, randomSize, DateTime.Now,  ConflictResolver.Rename);
+                if (res.Success)
                 {
                     Logger.Warn("╔╗╔╗╔╦══╦╗╔╗╔╗╔╦╦╗");
                     Logger.Warn("║║║║║║╔╗║║║║║║║║║║");

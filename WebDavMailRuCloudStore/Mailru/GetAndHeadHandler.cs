@@ -50,9 +50,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             // Determine the requested range
             var range = request.GetRange();
 
-            // Obtain the WebDAV collection
-            var mrstore = (MailruStore) store;
-
             var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false); //mrstore.ItemCache.Get(request.Url, httpContext); // 
             if (entry == null)
             {
@@ -108,7 +105,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
                             var length = stream.Length;
 
                             // Check if an 'If-Range' was specified
-                            if (range?.If != null)
+                            if (range?.If != null && propertyManager != null)
                             {
                                 var lastModifiedText = (string)await propertyManager.GetPropertyAsync(httpContext, entry, DavGetLastModified<IStoreItem>.PropertyName, true).ConfigureAwait(false);
                                 var lastModified = DateTime.Parse(lastModifiedText, CultureInfo.InvariantCulture);

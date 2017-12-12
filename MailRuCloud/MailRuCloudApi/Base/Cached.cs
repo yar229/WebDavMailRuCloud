@@ -4,10 +4,10 @@ namespace YaR.MailRuCloud.Api.Base
 {
     public class Cached<T>
     {
-        private readonly TimeSpan _duration;
+        private readonly Func<T, TimeSpan> _duration;
         private DateTime _expiration;
         private Lazy<T> _value;
-        private readonly Func<T> _valueFactory;
+        private readonly Func<T, T> _valueFactory;
 
         public T Value
         {
@@ -18,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base
             }
         }
 
-        public Cached(Func<T> valueFactory, TimeSpan duration)
+        public Cached(Func<T, T> valueFactory, Func<T, TimeSpan> duration)
         {
             _duration = duration;
             _valueFactory = valueFactory;
@@ -36,8 +36,11 @@ namespace YaR.MailRuCloud.Api.Base
                 {
                     if (DateTime.Now >= _expiration)
                     {
-                        _value = new Lazy<T>(_valueFactory);
-                        _expiration = DateTime.Now.Add(_duration);
+                        T oldValue =  null != _value && _value.IsValueCreated ? _value.Value : default(T);
+                        _value = new Lazy<T>(() => _valueFactory(oldValue));
+
+                        var duration = _duration(_value.Value);
+                        _expiration = DateTime.Now.Add(duration);
                     }
                 }
             }

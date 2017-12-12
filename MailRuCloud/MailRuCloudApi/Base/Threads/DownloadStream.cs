@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
 {
@@ -123,38 +123,18 @@ namespace YaR.MailRuCloud.Api.Base.Threads
         private ShardInfo GetShard(File file)
         {
             var res = string.IsNullOrEmpty(file.PublicLink)
-                ? _cloud.Account.GetShardInfo(ShardType.Get).Result
-                : _cloud.Account.GetShardInfo(ShardType.WeblinkGet).Result;
+                ? _cloud.Account.RequestRepo.GetShardInfo(ShardType.Get).Result
+                : _cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkGet).Result;
             return res;
         }
         private HttpWebRequest CreateRequest(long instart, long inend, File file, bool doBanCurrentShard)
         {
             if (doBanCurrentShard)
-                _cloud.Account.BanShardInfo(_shard);
+                _cloud.Account.RequestRepo.BanShardInfo(_shard);
 
             _shard = GetShard(file);
 
-            string downloadkey = string.Empty;
-            if (_shard.Type == ShardType.WeblinkGet)
-                downloadkey = _cloud.Account.DownloadToken.Value;
-
-            string url = _shard.Type == ShardType.Get
-                ? $"{_shard.Url}{Uri.EscapeDataString(file.FullPath)}"
-                : $"{_shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
-
-            var request = (HttpWebRequest) WebRequest.Create(url);
-
-            request.Headers.Add("Accept-Ranges", "bytes");
-            request.AddRange(instart, inend);
-            request.Proxy = _cloud.Account.Proxy;
-            request.CookieContainer = _cloud.Account.Cookies;
-            request.Method = "GET";
-            request.ContentType = MediaTypeNames.Application.Octet;
-            request.Accept = "*/*";
-            request.UserAgent = ConstSettings.UserAgent;
-            request.AllowReadStreamBuffering = false;
-
-            request.Timeout = 15 * 1000;
+            var request = _cloud.Account.RequestRepo.DownloadRequest(instart, inend, file, _shard);
 
             return request;
         }
@@ -165,7 +145,6 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
-            //_task.Wait();
             _innerStream.Close();
         }
 

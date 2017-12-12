@@ -78,6 +78,7 @@ namespace YaR.MailRuCloud.Api.XTSSharp
             }
 
             _baseStream.Dispose();
+            _encryptor.Dispose();
         }
 
 

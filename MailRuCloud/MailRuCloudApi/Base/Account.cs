@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading;
+﻿using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-    /// <summary>
-    /// MAIL.RU account info.
-    /// </summary>
+    //TODO: refact, maybe we don't need this class
+    //TODO: refact, Requestrepo - wrong place?
     public class Account
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
@@ -23,6 +18,8 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         private CookieContainer _cookies;
 
+        private IRequestRepo _requestRepo;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
@@ -33,6 +30,7 @@ namespace YaR.MailRuCloud.Api.Base
         public Account(CloudApi cloudApi, string login, string password, ITwoFaHandler twoFaHandler)
         {
             _cloudApi = cloudApi;
+
             Credentials = new Credentials(login, password);
 
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
@@ -42,24 +40,14 @@ namespace YaR.MailRuCloud.Api.Base
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
-            _bannedShards = new Cached<List<ShardInfo>>(() => new List <ShardInfo>(),
-                TimeSpan.FromMinutes(2));
-
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(_cloudApi).MakeRequestAsync().Result.ToShardInfo(),
-                TimeSpan.FromSeconds(ShardsExpiresInSec));
-
-            DownloadToken = new Cached<string>(() => new DownloadTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken(),
-                TimeSpan.FromSeconds(DownloadTokenExpiresSec));
-
-            AuthToken = new Cached<string>(() =>
-                {
-                    Logger.Debug("AuthToken expired, refreshing.");
-                    var token = new AuthTokenRequest(_cloudApi).MakeRequestAsync().Result.ToToken();
-                    DownloadToken.Expire();
-                    return token;
-                },
-                TimeSpan.FromSeconds(AuthTokenExpiresInSec));
+            
         }
+
+        internal IRequestRepo RequestRepo => _requestRepo ??
+                                             //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
+                                             //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
+                                            (_requestRepo = new WebM1RequestRepo(_cloudApi.Account.Proxy, new OAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials, OnAuthCodeRequired)));
+                                            //MixedRepo(_cloudApi));
 
         /// <summary>
         /// Gets connection proxy.
@@ -75,7 +63,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         internal Credentials Credentials { get; }
 
-        public AccountInfo Info { get; private set; }
+        public AccountInfoResult Info { get; private set; }
 
         /// <summary>
         /// Authorize on MAIL.RU server.
@@ -92,89 +80,12 @@ namespace YaR.MailRuCloud.Api.Base
         /// <returns>True or false result operation.</returns>
         public async Task<bool> LoginAsync()
         {
-            var loginResult = await new LoginRequest(_cloudApi, Credentials)
-                .MakeRequestAsync();
+            //await RequestRepo.Login(OnAuthCodeRequired);
 
-            // 2FA
-            if (!string.IsNullOrEmpty(loginResult.Csrf))
-            {
-                string authCode = OnAuthCodeRequired(Credentials.Login, false);
-                await new SecondStepAuthRequest(_cloudApi, loginResult.Csrf, Credentials.Login, authCode)
-                    .MakeRequestAsync();
-            }
-
-            await new EnsureSdcCookieRequest(_cloudApi)
-                .MakeRequestAsync();
-
-            Info = (await new AccountInfoRequest(_cloudApi)
-                .MakeRequestAsync())
-                .ToAccountInfo();
+            Info = await RequestRepo.AccountInfo();
 
             return true;
         }
-
-        /// <summary>
-        /// Token for authorization
-        /// </summary>
-        public readonly Cached<string> AuthToken;
-        private const int AuthTokenExpiresInSec = 23 * 60 * 60;
-
-        /// <summary>
-        /// Token for downloading files
-        /// </summary>
-        public readonly Cached<string> DownloadToken;
-        private const int DownloadTokenExpiresSec = 20 * 60;
-
-        private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
-        private readonly Cached<List<ShardInfo>> _bannedShards;
-        private const int ShardsExpiresInSec = 30 * 60;
-
-
-        public void BanShardInfo(ShardInfo banShard)
-        {
-            if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
-            {
-                Logger.Warn($"Shard {banShard.Url} temporarily banned");
-                _bannedShards.Value.Add(banShard);
-            }
-        }
-
-
-        /// <summary>
-        /// Get shard info that to do post get request. Can be use for anonymous user.
-        /// </summary>
-        /// <param name="shardType">Shard type as numeric type.</param>
-        /// <returns>Shard info.</returns>
-        public async Task<ShardInfo> GetShardInfo(ShardType shardType)
-        {
-            bool refreshed = false;
-            for (int i = 0; i < 10; i++)
-            {
-                Thread.Sleep(80 * i);
-                var ishards = await Task.Run(() => _cachedShards.Value);
-                var ishard = ishards[shardType];
-                var banned = _bannedShards.Value;
-                if (banned.All(bsh => bsh.Url != ishard.Url))
-                {
-                    if (refreshed) DownloadToken.Expire();
-                    return ishard;
-                }
-                _cachedShards.Expire();
-                refreshed = true;
-            }
-
-            Logger.Error("Cannot get working shard.");
-
-            var shards = await Task.Run(() => _cachedShards.Value);
-            var shard = shards[shardType];
-            return shard;
-        }
-
-        
-
-
-
-        public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 
         public event AuthCodeRequiredDelegate AuthCodeRequiredEvent;
         protected virtual string OnAuthCodeRequired(string login, bool isAutoRelogin)
@@ -182,4 +93,6 @@ namespace YaR.MailRuCloud.Api.Base
             return AuthCodeRequiredEvent?.Invoke(login, isAutoRelogin);
         }
     }
+
+    public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 }

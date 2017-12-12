@@ -143,7 +143,7 @@ namespace YaR.CloudMailRu.Console
             System.Console.WriteLine($"  {copyright}");
 
             Logger.Info($"OS Version: {Environment.OSVersion}");
-            Logger.Info($"CLR Version: {Environment.Version}");
+            Logger.Info($"CLR: {GetFrameworkDescription()}");
             Logger.Info($"User interactive: {Environment.UserInteractive}");
             Logger.Info($"Version: {version}");
             Logger.Info($"Max threads count: {options.MaxThreadCount}");
@@ -153,6 +153,30 @@ namespace YaR.CloudMailRu.Console
         {
             T attribute = (T)Attribute.GetCustomAttribute(Assembly.GetExecutingAssembly(), typeof(T));
             return null == attribute ? null : value.Invoke(attribute);
+        }
+
+
+        private static string GetFrameworkDescription()
+        {
+            // detect .NET Core
+            var assembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
+            var assemblyPath = assembly.CodeBase.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            int netCoreAppIndex = Array.IndexOf(assemblyPath, "Microsoft.NETCore.App");
+            if (netCoreAppIndex > 0 && netCoreAppIndex < assemblyPath.Length - 2)
+                return ".NET Core " + assemblyPath[netCoreAppIndex + 1];
+
+            // detect .NET Mono
+            Type type = Type.GetType("Mono.Runtime");
+            if (type != null)
+            {
+                MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+                return displayName != null
+                    ? "Mono " + displayName.Invoke(null, null)
+                    : "unknown";
+            }
+
+            // .NET Framework, yep?
+            return ".NET Framework " + Environment.Version;
         }
     }
 }

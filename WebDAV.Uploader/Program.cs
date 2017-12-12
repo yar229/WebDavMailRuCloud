@@ -11,6 +11,9 @@ namespace WebDAV.Uploader
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
+
+
             string user = args[0].Trim('"');
             string password = args[1].Trim('"');
             string listname = args[2].Trim('"');
@@ -41,7 +44,7 @@ namespace WebDAV.Uploader
                         var hasher = new MailRuSha1Hash();
                         hasher.Append(source);
                         var hash = hasher.HashString;
-                        if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.status == 200)
+                        if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.Success)
                         {
                             Console.WriteLine("Added by hash");
                         }

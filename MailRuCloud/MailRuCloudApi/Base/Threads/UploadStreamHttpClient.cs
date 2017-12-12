@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
@@ -33,14 +32,25 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
-                    var shard = _cloud.CloudApi.Account.GetShardInfo(ShardType.Upload).Result;
-                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
+                    if (_file.OriginalSize <= MailRuSha1Hash.Length) // do not send upload request if file content fits to hash
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            _ringBuffer.CopyTo(ms);
+                        }
+                        return;
+                    }
+
+
+
+                    var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
+                    var url = new Uri($"{shard.Url}?token={_cloud.CloudApi.Account.RequestRepo.Authent.AccessToken}");
 
                     var config = new HttpClientHandler
                     {
                         UseProxy = true,
-                        Proxy = _cloud.CloudApi.Account.Proxy,
-                        CookieContainer = _cloud.CloudApi.Account.Cookies,
+                        Proxy = _cloud.CloudApi.Account.RequestRepo.Proxy,
+                        CookieContainer = _cloud.CloudApi.Account.RequestRepo.Authent.Cookies,
                         UseCookies = true,
                         AllowAutoRedirect = true,
                     };
@@ -50,20 +60,11 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     _request = new HttpRequestMessage
                     {
                         RequestUri = url,
-                        Method = HttpMethod.Post,
+                        Method = HttpMethod.Put
                     };
 
-                    _request.Headers.Add("Referer", $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(_file.Path)}");
-                    _request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                    _request.Headers.Add("Host", url.Host);
                     _request.Headers.Add("Accept", "*/*");
-
                     _request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
-
-                    var guid = Guid.NewGuid();
-                    var content = new MultipartFormDataContent($"----{guid}");
-                    var boundaryValue = content.Headers.ContentType.Parameters.First(p => p.Name == "boundary");
-                    boundaryValue.Value = boundaryValue.Value.Replace("\"", String.Empty);
 
                     _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {
@@ -79,17 +80,15 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                             throw;
                         }
                     });
-                    _pushContent.Headers.Add("Content-Disposition", $"form-data; name=\"file\"; filename=\"{_file.Name}\"");
-                    content.Add(_pushContent);
 
-                    _request.Content = content;
-                    _request.Content.Headers.ContentLength = _file.OriginalSize + 192 + Encoding.UTF8.GetBytes(_file.Name).Length;
+                    _request.Content = _pushContent;
+                    _request.Content.Headers.ContentLength = _file.OriginalSize;
 
                     _responseMessage = _client.SendAsync(_request).Result;
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("Upload request failed", e);
+                    Logger.Error($"Uploading to {_file.FullPath} failed with {e.Message}");
                     throw;
                 }
             });
@@ -104,7 +103,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (CheckHashes)
+            if (CheckHashes || _file.OriginalSize <= MailRuSha1Hash.Length)
                 _sha1.Append(buffer, offset, count);
 
             _ringBuffer.Write(buffer, offset, count);
@@ -115,26 +114,42 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _ringBuffer.Flush();
 
-            _requestTask.GetAwaiter().GetResult();
-
+            try
             {
-                if (_responseMessage.StatusCode != HttpStatusCode.OK)
-                    throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
+                _ringBuffer.Flush();
 
-                var ures = _responseMessage.Content.ReadAsStringAsync().Result
-                    .ToUploadPathResult();
+                _requestTask.GetAwaiter().GetResult();
 
-                _file.OriginalSize = ures.Size;
-                _file.Hash = ures.Hash;
+                if (null != _responseMessage) // file length > hash length
+                {
+                    if (_responseMessage.StatusCode != HttpStatusCode.Created &&
+                        _responseMessage.StatusCode != HttpStatusCode.OK)
+                        throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
 
-                if (CheckHashes && _sha1.HashString != ures.Hash)
-                    throw new HashMatchException(_sha1.HashString, ures.Hash);
+                    var ures = _responseMessage.Content.ReadAsStringAsync().Result
+                        .ToUploadPathResult();
+
+                    if (ures.Size > 0 && _file.OriginalSize != ures.Size)
+                        throw new Exception("Local and remote file size does not match");
+                    _file.Hash = ures.Hash;
+
+                    if (CheckHashes && _sha1.HashString != ures.Hash)
+                        throw new HashMatchException(_sha1.HashString, ures.Hash);
+                }
+                else
+                {
+                    _file.Hash = _sha1.HashString;
+                }
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
-                    .ThrowIf(r => r.status != 200, r => new Exception("Cannot add file, status " + r.status));
+                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+            }
+            finally 
+            {
+                _ringBuffer?.Dispose();
+                _sha1?.Dispose();
             }
         }
 

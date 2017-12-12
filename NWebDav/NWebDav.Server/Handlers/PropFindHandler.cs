@@ -218,11 +218,13 @@ namespace NWebDav.Server.Handlers
                         //xPropValues.Add(new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, value)));
                         xPropValues.Add(new XElement(propertyName, value));
                     }
-                    else
-                    {
-                        s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
-                        xProp404Values.Add(new XElement(propertyName, ""));
-                    }
+
+                    // disable warning cause of too much junk log messages
+                    //else
+                    //{
+                    //    s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
+                    //    xProp404Values.Add(new XElement(propertyName, ""));
+                    //}
                 }
                 catch (Exception exc)
                 {

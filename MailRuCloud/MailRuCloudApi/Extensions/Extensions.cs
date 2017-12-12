@@ -9,6 +9,37 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class Extensions
     {
+        internal static DateTime ToDateTime(this ulong unixTimeStamp)
+        {
+            var dtDateTime = Epoch.AddSeconds(unixTimeStamp);
+            return dtDateTime;
+        }
+
+        internal static long ToUnix(this DateTime date)
+        {
+            TimeSpan diff = date.ToUniversalTime() - Epoch;
+
+            long seconds = diff.Ticks / TimeSpan.TicksPerSecond;
+            return seconds;
+        }
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+        internal static byte[] HexStringToByteArray(this string hex)
+        {
+            int len = hex.Length;
+            byte[] bytes = new byte[len / 2];
+            for (int i = 0; i < len; i += 2)
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            return bytes;
+        }
+
+        public static string ToHexString(this byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex;
+            //return hex.Replace("-", "");
+        }
+
         public static string ReadAsText(this WebResponse resp, CancellationTokenSource cancelToken)
         {
             using (var stream = new MemoryStream())

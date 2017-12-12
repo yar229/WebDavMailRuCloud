@@ -13,7 +13,7 @@ namespace NWebDav.Server.Helpers
     /// </remarks>
     public static class MimeTypeHelper
     {
-        private static readonly IDictionary<string, string> s_typeMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IDictionary<string, string> MimeTypeMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             { "123", "application/vnd.lotus-1-2-3" },
             { "3dml", "text/vnd.in3d.3dml" },
@@ -1009,13 +1009,11 @@ namespace NWebDav.Server.Helpers
         /// <returns>The MIME-type for the given file name.</returns>
         public static string GetMimeType(string fileName)
         {
-            var extension = Path.GetExtension(fileName);
+            var extension = Path.GetExtension(fileName).TrimStart('.');
+
             if (!string.IsNullOrEmpty(extension))
-            {
-                string mimeType;
-                if (s_typeMap.TryGetValue(extension, out mimeType))
+                if (MimeTypeMap.TryGetValue(extension, out var mimeType))
                     return mimeType;
-            }
 
             return FallbackMimeType;
         }

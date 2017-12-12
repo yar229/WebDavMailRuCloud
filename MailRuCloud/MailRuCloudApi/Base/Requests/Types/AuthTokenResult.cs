@@ -1,17 +1,14 @@
-﻿// ReSharper disable All
+﻿using System;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class AuthTokenResultBody
-    {
-        public string token { get; set; }
-    }
-
     public class AuthTokenResult
     {
-        public string email { get; set; }
-        public AuthTokenResultBody body { get; set; }
-        public long time { get; set; }
-        public int status { get; set; }
+        public bool IsSuccess { get; set; }
+        public string Token { get; set; }
+        public TimeSpan ExpiresIn { get; set; }
+        public string RefreshToken { get; set; }
+        public bool IsSecondStepRequired { get; set; }
+        public string TsaToken { get; set; }
     }
 }

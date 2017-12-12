@@ -32,7 +32,7 @@ namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 	/// <summary>
 	/// Xts. See <see cref="XtsAes128"/> and <see cref="XtsAes256"/>.
 	/// </summary>
-	public class Xts
+	public class Xts :IDisposable
 	{
 		private readonly SymmetricAlgorithm _key1;
 		private readonly SymmetricAlgorithm _key2;
@@ -113,5 +113,11 @@ namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 
 			return key;
 		}
+
+	    public void Dispose()
+	    {
+	        _key1?.Dispose();
+	        _key2?.Dispose();
+	    }
 	}
 }
