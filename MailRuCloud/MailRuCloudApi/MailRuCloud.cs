@@ -79,7 +79,7 @@ namespace YaR.MailRuCloud.Api
             if (ulink != null && ulink.IsBad)
             {
                 var res = ulink.ToBadEntry();
-                //_itemCache.Add(res.FullPath, res);
+                _itemCache.Add(res.FullPath, res);
                 return res;
             }
 
@@ -147,9 +147,9 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
-            //_itemCache.Add(entry.FullPath, entry);
-            //if (entry is Folder cfolder)
-            //    _itemCache.Add(cfolder.Files);
+            _itemCache.Add(entry.FullPath, entry);
+            if (entry is Folder cfolder)
+                _itemCache.Add(cfolder.Files);
             return entry;
         }
 
