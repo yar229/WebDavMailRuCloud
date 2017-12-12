@@ -14,12 +14,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _fullPath = fullPath;
         }
 
-        protected override string RelationalUri => "/api/m1/file/publish";
+        protected override string RelationalUri => $"/api/m1/file/publish?access_token={Auth.AccessToken}";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}", Uri.EscapeDataString(_fullPath),
-                2, Auth.AccessToken, Auth.Login);
+            //var data = string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}", Uri.EscapeDataString(_fullPath), 2, Auth.AccessToken, Auth.Login);
+            var data = $"home={Uri.EscapeDataString(_fullPath)}&email={Auth.Login}&x-email={Auth.Login}";
             return Encoding.UTF8.GetBytes(data);
         }
     }

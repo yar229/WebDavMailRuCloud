@@ -181,7 +181,6 @@ namespace YaR.MailRuCloud.Api
 
         private async Task<string> Publish(string fullPath)
         {
-            //var res = (await new PublishRequest(CloudApi, fullPath).MakeRequestAsync())
             var res = (await CloudApi.Account.RequestRepo.Publish(fullPath))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
