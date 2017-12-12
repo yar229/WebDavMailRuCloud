@@ -38,10 +38,21 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                     return server;
                 },
                 value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
+
+            _metaServer = new Cached<Mobile.MobMetaServerRequest.Result>(old =>
+                {
+                    Logger.Debug("MetaServer expired, refreshing.");
+                    var server = new Mobile.MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
+                    return server;
+                },
+                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
         }
 
         private readonly Cached<Mobile.MobDownloadServerRequest.Result> _downloadServer;
         private const int DownloadServerExpiresSec = 20 * 60;
+
+        private readonly Cached<Mobile.MobMetaServerRequest.Result> _metaServer;
+        private const int MetaServerExpiresSec = 20 * 60;
 
         public IAuth Authent { get; }
 
@@ -68,11 +79,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
         {
             string url = shard.Type == ShardType.Get
-                ? $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}"
+                ? $"{_downloadServer.Value.Url}{Uri.EscapeUriString(file.FullPath)}?token={Authent.AccessToken}"
                 : $"{shard.Url}/{file.PublicLink}?token={Authent.AccessToken}";
             var uri = new Uri(url);
 
-            var request = (HttpWebRequest)WebRequest.Create(uri);
+            var request = (HttpWebRequest)WebRequest.Create(uri.OriginalString);
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
             request.Proxy = Proxy;
@@ -236,10 +247,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new CreateFileRequest(Proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            //var res = await new CreateFileRequest(Proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            //    .MakeRequestAsync();
+            //return res.ToAddFileResult();
+
+            //using Mobile request because of supporting file modified time
+
+            //TODO: refact, make mixed repo
+            var req = await new Mobile.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 
-            return res.ToAddFileResult();
+            var res = req.ToAddFileResult();
+            return res;
         }
     }
 }
