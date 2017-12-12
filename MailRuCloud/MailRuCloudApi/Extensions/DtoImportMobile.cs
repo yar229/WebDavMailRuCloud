@@ -20,6 +20,9 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static AuthTokenResult ToAuthTokenResult(this OAuthRefreshRequest.Result data, string refreshToken)
         {
+            if (data.error_code > 0)
+                throw new Exception($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
+
             var res = new AuthTokenResult
             {
                 IsSuccess = true,
@@ -33,6 +36,9 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
+            if (data.error_code > 0)
+                throw new Exception($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
+
             var res = new AuthTokenResult
             {
                 IsSuccess = true,
