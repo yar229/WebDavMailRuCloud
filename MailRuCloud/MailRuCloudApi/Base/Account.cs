@@ -5,9 +5,8 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-    /// <summary>
-    /// MAIL.RU account info.
-    /// </summary>
+    //TODO: refact, maybe we don't need this class
+    //TODO: refact, Requestrepo - wrong place?
     public class Account
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
