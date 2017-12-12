@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     class OAuthRequest: BaseRequestJson<OAuthRequest.Result>
     {

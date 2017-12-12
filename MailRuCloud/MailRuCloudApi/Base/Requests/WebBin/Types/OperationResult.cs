@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Mobile.Types
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
 {
     internal enum OperationResult: byte
     {

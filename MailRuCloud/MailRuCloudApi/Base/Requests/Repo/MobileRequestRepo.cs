@@ -2,9 +2,9 @@ using System;
 using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
@@ -187,7 +187,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new Mobile.RenameRequest(Proxy, Authent, _metaServer.Value.Url, fullPath, target)
+            await new RenameRequest(Proxy, Authent, _metaServer.Value.Url, fullPath, target)
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;
@@ -195,13 +195,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Mobile.CreateFolderRequest(Proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
+            return (await new CreateFolderRequest(Proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Mobile.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url,
+            var res = await new MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url,
                     fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 

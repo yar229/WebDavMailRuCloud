@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Net;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
-    internal class WeblinkGetServerRequest : BaseRequestString<WeblinkGetServerRequest.Result>
+    internal class MobMetaServerRequest : BaseRequestString<MobMetaServerRequest.Result>
     {
-        public WeblinkGetServerRequest(IWebProxy proxy) : base(proxy, null)
+        public MobMetaServerRequest(IWebProxy proxy) : base(proxy, null)
         {
         }
 
-        protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/y";
+        protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/m";
 
         protected override RequestResponse<Result> DeserializeMessage(string data)
         {
-            var datas = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var datas = data.Split(new []{' '}, StringSplitOptions.RemoveEmptyEntries);
             var msg = new RequestResponse<Result>
             {
                 Ok = true,

@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using System.Net;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     abstract class BaseRequestMobile<T> : BaseRequest<ResponseBodyStream, T> where T : class 
     {

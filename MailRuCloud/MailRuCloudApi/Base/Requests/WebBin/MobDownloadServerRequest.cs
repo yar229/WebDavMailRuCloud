@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     internal class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
     {

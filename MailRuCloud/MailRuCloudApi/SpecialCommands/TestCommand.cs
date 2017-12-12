@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {

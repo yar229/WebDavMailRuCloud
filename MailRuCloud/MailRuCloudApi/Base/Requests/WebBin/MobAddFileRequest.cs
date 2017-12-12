@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     class MobAddFileRequest : BaseRequestMobile<MobAddFileRequest.Result>
     {

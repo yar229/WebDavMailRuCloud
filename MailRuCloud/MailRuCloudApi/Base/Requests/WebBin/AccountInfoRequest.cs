@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
+namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     class AccountInfoRequest : BaseRequestJson<WebV2.AccountInfoRequest.Result>
     {

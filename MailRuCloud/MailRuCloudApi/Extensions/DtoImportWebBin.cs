@@ -1,11 +1,11 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile.Types;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
 namespace YaR.MailRuCloud.Api.Extensions
 {
-    internal static class DtoImportMobile
+    internal static class DtoImportWebBin
     {
         public static AddFileResult ToAddFileResult(this MobAddFileRequest.Result data)
         {

@@ -31,27 +31,27 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            _downloadServer = new Cached<Mobile.MobDownloadServerRequest.Result>(old =>
+            _downloadServer = new Cached<WebBin.MobDownloadServerRequest.Result>(old =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new Mobile.MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new WebBin.MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
 
-            _metaServer = new Cached<Mobile.MobMetaServerRequest.Result>(old =>
+            _metaServer = new Cached<WebBin.MobMetaServerRequest.Result>(old =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new Mobile.MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new WebBin.MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
                 value => TimeSpan.FromSeconds(MetaServerExpiresSec));
         }
 
-        private readonly Cached<Mobile.MobDownloadServerRequest.Result> _downloadServer;
+        private readonly Cached<WebBin.MobDownloadServerRequest.Result> _downloadServer;
         private const int DownloadServerExpiresSec = 20 * 60;
 
-        private readonly Cached<Mobile.MobMetaServerRequest.Result> _metaServer;
+        private readonly Cached<WebBin.MobMetaServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
 
         public IAuth Authent { get; }
@@ -254,7 +254,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             //using Mobile request because of supporting file modified time
 
             //TODO: refact, make mixed repo
-            var req = await new Mobile.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime)
+            var req = await new WebBin.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime)
                 .MakeRequestAsync();
 
             var res = req.ToAddFileResult();
