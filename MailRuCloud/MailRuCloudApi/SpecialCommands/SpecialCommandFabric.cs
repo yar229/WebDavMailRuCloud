@@ -55,7 +55,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             },
             new SpecialCommandContainer
             {
-                Commands = new [] {"crypt", "repo"},
+                Commands = new [] {"crypt", "init"},
                 CreateFunc = (cloud, path, param) => new CryptInitCommand(cloud, path, param)
             },
             new SpecialCommandContainer
