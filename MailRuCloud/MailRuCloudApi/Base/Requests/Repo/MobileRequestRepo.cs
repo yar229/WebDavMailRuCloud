@@ -22,21 +22,21 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             Authent = auth;
 
-            _metaServer = new Cached<MobMetaServerRequest.Result>(() =>
+            _metaServer = new Cached<MobMetaServerRequest.Result>(old =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
                     var server = new MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
-                TimeSpan.FromSeconds(MetaServerExpiresSec));
+                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
-            _downloadServer = new Cached<MobDownloadServerRequest.Result>(() =>
+            _downloadServer = new Cached<MobDownloadServerRequest.Result>(old =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
                     var server = new MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
-                TimeSpan.FromSeconds(DownloadServerExpiresSec));
+                value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
 

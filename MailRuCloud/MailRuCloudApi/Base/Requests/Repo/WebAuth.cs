@@ -26,17 +26,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             if (!logged)
                 throw new AuthenticationException($"Cannot log in {creds.Login}");
 
-            _authToken = new Cached<AuthTokenResult>(() =>
+            _authToken = new Cached<AuthTokenResult>(old =>
                 {
                     Logger.Debug("AuthToken expired, refreshing.");
                     var token = Auth().Result;
                     _cachedDownloadToken.Expire();
                     return token;
                 },
-                TimeSpan.FromSeconds(AuthTokenExpiresInSec));
+                value => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 
-            _cachedDownloadToken = new Cached<string>(() => new DownloadTokenRequest(_proxy, this).MakeRequestAsync().Result.ToToken(),
-                TimeSpan.FromSeconds(DownloadTokenExpiresSec));
+            _cachedDownloadToken = new Cached<string>(old => new DownloadTokenRequest(_proxy, this).MakeRequestAsync().Result.ToToken(),
+                value => TimeSpan.FromSeconds(DownloadTokenExpiresSec));
         }
 
         public async Task<bool> MakeLogin(AuthCodeRequiredDelegate onAuthCodeRequired)

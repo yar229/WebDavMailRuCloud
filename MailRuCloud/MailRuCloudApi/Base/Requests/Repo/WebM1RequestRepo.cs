@@ -25,19 +25,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             Authent = auth;
 
-            _bannedShards = new Cached<List<ShardInfo>>(() => new List<ShardInfo>(),
-                TimeSpan.FromMinutes(2));
+            _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
+                value => TimeSpan.FromMinutes(2));
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
-                TimeSpan.FromSeconds(ShardsExpiresInSec));
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
+                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            _downloadServer = new Cached<Mobile.MobDownloadServerRequest.Result>(() =>
+            _downloadServer = new Cached<Mobile.MobDownloadServerRequest.Result>(old =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
                     var server = new Mobile.MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
                     return server;
                 },
-                TimeSpan.FromSeconds(DownloadServerExpiresSec));
+                value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
         private readonly Cached<Mobile.MobDownloadServerRequest.Result> _downloadServer;
@@ -228,15 +228,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return res;
         }
 
-
-
-        public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
-        {
-            var req = await new ShardInfoRequest(Proxy, Authent).MakeRequestAsync();
-            var res = req.ToShardInfo();
-            return res;
-        }
-
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
             return (await new CreateFolderRequest(Proxy, Authent, path).MakeRequestAsync())
@@ -250,7 +241,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             return res.ToAddFileResult();
         }
-
-
     }
 }

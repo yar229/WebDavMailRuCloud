@@ -18,7 +18,20 @@ namespace YaR.MailRuCloud.Api.Extensions
         }
 
 
-        public static AuthTokenResult ToAuthTokenResult(this MobAuthRequest.Result data)
+        public static AuthTokenResult ToAuthTokenResult(this OAuthRefreshRequest.Result data, string refreshToken)
+        {
+            var res = new AuthTokenResult
+            {
+                IsSuccess = true,
+                Token = data.access_token,
+                ExpiresIn = TimeSpan.FromSeconds(data.expires_in),
+                RefreshToken = refreshToken
+            };
+
+            return res;
+        }
+
+        public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
             var res = new AuthTokenResult
             {

@@ -13,6 +13,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private readonly IWebProxy _proxy;
         private readonly IBasicCredentials _creds;
+        private const string ClientId = "cloud-android";
 
         public OAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
@@ -20,40 +21,47 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _creds = creds;
             Cookies = new CookieContainer();
 
-            _authTokenMobile = new Cached<AuthTokenResult>(() =>
+            _authToken = new Cached<AuthTokenResult>(old =>
                 {
-                    Logger.Debug("AuthTokenMobile expired, refreshing.");
-                    var token = Auth().Result;
+                    Logger.Debug(null == old ? "OAuth: authorizing." : "OAuth: AuthToken expired, refreshing.");
+
+                    var token = null == old || string.IsNullOrEmpty(old.RefreshToken)
+                        ? Auth().Result
+                        : Refresh(old.RefreshToken).Result;
+
                     return token;
                 },
-                TimeSpan.FromSeconds(AuthTokenMobileExpiresInSec));
+                value => value.ExpiresIn.Add(-TimeSpan.FromMinutes(5)));
+                //value => TimeSpan.FromSeconds(20));
         }
 
         public string Login => _creds.Login;
         public string Password => _creds.Password;
-        public string AccessToken => _authTokenMobile.Value.Token;
-        public string DownloadToken => _authTokenMobile.Value.Token;
+        public string AccessToken => _authToken.Value.Token;
+        public string DownloadToken => _authToken.Value.Token;
         public CookieContainer Cookies { get; }
-
 
         public void ExpireDownloadToken()
         {
         }
 
-
         /// <summary>
         /// Token for authorization in mobile version
         /// </summary>
-        private readonly Cached<AuthTokenResult> _authTokenMobile;
-        private const int AuthTokenMobileExpiresInSec = 58 * 60;
+        private readonly Cached<AuthTokenResult> _authToken;
 
-
-        public async Task<AuthTokenResult> Auth()
+        private async Task<AuthTokenResult> Auth()
         {
-            var req = await new MobAuthRequest(_proxy, _creds).MakeRequestAsync();
+            var req = await new OAuthRequest(_proxy, _creds, ClientId).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
             return res;
         }
 
+        private async Task<AuthTokenResult> Refresh(string refreshToken)
+        {
+            var req = await new OAuthRefreshRequest(_proxy, ClientId, refreshToken).MakeRequestAsync();
+            var res = req.ToAuthTokenResult(refreshToken);
+            return res;
+        }
     }
 }

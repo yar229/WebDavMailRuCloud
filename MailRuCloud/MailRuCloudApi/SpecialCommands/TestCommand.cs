@@ -22,7 +22,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             if (!(await Cloud.GetItem(path) is File entry))
                 return SpecialCommandResult.Fail;
 
-            //var auth = await new MobAuthRequest(Cloud.CloudApi).MakeRequestAsync();
+            //var auth = await new OAuthRequest(Cloud.CloudApi).MakeRequestAsync();
 
             bool removed = await Cloud.Remove(entry, false);
             if (removed)

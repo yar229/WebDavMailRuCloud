@@ -25,11 +25,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             Authent = auth;
 
-            _bannedShards = new Cached<List<ShardInfo>>(() => new List<ShardInfo>(),
-                TimeSpan.FromMinutes(2));
+            _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
+                value => TimeSpan.FromMinutes(2));
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(() => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
-                TimeSpan.FromSeconds(ShardsExpiresInSec));
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
+                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
         }
 
         public IAuth Authent { get; }
