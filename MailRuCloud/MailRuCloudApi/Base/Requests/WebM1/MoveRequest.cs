@@ -20,8 +20,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes($"home={Uri.EscapeDataString(_sourceFullPath)}&email={Auth.Login}&conflict=rename&folder={Uri.EscapeDataString(_destinationPath)}");
-            return data;
+            var data = $"home={Uri.EscapeDataString(_sourceFullPath)}&email={Auth.Login}&conflict=rename&folder={Uri.EscapeDataString(_destinationPath)}";
+            return Encoding.UTF8.GetBytes(data);
         }
     }
 }
