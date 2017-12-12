@@ -14,10 +14,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="repo"></param>
+        /// <param name="auth"></param>
         /// <param name="sourceFullPath"></param>
         /// <param name="destinationPath">(without item name)</param>
         /// <param name="conflictResolver"></param>
+        /// <param name="proxy"></param>
         public CopyRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
             : base(proxy, auth)
         {
@@ -26,16 +27,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _conflictResolver = conflictResolver ?? ConflictResolver.Rename;
         }
 
-        protected override string RelationalUri => "/api/m1/file/copy";
+        protected override string RelationalUri => $"/api/m1/file/copy?access_token={Auth.AccessToken}";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes(string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}&conflict={4}&folder={5}",
-                Uri.EscapeDataString(_sourceFullPath), 2, Auth.AccessToken, Auth.Login, 
-                _conflictResolver,
-                Uri.EscapeDataString(_destinationPath)));
-
-            return data;
+            var data = $"home={Uri.EscapeDataString(_sourceFullPath)}&email={Auth.Login}&x-email={Auth.Login}&conflict={_conflictResolver}&folder={Uri.EscapeDataString(_destinationPath)}";
+            return Encoding.UTF8.GetBytes(data);
         }
     }
 }
