@@ -119,7 +119,11 @@ namespace YaR.MailRuCloud.Api
             //    : datares.ToFolder(path, ulink);
 
             //var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
+
+
             var entry = await CloudApi.Account.RequestRepo.FolderInfo(path, ulink);
+            if (null == entry)
+                return null;
 
             if (itemType == ItemType.Unknown)
                 itemType = entry is Folder 
