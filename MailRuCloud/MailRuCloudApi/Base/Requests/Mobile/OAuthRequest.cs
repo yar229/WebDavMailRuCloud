@@ -35,6 +35,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Mobile
             public string error { get; set; }
             public int error_code { get; set; }
             public string error_description { get; set; }
+
+            /// <summary>
+            /// Token for second step auth
+            /// </summary>
+            public string tsa_token { get; set; }
+            /// <summary>
+            /// Code length for second step auth
+            /// </summary>
+            public int length { get; set; }
+            /// <summary>
+            /// Seconds to wait for for second step auth code
+            /// </summary>
+            public int timeout { get; set; }
         }
     }
 }

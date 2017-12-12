@@ -13,12 +13,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private readonly IWebProxy _proxy;
         private readonly IBasicCredentials _creds;
+        private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
         private const string ClientId = "cloud-android";
 
         public OAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             _proxy = proxy;
             _creds = creds;
+            _onAuthCodeRequired = onAuthCodeRequired;
             Cookies = new CookieContainer();
 
             _authToken = new Cached<AuthTokenResult>(old =>
@@ -54,6 +56,22 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             var req = await new OAuthRequest(_proxy, _creds, ClientId).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
+
+            if (res.IsSecondStepRequired)
+            {
+                if (null == _onAuthCodeRequired)
+                    throw new Exception("No 2Factor plugin found.");
+
+                string code = _onAuthCodeRequired.Invoke(_creds.Login, true);
+                if (string.IsNullOrWhiteSpace(code))
+                    throw new Exception("Empty 2Factor code");
+
+                var ssreq = await new OAuthSecondStepRequest(_proxy, ClientId, _creds.Login, res.TsaToken, code)
+                    .MakeRequestAsync();
+
+                res = ssreq.ToAuthTokenResult();
+            }
+
             return res;
         }
 

@@ -36,7 +36,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
-            if (data.error_code > 0)
+            if (data.error_code > 0 && data.error_code != 15)
                 throw new Exception($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
 
             var res = new AuthTokenResult
@@ -44,7 +44,9 @@ namespace YaR.MailRuCloud.Api.Extensions
                 IsSuccess = true,
                 Token = data.access_token,
                 ExpiresIn = TimeSpan.FromSeconds(data.expires_in),
-                RefreshToken = data.refresh_token
+                RefreshToken = data.refresh_token,
+                IsSecondStepRequired = data.error_code == 15,
+                TsaToken = data.tsa_token
             };
 
             return res;
