@@ -34,6 +34,17 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
+                    if (_file.OriginalSize <= 20) // do not send upload request if file content fits to hash
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            _ringBuffer.CopyTo(ms);
+                        }
+                        return;
+                    }
+
+
+
                     var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
                     var url = new Uri($"{shard.Url}?token={_cloud.CloudApi.Account.RequestRepo.Authent.AccessToken}");
 
@@ -72,13 +83,10 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                         }
                     });
 
-                    if (_file.OriginalSize > 0)
-                    {
-                        _request.Content = _pushContent;
-                        _request.Content.Headers.ContentLength = _file.OriginalSize;
+                    _request.Content = _pushContent;
+                    _request.Content.Headers.ContentLength = _file.OriginalSize;
 
-                        _responseMessage = _client.SendAsync(_request).Result;
-                    }
+                    _responseMessage = _client.SendAsync(_request).Result;
                 }
                 catch (Exception e)
                 {
@@ -97,7 +105,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (CheckHashes)
+            if (CheckHashes || _file.OriginalSize <= 20)
                 _sha1.Append(buffer, offset, count);
 
             _ringBuffer.Write(buffer, offset, count);
@@ -115,7 +123,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 _requestTask.GetAwaiter().GetResult();
 
-                if (null != _responseMessage) // file length > 0
+                if (null != _responseMessage) // file length > 20
                 {
                     if (_responseMessage.StatusCode != HttpStatusCode.Created &&
                         _responseMessage.StatusCode != HttpStatusCode.OK)
@@ -131,10 +139,14 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     if (CheckHashes && _sha1.HashString != ures.Hash)
                         throw new HashMatchException(_sha1.HashString, ures.Hash);
                 }
+                else
+                {
+                    _file.Hash = _sha1.HashString;
+                }
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
-                    .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
+                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
             }
             finally 
             {
