@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
 
 namespace WebDAV.Uploader
 {
@@ -12,6 +11,9 @@ namespace WebDAV.Uploader
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
+
+
             string user = args[0].Trim('"');
             string password = args[1].Trim('"');
             string listname = args[2].Trim('"');

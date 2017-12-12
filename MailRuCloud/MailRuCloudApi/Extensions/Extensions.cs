@@ -9,6 +9,12 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     public static class Extensions
     {
+        internal static DateTime ToDateTime(this ulong unixTimeStamp)
+        {
+            var dtDateTime = Epoch.AddSeconds(unixTimeStamp);
+            return dtDateTime;
+        }
+
         internal static long ToUnix(this DateTime date)
         {
             TimeSpan diff = date.ToUniversalTime() - Epoch;
@@ -16,6 +22,7 @@ namespace YaR.MailRuCloud.Api.Extensions
             long seconds = diff.Ticks / TimeSpan.TicksPerSecond;
             return seconds;
         }
+        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
         internal static byte[] HexStringToByteArray(this string hex)
         {
@@ -26,8 +33,12 @@ namespace YaR.MailRuCloud.Api.Extensions
             return bytes;
         }
 
-        private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-
+        public static string ToHexString(this byte[] ba)
+        {
+            string hex = BitConverter.ToString(ba);
+            return hex;
+            //return hex.Replace("-", "");
+        }
 
         public static string ReadAsText(this WebResponse resp, CancellationTokenSource cancelToken)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Web;
+using YaR.MailRuCloud.Api.Base.Requests.WebV2;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Extensions
@@ -89,7 +89,9 @@ namespace YaR.MailRuCloud.Api.Extensions
             var res = new UploadFileResult
             {
                 Hash = resp[0],
-                Size = long.Parse(resp[1].Trim('\r', '\n', ' '))
+                Size = resp.Length > 1 
+                    ? long.Parse(resp[1].Trim('\r', '\n', ' '))
+                    : 0
             };
             return res;
         }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
-
-namespace YaR.MailRuCloud.Api.Base.Requests.Types
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
     public class AddFileResult
     {

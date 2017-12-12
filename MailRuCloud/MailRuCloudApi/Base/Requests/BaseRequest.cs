@@ -3,18 +3,21 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    public abstract class BaseRequest<TConvert, T> where T : class
+    internal abstract class BaseRequest<TConvert, T> where T : class
     {
-        protected readonly RequestInit Init;
-
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));
 
-        protected BaseRequest(RequestInit init)
+        protected readonly IWebProxy Proxy;
+        protected readonly IAuth Auth;
+
+        protected BaseRequest(IWebProxy proxy, IAuth auth)
         {
-            Init = init;
+            Proxy = proxy;
+            Auth = auth;
         }
 
         protected abstract string RelationalUri { get; }
@@ -30,8 +33,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             //var udriz = new Uri(new Uri(domain), RelationalUri, true);
 
             var request = (HttpWebRequest)WebRequest.Create(uriz);
-            request.Proxy = Init.Proxy;
-            request.CookieContainer = Init.Cookies;
+            request.Proxy = Proxy;
+            request.CookieContainer = Auth?.Cookies;
             request.Method = "GET";
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
@@ -62,7 +65,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             }
             try
             {
-                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse, asyncResult => httprequest.EndGetResponse(asyncResult), null))
+                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse,
+                    asyncResult => httprequest.EndGetResponse(asyncResult), null))
                 {
                     if ((int) response.StatusCode >= 500)
                         throw new RequestException("Server fault")
@@ -78,7 +82,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
                     if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
                     {
-                        var exceptionMessage = $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
+                        var exceptionMessage =
+                            $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
                         throw new RequestException(exceptionMessage)
                         {
                             StatusCode = response.StatusCode,
@@ -91,6 +96,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
                     return retVal;
                 }
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
             finally
             {

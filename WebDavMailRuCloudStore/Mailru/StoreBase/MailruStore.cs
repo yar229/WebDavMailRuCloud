@@ -36,20 +36,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
                 }
             }
-            catch (AggregateException e)
-            {
-                var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
-                if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
-            }
-            // ReSharper disable once RedundantCatchClause
-            #if DEBUG
-            #pragma warning disable 168
+            //catch (AggregateException e)
+            //{
+            //    var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
+            //    if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
+            //}
             catch (Exception ex)
             {
                 throw;
             }
-            #pragma warning restore 168
-            #endif
 
             return Task.FromResult<IStoreItem>(null);
         }

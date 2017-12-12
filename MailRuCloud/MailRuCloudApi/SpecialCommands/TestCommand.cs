@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Mobile;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
@@ -22,7 +19,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             if (!(await Cloud.GetItem(path) is File entry))
                 return SpecialCommandResult.Fail;
 
-            //var auth = await new MobAuthRequest(Cloud.CloudApi).MakeRequestAsync();
+            //var auth = await new OAuthRequest(Cloud.CloudApi).MakeRequestAsync();
 
             bool removed = await Cloud.Remove(entry, false);
             if (removed)

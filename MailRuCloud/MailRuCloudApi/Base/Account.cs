@@ -5,9 +5,8 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-    /// <summary>
-    /// MAIL.RU account info.
-    /// </summary>
+    //TODO: refact, maybe we don't need this class
+    //TODO: refact, Requestrepo - wrong place?
     public class Account
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
@@ -44,7 +43,11 @@ namespace YaR.MailRuCloud.Api.Base
             
         }
 
-        internal IRequestRepo RequestRepo => _requestRepo ?? (_requestRepo = new WebRequestRepo(_cloudApi)); //new MixedRepo(_cloudApi));
+        internal IRequestRepo RequestRepo => _requestRepo ??
+                                             //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
+                                             //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
+                                            (_requestRepo = new WebM1RequestRepo(_cloudApi.Account.Proxy, new OAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials, OnAuthCodeRequired)));
+                                            //MixedRepo(_cloudApi));
 
         /// <summary>
         /// Gets connection proxy.
@@ -77,16 +80,12 @@ namespace YaR.MailRuCloud.Api.Base
         /// <returns>True or false result operation.</returns>
         public async Task<bool> LoginAsync()
         {
-            await RequestRepo.Login(OnAuthCodeRequired);
+            //await RequestRepo.Login(OnAuthCodeRequired);
 
             Info = await RequestRepo.AccountInfo();
 
             return true;
         }
-
-
-
-        public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 
         public event AuthCodeRequiredDelegate AuthCodeRequiredEvent;
         protected virtual string OnAuthCodeRequired(string login, bool isAutoRelogin)
@@ -94,4 +93,6 @@ namespace YaR.MailRuCloud.Api.Base
             return AuthCodeRequiredEvent?.Invoke(login, isAutoRelogin);
         }
     }
+
+    public delegate string AuthCodeRequiredDelegate(string login, bool isAutoRelogin);
 }

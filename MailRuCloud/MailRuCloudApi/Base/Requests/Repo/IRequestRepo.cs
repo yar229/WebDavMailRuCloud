@@ -1,20 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Threads;
+using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
     interface IRequestRepo
     {
-        Task<bool> Login(Account.AuthCodeRequiredDelegate onAuthCodeRequired);
+
+        IAuth Authent { get; }
+
+        IWebProxy Proxy { get; }
+
+
         void BanShardInfo(ShardInfo banShard);
         Task<ShardInfo> GetShardInfo(ShardType shardType);
 
         Task<CreateFolderResult> CreateFolder(string path);
         Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver);
 
-        Task<AuthTokenResult> Auth();
+        
+
+
+        HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary);
+        HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard);
 
         Task<CloneItemResult> CloneItem(string fromUrl, string toPath);
 
@@ -22,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null);
 
-        Task<FolderInfoResult> FolderInfo(string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
+        Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = int.MaxValue);
 
         Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
 
@@ -36,9 +47,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         Task<RenameResult> Rename(string fullPath, string newName);
 
-        Task<Dictionary<ShardType, ShardInfo>> ShardInfo();
-
-
-        string DownloadToken { get; }
+        //Task<Dictionary<ShardType, ShardInfo>> ShardInfo();
+        
     }
 }

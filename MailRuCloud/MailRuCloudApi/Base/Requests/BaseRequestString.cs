@@ -1,8 +1,11 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests
+﻿using System.Net;
+using YaR.MailRuCloud.Api.Base.Requests.Repo;
+
+namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    public abstract class BaseRequestString : BaseRequestString<string>
+    internal abstract class BaseRequestString : BaseRequestString<string>
     {
-        protected BaseRequestString(RequestInit init) : base(init)
+        protected BaseRequestString(IWebProxy proxy, IAuth auth) : base(proxy, auth)
         {
         }
 
