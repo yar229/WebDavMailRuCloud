@@ -450,7 +450,7 @@ namespace YaR.MailRuCloud.Api
                 if (data.IsSuccess)
                 {
                     _linkManager.ProcessRename(fullPath, newName);
-                    _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+                    _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
                 }
 
                 return data.IsSuccess;
@@ -458,7 +458,7 @@ namespace YaR.MailRuCloud.Api
 
             //rename link
             var res = _linkManager.RenameLink(link, newName);
-            if (res) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            if (res) _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
 
             return res;
         }
