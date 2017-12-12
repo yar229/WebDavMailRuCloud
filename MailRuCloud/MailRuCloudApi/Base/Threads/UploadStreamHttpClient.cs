@@ -97,7 +97,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 }
                 catch (Exception e)
                 {
-                    Logger.Error("Upload request failed", e);
+                    Logger.Error($"Uploading to {_file.FullPath} failed with {e.Message}");
                     throw;
                 }
             });
