@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -34,7 +32,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
-                    if (_file.OriginalSize <= 20) // do not send upload request if file content fits to hash
+                    if (_file.OriginalSize <= MailRuSha1Hash.Length) // do not send upload request if file content fits to hash
                     {
                         using (var ms = new MemoryStream())
                         {
@@ -105,7 +103,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (CheckHashes || _file.OriginalSize <= 20)
+            if (CheckHashes || _file.OriginalSize <= MailRuSha1Hash.Length)
                 _sha1.Append(buffer, offset, count);
 
             _ringBuffer.Write(buffer, offset, count);
@@ -123,7 +121,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
                 _requestTask.GetAwaiter().GetResult();
 
-                if (null != _responseMessage) // file length > 20
+                if (null != _responseMessage) // file length > hash length
                 {
                     if (_responseMessage.StatusCode != HttpStatusCode.Created &&
                         _responseMessage.StatusCode != HttpStatusCode.OK)

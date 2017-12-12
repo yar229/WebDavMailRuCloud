@@ -66,6 +66,8 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
+        public static long Length => 20;
+
         private byte[] _hash;
 
         private readonly byte[] _smallContent = new byte[20];
