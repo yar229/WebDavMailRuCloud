@@ -202,7 +202,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
             var res = await new MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url,
-                    fileFullPath, fileHash, fileSize, dateTime)
+                    fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

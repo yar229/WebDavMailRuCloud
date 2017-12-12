@@ -254,7 +254,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             //using Mobile request because of supporting file modified time
 
             //TODO: refact, make mixed repo
-            var req = await new WebBin.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime)
+            var req = await new WebBin.MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             var res = req.ToAddFileResult();

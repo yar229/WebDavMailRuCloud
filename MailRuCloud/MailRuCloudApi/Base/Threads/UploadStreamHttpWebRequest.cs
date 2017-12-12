@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -90,6 +91,11 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                         .ThrowIf(r => !r.Success, r => new Exception("Cannot add file"));
                 }
             }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
             finally 
             {
                 _ringBuffer?.Dispose();

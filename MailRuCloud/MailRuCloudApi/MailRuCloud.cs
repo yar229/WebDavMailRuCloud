@@ -67,6 +67,8 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
+            path = WebDavPath.Clean(path);
+
             var cached = _itemCache.Get(path);
             if (null != cached)
                 return cached;
@@ -873,15 +875,13 @@ namespace YaR.MailRuCloud.Api
             if (file.LastWriteTimeUtc == dateTime)
                 return true;
 
-            //DANGER! but no way, we need to delete file and add it back with required datetime
-            var res = await Remove(file, false, false);
+            var added = await CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
+            bool res = added.Success;
             if (res)
             {
-                var added = await CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
-                res = added.Success;
-                if (res) file.LastWriteTimeUtc = dateTime;
+                file.LastWriteTimeUtc = dateTime;
+                _itemCache.Invalidate(file.Path, file.FullPath);
             }
-            _itemCache.Invalidate(file.Path, file.FullPath);
 
             return res;
         }

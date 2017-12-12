@@ -11,7 +11,7 @@ namespace YaR.MailRuCloud.Api.Extensions
         {
             var res = new AddFileResult
             {
-                Success = data.OperationResult == OperationResult.Ok,
+                Success = data.IsSuccess,
                 Path = data.Path
             };
             return res;

@@ -12,19 +12,21 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         private readonly string _fullPath;
         private readonly byte[] _hash;
         private readonly long _size;
+        private readonly ConflictResolver _conflictResolver;
         private readonly DateTime _dateTime;
 
-        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime) 
+        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
             : base(proxy, auth, metaServer)
         {
             _fullPath = fullPath;
             _hash = hash;
             _size = size;
+            _conflictResolver = conflict ?? ConflictResolver.Rewrite;
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
         }
 
-        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime) 
-            : this(proxy, auth, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime)
+        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
+            : this(proxy, auth, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime, conflict)
         {
         }
 
@@ -41,25 +43,38 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                 stream.WritePu32(00);
 
                 stream.Write(_hash);
-                stream.WritePu32(UnknownFinal);
+
+                long mask = ConflictResolver.Rename == _conflictResolver  // 1 = overwrite, 55 = don't add if not changed, add with rename if changed
+                    ? 55
+                    : 1;
+                stream.WritePu32(mask);
+
+                if ((mask & 32) != 0)
+                {
+                    stream.Write(_hash);
+                    stream.WritePu64(_size);
+                }
 
                 var body = stream.GetBytes();
                 return body;
             }
         }
 
-        private static readonly OperationResult[] SuccessCodes = {OperationResult.Ok, OperationResult.AlreadyExists04, OperationResult.AlreadyExists09};
+        private static readonly OpResult[] SuccessCodes = { OpResult.Ok, OpResult.NotModified, OpResult.Dunno04, OpResult.Dunno09};
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            if (!SuccessCodes.Contains(data.OperationResult))
-                throw new Exception($"{nameof(MobAddFileRequest)} failed with operation result code {data.OperationResult}");
+            var opres = (OpResult)(int)data.OperationResult;
+
+            if (!SuccessCodes.Contains(opres))
+                throw new Exception($"{nameof(MobAddFileRequest)} failed with operation result code {opres} ({(int)opres})");
 
             var res = new RequestResponse<Result>
             {
-                Ok = data.OperationResult == OperationResult.Ok,
+                Ok = true,
                 Result = new Result
                 {
+                    IsSuccess = true,
                     OperationResult = data.OperationResult,
                     Path = _fullPath
                 }
@@ -69,10 +84,23 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         }
 
         private const int Revision = 0;
-        private const byte UnknownFinal = 03;
+
+        private enum OpResult
+        {
+            Ok = 0,
+            Error01 = 1,
+            Dunno04 = 4,
+            WrongPath = 5,
+            NoFreeSpace = 7,
+            Dunno09 = 9,
+            NotModified = 12,
+            FailedA = 253,
+            FailedB = 254
+        }
 
         public class Result : BaseResponseResult
         {
+            public bool IsSuccess { get; set; }
             public string Path { get; set; }
         }
     }
