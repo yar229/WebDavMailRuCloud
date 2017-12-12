@@ -19,14 +19,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             : base(proxy, auth, metaServer)
         {
             _fullPath = fullPath;
-            _hash = hash;
+            _hash = hash ?? new byte[20]; // zero length file
             _size = size;
             _conflictResolver = conflict ?? ConflictResolver.Rewrite;
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
         }
 
         public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
-            : this(proxy, auth, metaServer, fullPath, hash.HexStringToByteArray(), size, dateTime, conflict)
+            : this(proxy, auth, metaServer, fullPath, hash?.HexStringToByteArray(), size, dateTime, conflict)
         {
         }
 
