@@ -13,13 +13,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private readonly IWebProxy _proxy;
         private readonly IBasicCredentials _creds;
-        private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
-        private const string ClientId = "cloud-android";
+        private readonly string _clientId;
 
-        public OAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+        private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
+
+        public OAuth(IWebProxy proxy, IBasicCredentials creds, string clientId, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             _proxy = proxy;
             _creds = creds;
+            _clientId = clientId;
             _onAuthCodeRequired = onAuthCodeRequired;
             Cookies = new CookieContainer();
 
@@ -54,7 +56,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private async Task<AuthTokenResult> Auth()
         {
-            var req = await new OAuthRequest(_proxy, _creds, ClientId).MakeRequestAsync();
+            var req = await new OAuthRequest(_proxy, _creds, _clientId).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
 
             if (res.IsSecondStepRequired)
@@ -66,7 +68,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 if (string.IsNullOrWhiteSpace(code))
                     throw new Exception("Empty 2Factor code");
 
-                var ssreq = await new OAuthSecondStepRequest(_proxy, ClientId, _creds.Login, res.TsaToken, code)
+                var ssreq = await new OAuthSecondStepRequest(_proxy, _clientId, _creds.Login, res.TsaToken, code)
                     .MakeRequestAsync();
 
                 res = ssreq.ToAuthTokenResult();
@@ -77,7 +79,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private async Task<AuthTokenResult> Refresh(string refreshToken)
         {
-            var req = await new OAuthRefreshRequest(_proxy, ClientId, refreshToken).MakeRequestAsync();
+            var req = await new OAuthRefreshRequest(_proxy, _clientId, refreshToken).MakeRequestAsync();
             var res = req.ToAuthTokenResult(refreshToken);
             return res;
         }

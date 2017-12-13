@@ -59,7 +59,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
         {
-            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id=cloud-android";
+            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id=cloud-win";
 
             var request = (HttpWebRequest)WebRequest.Create(url);
 

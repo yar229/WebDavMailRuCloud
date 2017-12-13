@@ -14,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             _metaServer = metaServer;
         }
 
-        protected override string RelationalUri => $"{_metaServer}?token={Auth.AccessToken}&client_id=cloud-android";
+        protected override string RelationalUri => $"{_metaServer}?token={Auth.AccessToken}&client_id=cloud-win";
 
         protected override ResponseBodyStream Transport(Stream stream)
         {
