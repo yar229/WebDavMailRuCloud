@@ -38,5 +38,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         {
             return !(resolver1 == resolver2);
         }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
     }
 }
