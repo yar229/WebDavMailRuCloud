@@ -18,12 +18,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         public IWebProxy Proxy { get; }
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
+        // "cloud-win" allows parallel downloads, "cloud-android" - does not
+        //TODO: refact all queries with client_id
+        private const string ClientId = "cloud-win";
 
-        public WebM1RequestRepo(IWebProxy proxy, IAuth auth)
+
+        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             Proxy = proxy;
 
-            Authent = auth;
+            Authent = new OAuth(proxy, creds, ClientId, onAuthCodeRequired);
 
             _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));
@@ -63,7 +67,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
         {
-            var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");
+            var url = new Uri($"{shard.Url}client_id={ClientId}&token={Authent.AccessToken}");
 
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Proxy = Proxy;
@@ -78,8 +82,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
         {
+            //var downloadServer = new WebBin.MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
+
             string url = shard.Type == ShardType.Get
-                ? $"{_downloadServer.Value.Url}{Uri.EscapeUriString(file.FullPath)}?token={Authent.AccessToken}"
+                ? $"{_downloadServer.Value.Url}{Uri.EscapeUriString(file.FullPath).TrimStart('/')}?client_id={ClientId}&token={Authent.AccessToken}"
                 : $"{shard.Url}/{file.PublicLink}?token={Authent.AccessToken}";
             var uri = new Uri(url);
 

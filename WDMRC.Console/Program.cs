@@ -105,7 +105,7 @@ namespace YaR.CloudMailRu.Console
 
                         await semclo.WaitAsync(cancellationToken);
 
-                        Task.Run(async () =>
+                        var task = Task.Run(async () =>
                             {
                                 try
                                 {

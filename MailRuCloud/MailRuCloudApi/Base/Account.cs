@@ -46,7 +46,7 @@ namespace YaR.MailRuCloud.Api.Base
         internal IRequestRepo RequestRepo => _requestRepo ??
                                              //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
                                              //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
-                                            (_requestRepo = new WebM1RequestRepo(_cloudApi.Account.Proxy, new OAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials, OnAuthCodeRequired)));
+                                            (_requestRepo = new WebM1RequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials, OnAuthCodeRequired));
                                             //MixedRepo(_cloudApi));
 
         /// <summary>
