@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     internal class WeblinkGetServerRequest : BaseRequestString<WeblinkGetServerRequest.Result>
     {
-        public WeblinkGetServerRequest(IWebProxy proxy) : base(proxy, null)
+        public WeblinkGetServerRequest(HttpCommonSettings settings) : base(settings, null)
         {
         }
 

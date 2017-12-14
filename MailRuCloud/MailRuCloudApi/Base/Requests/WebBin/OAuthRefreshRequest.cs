@@ -5,12 +5,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     class OAuthRefreshRequest : BaseRequestJson<OAuthRefreshRequest.Result>
     {
-        private readonly string _clientId;
         private readonly string _refreshToken;
 
-        public OAuthRefreshRequest(IWebProxy proxy, string clientId, string refreshToken) : base(proxy, null)
+        public OAuthRefreshRequest(HttpCommonSettings settings, string refreshToken) : base(settings, null)
         {
-            _clientId = clientId;
             _refreshToken = refreshToken;
         }
 
@@ -18,7 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
         protected override byte[] CreateHttpContent()
         {
-            var data = $"client_id={_clientId}&grant_type=refresh_token&refresh_token={_refreshToken}";
+            var data = $"client_id={Settings.ClientId}&grant_type=refresh_token&refresh_token={_refreshToken}";
             return Encoding.UTF8.GetBytes(data);
         }
 
@@ -26,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         {
             var request = base.CreateRequest(baseDomain);
             request.Host = request.RequestUri.Host;
-            request.UserAgent = ConstSettings.UserAgent;
+            request.UserAgent = Settings.UserAgent;
             request.Accept = "*/*";
             request.ServicePoint.Expect100Continue = false;
 

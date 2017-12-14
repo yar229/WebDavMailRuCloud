@@ -12,13 +12,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
     {
         public CookieContainer Cookies { get; }
 
-        private readonly IWebProxy _proxy;
+        private readonly HttpCommonSettings _settings;
         private readonly IBasicCredentials _creds;
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebAuth));
 
-        public WebAuth(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+        public WebAuth(HttpCommonSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            _proxy = proxy;
+            _settings = settings;
             _creds = creds;
             Cookies = new CookieContainer();
 
@@ -35,24 +35,24 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 },
                 value => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 
-            _cachedDownloadToken = new Cached<string>(old => new DownloadTokenRequest(_proxy, this).MakeRequestAsync().Result.ToToken(),
+            _cachedDownloadToken = new Cached<string>(old => new DownloadTokenRequest(_settings, this).MakeRequestAsync().Result.ToToken(),
                 value => TimeSpan.FromSeconds(DownloadTokenExpiresSec));
         }
 
         public async Task<bool> MakeLogin(AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            var loginResult = await new LoginRequest(_proxy, this)
+            var loginResult = await new LoginRequest(_settings, this)
                 .MakeRequestAsync();
 
             // 2FA
             if (!string.IsNullOrEmpty(loginResult.Csrf))
             {
                 string authCode = onAuthCodeRequired(_creds.Login, false);
-                await new SecondStepAuthRequest(_proxy, loginResult.Csrf, authCode)
+                await new SecondStepAuthRequest(_settings, loginResult.Csrf, authCode)
                     .MakeRequestAsync();
             }
 
-            await new EnsureSdcCookieRequest(_proxy, this)
+            await new EnsureSdcCookieRequest(_settings, this)
                 .MakeRequestAsync();
 
             return true;
@@ -60,7 +60,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AuthTokenResult> Auth()
         {
-            var req = await new AuthTokenRequest(_proxy, this).MakeRequestAsync();
+            var req = await new AuthTokenRequest(_settings, this).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
             return res;
         }

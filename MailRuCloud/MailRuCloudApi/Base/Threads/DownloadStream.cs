@@ -40,6 +40,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 ? _end.Value - _start.Value + 1
                 : globalLength;
 
+            _cloud.Account.RequestRepo.PendingDownloads++;
+
             Initialize();
         }
 
@@ -145,6 +147,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             base.Dispose(disposing);
             if (!disposing) return;
 
+            _cloud.Account.RequestRepo.PendingDownloads--;
             _innerStream.Close();
         }
 

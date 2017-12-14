@@ -9,8 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
     {
         private readonly string _fullPath;
 
-        public CreateFolderRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath)
-            : base(proxy, auth, metaServer)
+        public CreateFolderRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fullPath)
+            : base(settings, auth, metaServer)
         {
             _fullPath = fullPath;
         }

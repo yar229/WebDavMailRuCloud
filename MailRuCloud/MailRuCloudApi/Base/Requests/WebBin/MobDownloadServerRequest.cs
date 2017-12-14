@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     internal class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
     {
-        public MobDownloadServerRequest(IWebProxy proxy) : base(proxy, null)
+        public MobDownloadServerRequest(HttpCommonSettings settings) : base(settings, null)
         {
         }
 

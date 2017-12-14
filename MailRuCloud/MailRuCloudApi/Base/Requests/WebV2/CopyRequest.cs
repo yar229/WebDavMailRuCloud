@@ -14,12 +14,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="repo"></param>
+        /// <param name="auth"></param>
         /// <param name="sourceFullPath"></param>
         /// <param name="destinationPath">(without item name)</param>
         /// <param name="conflictResolver"></param>
-        public CopyRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
-            : base(proxy, auth)
+        /// <param name="settings"></param>
+        public CopyRequest(HttpCommonSettings settings, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
+            : base(settings, auth)
         {
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;

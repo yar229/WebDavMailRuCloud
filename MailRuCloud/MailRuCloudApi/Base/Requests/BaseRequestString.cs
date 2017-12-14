@@ -5,7 +5,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 {
     internal abstract class BaseRequestString : BaseRequestString<string>
     {
-        protected BaseRequestString(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        protected BaseRequestString(HttpCommonSettings settings, IAuth auth) 
+            : base(settings, auth)
         {
         }
 

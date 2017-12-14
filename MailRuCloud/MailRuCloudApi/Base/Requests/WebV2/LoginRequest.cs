@@ -9,8 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class LoginRequest : BaseRequestString<LoginResult>
     {
-        public LoginRequest(IWebProxy proxy, IAuth auth) 
-            : base(proxy, auth)
+        public LoginRequest(HttpCommonSettings settings, IAuth auth) 
+            : base(settings, auth)
         {
         }
 

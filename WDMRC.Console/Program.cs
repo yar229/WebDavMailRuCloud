@@ -38,7 +38,7 @@ namespace YaR.CloudMailRu.Console
                 options => 
                 {
                     ShowInfo(options);
-                    CloudManager.Init(options.UserAgent);
+                    CloudManager.Init();
                     CloudManager.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName;
 
                     var webdavProtocol = "http";

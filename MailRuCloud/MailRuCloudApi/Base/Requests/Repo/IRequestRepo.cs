@@ -12,7 +12,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         IAuth Authent { get; }
 
-        IWebProxy Proxy { get; }
+        //IWebProxy Proxy { get; }
+        HttpCommonSettings HttpSettings { get; }
+
+        int PendingDownloads { get; set; }
 
 
         void BanShardInfo(ShardInfo banShard);

@@ -6,7 +6,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
     class ShardInfoRequest : BaseRequestJson<WebV2.ShardInfoRequest.Result>
     {
-        public ShardInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public ShardInfoRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {
         }
 
@@ -14,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         {
             get
             {
-                var uri = string.Format("{0}/api/m1/dispatcher?api=2", ConstSettings.CloudDomain);
+                var uri = $"{ConstSettings.CloudDomain}/api/m1/dispatcher?client_id={Settings.ClientId}";
                 if (!string.IsNullOrEmpty(Auth.AccessToken))
                     uri += $"&access_token={Auth.AccessToken}";
                 return uri;

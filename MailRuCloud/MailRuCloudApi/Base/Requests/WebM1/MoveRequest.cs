@@ -10,7 +10,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;
 
-        public MoveRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath) : base(proxy, auth)
+        public MoveRequest(HttpCommonSettings settings, IAuth auth, string sourceFullPath, string destinationPath) 
+            : base(settings, auth)
         {
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;
