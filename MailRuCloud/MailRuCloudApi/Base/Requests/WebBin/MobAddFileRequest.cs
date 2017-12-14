@@ -15,8 +15,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         private readonly ConflictResolver _conflictResolver;
         private readonly DateTime _dateTime;
 
-        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
-            : base(proxy, auth, metaServer)
+        public MobAddFileRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fullPath, byte[] hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
+            : base(settings, auth, metaServer)
         {
             _fullPath = fullPath;
             _hash = hash ?? new byte[20]; // zero length file
@@ -25,8 +25,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             _dateTime = (dateTime ?? DateTime.Now).ToUniversalTime();
         }
 
-        public MobAddFileRequest(IWebProxy proxy, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
-            : this(proxy, auth, metaServer, fullPath, hash?.HexStringToByteArray(), size, dateTime, conflict)
+        public MobAddFileRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fullPath, string hash, long size, DateTime? dateTime, ConflictResolver? conflict) 
+            : this(settings, auth, metaServer, fullPath, hash?.HexStringToByteArray(), size, dateTime, conflict)
         {
         }
 

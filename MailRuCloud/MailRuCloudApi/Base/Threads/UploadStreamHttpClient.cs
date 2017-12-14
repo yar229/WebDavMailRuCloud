@@ -49,7 +49,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     var config = new HttpClientHandler
                     {
                         UseProxy = true,
-                        Proxy = _cloud.CloudApi.Account.RequestRepo.Proxy,
+                        Proxy = _cloud.CloudApi.Account.RequestRepo.HttpSettings.Proxy,
                         CookieContainer = _cloud.CloudApi.Account.RequestRepo.Authent.Cookies,
                         UseCookies = true,
                         AllowAutoRedirect = true,
@@ -64,7 +64,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     };
 
                     _request.Headers.Add("Accept", "*/*");
-                    _request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
+                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.CloudApi.Account.RequestRepo.HttpSettings.UserAgent);
 
                     _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {

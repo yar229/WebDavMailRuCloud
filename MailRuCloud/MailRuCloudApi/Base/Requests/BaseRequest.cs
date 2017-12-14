@@ -7,16 +7,24 @@ using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
+    internal class HttpCommonSettings
+    {
+        public IWebProxy Proxy { get; set; }
+        public string ClientId { get; set; }
+        public string UserAgent { get; set; }
+    }
+
+
     internal abstract class BaseRequest<TConvert, T> where T : class
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));
 
-        protected readonly IWebProxy Proxy;
+        protected readonly HttpCommonSettings Settings;
         protected readonly IAuth Auth;
 
-        protected BaseRequest(IWebProxy proxy, IAuth auth)
+        protected BaseRequest(HttpCommonSettings settings, IAuth auth)
         {
-            Proxy = proxy;
+            Settings = settings;
             Auth = auth;
         }
 
@@ -33,12 +41,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             //var udriz = new Uri(new Uri(domain), RelationalUri, true);
 
             var request = (HttpWebRequest)WebRequest.Create(uriz);
-            request.Proxy = Proxy;
+            request.Proxy = Settings.Proxy;
             request.CookieContainer = Auth?.Cookies;
             request.Method = "GET";
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
-            request.UserAgent = ConstSettings.UserAgent;
+            request.UserAgent = Settings.UserAgent;
 
             return request;
         }

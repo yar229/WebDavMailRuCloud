@@ -9,7 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
     {
         private readonly string _publicLink;
 
-        public UnpublishRequest(IWebProxy proxy, IAuth auth, string publicLink) : base(proxy, auth)
+        public UnpublishRequest(HttpCommonSettings settings, IAuth auth, string publicLink) 
+            : base(settings, auth)
         {
             _publicLink = publicLink;
         }

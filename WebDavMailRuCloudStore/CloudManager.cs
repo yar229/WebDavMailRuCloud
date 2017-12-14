@@ -11,10 +11,10 @@ namespace YaR.WebDavMailRu.CloudStore
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudManager));
 
-        public static void Init(string userAgent = "")
+        public static void Init()
         {
-            if (!string.IsNullOrEmpty(userAgent))
-                ConstSettings.UserAgent = userAgent;
+            //if (!string.IsNullOrEmpty(userAgent))
+            //    ConstSettings.UserAgent = userAgent;
         }
 
         private static readonly ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud> CloudCache = new ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud>();

@@ -7,7 +7,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class DownloadTokenRequest : BaseRequestJson<DownloadTokenResult>
     {
-        public DownloadTokenRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public DownloadTokenRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {
         }
 
@@ -27,7 +27,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
     {
         private readonly string _url;
 
-        public DownloadTokenHtmlRequest(IWebProxy proxy, IAuth auth, string url) : base(proxy, auth)
+        public DownloadTokenHtmlRequest(HttpCommonSettings settings, IAuth auth, string url) : base(settings, auth)
         {
             _url = url;
         }

@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class AuthTokenRequest : BaseRequestJson<AuthTokenRequest.Result>
     {
-        public AuthTokenRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public AuthTokenRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {
         }
 

@@ -9,7 +9,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
         private readonly string _csrf;
         private readonly string _authCode;
 
-        public SecondStepAuthRequest(IWebProxy proxy, string csrf, string authCode) : base(proxy, null)
+        public SecondStepAuthRequest(HttpCommonSettings settings, string csrf, string authCode) : base(settings, null)
         {
             _csrf = csrf;
             _authCode = authCode;

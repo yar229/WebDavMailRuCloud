@@ -11,7 +11,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
         private readonly string _fullPath;
         private readonly string _newName;
 
-        public RenameRequest(IWebProxy proxy, IAuth auth, string fullPath, string newName) : base(proxy, auth)
+        public RenameRequest(HttpCommonSettings settings, IAuth auth, string fullPath, string newName) : base(settings, auth)
         {
             _fullPath = fullPath;
             _newName = newName;

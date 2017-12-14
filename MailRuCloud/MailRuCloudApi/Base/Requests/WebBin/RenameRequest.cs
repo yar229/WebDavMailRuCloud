@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
@@ -10,8 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         private readonly string _fromPath;
         private readonly string _toPath;
 
-        public RenameRequest(IWebProxy proxy, IAuth auth, string metaServer, string fromPath, string toPath)
-            : base(proxy, auth, metaServer)
+        public RenameRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fromPath, string toPath)
+            : base(settings, auth, metaServer)
         {
             _fromPath = fromPath;
             _toPath = toPath;

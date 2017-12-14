@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
@@ -14,13 +13,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="settings"></param>
         /// <param name="auth"></param>
         /// <param name="sourceFullPath"></param>
         /// <param name="destinationPath">(without item name)</param>
         /// <param name="conflictResolver"></param>
-        /// <param name="proxy"></param>
-        public CopyRequest(IWebProxy proxy, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
-            : base(proxy, auth)
+        public CopyRequest(HttpCommonSettings settings, IAuth auth, string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null) 
+            : base(settings, auth)
         {
             _sourceFullPath = sourceFullPath;
             _destinationPath = destinationPath;

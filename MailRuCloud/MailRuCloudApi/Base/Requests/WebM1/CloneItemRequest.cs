@@ -9,8 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         private readonly string _fromUrl;
         private readonly string _toPath;
 
-        public CloneItemRequest(IWebProxy proxy, IAuth auth, string fromUrl, string toPath) 
-            : base(proxy, auth)
+        public CloneItemRequest(HttpCommonSettings settings, IAuth auth, string fromUrl, string toPath) 
+            : base(settings, auth)
         {
             _fromUrl = fromUrl;
             _toPath = toPath;

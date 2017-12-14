@@ -6,7 +6,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class ShardInfoRequest : BaseRequestJson<ShardInfoRequest.Result>
     {
-        public ShardInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public ShardInfoRequest(HttpCommonSettings settings, IAuth auth) 
+            : base(settings, auth)
         {
         }
 

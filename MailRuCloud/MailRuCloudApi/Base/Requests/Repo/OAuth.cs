@@ -11,17 +11,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(OAuth));
 
-        private readonly IWebProxy _proxy;
+        private readonly HttpCommonSettings _settings;
         private readonly IBasicCredentials _creds;
-        private readonly string _clientId;
 
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
-        public OAuth(IWebProxy proxy, IBasicCredentials creds, string clientId, AuthCodeRequiredDelegate onAuthCodeRequired)
+        public OAuth(HttpCommonSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-            _proxy = proxy;
+            _settings = settings;
             _creds = creds;
-            _clientId = clientId;
             _onAuthCodeRequired = onAuthCodeRequired;
             Cookies = new CookieContainer();
 
@@ -56,7 +54,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private async Task<AuthTokenResult> Auth()
         {
-            var req = await new OAuthRequest(_proxy, _creds, _clientId).MakeRequestAsync();
+            var req = await new OAuthRequest(_settings, _creds).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
 
             if (res.IsSecondStepRequired)
@@ -68,7 +66,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 if (string.IsNullOrWhiteSpace(code))
                     throw new Exception("Empty 2Factor code");
 
-                var ssreq = await new OAuthSecondStepRequest(_proxy, _clientId, _creds.Login, res.TsaToken, code)
+                var ssreq = await new OAuthSecondStepRequest(_settings, _creds.Login, res.TsaToken, code)
                     .MakeRequestAsync();
 
                 res = ssreq.ToAuthTokenResult();
@@ -79,7 +77,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         private async Task<AuthTokenResult> Refresh(string refreshToken)
         {
-            var req = await new OAuthRefreshRequest(_proxy, _clientId, refreshToken).MakeRequestAsync();
+            var req = await new OAuthRefreshRequest(_settings, refreshToken).MakeRequestAsync();
             var res = req.ToAuthTokenResult(refreshToken);
             return res;
         }

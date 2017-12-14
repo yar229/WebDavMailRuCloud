@@ -12,8 +12,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         private readonly int _offset;
         private readonly int _limit;
 
-        public FolderInfoRequest(IWebProxy proxy, IAuth auth, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) 
-            : base(proxy, auth)
+        public FolderInfoRequest(HttpCommonSettings settings, IAuth auth, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) 
+            : base(settings, auth)
         {
             _path = path;
             _isWebLink = isWebLink;

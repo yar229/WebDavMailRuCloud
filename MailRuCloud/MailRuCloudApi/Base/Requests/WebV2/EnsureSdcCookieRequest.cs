@@ -5,7 +5,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     class EnsureSdcCookieRequest : BaseRequestString
     {
-        public EnsureSdcCookieRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public EnsureSdcCookieRequest(HttpCommonSettings settings, IAuth auth) 
+            : base(settings, auth)
         {
         }
 

@@ -9,12 +9,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
     {
         private readonly string _metaServer;
 
-        protected BaseRequestMobile(IWebProxy proxy, IAuth auth, string metaServer) : base(proxy, auth)
+        protected BaseRequestMobile(HttpCommonSettings settings, IAuth auth, string metaServer) : base(settings, auth)
         {
             _metaServer = metaServer;
         }
 
-        protected override string RelationalUri => $"{_metaServer}?token={Auth.AccessToken}&client_id=cloud-win";
+        protected override string RelationalUri => $"{_metaServer}?token={Auth.AccessToken}&client_id={Settings.ClientId}";
 
         protected override ResponseBodyStream Transport(Stream stream)
         {

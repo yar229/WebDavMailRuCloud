@@ -12,8 +12,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         private readonly long _size;
         private readonly ConflictResolver _conflictResolver;
 
-        public CreateFileRequest(IWebProxy proxy, IAuth auth, string fullPath, string hash, long size, ConflictResolver? conflictResolver) 
-            : base(proxy, auth)
+        public CreateFileRequest(HttpCommonSettings settings, IAuth auth, string fullPath, string hash, long size, ConflictResolver? conflictResolver) 
+            : base(settings, auth)
         {
             _fullPath = fullPath;
             _hash = hash;

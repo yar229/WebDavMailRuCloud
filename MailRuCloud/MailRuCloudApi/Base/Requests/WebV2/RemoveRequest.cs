@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Requests.Repo;
 
@@ -10,7 +9,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
     {
         private readonly string _fullPath;
 
-        public RemoveRequest(IWebProxy proxy, IAuth auth, string fullPath) : base(proxy, auth)
+        public RemoveRequest(HttpCommonSettings settings, IAuth auth, string fullPath) : base(settings, auth)
         {
             _fullPath = fullPath;
         }

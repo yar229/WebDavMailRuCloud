@@ -15,20 +15,26 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
     class WebV2RequestRepo: IRequestRepo
     {
-        public IWebProxy Proxy { get; }
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
+        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        {
+            ClientId = String.Empty,
+            UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
+        };
+
+        public int PendingDownloads { get; set; }
 
         public WebV2RequestRepo(IWebProxy proxy, IAuth auth)
         {
-            Proxy = proxy;
+            HttpSettings.Proxy = proxy;
 
             Authent = auth;
 
             _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(Proxy, Authent).MakeRequestAsync().Result.ToShardInfo(),
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
         }
 
@@ -47,7 +53,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
 
             var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
-            request.Proxy = Proxy;
+            request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "POST";
             request.ContentLength = file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
@@ -56,7 +62,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             request.Host = url.Host;
             request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
             request.Accept = "*/*";
-            request.UserAgent = ConstSettings.UserAgent;
+            request.UserAgent = HttpSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
             return request;
         }
@@ -75,12 +81,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
-            request.Proxy = Proxy;
+            request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;
             request.Accept = "*/*";
-            request.UserAgent = ConstSettings.UserAgent;
+            request.UserAgent = HttpSettings.UserAgent;
             request.AllowReadStreamBuffering = false;
 
             request.Timeout = 15 * 1000;
@@ -131,21 +137,21 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CloneItemResult> CloneItem(string fromUrl, string toPath)
         {
-            var req = await new CloneItemRequest(Proxy, Authent, fromUrl, toPath).MakeRequestAsync();
+            var req = await new CloneItemRequest(HttpSettings, Authent, fromUrl, toPath).MakeRequestAsync();
             var res = req.ToCloneItemResult();
             return res;
         }
 
         public async Task<CopyResult> Copy(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new CopyRequest(Proxy, Authent, sourceFullPath, destinationPath, conflictResolver).MakeRequestAsync();
+            var req = await new CopyRequest(HttpSettings, Authent, sourceFullPath, destinationPath, conflictResolver).MakeRequestAsync();
             var res = req.ToCopyResult();
             return res;
         }
 
         public async Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new MoveRequest(Proxy, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
+            var req = await new MoveRequest(HttpSettings, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
             var res = req.ToCopyResult();
             return res;
         }
@@ -156,7 +162,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(Proxy, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
@@ -188,42 +194,42 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new ItemInfoRequest(Proxy, Authent, path, isWebLink, offset, limit).MakeRequestAsync();
+            var req = await new ItemInfoRequest(HttpSettings, Authent, path, isWebLink, offset, limit).MakeRequestAsync();
             var res = req;
             return res;
         }
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new AccountInfoRequest(Proxy, Authent).MakeRequestAsync();
+            var req = await new AccountInfoRequest(HttpSettings, Authent).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }
 
         public async Task<PublishResult> Publish(string fullPath)
         {
-            var req = await new PublishRequest(Proxy, Authent, fullPath).MakeRequestAsync();
+            var req = await new PublishRequest(HttpSettings, Authent, fullPath).MakeRequestAsync();
             var res = req.ToPublishResult();
             return res;
         }
 
         public async Task<UnpublishResult> Unpublish(string publicLink)
         {
-            var req = await new UnpublishRequest(Proxy, Authent, publicLink).MakeRequestAsync();
+            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
         }
 
         public async Task<RemoveResult> Remove(string fullPath)
         {
-            var req = await new RemoveRequest(Proxy, Authent, fullPath).MakeRequestAsync();
+            var req = await new RemoveRequest(HttpSettings, Authent, fullPath).MakeRequestAsync();
             var res = req.ToRemoveResult();
             return res;
         }
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            var req = await new RenameRequest(Proxy, Authent, fullPath, newName).MakeRequestAsync();
+            var req = await new RenameRequest(HttpSettings, Authent, fullPath, newName).MakeRequestAsync();
             var res = req.ToRenameResult();
             return res;
         }
@@ -232,20 +238,20 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
         {
-            var req = await new ShardInfoRequest(Proxy, Authent).MakeRequestAsync();
+            var req = await new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync();
             var res = req.ToShardInfo();
             return res;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new WebV2.CreateFolderRequest(Proxy, Authent, path).MakeRequestAsync())
+            return (await new WebV2.CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new WebV2.CreateFileRequest(Proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new WebV2.CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

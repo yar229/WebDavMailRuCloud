@@ -13,19 +13,26 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 {
     class MobileRequestRepo : IRequestRepo
     {
-        public IWebProxy Proxy { get; }
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
+
+        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        {
+            ClientId = "cloud-win",
+            UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
+        };
+
+        public int PendingDownloads { get; set; }
 
         public MobileRequestRepo(IWebProxy proxy, IAuth auth)
         {
-            Proxy = proxy;
+            HttpSettings.Proxy = proxy;
 
             Authent = auth;
 
             _metaServer = new Cached<MobMetaServerRequest.Result>(old =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
-                    var server = new MobMetaServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
                     return server;
                 },
                 value => TimeSpan.FromSeconds(MetaServerExpiresSec));
@@ -33,7 +40,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             _downloadServer = new Cached<MobDownloadServerRequest.Result>(old =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(Proxy).MakeRequestAsync().Result;
+                    var server = new MobDownloadServerRequest(HttpSettings).MakeRequestAsync().Result;
                     return server;
                 },
                 value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
@@ -59,18 +66,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
         {
-            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id=cloud-win";
+            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id={HttpSettings.ClientId}";
 
             var request = (HttpWebRequest)WebRequest.Create(url);
 
             request.Headers.Add("Accept-Ranges", "bytes");
             request.AddRange(instart, inend);
-            request.Proxy = Proxy;
+            request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;
             request.Accept = "*/*";
-            request.UserAgent = ConstSettings.UserAgent;
+            request.UserAgent = HttpSettings.UserAgent;
             request.AllowReadStreamBuffering = false;
 
             request.Timeout = 15 * 1000;
@@ -115,7 +122,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = new ListRequest(Proxy, Authent, _metaServer.Value.Url, path) { Depth = 1};
+            var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path) { Depth = 1};
             var res = await req.MakeRequestAsync();
 
             if (res.Item is FsFolder fsf)
@@ -163,7 +170,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new AccountInfoRequest(Proxy, Authent).MakeRequestAsync();
+            var req = await new AccountInfoRequest(HttpSettings, Authent).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }
@@ -187,7 +194,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
         {
             string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new RenameRequest(Proxy, Authent, _metaServer.Value.Url, fullPath, target)
+            await new RenameRequest(HttpSettings, Authent, _metaServer.Value.Url, fullPath, target)
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;
@@ -195,13 +202,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new CreateFolderRequest(Proxy, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
+            return (await new CreateFolderRequest(HttpSettings, Authent, _metaServer.Value.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new MobAddFileRequest(Proxy, Authent, _metaServer.Value.Url,
+            var res = await new MobAddFileRequest(HttpSettings, Authent, _metaServer.Value.Url,
                     fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 

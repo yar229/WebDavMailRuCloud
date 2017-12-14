@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
     class AccountInfoRequest : BaseRequestJson<WebV2.AccountInfoRequest.Result>
     {
-        public AccountInfoRequest(IWebProxy proxy, IAuth auth) : base(proxy, auth)
+        public AccountInfoRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {
         }
 

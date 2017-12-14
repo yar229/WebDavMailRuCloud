@@ -55,7 +55,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     _request.Headers.Add("Host", url.Host);
                     _request.Headers.Add("Accept", "*/*");
 
-                    _request.Headers.TryAddWithoutValidation("User-Agent", ConstSettings.UserAgent);
+                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.CloudApi.Account.RequestRepo.HttpSettings.UserAgent);
 
                     var guid = Guid.NewGuid();
                     var content = new MultipartFormDataContent($"----{guid}");

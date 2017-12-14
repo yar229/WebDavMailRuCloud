@@ -9,7 +9,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
     {
         private readonly string _fullPath;
 
-        public PublishRequest(IWebProxy proxy, IAuth auth, string fullPath) : base(proxy, auth)
+        public PublishRequest(HttpCommonSettings settings, IAuth auth, string fullPath) 
+            : base(settings, auth)
         {
             _fullPath = fullPath;
         }
