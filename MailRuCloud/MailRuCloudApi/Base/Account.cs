@@ -11,8 +11,6 @@ namespace YaR.MailRuCloud.Api.Base
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
-        private readonly CloudApi _cloudApi;
-
         /// <summary>
         /// Default cookies.
         /// </summary>
@@ -23,14 +21,11 @@ namespace YaR.MailRuCloud.Api.Base
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
-        /// <param name="cloudApi"></param>
         /// <param name="login">Login name as email.</param>
         /// <param name="password">Password related with this login</param>
         /// <param name="twoFaHandler"></param>
-        public Account(CloudApi cloudApi, string login, string password, ITwoFaHandler twoFaHandler)
+        public Account(string login, string password, ITwoFaHandler twoFaHandler)
         {
-            _cloudApi = cloudApi;
-
             Credentials = new Credentials(login, password);
 
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
@@ -46,7 +41,7 @@ namespace YaR.MailRuCloud.Api.Base
         internal IRequestRepo RequestRepo => _requestRepo ??
                                              //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
                                              //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
-                                            (_requestRepo = new WebM1RequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials, OnAuthCodeRequired));
+                                            (_requestRepo = new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired));
                                             //MixedRepo(_cloudApi));
 
         /// <summary>

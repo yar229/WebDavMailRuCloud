@@ -30,14 +30,14 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             {
                 try
                 {
-                    var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.CloudApi.Account.Credentials.Login}");
+                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
+                    var url = new Uri($"{shard.Url}?cloud_domain=2&{_cloud.Account.Credentials.Login}");
 
                     var config = new HttpClientHandler
                     {
                         UseProxy = true,
-                        Proxy = _cloud.CloudApi.Account.Proxy,
-                        CookieContainer = _cloud.CloudApi.Account.Cookies,
+                        Proxy = _cloud.Account.Proxy,
+                        CookieContainer = _cloud.Account.Cookies,
                         UseCookies = true,
                         AllowAutoRedirect = true,
                     };
@@ -55,7 +55,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                     _request.Headers.Add("Host", url.Host);
                     _request.Headers.Add("Accept", "*/*");
 
-                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.CloudApi.Account.RequestRepo.HttpSettings.UserAgent);
+                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.Account.RequestRepo.HttpSettings.UserAgent);
 
                     var guid = Guid.NewGuid();
                     var content = new MultipartFormDataContent($"----{guid}");

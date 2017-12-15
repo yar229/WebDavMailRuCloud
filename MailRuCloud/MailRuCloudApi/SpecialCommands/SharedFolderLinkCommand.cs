@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
             //TODO: make method in MailRuCloud to get entry by url
             //var item = await new ItemInfoRequest(Cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync();
-            var item = await Cloud.CloudApi.Account.RequestRepo.ItemInfo(m.Groups["url"].Value, true);
+            var item = await Cloud.Account.RequestRepo.ItemInfo(m.Groups["url"].Value, true);
             var entry = item.ToEntry();
             if (null == entry)
                 return SpecialCommandResult.Fail;

@@ -33,8 +33,8 @@ namespace YaR.MailRuCloud.Api.Streams
             _checkHash = checkHash;
             _cryptInfo = cryptInfo;
 
-            _maxFileSize = _cloud.CloudApi.Account.Info.FileSizeLimit > 0
-                ? _cloud.CloudApi.Account.Info.FileSizeLimit - 1024
+            _maxFileSize = _cloud.Account.Info.FileSizeLimit > 0
+                ? _cloud.Account.Info.FileSizeLimit - 1024
                 : long.MaxValue - 1024;
 
             Initialize();

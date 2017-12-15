@@ -39,8 +39,8 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         return null;
                     }
 
-                    var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, null);
+                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
+                    _request = _cloud.Account.RequestRepo.UploadRequest(shard, _file, null);
 
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
@@ -85,7 +85,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         if (response.StatusCode != HttpStatusCode.Created && response.StatusCode != HttpStatusCode.OK)
                             throw new Exception("Cannot upload file, status " + response.StatusCode);
 
-                        var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
+                        var ures = response.ReadAsText(_cloud.CancelToken)
                             .ToUploadPathResult();
 
                         if (ures.Size > 0 && _file.OriginalSize != ures.Size)
