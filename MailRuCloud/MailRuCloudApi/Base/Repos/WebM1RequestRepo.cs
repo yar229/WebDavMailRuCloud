@@ -29,6 +29,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
+            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+
             HttpSettings.Proxy = proxy;
 
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
@@ -120,7 +122,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
                 request.Timeout = 15 * 1000;
                 request.ReadWriteTimeout = 15 * 1000;
-                request.ServicePoint.ConnectionLimit = int.MaxValue;
+                //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
                 return request;
             }
@@ -153,7 +155,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             request.Timeout = 15 * 1000;
             request.ReadWriteTimeout = 15 * 1000;
-            request.ServicePoint.ConnectionLimit = int.MaxValue;
+            //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
             return request;
         }
