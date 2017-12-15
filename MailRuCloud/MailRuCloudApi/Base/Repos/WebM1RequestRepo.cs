@@ -118,7 +118,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     request.Headers.Add("Origin", ConstSettings.CloudDomain);
                 }
 
-                request.Timeout = 15 * 1000;
+                request.Timeout = 10 * 1000;
+                request.ReadWriteTimeout = 10 * 1000;
 
                 return request;
             }

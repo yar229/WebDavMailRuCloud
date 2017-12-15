@@ -43,8 +43,6 @@ namespace YaR.MailRuCloud.Api.Base.Streams
         public void Open()
         {
             _innerStream = new RingBufferedStream(InnerBufferSize);
-
-            // ReSharper disable once UnusedVariable
             _copyTask = GetFileStream();
 
             _initialized = true;
@@ -92,14 +90,23 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             var request = _requestGenerator(clostart, cloend, clofile);
             Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
-            var response = await request.GetResponseAsync().ConfigureAwait(false);
+            
 
-            using (Stream responseStream = response.GetResponseStream())
+            try
             {
-                await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
-            }
+                var response = await request.GetResponseAsync().ConfigureAwait(false);
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
+                }
 
-            return response;
+                return response;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         private bool _disposed;
