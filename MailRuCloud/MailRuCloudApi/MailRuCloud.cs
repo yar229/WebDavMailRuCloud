@@ -726,7 +726,7 @@ namespace YaR.MailRuCloud.Api
 
         public T DownloadFileAsJson<T>(File file)
         {
-            using (var stream = new DownloadStream(file, CloudApi))
+            using (var stream = CloudApi.Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
             using (var reader = new StreamReader(stream))
             using (var jsonReader = new JsonTextReader(reader))
             {
@@ -737,7 +737,7 @@ namespace YaR.MailRuCloud.Api
 
         public string DownloadFileAsString(File file)
         {
-            using (var stream = new DownloadStream(file, CloudApi))
+            using (var stream = CloudApi.Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
             using (var reader = new StreamReader(stream))
             {
                 string res = reader.ReadToEnd();

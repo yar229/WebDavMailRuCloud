@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
@@ -57,9 +58,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
 
         public IAuth Authent { get; }
-        public CookieContainer Cookies { get; }
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
@@ -67,32 +68,37 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return request;
         }
 
-        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
-            string downloadkey = string.Empty;
-            if (shard.Type == ShardType.WeblinkGet)
-                downloadkey = Authent.DownloadToken;
-
-            string url = shard.Type == ShardType.Get
-                ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
-                : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
-
-            var request = (HttpWebRequest)WebRequest.Create(url);
-
-            request.Headers.Add("Accept-Ranges", "bytes");
-            request.AddRange(instart, inend);
-            request.Proxy = HttpSettings.Proxy;
-            request.CookieContainer = Authent.Cookies;
-            request.Method = "GET";
-            request.ContentType = MediaTypeNames.Application.Octet;
-            request.Accept = "*/*";
-            request.UserAgent = HttpSettings.UserAgent;
-            request.AllowReadStreamBuffering = false;
-
-            request.Timeout = 15 * 1000;
-
-            return request;
+            throw new NotImplementedException();
         }
+
+        //public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        //{
+        //    string downloadkey = string.Empty;
+        //    if (shard.Type == ShardType.WeblinkGet)
+        //        downloadkey = Authent.DownloadToken;
+
+        //    string url = shard.Type == ShardType.Get
+        //        ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+        //        : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+        //    var request = (HttpWebRequest)WebRequest.Create(url);
+
+        //    request.Headers.Add("Accept-Ranges", "bytes");
+        //    request.AddRange(instart, inend);
+        //    request.Proxy = HttpSettings.Proxy;
+        //    request.CookieContainer = Authent.Cookies;
+        //    request.Method = "GET";
+        //    request.ContentType = MediaTypeNames.Application.Octet;
+        //    request.Accept = "*/*";
+        //    request.UserAgent = HttpSettings.UserAgent;
+        //    request.AllowReadStreamBuffering = false;
+
+        //    request.Timeout = 15 * 1000;
+
+        //    return request;
+        //}
 
 
         public void BanShardInfo(ShardInfo banShard)

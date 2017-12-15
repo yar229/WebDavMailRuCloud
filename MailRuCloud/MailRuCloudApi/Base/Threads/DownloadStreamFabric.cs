@@ -18,7 +18,9 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             if (file.ServiceInfo.IsCrypted)
                 return CreateXTSStream(file, start, end);
 
-            return new DownloadStream(file, _cloud.CloudApi, start, end);
+            //return new DownloadStream(file, _cloud.CloudApi, start, end);
+            var stream = _cloud.CloudApi.Account.RequestRepo.GetDownloadStream(file, start, end);
+            return stream;
         }
 
         private Stream CreateXTSStream(File file, long? start = null, long? end = null)
@@ -37,7 +39,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 : (requestedEnd / XTSBlockSize + 1) * XTSBlockSize;
             if (alignedEnd == 0) alignedEnd = 16;
 
-            var downStream = new DownloadStream(file, _cloud.CloudApi, alignedOffset, alignedEnd);
+            //var downStream = new DownloadStream(file, _cloud.CloudApi, alignedOffset, alignedEnd);
+            var downStream = _cloud.CloudApi.Account.RequestRepo.GetDownloadStream(file, alignedOffset, alignedEnd);
 
             ulong startSector = (ulong)alignedOffset / XTSSectorSize;
             int trimStart = (int)(requestedOffset - alignedOffset);

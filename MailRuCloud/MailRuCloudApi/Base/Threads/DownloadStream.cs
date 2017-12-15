@@ -4,34 +4,33 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Threads
 {
-    public class DownloadStream : Stream
+    internal class DownloadStream : Stream
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
 
         private const int InnerBufferSize = 65536 * 2;
 
+        private readonly Func<long, long, File, HttpWebRequest> _requestGenerator;
         private readonly IList<File> _files;
-        private ShardInfo _shard;
-        private readonly CloudApi _cloud;
         private readonly long? _start;
         private readonly long? _end;
 
         private RingBufferedStream _innerStream;
+        private bool _initialized;
 
-        public DownloadStream(File file, CloudApi cloud, long? start = null, long? end = null)
-            : this(file.Parts, cloud, start, end)
+        public DownloadStream(Func<long, long, File, HttpWebRequest> requestGenerator, File file, long? start = null, long? end = null)
+            : this(requestGenerator, file.Parts, start, end)
         {
         }
 
-        public DownloadStream(IList<File> files, CloudApi cloud, long? start = null, long? end = null)
+        private DownloadStream(Func<long, long, File, HttpWebRequest> requestGenerator, IList<File> files, long? start = null, long? end = null)
         {
             var globalLength = files.Sum(f => f.OriginalSize);
 
-            _cloud = cloud;
+            _requestGenerator = requestGenerator ?? throw new ArgumentNullException(nameof(requestGenerator));
             _files = files;
             _start = start;
             _end = end >= globalLength ? globalLength - 1 : end;
@@ -39,10 +38,6 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             Length = _start != null && _end != null
                 ? _end.Value - _start.Value + 1
                 : globalLength;
-
-            _cloud.Account.RequestRepo.PendingDownloads++;
-
-            Initialize();
         }
 
         private void Initialize()
@@ -57,7 +52,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
         {
             var totalLength = Length;
             long glostart = _start ?? 0;
-            long gloend = _end == null || (_start == _end && _end == 0) ? totalLength : _end.Value + 1;
+            long gloend = _end == null || 
+                _start == _end && _end == 0 ? totalLength : _end.Value + 1;
 
             long fileStart = 0;
             long fileEnd = 0;
@@ -95,7 +91,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             {
                 try
                 {
-                    var request = CreateRequest(clostart, cloend, clofile, retryCnt > 0);
+                    var request = _requestGenerator(clostart, cloend, clofile);
                     Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
                     response = await request.GetResponseAsync().ConfigureAwait(false);
@@ -109,7 +105,6 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                         continue;
                     }
                     Logger.Error($"GetFileStream failed with {wex}");
-                    _innerStream.Dispose();
                     throw;
                 }
             }
@@ -122,33 +117,16 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             return response;
         }
 
-        private ShardInfo GetShard(File file)
-        {
-            var res = string.IsNullOrEmpty(file.PublicLink)
-                ? _cloud.Account.RequestRepo.GetShardInfo(ShardType.Get).Result
-                : _cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkGet).Result;
-            return res;
-        }
-        private HttpWebRequest CreateRequest(long instart, long inend, File file, bool doBanCurrentShard)
-        {
-            if (doBanCurrentShard)
-                _cloud.Account.RequestRepo.BanShardInfo(_shard);
-
-            _shard = GetShard(file);
-
-            var request = _cloud.Account.RequestRepo.DownloadRequest(instart, inend, file, _shard);
-
-            return request;
-        }
-
-
+        private bool _disposed;
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (!disposing) return;
+            if (!disposing || _disposed) return;
 
-            _cloud.Account.RequestRepo.PendingDownloads--;
-            _innerStream.Close();
+            _disposed = true;
+
+            Finished?.Invoke();
+            _innerStream?.Close();
         }
 
 
@@ -169,6 +147,12 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
         public override int Read(byte[] buffer, int offset, int count)
         {
+            if (!_initialized)
+            {
+                _initialized = true;
+                Initialize();
+            }
+
             int readed = _innerStream.Read(buffer, offset, count);
             return readed;
         }
@@ -185,5 +169,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
         public override long Length { get; }
 
         public override long Position { get; set; }
+        
+
+        public event Action Finished;
     }
 }
