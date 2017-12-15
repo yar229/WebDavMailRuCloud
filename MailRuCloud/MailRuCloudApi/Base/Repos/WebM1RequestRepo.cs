@@ -39,7 +39,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            _downloadServersPending = new Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>>(2,
+            _downloadServersPending = new Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>>(8,
                 () => new Cached<Requests.WebBin.MobDownloadServerRequest.Result>(old =>
                     {
                         Logger.Debug("Requesting new download server");
