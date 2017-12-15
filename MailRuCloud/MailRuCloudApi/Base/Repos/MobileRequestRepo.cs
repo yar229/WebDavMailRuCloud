@@ -1,15 +1,18 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
-using YaR.MailRuCloud.Api.Base.Threads;
+using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Repo
+namespace YaR.MailRuCloud.Api.Base.Repos
 {
     class MobileRequestRepo : IRequestRepo
     {
@@ -57,9 +60,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
 
         public IAuth Authent { get; }
-        public CookieContainer Cookies { get; }
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
             throw new NotImplementedException();
         }

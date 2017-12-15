@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Authentication;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Threads;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using YaR.MailRuCloud.Api.Streams;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api
@@ -27,9 +29,17 @@ namespace YaR.MailRuCloud.Api
 
         private readonly LinkManager _linkManager;
 
+        /// <summary>
+        /// Async tasks cancelation token.
+        /// </summary>
+        public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
 
+        /// <summary>
+        /// Gets or sets account to connect with cloud.
+        /// </summary>
+        /// <value>Account info.</value>
+        public Account Account { get; }
 
-        public CloudApi CloudApi { get; }
 
         /// <summary>
         /// Caching files for multiple small reads
@@ -44,7 +54,12 @@ namespace YaR.MailRuCloud.Api
         /// <param name="twoFaHandler"></param>
         public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
         {
-            CloudApi = new CloudApi(login, password, twoFaHandler);
+            //CloudApi = new CloudApi(login, password, twoFaHandler);
+            Account = new Account(login, password, twoFaHandler);
+            if (!Account.Login())
+            {
+                throw new AuthenticationException("Auth token has't been retrieved.");
+            }
 
             //TODO: wow very dummy linking, refact cache realization globally!
             _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
@@ -123,7 +138,7 @@ namespace YaR.MailRuCloud.Api
             //var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
 
 
-            var entry = await CloudApi.Account.RequestRepo.FolderInfo(path, ulink);
+            var entry = await Account.RequestRepo.FolderInfo(path, ulink);
             if (null == entry)
                 return null;
 
@@ -164,7 +179,7 @@ namespace YaR.MailRuCloud.Api
         private async Task<bool> Unpublish(string publicLink)
         {
             //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
-            var res = (await  CloudApi.Account.RequestRepo.Unpublish(publicLink))
+            var res = (await  Account.RequestRepo.Unpublish(publicLink))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Unpublish error, link = {publicLink}"));
 
             return res.IsSuccess;
@@ -183,7 +198,7 @@ namespace YaR.MailRuCloud.Api
 
         private async Task<string> Publish(string fullPath)
         {
-            var res = (await CloudApi.Account.RequestRepo.Publish(fullPath))
+            var res = (await Account.RequestRepo.Publish(fullPath))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
             return res.Url;
@@ -262,7 +277,7 @@ namespace YaR.MailRuCloud.Api
             }
 
             //var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath).MakeRequestAsync();
-            var copyRes = await CloudApi.Account.RequestRepo.Copy(folder.FullPath, destinationPath);
+            var copyRes = await Account.RequestRepo.Copy(folder.FullPath, destinationPath);
             if (!copyRes.IsSuccess) return false;
 
             //clone all inner links
@@ -355,7 +370,7 @@ namespace YaR.MailRuCloud.Api
                     .Select(async pfile =>
                     {
                         //var copyRes = await new CopyRequest(CloudApi, pfile.FullPath, destPath, ConflictResolver.Rewrite).MakeRequestAsync();
-                        var copyRes = await CloudApi.Account.RequestRepo.Copy(pfile.FullPath, destPath, ConflictResolver.Rewrite);
+                        var copyRes = await Account.RequestRepo.Copy(pfile.FullPath, destPath, ConflictResolver.Rewrite);
                         if (!copyRes.IsSuccess) return false;
 
                         if (doRename || WebDavPath.Name(copyRes.NewName) != newname)
@@ -445,7 +460,7 @@ namespace YaR.MailRuCloud.Api
             //rename item
             if (link == null)
             {
-                var data = await CloudApi.Account.RequestRepo.Rename(fullPath, newName);
+                var data = await Account.RequestRepo.Rename(fullPath, newName);
 
                 if (data.IsSuccess)
                 {
@@ -505,7 +520,7 @@ namespace YaR.MailRuCloud.Api
             }
 
             //var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
-            var res = await CloudApi.Account.RequestRepo.Move(folder.FullPath, destinationPath);
+            var res = await Account.RequestRepo.Move(folder.FullPath, destinationPath);
             if (!res.IsSuccess) return false;
 
             //clone all inner links
@@ -553,7 +568,7 @@ namespace YaR.MailRuCloud.Api
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
-                .Select(async pfile => await CloudApi.Account.RequestRepo.Move(pfile.FullPath, destinationPath));
+                .Select(async pfile => await Account.RequestRepo.Move(pfile.FullPath, destinationPath));
 
             bool res = (await Task.WhenAll(qry))
                 .All(r => r.IsSuccess);
@@ -648,7 +663,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>Returns Total/Free/Used size.</returns>
         public async Task<DiskUsage> GetDiskUsage()
         {
-            var data = await CloudApi.Account.RequestRepo.AccountInfo();
+            var data = await Account.RequestRepo.AccountInfo();
             return data.DiskUsage;
         }
 
@@ -657,7 +672,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         public void AbortAllAsyncThreads()
         {
-            CloudApi.CancelToken.Cancel(true);
+            CancelToken.Cancel(true);
         }
 
         public byte MaxInnerParallelRequests
@@ -680,7 +695,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<bool> CreateFolder(string fullPath)
         {
-            var res = await CloudApi.Account.RequestRepo.CreateFolder(fullPath);
+            var res = await Account.RequestRepo.CreateFolder(fullPath);
 
             if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             return res.IsSuccess;
@@ -688,7 +703,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<CloneItemResult> CloneItem(string path, string url)
         {
-            var res = await CloudApi.Account.RequestRepo.CloneItem(url, path);
+            var res = await Account.RequestRepo.CloneItem(url, path);
 
             if (res.IsSuccess) _itemCache.Invalidate(path);
             return res;
@@ -726,7 +741,7 @@ namespace YaR.MailRuCloud.Api
 
         public T DownloadFileAsJson<T>(File file)
         {
-            using (var stream = new DownloadStream(file, CloudApi))
+            using (var stream = Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
             using (var reader = new StreamReader(stream))
             using (var jsonReader = new JsonTextReader(reader))
             {
@@ -737,7 +752,7 @@ namespace YaR.MailRuCloud.Api
 
         public string DownloadFileAsString(File file)
         {
-            using (var stream = new DownloadStream(file, CloudApi))
+            using (var stream = Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
             using (var reader = new StreamReader(stream))
             {
                 string res = reader.ReadToEnd();
@@ -806,7 +821,7 @@ namespace YaR.MailRuCloud.Api
                 return true;
             }
 
-            var res = await CloudApi.Account.RequestRepo.Remove(fullPath);
+            var res = await Account.RequestRepo.Remove(fullPath);
             if (res.IsSuccess)
             {
                 //remove inner links
@@ -827,7 +842,7 @@ namespace YaR.MailRuCloud.Api
             {
                 if (disposing)
                 {
-                    CloudApi?.Dispose();
+                    CancelToken.Dispose();
                 }
                 _disposedValue = true;
             }
@@ -858,7 +873,7 @@ namespace YaR.MailRuCloud.Api
 
         public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
-            var res = await CloudApi.Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
+            var res = await Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
 
             return res;
         }
@@ -875,7 +890,7 @@ namespace YaR.MailRuCloud.Api
             if (file.LastWriteTimeUtc == dateTime)
                 return true;
 
-            var added = await CloudApi.Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
+            var added = await Account.RequestRepo.AddFile(file.FullPath, file.Hash, file.Size, dateTime, ConflictResolver.Rename);
             bool res = added.Success;
             if (res)
             {

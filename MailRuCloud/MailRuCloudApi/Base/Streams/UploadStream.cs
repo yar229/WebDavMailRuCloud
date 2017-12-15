@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Threads
+﻿namespace YaR.MailRuCloud.Api.Base.Streams
 {
 #if NETCOREAPP2_0
 

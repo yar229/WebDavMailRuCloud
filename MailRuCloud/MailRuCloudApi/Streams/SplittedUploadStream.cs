@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Base.Streams;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Streams
 {
     class SplittedUploadStream : Stream
     {
@@ -30,8 +33,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             _checkHash = checkHash;
             _cryptInfo = cryptInfo;
 
-            _maxFileSize = _cloud.CloudApi.Account.Info.FileSizeLimit > 0
-                ? _cloud.CloudApi.Account.Info.FileSizeLimit - 1024
+            _maxFileSize = _cloud.Account.Info.FileSizeLimit > 0
+                ? _cloud.Account.Info.FileSizeLimit - 1024
                 : long.MaxValue - 1024;
 
             Initialize();

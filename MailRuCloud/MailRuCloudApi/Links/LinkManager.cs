@@ -260,7 +260,7 @@ namespace YaR.MailRuCloud.Api.Links
             try
             {
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
-                var infores = await _cloud.CloudApi.Account.RequestRepo.ItemInfo(link.Href, true);
+                var infores = await _cloud.Account.RequestRepo.ItemInfo(link.Href, true);
                 link.ItemType = infores.body.kind == "file"
                     ? MailRuCloud.ItemType.File
                     : MailRuCloud.ItemType.Folder;

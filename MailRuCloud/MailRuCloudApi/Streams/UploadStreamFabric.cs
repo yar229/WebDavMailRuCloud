@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Streams
 {
     public class UploadStreamFabric
     {
@@ -24,7 +26,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
             if (folder.CryptRequired && !discardEncryption)
             {
-                if (!_cloud.CloudApi.Account.Credentials.CanCrypt)
+                if (!_cloud.Account.Credentials.CanCrypt)
                     throw new Exception($"Cannot upload {file.FullPath} to crypt folder without additional password!");
                 stream = GetCryptoStream(file, onUploaded);
             }
@@ -45,7 +47,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
 
         private Stream GetCryptoStream(File file, FileUploadedDelegate onUploaded)
         {
-            var info = CryptoUtil.GetCryptoKeyAndSalt(_cloud.CloudApi.Account.Credentials.PasswordCrypt);
+            var info = CryptoUtil.GetCryptoKeyAndSalt(_cloud.Account.Credentials.PasswordCrypt);
             var xts = XtsAes256.Create(info.Key, info.IV);
 
             file.ServiceInfo.CryptInfo = new CryptInfo

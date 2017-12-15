@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Auth;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {

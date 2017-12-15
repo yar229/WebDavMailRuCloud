@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebV2;
-using YaR.MailRuCloud.Api.Base.Threads;
+using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Repo
+namespace YaR.MailRuCloud.Api.Base.Repos
 {
     class WebV2RequestRepo: IRequestRepo
     {
@@ -67,32 +69,37 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return request;
         }
 
-        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
-            string downloadkey = string.Empty;
-            if (shard.Type == ShardType.WeblinkGet)
-                downloadkey = Authent.DownloadToken;
-
-            string url = shard.Type == ShardType.Get
-                ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
-                : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
-
-            var request = (HttpWebRequest)WebRequest.Create(url);
-
-            request.Headers.Add("Accept-Ranges", "bytes");
-            request.AddRange(instart, inend);
-            request.Proxy = HttpSettings.Proxy;
-            request.CookieContainer = Authent.Cookies;
-            request.Method = "GET";
-            request.ContentType = MediaTypeNames.Application.Octet;
-            request.Accept = "*/*";
-            request.UserAgent = HttpSettings.UserAgent;
-            request.AllowReadStreamBuffering = false;
-
-            request.Timeout = 15 * 1000;
-
-            return request;
+            throw new NotImplementedException();
         }
+
+        //public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        //{
+        //    string downloadkey = string.Empty;
+        //    if (shard.Type == ShardType.WeblinkGet)
+        //        downloadkey = Authent.DownloadToken;
+
+        //    string url = shard.Type == ShardType.Get
+        //        ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+        //        : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+        //    var request = (HttpWebRequest)WebRequest.Create(url);
+
+        //    request.Headers.Add("Accept-Ranges", "bytes");
+        //    request.AddRange(instart, inend);
+        //    request.Proxy = HttpSettings.Proxy;
+        //    request.CookieContainer = Authent.Cookies;
+        //    request.Method = "GET";
+        //    request.ContentType = MediaTypeNames.Application.Octet;
+        //    request.Accept = "*/*";
+        //    request.UserAgent = HttpSettings.UserAgent;
+        //    request.AllowReadStreamBuffering = false;
+
+        //    request.Timeout = 15 * 1000;
+
+        //    return request;
+        //}
 
 
         public void BanShardInfo(ShardInfo banShard)
@@ -245,13 +252,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new WebV2.CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            return (await new Requests.WebV2.CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new WebV2.CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new Requests.WebV2.CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

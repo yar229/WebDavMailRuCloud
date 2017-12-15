@@ -6,7 +6,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Base.Streams
 {
     abstract class UploadStreamHttpWebRequestV2 : Stream
     {
@@ -27,8 +27,8 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 try
                 {
                     var boundary = new UploadMultipartBoundary(_file);
-                    var shard = _cloud.CloudApi.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    _request = _cloud.CloudApi.Account.RequestRepo.UploadRequest(shard, _file, boundary);
+                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
+                    _request = _cloud.Account.RequestRepo.UploadRequest(shard, _file, boundary);
 
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
@@ -74,7 +74,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                     if (response.StatusCode != HttpStatusCode.OK)
                         throw new Exception("Cannot upload file, status " + response.StatusCode);
 
-                    var ures = response.ReadAsText(_cloud.CloudApi.CancelToken)
+                    var ures = response.ReadAsText(_cloud.CancelToken)
                         .ToUploadPathResult();
 
                     _file.OriginalSize = ures.Size;

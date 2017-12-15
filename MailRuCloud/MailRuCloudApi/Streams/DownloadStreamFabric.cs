@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Streams
 {
     public class DownloadStreamFabric
     {
@@ -18,13 +20,15 @@ namespace YaR.MailRuCloud.Api.Base.Threads
             if (file.ServiceInfo.IsCrypted)
                 return CreateXTSStream(file, start, end);
 
-            return new DownloadStream(file, _cloud.CloudApi, start, end);
+            //return new DownloadStream(file, _cloud.CloudApi, start, end);
+            var stream = _cloud.Account.RequestRepo.GetDownloadStream(file, start, end);
+            return stream;
         }
 
         private Stream CreateXTSStream(File file, long? start = null, long? end = null)
         {
             var pub = CryptoUtil.GetCryptoPublicInfo(_cloud, file);
-            var key = CryptoUtil.GetCryptoKey(_cloud.CloudApi.Account.Credentials.PasswordCrypt, pub.Salt);
+            var key = CryptoUtil.GetCryptoKey(_cloud.Account.Credentials.PasswordCrypt, pub.Salt);
             var xts = XtsAes256.Create(key, pub.IV);
 
             long fileLength = file.OriginalSize;
@@ -37,7 +41,7 @@ namespace YaR.MailRuCloud.Api.Base.Threads
                 : (requestedEnd / XTSBlockSize + 1) * XTSBlockSize;
             if (alignedEnd == 0) alignedEnd = 16;
 
-            var downStream = new DownloadStream(file, _cloud.CloudApi, alignedOffset, alignedEnd);
+            var downStream = _cloud.Account.RequestRepo.GetDownloadStream(file, alignedOffset, alignedEnd);
 
             ulong startSector = (ulong)alignedOffset / XTSSectorSize;
             int trimStart = (int)(requestedOffset - alignedOffset);

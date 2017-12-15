@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Base.Streams
 {
     /// <summary>
     /// A ring-buffer stream that you can read from and write to from
