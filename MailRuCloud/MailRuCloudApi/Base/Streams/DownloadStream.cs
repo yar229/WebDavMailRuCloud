@@ -75,7 +75,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                await GetWebResponse(clostart, cloend, clofile).ConfigureAwait(false);
+                await Download(clostart, cloend, clofile).ConfigureAwait(false);
 
                 fileStart += file.OriginalSize;
             }
@@ -85,20 +85,18 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             return _innerStream;
         }
 
-        private async Task<WebResponse> GetWebResponse(long clostart, long cloend, File clofile)
+        private async Task Download(long clostart, long cloend, File clofile)
         {
             var request = _requestGenerator(clostart, cloend, clofile);
             Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
             try
             {
-                var response = await request.GetResponseAsync().ConfigureAwait(false);
+                using (var response = await request.GetResponseAsync().ConfigureAwait(false))
                 using (var responseStream = response.GetResponseStream())
                 {
-                    responseStream.ReadTimeout = 15 * 1000;
                     await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
                 }
-                return response;
             }
             catch (Exception e)
             {
