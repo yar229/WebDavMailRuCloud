@@ -118,9 +118,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     request.Headers.Add("Origin", ConstSettings.CloudDomain);
                 }
 
-                request.Timeout = 10 * 1000;
-                request.ReadWriteTimeout = 10 * 1000;
-                request.ServicePoint.ConnectionLimit = 20;
+                request.Timeout = 15 * 1000;
+                request.ReadWriteTimeout = 15 * 1000;
+                request.ServicePoint.ConnectionLimit = int.MaxValue;
 
                 return request;
             }
@@ -150,6 +150,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             request.Accept = "*/*";
             request.UserAgent = HttpSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
+
+            request.Timeout = 15 * 1000;
+            request.ReadWriteTimeout = 15 * 1000;
+            request.ServicePoint.ConnectionLimit = int.MaxValue;
+
             return request;
         }
 
