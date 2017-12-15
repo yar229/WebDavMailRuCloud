@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Repos;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base

@@ -9,9 +9,10 @@ using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Threads;
+using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using YaR.MailRuCloud.Api.Streams;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api

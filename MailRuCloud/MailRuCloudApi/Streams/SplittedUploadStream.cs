@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Base.Streams;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Streams
 {
     class SplittedUploadStream : Stream
     {

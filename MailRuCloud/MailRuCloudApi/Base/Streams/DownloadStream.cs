@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Base.Streams
 {
     internal class DownloadStream : Stream
     {

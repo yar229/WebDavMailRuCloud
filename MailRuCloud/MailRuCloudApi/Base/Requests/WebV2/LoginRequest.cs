@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Text;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2

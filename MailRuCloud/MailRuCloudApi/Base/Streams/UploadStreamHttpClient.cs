@@ -8,7 +8,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Base.Streams
 {
     /// <summary>
     /// Upload stream based on HttpClient

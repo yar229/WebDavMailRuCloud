@@ -3,18 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Auth;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
-    internal class HttpCommonSettings
-    {
-        public IWebProxy Proxy { get; set; }
-        public string ClientId { get; set; }
-        public string UserAgent { get; set; }
-    }
-
-
     internal abstract class BaseRequest<TConvert, T> where T : class
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(BaseRequest<TConvert, T>));

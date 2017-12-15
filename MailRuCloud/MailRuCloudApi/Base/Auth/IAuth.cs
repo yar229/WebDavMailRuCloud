@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Repo
+namespace YaR.MailRuCloud.Api.Base.Auth
 {
     internal interface IAuth
     {

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.XTSSharp;
 using YaR.WebDavMailRu.CloudStore.XTSSharp;
+using File = YaR.MailRuCloud.Api.Base.File;
 
-namespace YaR.MailRuCloud.Api.Base.Threads
+namespace YaR.MailRuCloud.Api.Streams
 {
     public class UploadStreamFabric
     {

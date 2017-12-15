@@ -1,5 +1,5 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin

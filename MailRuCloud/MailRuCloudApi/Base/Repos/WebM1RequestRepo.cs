@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,109 +6,148 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.WebV2;
-using YaR.MailRuCloud.Api.Base.Threads;
+using YaR.MailRuCloud.Api.Base.Requests.WebM1;
+using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Repo
+namespace YaR.MailRuCloud.Api.Base.Repos
 {
-    class WebV2RequestRepo: IRequestRepo
+    class WebM1RequestRepo : IRequestRepo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
+
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
-            ClientId = String.Empty,
-            UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
+            ClientId = "cloud-win",
+            UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
         public int PendingDownloads { get; set; }
 
-        public WebV2RequestRepo(IWebProxy proxy, IAuth auth)
+
+        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             HttpSettings.Proxy = proxy;
 
-            Authent = auth;
+            Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
 
             _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));
 
             _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
+
+            _downloadServersPending = new Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>>(2,
+                () => new Cached<Requests.WebBin.MobDownloadServerRequest.Result>(old =>
+                    {
+                        Logger.Debug("Requesting new download server");
+                        var server = new Requests.WebBin.MobDownloadServerRequest(HttpSettings).MakeRequestAsync().Result;
+                        return server;
+                    },
+                    value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
+                ));
+
+            _metaServer = new Cached<Requests.WebBin.MobMetaServerRequest.Result>(old =>
+                {
+                    Logger.Debug("Requesting new meta server");
+                    var server = new Requests.WebBin.MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
+                    return server;
+                },
+                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
         }
 
+        private readonly Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>> _downloadServersPending;
+        private const int DownloadServerExpiresSec = 20 * 60;
+
+        private readonly Cached<Requests.WebBin.MobMetaServerRequest.Result> _metaServer;
+        private const int MetaServerExpiresSec = 20 * 60;
+
         public IAuth Authent { get; }
-
-
 
         private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
         private readonly Cached<List<ShardInfo>> _bannedShards;
         private const int ShardsExpiresInSec = 30 * 60;
 
 
-        //TODO: broken now, replace with PUT request
+
+
+        public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
+        {
+            var downServer = _downloadServersPending.Use();
+
+            HttpWebRequest RequestGenerator(long instart, long inend, File file)
+            {
+                bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
+
+                string url = isLinked
+                    ? $"{GetShardInfo(ShardType.WeblinkGet).Result}/{file.PublicLink}?token={Authent.AccessToken}"
+                    : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+                var uri = new Uri(url);
+
+                var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
+
+                request.AddRange(instart, inend);
+                request.Proxy = HttpSettings.Proxy;
+                request.CookieContainer = Authent.Cookies;
+                request.Method = "GET";
+                request.Accept = "*/*";
+                request.UserAgent = HttpSettings.UserAgent;
+                request.Host = uri.Host;
+                request.AllowWriteStreamBuffering = false;
+
+                if (isLinked)
+                {
+                    request.Headers.Add("Accept-Ranges", "bytes");
+                    request.ContentType = MediaTypeNames.Application.Octet;
+                    request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
+                    request.Headers.Add("Origin", ConstSettings.CloudDomain);
+                }
+
+                request.Timeout = 15 * 1000;
+
+                return request;
+            }
+
+            var stream = new DownloadStream(RequestGenerator, afile, start, end);
+
+            stream.Finished += () =>
+            {
+                _downloadServersPending.Free(downServer);
+            };
+
+            return stream;
+        }
+
+
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
         {
-            var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
+            var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
 
-            var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
+            var request = (HttpWebRequest)WebRequest.Create(url);
             request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
-            request.Method = "POST";
-            request.ContentLength = file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
-            request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-            request.Headers.Add("Origin", ConstSettings.CloudDomain);
-            request.Host = url.Host;
-            request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
+            request.Method = "PUT";
+            request.ContentLength = file.OriginalSize;
             request.Accept = "*/*";
             request.UserAgent = HttpSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
             return request;
         }
 
-        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
-        {
-            throw new NotImplementedException();
-        }
 
-        //public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        //public void BanShardInfo(ShardInfo banShard)
         //{
-        //    string downloadkey = string.Empty;
-        //    if (shard.Type == ShardType.WeblinkGet)
-        //        downloadkey = Authent.DownloadToken;
-
-        //    string url = shard.Type == ShardType.Get
-        //        ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
-        //        : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
-
-        //    var request = (HttpWebRequest)WebRequest.Create(url);
-
-        //    request.Headers.Add("Accept-Ranges", "bytes");
-        //    request.AddRange(instart, inend);
-        //    request.Proxy = HttpSettings.Proxy;
-        //    request.CookieContainer = Authent.Cookies;
-        //    request.Method = "GET";
-        //    request.ContentType = MediaTypeNames.Application.Octet;
-        //    request.Accept = "*/*";
-        //    request.UserAgent = HttpSettings.UserAgent;
-        //    request.AllowReadStreamBuffering = false;
-
-        //    request.Timeout = 15 * 1000;
-
-        //    return request;
+        //    if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
+        //    {
+        //        Logger.Warn($"Shard {banShard.Url} temporarily banned");
+        //        _bannedShards.Value.Add(banShard);
+        //    }
         //}
-
-
-        public void BanShardInfo(ShardInfo banShard)
-        {
-            if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
-            {
-                Logger.Warn($"Shard {banShard.Url} temporarily banned");
-                _bannedShards.Value.Add(banShard);
-            }
-        }
 
 
         /// <summary>
@@ -193,9 +232,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
                 : datares.ToFolder(path, ulink);
 
             return entry;
-
-            //var res = req;
-            //return res;
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
@@ -240,29 +276,26 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Repo
             return res;
         }
 
-
-
-        public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
-        {
-            var req = await new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync();
-            var res = req.ToShardInfo();
-            return res;
-        }
-
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new WebV2.CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new WebV2.CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            //var res = await new CreateFileRequest(Proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            //    .MakeRequestAsync();
+            //return res.ToAddFileResult();
+
+            //using Mobile request because of supporting file modified time
+
+            //TODO: refact, make mixed repo
+            var req = await new Requests.WebBin.MobAddFileRequest(HttpSettings, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
-            return res.ToAddFileResult();
+            var res = req.ToAddFileResult();
+            return res;
         }
-
-
     }
 }

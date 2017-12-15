@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests.Repo;
+using YaR.MailRuCloud.Api.Base.Auth;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
