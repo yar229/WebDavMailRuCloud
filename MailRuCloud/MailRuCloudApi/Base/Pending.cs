@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base
             {
                 var item = null == current
                     ? _items.FirstOrDefault(it => it.LockCount < _maxLocks)
-                    : _items.SkipWhile(it => !it.Equals(current)).Skip(1).FirstOrDefault();
+                    : _items.SkipWhile(it => !it.Equals(current)).Skip(1).FirstOrDefault(it => it.LockCount < _maxLocks);
 
                 if (null == item)
                     _items.Add(item = new PendingItem <T>{Item = _valueFactory(), LockCount = 0});
