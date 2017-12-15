@@ -120,6 +120,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
                 request.Timeout = 10 * 1000;
                 request.ReadWriteTimeout = 10 * 1000;
+                request.ServicePoint.ConnectionLimit = 20;
 
                 return request;
             }

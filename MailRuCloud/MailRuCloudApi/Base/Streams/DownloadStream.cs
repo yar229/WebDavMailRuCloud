@@ -42,7 +42,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 
         public void Open()
         {
-            _innerStream = new RingBufferedStream(InnerBufferSize);
+            _innerStream = new RingBufferedStream(InnerBufferSize) {ReadTimeout = 15 * 1000, WriteTimeout = 15 * 1000};
             _copyTask = GetFileStream();
 
             _initialized = true;
@@ -75,7 +75,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                await GetWebResponce(clostart, cloend, clofile).ConfigureAwait(false);
+                await GetWebResponse(clostart, cloend, clofile).ConfigureAwait(false);
 
                 fileStart += file.OriginalSize;
             }
@@ -85,26 +85,23 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             return _innerStream;
         }
 
-        private async Task<WebResponse> GetWebResponce(long clostart, long cloend, File clofile)
+        private async Task<WebResponse> GetWebResponse(long clostart, long cloend, File clofile)
         {
             var request = _requestGenerator(clostart, cloend, clofile);
             Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
-            
-
             try
             {
                 var response = await request.GetResponseAsync().ConfigureAwait(false);
-                using (Stream responseStream = response.GetResponseStream())
+                using (var responseStream = response.GetResponseStream())
                 {
+                    responseStream.ReadTimeout = 15 * 1000;
                     await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
                 }
-
                 return response;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
                 throw;
             }
         }
