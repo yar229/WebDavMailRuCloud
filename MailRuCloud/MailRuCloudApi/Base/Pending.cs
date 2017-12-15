@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-    class Pending<T>
+    class Pending<T> where T : class
     {
         private readonly List<PendingItem<T>> _items = new List<PendingItem<T>>();
         private readonly int _maxLocks;
@@ -18,30 +19,28 @@ namespace YaR.MailRuCloud.Api.Base
 
         private readonly object _lock = new object();
 
-        public T Use()
+        public T Next(T current)
         {
             lock (_lock)
             {
-                T res;
+                var item = null == current
+                    ? _items.FirstOrDefault(it => it.LockCount < _maxLocks)
+                    : _items.SkipWhile(it => !it.Equals(current)).Skip(1).FirstOrDefault();
 
-                foreach (var item in _items)
-                {
-                    if (item.LockCount < _maxLocks)
-                    {
-                        item.LockCount++;
-                        res = item.Item;
-                        return res;
-                    }
-                }
+                if (null == item)
+                    _items.Add(item = new PendingItem <T>{Item = _valueFactory(), LockCount = 0});
 
-                res = _valueFactory();
-                _items.Add(new PendingItem<T>{Item = res, LockCount = 1});
-                return res;
+                item.LockCount++;
+
+                return item.Item;
             }
         }
 
         public void Free(T value)
         {
+            if (null == value)
+                return;
+
             lock (_lock)
             {
                 foreach (var item in _items)

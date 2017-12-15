@@ -40,13 +40,17 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                 : globalLength;
         }
 
-        private void Initialize()
+        public void Open()
         {
             _innerStream = new RingBufferedStream(InnerBufferSize);
 
             // ReSharper disable once UnusedVariable
-            var t = GetFileStream();
+            _copyTask = GetFileStream();
+
+            _initialized = true;
         }
+
+        private Task _copyTask;
 
         private async Task<object> GetFileStream()
         {
@@ -85,29 +89,10 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 
         private async Task<WebResponse> GetWebResponce(long clostart, long cloend, File clofile)
         {
-            WebResponse response;
-            int retryCnt = 0;
-            while (true)
-            {
-                try
-                {
-                    var request = _requestGenerator(clostart, cloend, clofile);
-                    Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
+            var request = _requestGenerator(clostart, cloend, clofile);
+            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
 
-                    response = await request.GetResponseAsync().ConfigureAwait(false);
-                    break;
-                }
-                catch (Exception wex)
-                {
-                    if (++retryCnt <= 3)
-                    {
-                        Logger.Warn($"HTTP: Failed with {wex.Message} ");
-                        continue;
-                    }
-                    Logger.Error($"GetFileStream failed with {wex}");
-                    throw;
-                }
-            }
+            var response = await request.GetResponseAsync().ConfigureAwait(false);
 
             using (Stream responseStream = response.GetResponseStream())
             {
@@ -125,8 +110,9 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 
             _disposed = true;
 
-            Finished?.Invoke();
+            _innerStream?.Flush();
             _innerStream?.Close();
+            Finished?.Invoke();
         }
 
 
@@ -148,10 +134,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
         public override int Read(byte[] buffer, int offset, int count)
         {
             if (!_initialized)
-            {
-                _initialized = true;
-                Initialize();
-            }
+                Open();
 
             int readed = _innerStream.Read(buffer, offset, count);
             return readed;

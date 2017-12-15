@@ -27,9 +27,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
-        public int PendingDownloads { get; set; }
-
-
         public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             HttpSettings.Proxy = proxy;
@@ -62,7 +59,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         }
 
         private readonly Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>> _downloadServersPending;
-        private const int DownloadServerExpiresSec = 20 * 60;
+        private const int DownloadServerExpiresSec = 3 * 60;
 
         private readonly Cached<Requests.WebBin.MobMetaServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
@@ -74,18 +71,31 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         private const int ShardsExpiresInSec = 30 * 60;
 
 
-
-
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
-            var downServer = _downloadServersPending.Use();
+            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
+            var stream = Retry.Do(() =>
+            {
+                downServer = _downloadServersPending.Next(downServer);
+                var istream = GetDownloadStreamInternal(downServer, afile, start, end);
+                return istream;
+            }, 
+            exception => ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
+            () => _downloadServersPending.Free(downServer),
+            TimeSpan.FromSeconds(1), 
+            3);
 
+            return stream;
+        }
+
+        private DownloadStream GetDownloadStreamInternal(Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer, File afile, long? start = null, long? end = null)
+        {
             HttpWebRequest RequestGenerator(long instart, long inend, File file)
             {
                 bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
 
                 string url = isLinked
-                    ? $"{GetShardInfo(ShardType.WeblinkGet).Result}/{file.PublicLink}?token={Authent.AccessToken}"
+                    ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
                     : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
                 var uri = new Uri(url);
 
@@ -114,6 +124,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             }
 
             var stream = new DownloadStream(RequestGenerator, afile, start, end);
+            stream.Open();
+
 
             stream.Finished += () =>
             {
