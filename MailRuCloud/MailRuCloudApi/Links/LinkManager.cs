@@ -157,8 +157,6 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="doWriteHistory"></param>
         public async Task<int> RemoveDeadLinks(bool doWriteHistory)
         {
-            var z = _cloud.GetItem(@"/__enc/3/_linked_test", MailRuCloud.ItemType.Folder, false).Result;
-
             var removes = _itemList.Items
                 .AsParallel()
                 .WithDegreeOfParallelism(5)
