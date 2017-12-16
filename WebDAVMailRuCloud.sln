@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8950FA45-4F13-42FE-B32D-736C1426E0EF}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,10 +32,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailRuCloudApi.TwoFA.Dialog
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WDMRC.Console.Client", "WebDAV.Uploader\WDMRC.Console.Client.csproj", "{37097081-DEC8-4AB9-B8F7-0509215D103A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDMRC.Dokan", "WDMRC.Dokan\WDMRC.Dokan.csproj", "{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WDMRC.Dokan.Console", "WDMRC.Dokan.Console\WDMRC.Dokan.Console.csproj", "{172FD74C-474E-4A5E-8F50-14BE162194D3}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -243,6 +244,54 @@ Global
 		{37097081-DEC8-4AB9-B8F7-0509215D103A}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
 		{37097081-DEC8-4AB9-B8F7-0509215D103A}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
 		{37097081-DEC8-4AB9-B8F7-0509215D103A}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|ARM.Build.0 = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|x64.Build.0 = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Debug|x86.Build.0 = Debug|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|ARM.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|ARM.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|x64.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|x64.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.Release|x86.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|Any CPU.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|Any CPU.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|ARM.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|ARM.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|x64.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
+		{E2C0A3E3-60AB-44ED-AD06-71F7F93A79CD}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|ARM.Build.0 = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|x64.Build.0 = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Debug|x86.Build.0 = Debug|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|ARM.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|ARM.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|x64.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|x64.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|x86.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.Release|x86.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|Any CPU.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|Any CPU.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|ARM.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|ARM.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|x64.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
+		{172FD74C-474E-4A5E-8F50-14BE162194D3}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -258,5 +307,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59A703E3-F9FA-4E67-98D2-514511B4105C}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
