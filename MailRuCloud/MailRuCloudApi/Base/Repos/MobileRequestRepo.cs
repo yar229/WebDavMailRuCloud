@@ -201,7 +201,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         {
             string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new RenameRequest(HttpSettings, Authent, _metaServer.Value.Url, fullPath, target)
+            await new MoveRequest(HttpSettings, Authent, _metaServer.Value.Url, fullPath, target)
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;

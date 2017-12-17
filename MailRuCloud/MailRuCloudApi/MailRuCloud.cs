@@ -519,8 +519,8 @@ namespace YaR.MailRuCloud.Api
                 return remapped;
             }
 
-            //var res = await MoveOrCopy(folder.FullPath, destinationPath, true);
             var res = await Account.RequestRepo.Move(folder.FullPath, destinationPath);
+            _itemCache.Invalidate(WebDavPath.Parent(folder.FullPath), destinationPath);
             if (!res.IsSuccess) return false;
 
             //clone all inner links
@@ -554,7 +554,7 @@ namespace YaR.MailRuCloud.Api
         /// <param name="file">File info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, string destinationPath, bool moveSplitted = true)
+        public async Task<bool> Move(File file, string destinationPath)
         {
             var link = await _linkManager.GetItemLink(file.FullPath, false);
             if (link != null)
@@ -570,8 +570,10 @@ namespace YaR.MailRuCloud.Api
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
                 .Select(async pfile => await Account.RequestRepo.Move(pfile.FullPath, destinationPath));
 
+            _itemCache.Invalidate(file.Path, file.FullPath, destinationPath);
             bool res = (await Task.WhenAll(qry))
                 .All(r => r.IsSuccess);
+
             return res;
         }
 

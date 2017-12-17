@@ -182,9 +182,16 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new MoveRequest(HttpSettings, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
-            var res = req.ToCopyResult();
+            //var req = await new MoveRequest(HttpSettings, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
+            //var res = req.ToCopyResult();
+            //return res;
+
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, sourceFullPath, destinationPath)
+                .MakeRequestAsync();
+
+            var res = req.ToCopyResult(WebDavPath.Name(destinationPath));
             return res;
+
         }
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
@@ -257,7 +264,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            var req = await new RenameRequest(HttpSettings, Authent, fullPath, newName).MakeRequestAsync();
+            //var req = await new RenameRequest(HttpSettings, Authent, fullPath, newName).MakeRequestAsync();
+            //var res = req.ToRenameResult();
+            //return res;
+
+            string newFullPath = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, fullPath, newFullPath)
+                .MakeRequestAsync();
+
             var res = req.ToRenameResult();
             return res;
         }
