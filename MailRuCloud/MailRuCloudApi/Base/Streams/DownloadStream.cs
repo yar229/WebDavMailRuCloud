@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos;
+using YaR.MailRuCloud.Api.Common;
 
 namespace YaR.MailRuCloud.Api.Base.Streams
 {

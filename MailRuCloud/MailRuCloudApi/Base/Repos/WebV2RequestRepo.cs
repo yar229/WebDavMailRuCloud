@@ -10,6 +10,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebV2;
 using YaR.MailRuCloud.Api.Base.Streams;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 

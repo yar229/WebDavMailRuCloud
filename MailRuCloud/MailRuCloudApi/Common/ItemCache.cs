@@ -3,19 +3,14 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Extensions;
-using YaR.MailRuCloud.Api.Links;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.MailRuCloud.Api.Common
 {
-    public class StoreItemCache
+    public class ItemCache<TKey, TValue>
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(StoreItemCache));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(ItemCache<TKey, TValue>));
 
-        public StoreItemCache(TimeSpan expirePeriod)
+        public ItemCache(TimeSpan expirePeriod)
         {
             _expirePeriod = expirePeriod;
 
@@ -25,8 +20,8 @@ namespace YaR.MailRuCloud.Api
         }
 
         private readonly Timer _cleanTimer;
-        private readonly ConcurrentDictionary<string, TimedItem<IEntry>> _items = new ConcurrentDictionary<string, TimedItem<IEntry>>();
-        private readonly object _locker = new object();
+        private readonly ConcurrentDictionary<TKey, TimedItem<TValue>> _items = new ConcurrentDictionary<TKey, TimedItem<TValue>>();
+        //private readonly object _locker = new object();
 
         public TimeSpan CleanUpPeriod
         {
@@ -58,44 +53,44 @@ namespace YaR.MailRuCloud.Api
             return removedCount;
         }
 
-        public IEntry Get(string path)
+        public TValue Get(TKey key)
         {
-            if (_items.TryGetValue(path, out var item))
+            if (_items.TryGetValue(key, out var item))
             {
                 if (IsExpired(item))
-                    _items.TryRemove(path, out item);
+                    _items.TryRemove(key, out item);
                 else
                 {
-                    Logger.Debug($"Cache hit: {item.Item.FullPath}");
+                    Logger.Debug($"Cache hit: {key}");
                     return item.Item;
                 }
             }
-            return null;
+            return default(TValue);
         }
 
-        public void Add(string path, IEntry itemin)
+        public void Add(TKey key, TValue value)
         {
-            var item = new TimedItem<IEntry>
+            var item = new TimedItem<TValue>
             {
                 Created = DateTime.Now,
-                Item = itemin
+                Item = value
             };
 
-            _items.AddOrUpdate(path, item, (key, oldValue) => item);
+            _items.AddOrUpdate(key, item, (key1, oldValue) => item);
         }
 
-        public void Add(IEnumerable<IEntry> items)
+        public void Add(IEnumerable<KeyValuePair<TKey, TValue>> items)
         {
             foreach (var item in items)
             {
-                Add(item.FullPath, item);
+                Add(item.Key, item.Value);
             }
         }
 
-        public IEntry Invalidate(string path)
+        public TValue Invalidate(TKey key)
         {
-            _items.TryRemove(path, out var item);
-            return item?.Item;
+            _items.TryRemove(key, out var item);
+            return item != null ? item.Item : default(TValue);
         }
 
         public void Invalidate()
@@ -103,33 +98,33 @@ namespace YaR.MailRuCloud.Api
             _items.Clear();
         }
 
-        public void Invalidate(params string[] paths)
+        public void Invalidate(params TKey[] keys)
         {
-            Invalidate(paths.AsEnumerable());
+            Invalidate(keys.AsEnumerable());
         }
 
-        internal void Invalidate(IEnumerable<string> paths)
+        internal void Invalidate(IEnumerable<TKey> keys)
         {
-            foreach (var path in paths)
+            foreach (var key in keys)
             {
-                _items.TryRemove(path, out _);
+                _items.TryRemove(key, out _);
             }
         }
 
-        public IEntry Invalidate(IEntry item)
-        {
-            return Invalidate(item.FullPath);
-        }
+        //public TValue Invalidate(TValue item)
+        //{
+        //    return Invalidate(item.FullPath);
+        //}
 
-        public void Invalidate(IEnumerable<IEntry> items)
-        {
-            foreach (var item in items)
-            {
-                _items.TryRemove(item.FullPath, out _);
-            }
-        }
+        //public void Invalidate(IEnumerable<IEntry> items)
+        //{
+        //    foreach (var item in items)
+        //    {
+        //        _items.TryRemove(item.FullPath, out _);
+        //    }
+        //}
 
-        private bool IsExpired(TimedItem<IEntry> item)
+        private bool IsExpired(TimedItem<TValue> item)
         {
             return DateTime.Now - item.Created > _expirePeriod;
         }

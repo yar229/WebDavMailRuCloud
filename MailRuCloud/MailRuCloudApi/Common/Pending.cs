@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.MailRuCloud.Api.Common
 {
     class Pending<T> where T : class
     {

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.MailRuCloud.Api.Common
 {
     class CustomDisposable<T> : IDisposable
     {

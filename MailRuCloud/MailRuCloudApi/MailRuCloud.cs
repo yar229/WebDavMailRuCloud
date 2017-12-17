@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 using YaR.MailRuCloud.Api.Streams;
@@ -44,7 +45,7 @@ namespace YaR.MailRuCloud.Api
         /// <summary>
         /// Caching files for multiple small reads
         /// </summary>
-        private readonly StoreItemCache _itemCache;
+        private readonly ItemCache<string, IEntry> _itemCache;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MailRuCloud" /> class.
@@ -62,7 +63,7 @@ namespace YaR.MailRuCloud.Api
             }
 
             //TODO: wow very dummy linking, refact cache realization globally!
-            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
             _linkManager = new LinkManager(this);
         }
 
@@ -170,7 +171,7 @@ namespace YaR.MailRuCloud.Api
 
             _itemCache.Add(entry.FullPath, entry);
             if (entry is Folder cfolder)
-                _itemCache.Add(cfolder.Files);
+                _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
             return entry;
         }
 
@@ -736,7 +737,7 @@ namespace YaR.MailRuCloud.Api
         private void OnFileUploaded(IEnumerable<File> files)
         {
             var lst = files.ToList();
-            _itemCache.Invalidate(lst);
+            _itemCache.Invalidate(lst.Select(f => f.FullPath));
             _itemCache.Invalidate(lst.Select(file => file.Path).Distinct());
             FileUploaded?.Invoke(lst);
         }
