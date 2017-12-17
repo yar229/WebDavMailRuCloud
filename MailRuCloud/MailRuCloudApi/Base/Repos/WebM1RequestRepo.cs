@@ -40,70 +40,71 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
-            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
-            var stream = Retry.Do(() =>
-            {
-                downServer = _shardManager.DownloadServersPending.Next(downServer);
-                var istream = GetDownloadStreamInternal(downServer, afile, start, end);
-                return istream;
-            }, 
-            exception => ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
-            exception =>
-            {
-                Logger.Warn($"Retrying on exception {exception.Message}");
-                _shardManager.DownloadServersPending.Free(downServer);
-            },
-            TimeSpan.FromSeconds(1), 
-            3);
-
-            return stream;
+            var istream = GetDownloadStreamInternal(afile, start, end);
+            return istream;
         }
 
-        private DownloadStream GetDownloadStreamInternal(Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer, File afile, long? start = null, long? end = null)
+        private DownloadStream GetDownloadStreamInternal(File afile, long? start = null, long? end = null)
         {
-            HttpWebRequest RequestGenerator(long instart, long inend, File file)
+            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
+
+            CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
-
-                string url = isLinked
-                    ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
-                    : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
-                var uri = new Uri(url);
-
-                var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
-
-                request.AddRange(instart, inend);
-                request.Proxy = HttpSettings.Proxy;
-                request.CookieContainer = Authent.Cookies;
-                request.Method = "GET";
-                request.Accept = "*/*";
-                request.UserAgent = HttpSettings.UserAgent;
-                request.Host = uri.Host;
-                request.AllowWriteStreamBuffering = false;
-
-                if (isLinked)
+                var resp = Retry.Do(() =>
                 {
-                    request.Headers.Add("Accept-Ranges", "bytes");
-                    request.ContentType = MediaTypeNames.Application.Octet;
-                    request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-                    request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                }
+                    downServer = _shardManager.DownloadServersPending.Next(downServer);
 
-                request.Timeout = 15 * 1000;
-                request.ReadWriteTimeout = 15 * 1000;
-                //request.ServicePoint.ConnectionLimit = int.MaxValue;
+                    bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
 
-                return request;
+                    string url = isLinked
+                        ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
+                        : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+                    var uri = new Uri(url);
+
+                    var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
+
+                    request.AddRange(instart, inend);
+                    request.Proxy = HttpSettings.Proxy;
+                    request.CookieContainer = Authent.Cookies;
+                    request.Method = "GET";
+                    request.Accept = "*/*";
+                    request.UserAgent = HttpSettings.UserAgent;
+                    request.Host = uri.Host;
+                    request.AllowWriteStreamBuffering = false;
+
+                    if (isLinked)
+                    {
+                        request.Headers.Add("Accept-Ranges", "bytes");
+                        request.ContentType = MediaTypeNames.Application.Octet;
+                        request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
+                        request.Headers.Add("Origin", ConstSettings.CloudDomain);
+                    }
+
+                    request.Timeout = 15 * 1000;
+                    request.ReadWriteTimeout = 15 * 1000;
+                    //request.ServicePoint.ConnectionLimit = int.MaxValue;
+
+                    var response = (HttpWebResponse)request.GetResponse();
+                    return new CustomDisposable<HttpWebResponse>
+                    {
+                        Value = response,
+                        OnDispose = () => 
+                            _shardManager.DownloadServersPending.Free(downServer)
+                    };
+                },
+                exception => 
+                    ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
+                exception =>
+                {
+                    Logger.Warn($"Retrying on exception {exception.Message}");
+                },
+                TimeSpan.FromSeconds(1), 2);
+
+                return resp;
             }
 
-            var stream = new DownloadStream(RequestGenerator, afile, start, end);
-            stream.Open();
-
-
-            stream.Finished += () =>
-            {
-                _shardManager.DownloadServersPending.Free(downServer);
-            };
+            var stream = new DownloadStream(ResponseGenerator, afile, start, end);
+            //stream.Open();
 
             return stream;
         }
