@@ -278,7 +278,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            //return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            //    .ToCreateFolderResult();
+
+            return (await new Requests.WebBin.CreateFolderRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
