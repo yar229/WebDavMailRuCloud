@@ -9,7 +9,7 @@ namespace YaR.MailRuCloud.Api
         public static T Do<T>(
             Func<T> action,
             Func<Exception, bool> retryIf,
-            Action onException,
+            Action<Exception> onException,
             TimeSpan retryInterval,
             int maxAttemptCount = 3)
         {
@@ -26,7 +26,7 @@ namespace YaR.MailRuCloud.Api
                 }
                 catch (Exception ex)
                 {
-                    onException?.Invoke();
+                    onException?.Invoke(ex);
                     exceptions.Add(ex);
                     if (retryIf != null && !retryIf(ex))
                         throw;

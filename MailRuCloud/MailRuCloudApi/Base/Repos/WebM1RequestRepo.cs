@@ -48,7 +48,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                 return istream;
             }, 
             exception => ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
-            () => _shardManager.DownloadServersPending.Free(downServer),
+            exception =>
+            {
+                Logger.Warn($"Retrying on exception {exception.Message}");
+                _shardManager.DownloadServersPending.Free(downServer);
+            },
             TimeSpan.FromSeconds(1), 
             3);
 
