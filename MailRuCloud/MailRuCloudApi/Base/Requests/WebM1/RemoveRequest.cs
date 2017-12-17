@@ -16,13 +16,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _fullPath = fullPath;
         }
 
-        protected override string RelationalUri => $"/api/m1/file/remove?access_token={Auth.AccessToken}&home={Uri.EscapeDataString(_fullPath)}";
+        protected override string RelationalUri => $"/api/m1/file/remove?access_token={Auth.AccessToken}";
 
-        //protected override byte[] CreateHttpContent()
-        //{
-        //    //var data = string.Format("home={0}&api={1}&access_token={2}&email={3}&x-email={3}", Uri.EscapeDataString(_fullPath), 2, Auth.AccessToken, Auth.Login);
-        //    var data = string.Format("home={0}&api={1}&email={2}&x-email={2}", Uri.EscapeDataString(_fullPath), 2, Auth.Login);
-        //    return Encoding.UTF8.GetBytes(data);
-        //}
+        protected override byte[] CreateHttpContent()
+        {
+            // path sended using POST cause of unprintable Unicode charactes may exists
+            // https://github.com/yar229/WebDavMailRuCloud/issues/54
+            string data = $"home={Uri.EscapeDataString(_fullPath)}";
+            return Encoding.UTF8.GetBytes(data);
+        }
     }
 }

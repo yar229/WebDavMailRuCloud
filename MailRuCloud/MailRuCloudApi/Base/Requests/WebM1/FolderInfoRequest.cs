@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
@@ -21,15 +22,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _limit = limit;
         }
 
-        protected override string RelationalUri
+        protected override string RelationalUri => $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
+
+        protected override byte[] CreateHttpContent()
         {
-            get
-            {
-                var uri = _isWebLink
-                    ? $"/api/m1/folder?access_token={Auth.AccessToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
-                    : $"/api/m1/folder?access_token={Auth.AccessToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
-                return uri;
-            }
+            // path sended using POST cause of unprintable Unicode charactes may exists
+            // https://github.com/yar229/WebDavMailRuCloud/issues/54
+            var data = _isWebLink
+                ? $"weblink={Uri.EscapeDataString(_path)}"
+                : $"home={Uri.EscapeDataString(_path)}";
+            return Encoding.UTF8.GetBytes(data);
         }
     }
 }
