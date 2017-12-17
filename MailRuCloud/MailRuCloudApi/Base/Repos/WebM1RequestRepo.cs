@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -48,6 +49,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         private DownloadStream GetDownloadStreamInternal(File afile, long? start = null, long? end = null)
         {
             Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
+            Stopwatch watch = new Stopwatch();
 
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
@@ -85,18 +87,24 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     request.ReadWriteTimeout = 15 * 1000;
                     //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
+                    watch.Start();
                     var response = (HttpWebResponse)request.GetResponse();
                     return new CustomDisposable<HttpWebResponse>
                     {
                         Value = response,
-                        OnDispose = () => 
-                            _shardManager.DownloadServersPending.Free(downServer)
+                        OnDispose = () =>
+                        {
+                            _shardManager.DownloadServersPending.Free(downServer);
+                            watch.Stop();
+                            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri} ({watch.Elapsed.Milliseconds} ms)");
+                        }
                     };
                 },
                 exception => 
                     ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
                 exception =>
                 {
+                    _shardManager.DownloadServersPending.Free(downServer);
                     Logger.Warn($"Retrying on exception {exception.Message}");
                 },
                 TimeSpan.FromSeconds(1), 2);
