@@ -104,22 +104,6 @@ namespace YaR.MailRuCloud.Api
             if (itemType == ItemType.Unknown && ulink != null)
                 itemType = ulink.ItemType;
 
-            //FolderInfoResult datares;
-            //try
-            //{
-            //    datares = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink != null);
-            //}
-            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            //{
-            //    return null;
-            //}
-
-
-            //if (itemType == ItemType.Unknown && null == ulink)
-            //    itemType = datares.body.home == path
-            //        ? ItemType.Folder
-            //        : ItemType.File;
-
             // TODO: cache (parent) folder for file 
             //if (itemType == ItemType.File)
             //{
@@ -127,17 +111,6 @@ namespace YaR.MailRuCloud.Api
             //    _itemCache.Add(cachefolder.FullPath, cachefolder);
             //    //_itemCache.Add(cachefolder.Files);
             //}
-
-            //var entry = itemType == ItemType.File
-            //    ? (IEntry)datares.ToFile(
-            //        home: WebDavPath.Parent(path),
-            //        ulink: ulink,
-            //        filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-            //        nameReplacement: WebDavPath.Name(path))
-            //    : datares.ToFolder(path, ulink);
-
-            //var entry = await CloudApi.Account.RequestRepo.FolderInfo(null == ulink ? path : ulink.Href, ulink, ulink != null);
-
 
             var entry = await Account.RequestRepo.FolderInfo(path, ulink);
             if (null == entry)
@@ -175,8 +148,19 @@ namespace YaR.MailRuCloud.Api
             return entry;
         }
 
+        public IEnumerable<File> IsFileExists(string filename, IList<string> folderPaths)
+        {
+            var files = folderPaths
+                .AsParallel()
+                .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, folderPaths.Count))
+                .Select(async path => (Folder) await GetItem(path, ItemType.Folder, false))
+                .SelectMany(fld => fld.Result.Files.Where(file =>  WebDavPath.PathEquals(file.Name, filename)));
+
+            return files;
+        }
+
         #region == Publish ==========================================================================================================================
-        
+
         private async Task<bool> Unpublish(string publicLink)
         {
             //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
