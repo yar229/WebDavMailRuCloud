@@ -65,5 +65,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj">
+      <Project>{b9238166-0cec-45f2-afa2-caa8f7eba067}</Project>
+      <Name>MailRuCloudApi</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

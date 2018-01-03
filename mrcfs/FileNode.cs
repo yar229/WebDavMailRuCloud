@@ -6,8 +6,14 @@ namespace YaR.MailRuCloud.Fs
 {
     class FileNode
     {
-        public FileNode(String fileName)
+        private readonly Api.MailRuCloud _cloud;
+
+        public FileNode(Api.MailRuCloud cloud, String fileName)
         {
+            _cloud = cloud;
+
+            var cfile = _cloud.GetItem(fileName);
+
             FileName = fileName;
             FileInfo.CreationTime =
                 FileInfo.LastAccessTime =

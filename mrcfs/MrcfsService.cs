@@ -35,6 +35,10 @@ namespace YaR.MailRuCloud.Fs
                 String volumePrefix = null;
                 String mountPoint = null;
                 String rootSddl = null;
+
+                string login = null;
+                string password = null;
+
                 int I;
 
                 for (I = 1; args.Length > I; I++)
@@ -76,6 +80,13 @@ namespace YaR.MailRuCloud.Fs
                         case 'u':
                             Argtos(args, ref I, ref volumePrefix);
                             break;
+                        case 'l':
+                            Argtos(args, ref I, ref login);
+                            break;
+                        case 'p':
+                            Argtos(args, ref I, ref password);
+                            break;
+
                         default:
                             throw new CommandLineUsageException();
                     }
@@ -91,7 +102,7 @@ namespace YaR.MailRuCloud.Fs
                     if (0 > FileSystemHost.SetDebugLogFile(debugLogFile))
                         throw new CommandLineUsageException("cannot open debug log file");
 
-                var host = new FileSystemHost(new Mrcfs(caseInsensitive, maxFileNodes, maxFileSize, rootSddl))
+                var host = new FileSystemHost(new Mrcfs(caseInsensitive, maxFileNodes, maxFileSize, rootSddl, login, password))
                 {
                     FileInfoTimeout = fileInfoTimeout,
                     Prefix = volumePrefix,

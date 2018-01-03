@@ -16,8 +16,12 @@ namespace YaR.MailRuCloud.Fs
         public const UInt16 MRCFS_SECTOR_SIZE = 512;
         public const UInt16 MRCFS_SECTORS_PER_ALLOCATION_UNIT = 1;
 
-        public Mrcfs(Boolean caseInsensitive, UInt32 maxFileNodes, UInt32 maxFileSize, String rootSddl)
+        private readonly Api.MailRuCloud _cloud;
+
+        public Mrcfs(Boolean caseInsensitive, UInt32 maxFileNodes, UInt32 maxFileSize, String rootSddl, string login, string password)
         {
+            _cloud = new Api.MailRuCloud(login, password, null);
+
             _fileNodeMap = new FileNodeMap(caseInsensitive);
             _maxFileNodes = maxFileNodes;
             _maxFileSize = maxFileSize;
@@ -26,7 +30,7 @@ namespace YaR.MailRuCloud.Fs
              * Create root directory.
              */
 
-            FileNode rootNode = new FileNode("\\")
+            FileNode rootNode = new FileNode(_cloud, "\\")
             {
                 FileInfo = {FileAttributes = (UInt32) FileAttributes.Directory}
             };
@@ -138,7 +142,7 @@ namespace YaR.MailRuCloud.Fs
             if ("\\" != parentNode.FileName)
                 /* normalize name */
                 fileName = parentNode.FileName + "\\" + Path.GetFileName(fileName);
-            fileNode = new FileNode(fileName)
+            fileNode = new FileNode(_cloud, fileName)
             {
                 MainFileNode = _fileNodeMap.GetMain(fileName),
                 FileInfo =

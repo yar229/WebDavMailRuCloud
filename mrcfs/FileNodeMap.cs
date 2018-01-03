@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Fsp;
+using YaR.MailRuCloud.Api.Base;
 using Path = YaR.MailRuCloud.Fs.Path;
 
 namespace YaR.MailRuCloud.Fs
