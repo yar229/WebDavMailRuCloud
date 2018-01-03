@@ -7,6 +7,25 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     internal static class DtoImportWebBin
     {
+        public static CopyResult ToCopyResult(this MoveRequest.Result data, string newName)
+        {
+            var res = new CopyResult
+            {
+                IsSuccess = true,
+                NewName = newName
+            };
+            return res;
+        }
+
+        public static RenameResult ToRenameResult(this MoveRequest.Result data)
+        {
+            var res = new RenameResult
+            {
+                IsSuccess = true
+            };
+            return res;
+        }
+
         public static AddFileResult ToAddFileResult(this MobAddFileRequest.Result data)
         {
             var res = new AddFileResult

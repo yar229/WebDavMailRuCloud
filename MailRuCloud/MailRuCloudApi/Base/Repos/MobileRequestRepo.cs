@@ -9,6 +9,7 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 using YaR.MailRuCloud.Api.Base.Streams;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
@@ -201,7 +202,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         {
             string target = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
 
-            await new RenameRequest(HttpSettings, Authent, _metaServer.Value.Url, fullPath, target)
+            await new MoveRequest(HttpSettings, Authent, _metaServer.Value.Url, fullPath, target)
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;

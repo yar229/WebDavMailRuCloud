@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
@@ -30,7 +29,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            if (data.OperationResult == OperationResult.Ok)
+            OpResult opres = (OpResult)(int)data.OperationResult;
+
+            if (opres == OpResult.Ok)
             {
                 return new RequestResponse<Result>
                 {
@@ -43,7 +44,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                 };
             }
 
-            throw new Exception($"{nameof(CreateFolderRequest)} failed with result code {data.OperationResult}");
+            throw new Exception($"{nameof(CreateFolderRequest)} failed with result code {opres}");
         }
 
         private const int Revision = 0;
@@ -51,6 +52,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         public class Result : BaseResponseResult
         {
             public string Path { get; set; }
+        }
+
+        private enum OpResult
+        {
+            Ok = 0,
+            SourceNotExists = 1,
+            AlreadyExists = 4,
+            AlreadyExistsDifferentCase = 9,
+            Failed254 = 254
         }
     }
 }

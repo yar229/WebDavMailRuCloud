@@ -30,8 +30,6 @@ namespace YaR.MailRuCloud.Api.Base
         /// <summary>
         /// Initializes a new instance of the <see cref="Folder" /> class.
         /// </summary>
-        /// <param name="foldersCount">Number of folders.</param>
-        /// <param name="filesCount">Number of files.</param>
         /// <param name="size">Folder size.</param>
         /// <param name="fullPath">Full folder path.</param>
         /// <param name="publicLink">Public folder link.</param>
@@ -73,14 +71,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets folder name.
         /// </summary>
         /// <value>Folder name.</value>
-        public string Name
-        {
-            get
-            {
-                string z = WebDavPath.Name(FullPath); //FullPath == "/" ? "" : FullPath.TrimEnd('/').Remove(0, FullPath.LastIndexOf('/') + 1);
-                return z;
-            }
-        }
+        public string Name => WebDavPath.Name(FullPath);
 
         /// <summary>
         /// Gets folder size.
@@ -114,7 +105,6 @@ namespace YaR.MailRuCloud.Api.Base
         public FileAttributes Attributes { get; set; } = FileAttributes.Directory;
 
         public bool IsFile => false;
-        public bool CryptRequired => Files.Any(f => f.Name == CryptFileInfo.FileName);
 
         public PublishInfo ToPublishInfo()
         {

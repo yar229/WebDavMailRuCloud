@@ -4,12 +4,12 @@ using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
-    class RenameRequest : BaseRequestMobile<RenameRequest.Result>
+    class MoveRequest : BaseRequestMobile<MoveRequest.Result>
     {
         private readonly string _fromPath;
         private readonly string _toPath;
 
-        public RenameRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fromPath, string toPath)
+        public MoveRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fromPath, string toPath)
             : base(settings, auth, metaServer)
         {
             _fromPath = fromPath;
@@ -37,7 +37,9 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            if (data.OperationResult == OperationResult.Ok)
+            OpResult opres = (OpResult) (int) data.OperationResult;
+
+            if (opres == OpResult.Ok)
             {
                 return new RequestResponse<Result>
                 {
@@ -45,16 +47,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     Result = new Result
                     {
                         OperationResult = data.OperationResult,
-                        OneRevision = Types.Revision.FromStream(data),
-                        TwoRevision = Types.Revision.FromStream(data)
+                        OneRevision = Revision.FromStream(data),
+                        TwoRevision = Revision.FromStream(data)
                     }
                 };
             }
 
-            throw new Exception($"{nameof(RenameRequest)} failed with result code {data.OperationResult}");
+            throw new Exception($"{nameof(MoveRequest)} failed with result code {opres}");
         }
-
-        private const int Revision = 0;
 
         public class Result : BaseResponseResult
         {
@@ -62,5 +62,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             public Revision TwoRevision;
         }
 
-}
+        private enum OpResult
+        {
+            Ok = 0,
+            SourceNotExists = 1,
+            Failed002 = 2,
+            AlreadyExists = 4,
+            Failed005 = 5,
+            Failed254 = 254
+        }
+
+    }
 }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Common;
 
 namespace YaR.MailRuCloud.Api.Base.Streams
 {
@@ -13,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 
         private const int InnerBufferSize = 65536 * 2;
 
-        private readonly Func<long, long, File, HttpWebRequest> _requestGenerator;
+        private readonly Func<long, long, File, CustomDisposable<HttpWebResponse>> _responseGenerator;
         private readonly IList<File> _files;
         private readonly long? _start;
         private readonly long? _end;
@@ -21,16 +22,16 @@ namespace YaR.MailRuCloud.Api.Base.Streams
         private RingBufferedStream _innerStream;
         private bool _initialized;
 
-        public DownloadStream(Func<long, long, File, HttpWebRequest> requestGenerator, File file, long? start = null, long? end = null)
-            : this(requestGenerator, file.Parts, start, end)
+        public DownloadStream(Func<long, long, File, CustomDisposable<HttpWebResponse>> responseGenerator, File file, long? start = null, long? end = null)
+            : this(responseGenerator, file.Parts, start, end)
         {
         }
 
-        private DownloadStream(Func<long, long, File, HttpWebRequest> requestGenerator, IList<File> files, long? start = null, long? end = null)
+        private DownloadStream(Func<long, long, File, CustomDisposable<HttpWebResponse>> responseGenerator, IList<File> files, long? start = null, long? end = null)
         {
             var globalLength = files.Sum(f => f.OriginalSize);
 
-            _requestGenerator = requestGenerator ?? throw new ArgumentNullException(nameof(requestGenerator));
+            _responseGenerator = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
             _files = files;
             _start = start;
             _end = end >= globalLength ? globalLength - 1 : end;
@@ -38,6 +39,8 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             Length = _start != null && _end != null
                 ? _end.Value - _start.Value + 1
                 : globalLength;
+
+            Open();
         }
 
         public void Open()
@@ -85,36 +88,24 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             return _innerStream;
         }
 
-        private async Task Download(long clostart, long cloend, File clofile)
+        private async Task Download(long start, long end, File file)
         {
-            var request = _requestGenerator(clostart, cloend, clofile);
-            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri}");
-
-            try
+            using (var httpweb = _responseGenerator(start, end, file))
+            using (var responseStream = httpweb.Value.GetResponseStream())
             {
-                using (var response = await request.GetResponseAsync().ConfigureAwait(false))
-                using (var responseStream = response.GetResponseStream())
-                {
-                    await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
-                }
-            }
-            catch (Exception e)
-            {
-                throw;
+                await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
             }
         }
 
-        private bool _disposed;
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (!disposing || _disposed) return;
-
-            _disposed = true;
+            if (!disposing) return;
 
             _innerStream?.Flush();
+            _copyTask?.Wait();
+
             _innerStream?.Close();
-            Finished?.Invoke();
         }
 
 
@@ -154,8 +145,5 @@ namespace YaR.MailRuCloud.Api.Base.Streams
         public override long Length { get; }
 
         public override long Position { get; set; }
-        
-
-        public event Action Finished;
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Links.Dto;
 using File = YaR.MailRuCloud.Api.Base.File;
 
@@ -21,7 +22,7 @@ namespace YaR.MailRuCloud.Api.Links
         public static readonly string HistoryContainerName = "item.links.history.wdmrc";
         private readonly MailRuCloud _cloud;
         private ItemList _itemList = new ItemList();
-        private readonly StoreItemCache _itemCache;
+        private readonly ItemCache<string, IEntry> _itemCache;
 
         private readonly object _lockContainer = new object();
 
@@ -29,7 +30,7 @@ namespace YaR.MailRuCloud.Api.Links
         public LinkManager(MailRuCloud cloud)
         {
             _cloud = cloud;
-            _itemCache = new StoreItemCache(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
 
             cloud.FileUploaded += OnFileUploaded;
 
@@ -157,8 +158,6 @@ namespace YaR.MailRuCloud.Api.Links
         /// <param name="doWriteHistory"></param>
         public async Task<int> RemoveDeadLinks(bool doWriteHistory)
         {
-            var z = _cloud.GetItem(@"/__enc/3/_linked_test", MailRuCloud.ItemType.Folder, false).Result;
-
             var removes = _itemList.Items
                 .AsParallel()
                 .WithDegreeOfParallelism(5)

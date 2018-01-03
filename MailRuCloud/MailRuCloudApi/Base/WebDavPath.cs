@@ -1,5 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -94,6 +94,19 @@ namespace YaR.MailRuCloud.Api.Base
             };
 
             return res;
+        }
+
+        public static IEnumerable<string> GetParents(string path, bool includeSelf = true)
+        {
+            path = WebDavPath.Clean(path);
+            if (includeSelf)
+                yield return path;
+
+            while (path != WebDavPath.Root)
+            {
+                path = WebDavPath.Parent(path);
+                yield return path;
+            } 
         }
 
         public static string ModifyParent(string path, string oldParent, string newParent)

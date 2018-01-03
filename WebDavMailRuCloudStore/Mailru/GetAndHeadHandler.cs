@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru
 {
@@ -139,8 +137,19 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
                     // HEAD method doesn't require the actual item data
                     if (!head)
-                        //await CopyToAsync(stream, response.Stream, range?.Start ?? 0, range?.End).ConfigureAwait(false);
-                        await CopyToAsync(stream, response.Stream, 0, stream.Length - 1).ConfigureAwait(false);
+                    {
+                        try
+                        {
+                            await CopyToAsync(stream, response.Stream, 0, stream.Length - 1).ConfigureAwait(false);
+                        }
+                        catch (Exception e)
+                        {
+                            // if error occurred when copying streams client will hang till timed out so we need to abort connection
+                            response.Abort();
+                            throw;
+                        }
+                    }
+
                 }
                 else
                 {

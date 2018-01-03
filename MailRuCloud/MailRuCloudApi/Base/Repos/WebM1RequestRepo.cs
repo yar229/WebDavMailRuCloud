@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,6 +11,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Base.Streams;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
 
@@ -19,6 +20,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
     class WebM1RequestRepo : IRequestRepo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
+        private readonly ShardManager _shardManager;
 
 
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
@@ -32,109 +34,86 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
-
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
-
-            _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
-                value => TimeSpan.FromMinutes(2));
-
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
-                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
-
-            _downloadServersPending = new Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>>(8,
-                () => new Cached<Requests.WebBin.MobDownloadServerRequest.Result>(old =>
-                    {
-                        Logger.Debug("Requesting new download server");
-                        var server = new Requests.WebBin.MobDownloadServerRequest(HttpSettings).MakeRequestAsync().Result;
-                        return server;
-                    },
-                    value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
-                ));
-
-            _metaServer = new Cached<Requests.WebBin.MobMetaServerRequest.Result>(old =>
-                {
-                    Logger.Debug("Requesting new meta server");
-                    var server = new Requests.WebBin.MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
-                    return server;
-                },
-                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
+            _shardManager = new ShardManager(HttpSettings, Authent);
         }
-
-        private readonly Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>> _downloadServersPending;
-        private const int DownloadServerExpiresSec = 3 * 60;
-
-        private readonly Cached<Requests.WebBin.MobMetaServerRequest.Result> _metaServer;
-        private const int MetaServerExpiresSec = 20 * 60;
 
         public IAuth Authent { get; }
 
-        private readonly Cached<Dictionary<ShardType, ShardInfo>> _cachedShards;
-        private readonly Cached<List<ShardInfo>> _bannedShards;
-        private const int ShardsExpiresInSec = 30 * 60;
-
-
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
-            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
-            var stream = Retry.Do(() =>
-            {
-                downServer = _downloadServersPending.Next(downServer);
-                var istream = GetDownloadStreamInternal(downServer, afile, start, end);
-                return istream;
-            }, 
-            exception => ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
-            () => _downloadServersPending.Free(downServer),
-            TimeSpan.FromSeconds(1), 
-            3);
-
-            return stream;
+            var istream = GetDownloadStreamInternal(afile, start, end);
+            return istream;
         }
 
-        private DownloadStream GetDownloadStreamInternal(Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer, File afile, long? start = null, long? end = null)
+        private DownloadStream GetDownloadStreamInternal(File afile, long? start = null, long? end = null)
         {
-            HttpWebRequest RequestGenerator(long instart, long inend, File file)
+            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
+            Stopwatch watch = new Stopwatch();
+
+            CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
-
-                string url = isLinked
-                    ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
-                    : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
-                var uri = new Uri(url);
-
-                var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
-
-                request.AddRange(instart, inend);
-                request.Proxy = HttpSettings.Proxy;
-                request.CookieContainer = Authent.Cookies;
-                request.Method = "GET";
-                request.Accept = "*/*";
-                request.UserAgent = HttpSettings.UserAgent;
-                request.Host = uri.Host;
-                request.AllowWriteStreamBuffering = false;
-
-                if (isLinked)
+                var resp = Retry.Do(() =>
                 {
-                    request.Headers.Add("Accept-Ranges", "bytes");
-                    request.ContentType = MediaTypeNames.Application.Octet;
-                    request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-                    request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                }
+                    downServer = _shardManager.DownloadServersPending.Next(downServer);
 
-                request.Timeout = 15 * 1000;
-                request.ReadWriteTimeout = 15 * 1000;
-                //request.ServicePoint.ConnectionLimit = int.MaxValue;
+                    bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
 
-                return request;
+                    string url = isLinked
+                        ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
+                        : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+                    var uri = new Uri(url);
+
+                    var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
+
+                    request.AddRange(instart, inend);
+                    request.Proxy = HttpSettings.Proxy;
+                    request.CookieContainer = Authent.Cookies;
+                    request.Method = "GET";
+                    request.Accept = "*/*";
+                    request.UserAgent = HttpSettings.UserAgent;
+                    request.Host = uri.Host;
+                    request.AllowWriteStreamBuffering = false;
+
+                    if (isLinked)
+                    {
+                        request.Headers.Add("Accept-Ranges", "bytes");
+                        request.ContentType = MediaTypeNames.Application.Octet;
+                        request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
+                        request.Headers.Add("Origin", ConstSettings.CloudDomain);
+                    }
+
+                    request.Timeout = 15 * 1000;
+                    request.ReadWriteTimeout = 15 * 1000;
+                    //request.ServicePoint.ConnectionLimit = int.MaxValue;
+
+                    watch.Start();
+                    var response = (HttpWebResponse)request.GetResponse();
+                    return new CustomDisposable<HttpWebResponse>
+                    {
+                        Value = response,
+                        OnDispose = () =>
+                        {
+                            _shardManager.DownloadServersPending.Free(downServer);
+                            watch.Stop();
+                            Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri} ({watch.Elapsed.Milliseconds} ms)");
+                        }
+                    };
+                },
+                exception => 
+                    ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
+                exception =>
+                {
+                    _shardManager.DownloadServersPending.Free(downServer);
+                    Logger.Warn($"Retrying on exception {exception.Message}");
+                },
+                TimeSpan.FromSeconds(1), 2);
+
+                return resp;
             }
 
-            var stream = new DownloadStream(RequestGenerator, afile, start, end);
-            stream.Open();
-
-
-            stream.Finished += () =>
-            {
-                _downloadServersPending.Free(downServer);
-            };
+            var stream = new DownloadStream(ResponseGenerator, afile, start, end);
+            //stream.Open();
 
             return stream;
         }
@@ -182,21 +161,21 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(80 * i);
-                var ishards = await Task.Run(() => _cachedShards.Value);
+                var ishards = await Task.Run(() => _shardManager.CachedShards.Value);
                 var ishard = ishards[shardType];
-                var banned = _bannedShards.Value;
+                var banned = _shardManager.BannedShards.Value;
                 if (banned.All(bsh => bsh.Url != ishard.Url))
                 {
                     if (refreshed) Authent.ExpireDownloadToken();
                     return ishard;
                 }
-                _cachedShards.Expire();
+                _shardManager.CachedShards.Expire();
                 refreshed = true;
             }
 
             Logger.Error("Cannot get working shard.");
 
-            var shards = await Task.Run(() => _cachedShards.Value);
+            var shards = await Task.Run(() => _shardManager.CachedShards.Value);
             var shard = shards[shardType];
             return shard;
         }
@@ -217,9 +196,16 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            var req = await new MoveRequest(HttpSettings, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
-            var res = req.ToCopyResult();
+            //var req = await new MoveRequest(HttpSettings, Authent, sourceFullPath, destinationPath).MakeRequestAsync();
+            //var res = req.ToCopyResult();
+            //return res;
+
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, sourceFullPath, destinationPath)
+                .MakeRequestAsync();
+
+            var res = req.ToCopyResult(WebDavPath.Name(destinationPath));
             return res;
+
         }
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
@@ -292,14 +278,24 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            var req = await new RenameRequest(HttpSettings, Authent, fullPath, newName).MakeRequestAsync();
+            //var req = await new RenameRequest(HttpSettings, Authent, fullPath, newName).MakeRequestAsync();
+            //var res = req.ToRenameResult();
+            //return res;
+
+            string newFullPath = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, fullPath, newFullPath)
+                .MakeRequestAsync();
+
             var res = req.ToRenameResult();
             return res;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            //return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            //    .ToCreateFolderResult();
+
+            return (await new Requests.WebBin.CreateFolderRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
@@ -312,7 +308,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             //using Mobile request because of supporting file modified time
 
             //TODO: refact, make mixed repo
-            var req = await new Requests.WebBin.MobAddFileRequest(HttpSettings, Authent, _metaServer.Value.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
+            var req = await new Requests.WebBin.MobAddFileRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             var res = req.ToAddFileResult();

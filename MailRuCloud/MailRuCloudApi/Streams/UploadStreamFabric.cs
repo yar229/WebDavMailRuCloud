@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.XTSSharp;
@@ -24,7 +25,8 @@ namespace YaR.MailRuCloud.Api.Streams
 
             Stream stream;
 
-            if (folder.CryptRequired && !discardEncryption)
+            bool cryptRequired = _cloud.IsFileExists(CryptFileInfo.FileName, WebDavPath.GetParents(folder.FullPath).ToList()).Any();
+            if (cryptRequired && !discardEncryption)
             {
                 if (!_cloud.Account.Credentials.CanCrypt)
                     throw new Exception($"Cannot upload {file.FullPath} to crypt folder without additional password!");
