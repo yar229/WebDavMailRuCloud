@@ -173,7 +173,8 @@ namespace NWebDav.Server
 
                 catch (Exception exc)
                 {
-                    s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
+                    s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}", exc);
+                    //, source={request.RemoteEndPoint}", exc); // request.RemoteEndPoint may be disposed
 
                     try
                     {

@@ -64,5 +64,7 @@ namespace NWebDav.Server.Http
         /// </para>
         /// </remarks>
         Stream Stream { get; }
+
+        void Abort();
     }
 }

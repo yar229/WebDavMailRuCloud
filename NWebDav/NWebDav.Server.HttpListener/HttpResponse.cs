@@ -41,6 +41,11 @@ namespace NWebDav.Server.HttpListener
             }
         }
 
+        public void Abort()
+        {
+            _response.Abort();
+        }
+
         public Stream Stream => _response.OutputStream;
     }
 }
