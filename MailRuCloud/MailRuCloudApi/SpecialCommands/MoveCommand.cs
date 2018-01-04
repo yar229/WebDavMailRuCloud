@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             if (null == sourceEntry)
                 return SpecialCommandResult.Fail;
 
-            var res = await Cloud.Move(sourceEntry, target);
+            var res = await Cloud.MoveAsync(sourceEntry, target);
             return new SpecialCommandResult(res);
         }
     }

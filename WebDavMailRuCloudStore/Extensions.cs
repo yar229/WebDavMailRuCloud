@@ -36,7 +36,7 @@ namespace YaR.WebDavMailRu.CloudStore
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
             if (!(item is IMailruStoreItem)) throw new ArgumentException($"{nameof(IMailruStoreItem)} required.", nameof(item));
 
-            return cloud.Move(((IMailruStoreItem)item).EntryInfo, destinationPath);
+            return cloud.MoveAsync(((IMailruStoreItem)item).EntryInfo, destinationPath);
         }
         public static string GetFullPath(this IStoreItem item)
         {
