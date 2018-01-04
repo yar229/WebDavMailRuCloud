@@ -28,7 +28,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             
             try
             {
-                var item = CloudManager.Instance(identity).GetItem(path).Result;
+                var item = CloudManager.Instance(identity).GetItem(path);
                 if (item != null)
                 {
                     return item.IsFile
@@ -54,7 +54,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             var path = uri.Path;
 
             var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
-                .GetItem(path, MailRuCloud.Api.MailRuCloud.ItemType.Folder).Result;
+                .GetItem(path, MailRuCloud.Api.MailRuCloud.ItemType.Folder);
 
             return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, folder, IsWritable));
         }

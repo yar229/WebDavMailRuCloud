@@ -20,7 +20,7 @@ namespace YaR.MailRuCloud.Api.Streams
 
         public async Task<Stream> Create(File file, FileUploadedDelegate onUploaded = null, bool discardEncryption = false)
         {
-            if (!(await _cloud.GetItem(file.Path, MailRuCloud.ItemType.Folder) is Folder folder))
+            if (!(await _cloud.GetItemAsync(file.Path, MailRuCloud.ItemType.Folder) is Folder folder))
                 throw new DirectoryNotFoundException(file.Path);
 
             Stream stream;

@@ -24,7 +24,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             else
                 path = WebDavPath.Combine(Path, param);
 
-            var entry = await Cloud.GetItem(path);
+            var entry = await Cloud.GetItemAsync(path);
             if (null == entry)
                 return SpecialCommandResult.Fail;
 
