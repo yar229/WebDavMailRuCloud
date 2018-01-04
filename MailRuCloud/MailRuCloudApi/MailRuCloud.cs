@@ -436,7 +436,6 @@ namespace YaR.MailRuCloud.Api
             return result;
         }
 
-
         /// <summary>
         /// Rename item on server.
         /// </summary>
@@ -478,19 +477,34 @@ namespace YaR.MailRuCloud.Api
         /// <param name="source">source item info.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(IEntry source, string destinationPath)
+        public async Task<bool> MoveAsync(IEntry source, string destinationPath)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
 
             if (source is File file)
-                return await Move(file, destinationPath);
+                return await MoveAsync(file, destinationPath);
 
             if (source is Folder folder)
-                return await Move(folder, destinationPath);
+                return await MoveAsync(folder, destinationPath);
 
             throw new ArgumentException("Source item is not a file nor folder", nameof(source));
         }
+
+        public async Task<bool> MoveAsync(string sourcePath, string destinationPath)
+        {
+            var entry = await GetItemAsync(sourcePath);
+            if (null == entry)
+                return false;
+
+            return await MoveAsync(entry, destinationPath);
+        }
+
+        public bool Move(string sourcePath, string destinationPath)
+        {
+            return MoveAsync(sourcePath, destinationPath).Result;
+        }
+
 
         /// <summary>
         /// Move folder in another space on the server.
@@ -498,7 +512,7 @@ namespace YaR.MailRuCloud.Api
         /// <param name="folder">Folder info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(Folder folder, string destinationPath)
+        public async Task<bool> MoveAsync(Folder folder, string destinationPath)
         {
             var link = await _linkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
@@ -544,7 +558,7 @@ namespace YaR.MailRuCloud.Api
         /// <param name="file">File info to move.</param>
         /// <param name="destinationPath">Destination path on the server.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Move(File file, string destinationPath)
+        public async Task<bool> MoveAsync(File file, string destinationPath)
         {
             var link = await _linkManager.GetItemLink(file.FullPath, false);
             if (link != null)

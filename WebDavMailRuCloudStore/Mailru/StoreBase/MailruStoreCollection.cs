@@ -428,7 +428,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         await instance.Rename(item, tmpName);
                         fi.SetName(tmpName);
 
-                        await instance.Move(fi, destinationStoreCollection.FullPath);
+                        await instance.MoveAsync(fi, destinationStoreCollection.FullPath);
 
                         fi.SetPath(destinationStoreCollection.FullPath);
 
