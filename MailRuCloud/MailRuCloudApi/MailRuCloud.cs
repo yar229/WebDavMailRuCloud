@@ -81,7 +81,7 @@ namespace YaR.MailRuCloud.Api
         ///// <param  name="itemType">Unknown, File/Folder if you know for sure</param>
         ///// <param name="resolveLinks">True if you know for sure that's not a linked item</param>
         ///// <returns>List of the items.</returns>
-        public virtual async Task<IEntry> GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
+        public virtual async Task<IEntry> GetItemAsync(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             path = WebDavPath.Clean(path);
 
@@ -148,12 +148,17 @@ namespace YaR.MailRuCloud.Api
             return entry;
         }
 
+        public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
+        {
+            return GetItemAsync(path, itemType, resolveLinks).Result;
+        }
+
         public IEnumerable<File> IsFileExists(string filename, IList<string> folderPaths)
         {
             var files = folderPaths
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, folderPaths.Count))
-                .Select(async path => (Folder) await GetItem(path, ItemType.Folder, false))
+                .Select(async path => (Folder) await GetItemAsync(path, ItemType.Folder, false))
                 .SelectMany(fld => fld.Result.Files.Where(file =>  WebDavPath.PathEquals(file.Name, filename)));
 
             return files;
@@ -294,7 +299,7 @@ namespace YaR.MailRuCloud.Api
         /// <returns>True or false operation result.</returns>
         public async Task<bool> Copy(string sourcePath, string destinationPath)
         {
-            var entry = await GetItem(sourcePath);
+            var entry = await GetItemAsync(sourcePath);
             if (null == entry) return false;
 
             return await Copy(entry, destinationPath);
@@ -617,7 +622,7 @@ namespace YaR.MailRuCloud.Api
                 if (file.Name.EndsWith(PublishInfo.SharedFilePostfix))
                 {
                     var mpath = WebDavPath.Clean(file.FullPath.Substring(0, file.FullPath.Length - PublishInfo.SharedFilePostfix.Length));
-                    var item = await GetItem(mpath);
+                    var item = await GetItemAsync(mpath);
                     if (item is Folder folder)
                         await Unpublish(folder.PublicLink);
                     else if (item is File ifile)
@@ -628,7 +633,7 @@ namespace YaR.MailRuCloud.Api
                     //remove share description (.wdmrc.share)
                     if (removeShareDescription)
                     {
-                        if (await GetItem(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
+                        if (await GetItemAsync(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
                             await Remove(sharefile, false);
                     }
                 }
@@ -648,11 +653,16 @@ namespace YaR.MailRuCloud.Api
         /// Get disk usage for account.
         /// </summary>
         /// <returns>Returns Total/Free/Used size.</returns>
-        public async Task<DiskUsage> GetDiskUsage()
+        public async Task<DiskUsage> GetDiskUsageAsync()
         {
             var data = await Account.RequestRepo.AccountInfo();
             return data.DiskUsage;
         }
+        public DiskUsage GetDiskUsage()
+        {
+            return GetDiskUsageAsync().Result;
+        }
+
 
         /// <summary>
         /// Abort all prolonged async operations.
@@ -675,18 +685,29 @@ namespace YaR.MailRuCloud.Api
         /// <param name="name">New path name.</param>
         /// <param name="basePath">Destination path.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> CreateFolder(string name, string basePath)
+        public async Task<bool> CreateFolderAsync(string name, string basePath)
         {
-            return await CreateFolder(WebDavPath.Combine(basePath, name));
+            return await CreateFolderAsync(WebDavPath.Combine(basePath, name));
         }
 
-        public async Task<bool> CreateFolder(string fullPath)
+        public bool CreateFolder(string name, string basePath)
+        {
+            return CreateFolderAsync(name, basePath).Result;
+        }
+
+        public async Task<bool> CreateFolderAsync(string fullPath)
         {
             var res = await Account.RequestRepo.CreateFolder(fullPath);
 
             if (res.IsSuccess) _itemCache.Invalidate(WebDavPath.Parent(fullPath));
             return res.IsSuccess;
         }
+
+        public bool CreateFolder(string fullPath)
+        {
+            return CreateFolderAsync(fullPath).Result;
+        }
+
 
         public async Task<CloneItemResult> CloneItem(string path, string url)
         {
@@ -756,7 +777,7 @@ namespace YaR.MailRuCloud.Api
         {
             try
             {
-                var file = (File)await GetItem(path);
+                var file = (File)await GetItemAsync(path);
                 return DownloadFileAsString(file);
             }
             catch (Exception e)
@@ -770,15 +791,21 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
+
+        public void UploadFile(string path, byte[] content, bool discardEncryption = false)
+        {
+            using (var stream = GetFileUploadStream(path, content.Length, discardEncryption).Result)
+            {
+                stream.Write(content, 0, content.Length);
+            }
+            _itemCache.Invalidate(path, WebDavPath.Parent(path));
+        }
+
+
         public void UploadFile(string path, string content, bool discardEncryption = false)
         {
             var data = Encoding.UTF8.GetBytes(content);
-
-            using (var stream = GetFileUploadStream(path, data.Length, discardEncryption).Result)
-            {
-                stream.Write(data, 0, data.Length);
-            }
-            _itemCache.Invalidate(path, WebDavPath.Parent(path));
+            UploadFile(path, data, discardEncryption);
         }
 
         public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
@@ -900,7 +927,7 @@ namespace YaR.MailRuCloud.Api
                 return false;
 
             string filepath = WebDavPath.Combine(folder.FullPath, CryptFileInfo.FileName);
-            var file = await GetItem(filepath).ConfigureAwait(false);
+            var file = await GetItemAsync(filepath).ConfigureAwait(false);
 
             if (file != null)
                 return false;
