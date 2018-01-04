@@ -46,6 +46,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExtensionsConvert.cs" />
     <Compile Include="FileNode.cs" />
     <Compile Include="FileNodeMap.cs" />
     <Compile Include="Mrcfs.cs" />

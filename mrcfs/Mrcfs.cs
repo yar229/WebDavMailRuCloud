@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Threading;
 using Fsp;
 using Fsp.Interop;
+using YaR.MailRuCloud.Api.Base;
 using FileInfo = Fsp.Interop.FileInfo;
 using Path = YaR.MailRuCloud.Fs.Path;
 
@@ -18,56 +21,45 @@ namespace YaR.MailRuCloud.Fs
 
         private readonly Api.MailRuCloud _cloud;
 
-        public Mrcfs(Boolean caseInsensitive, UInt32 maxFileNodes, UInt32 maxFileSize, String rootSddl, string login, string password)
+        public Mrcfs(String rootSddl, string login, string password)
         {
             _cloud = new Api.MailRuCloud(login, password, null);
-
-            _fileNodeMap = new FileNodeMap(caseInsensitive);
-            _maxFileNodes = maxFileNodes;
-            _maxFileSize = maxFileSize;
-
-            /*
-             * Create root directory.
-             */
-
-            FileNode rootNode = new FileNode(_cloud, "\\")
-            {
-                FileInfo = {FileAttributes = (UInt32) FileAttributes.Directory}
-            };
-            if (null == rootSddl)
-                rootSddl = "O:BAG:BAD:P(A;;FA;;;SY)(A;;FA;;;BA)(A;;FA;;;WD)";
-            RawSecurityDescriptor rootSecurityDescriptor = new RawSecurityDescriptor(rootSddl);
-            rootNode.FileSecurity = new Byte[rootSecurityDescriptor.BinaryLength];
-            rootSecurityDescriptor.GetBinaryForm(rootNode.FileSecurity, 0);
-
-            _fileNodeMap.Insert(rootNode);
         }
 
         public override Int32 Init(Object host0)
         {
             FileSystemHost host = (FileSystemHost)host0;
+
+            //host.FileInfoTimeout = unchecked((UInt32)(Int32)(_kernelCacheMode));
+            host.FileSystemName = "mrcfs";
+
             host.SectorSize = MRCFS_SECTOR_SIZE;
             host.SectorsPerAllocationUnit = MRCFS_SECTORS_PER_ALLOCATION_UNIT;
             host.VolumeCreationTime = (UInt64)DateTime.Now.ToFileTimeUtc();
             host.VolumeSerialNumber = (UInt32)(host.VolumeCreationTime / (10000 * 1000));
-            host.CaseSensitiveSearch = !_fileNodeMap.CaseInsensitive;
+            host.CaseSensitiveSearch = false;
             host.CasePreservedNames = true;
             host.UnicodeOnDisk = true;
             host.PersistentAcls = true;
             host.ReparsePoints = true;
-            host.ReparsePointsAccessCheck = false;
-            host.NamedStreams = true;
+            host.ReparsePointsAccessCheck = false; // ?
+            host.NamedStreams = true; // ?
             host.PostCleanupWhenModifiedOnly = true;
-            host.PassQueryDirectoryFileName = true;
+            host.PassQueryDirectoryFileName = true; // ?
+
             return STATUS_SUCCESS;
         }
 
         public override Int32 GetVolumeInfo(out VolumeInfo volumeInfo)
         {
             volumeInfo = default(VolumeInfo);
-            volumeInfo.TotalSize = _maxFileNodes * (UInt64)_maxFileSize;
-            volumeInfo.FreeSize = (_maxFileNodes - _fileNodeMap.Count()) * (UInt64)_maxFileSize;
-            volumeInfo.SetVolumeLabel(_volumeLabel);
+
+            var data = _cloud.GetDiskUsage();
+
+            volumeInfo.TotalSize = data.Total;
+            volumeInfo.FreeSize =  data.Free;
+            volumeInfo.SetVolumeLabel("mrcfs"); //TODO: put login here?
+
             return STATUS_SUCCESS;
         }
 
@@ -77,31 +69,22 @@ namespace YaR.MailRuCloud.Fs
             return GetVolumeInfo(out volumeInfo);
         }
 
-        public override Int32 GetSecurityByName(
-            String fileName,
-            out UInt32 fileAttributes/* or ReparsePointIndex */,
-            ref Byte[] securityDescriptor)
+        public override Int32 GetSecurityByName(String filename, out UInt32 fileAttributes/* or ReparsePointIndex */, ref Byte[] securityDescriptor)
         {
-            FileNode fileNode = _fileNodeMap.Get(fileName);
-            if (null == fileNode)
+            fileAttributes = (UInt32)FileAttributes.Normal;
+            try
             {
-                Int32 result = STATUS_OBJECT_NAME_NOT_FOUND;
-                if (FindReparsePoint(fileName, out fileAttributes))
-                    result = STATUS_REPARSE;
-                else
-                    _fileNodeMap.GetParent(fileName, ref result);
-                return result;
-            }
+                var item = _cloud.GetItem(filename);
+                if (null == item)
+                    return FileSystemBase.STATUS_OBJECT_NAME_NOT_FOUND;
 
-            UInt32 fileAttributesMask = ~(UInt32)0;
-            if (null != fileNode.MainFileNode)
-            {
-                fileAttributesMask = ~(UInt32)FileAttributes.Directory;
-                fileNode = fileNode.MainFileNode;
+                fileAttributes = (UInt32)item.Attributes;
             }
-            fileAttributes = fileNode.FileInfo.FileAttributes & fileAttributesMask;
-            if (null != securityDescriptor)
-                securityDescriptor = fileNode.FileSecurity;
+            catch (Exception e)
+            {
+                Console.WriteLine(e); //TODO: log
+                return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+            }
 
             return STATUS_SUCCESS;
         }
@@ -123,48 +106,62 @@ namespace YaR.MailRuCloud.Fs
             fileInfo = default(FileInfo);
             normalizedName = default(String);
 
-            Int32 result = STATUS_SUCCESS;
-
-            var fileNode = _fileNodeMap.Get(fileName);
-            if (null != fileNode)
-                return STATUS_OBJECT_NAME_COLLISION;
-            var parentNode = _fileNodeMap.GetParent(fileName, ref result);
-            if (null == parentNode)
-                return result;
-
-            if (0 != (createOptions & FILE_DIRECTORY_FILE))
-                allocationSize = 0;
-            if (_fileNodeMap.Count() >= _maxFileNodes)
-                return STATUS_CANNOT_MAKE;
-            if (allocationSize > _maxFileSize)
-                return STATUS_DISK_FULL;
-
-            if ("\\" != parentNode.FileName)
-                /* normalize name */
-                fileName = parentNode.FileName + "\\" + Path.GetFileName(fileName);
-            fileNode = new FileNode(_cloud, fileName)
+            //check item exists
+            try
             {
-                MainFileNode = _fileNodeMap.GetMain(fileName),
-                FileInfo =
-                {
-                    FileAttributes = 0 != (fileAttributes & (UInt32) FileAttributes.Directory)
-                        ? fileAttributes
-                        : fileAttributes | (UInt32) FileAttributes.Archive
-                },
-                FileSecurity = securityDescriptor
-            };
-            if (0 != allocationSize)
-            {
-                result = SetFileSizeInternal(fileNode, allocationSize, true);
-                if (0 > result)
-                    return result;
+                var item = _cloud.GetItem(fileName);
+                if (item != null)
+                    return STATUS_OBJECT_NAME_COLLISION;
             }
-            _fileNodeMap.Insert(fileNode);
+            catch (Exception e)
+            {
+                Console.WriteLine(e); //TODO: log
+                return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+            }
 
-            Interlocked.Increment(ref fileNode.OpenCount);
-            fileNode0 = fileNode;
-            fileInfo = fileNode.GetFileInfo();
-            normalizedName = fileNode.FileName;
+
+            FileNode cfn;
+            bool isDirectory = (fileAttributes & (UInt32) FileAttributes.Directory) != 0;
+            if (!isDirectory)
+            {
+                try
+                {
+                    _cloud.UploadFile(fileName, new byte[0]);
+                    var item = _cloud.GetItem(fileName);
+                    if (null == item)
+                        return FileSystemBase.STATUS_CANNOT_MAKE;
+
+                    cfn = item.ToFileNode();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e); //TODO: log
+                    return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+                }
+            }
+            else // if isDirectory
+            {
+                try
+                {
+                    bool res = _cloud.CreateFolder(fileName);
+                    var folder = _cloud.GetItem(fileName) as Folder;
+                    if (!res || folder == null)
+                        return FileSystemBase.STATUS_CANNOT_MAKE;
+
+                    cfn = folder.ToFileNode();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e); //TODO: log
+                    return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+                }
+
+
+            }
+
+            fileNode0 = cfn;
+            fileInfo = cfn.FileInfo;
+            normalizedName = fileName;
 
             return STATUS_SUCCESS;
         }
@@ -183,18 +180,24 @@ namespace YaR.MailRuCloud.Fs
             fileInfo = default(FileInfo);
             normalizedName = default(String);
 
-            var fileNode = _fileNodeMap.Get(fileName);
-            if (null == fileNode)
+            try
             {
-                var result = STATUS_OBJECT_NAME_NOT_FOUND;
-                _fileNodeMap.GetParent(fileName, ref result);
-                return result;
-            }
+                var item = _cloud.GetItem(fileName);
+                if (item == null)
+                    return FileSystemBase.STATUS_OBJECT_NAME_NOT_FOUND;
 
-            Interlocked.Increment(ref fileNode.OpenCount);
-            fileNode0 = fileNode;
-            fileInfo = fileNode.GetFileInfo();
-            normalizedName = fileNode.FileName;
+                //TODO: Lock(fileName);
+
+                var filenode = item.ToFileNode();
+                fileNode0 = filenode;
+                fileInfo = filenode.GetFileInfo();
+                normalizedName = filenode.FileName;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e); //TODO: log
+                return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+            }
 
             return STATUS_SUCCESS;
         }
@@ -208,32 +211,30 @@ namespace YaR.MailRuCloud.Fs
             out FileInfo fileInfo)
         {
             fileInfo = default(FileInfo);
-
             FileNode fileNode = (FileNode)fileNode0;
 
-            List<String> streamFileNames = new List<String>(_fileNodeMap.GetStreamFileNames(fileNode));
-            foreach (String streamFileName in streamFileNames)
+            try
             {
-                FileNode streamNode = _fileNodeMap.Get(streamFileName);
-                if (0 == streamNode?.OpenCount)
-                    _fileNodeMap.Remove(streamNode);
+                var result = SetFileSizeInternal(fileNode, allocationSize, true);
+                if (result < 0)
+                    return result;
+
+                if (replaceFileAttributes) fileNode.FileInfo.FileAttributes = fileAttributes | (UInt32)FileAttributes.Archive;
+                else fileNode.FileInfo.FileAttributes |= fileAttributes | (UInt32)FileAttributes.Archive;
+                fileNode.FileInfo.FileSize = 0;
+                fileNode.FileInfo.LastAccessTime =
+                    fileNode.FileInfo.LastWriteTime =
+                        fileNode.FileInfo.ChangeTime = (UInt64)DateTime.Now.ToFileTimeUtc();
+
+                fileInfo = fileNode.FileInfo;
+
+                return STATUS_SUCCESS;
             }
-
-            var result = SetFileSizeInternal(fileNode, allocationSize, true);
-            if (0 > result)
-                return result;
-            if (replaceFileAttributes)
-                fileNode.FileInfo.FileAttributes = fileAttributes | (UInt32)FileAttributes.Archive;
-            else
-                fileNode.FileInfo.FileAttributes |= fileAttributes | (UInt32)FileAttributes.Archive;
-            fileNode.FileInfo.FileSize = 0;
-            fileNode.FileInfo.LastAccessTime =
-                fileNode.FileInfo.LastWriteTime =
-                    fileNode.FileInfo.ChangeTime = (UInt64)DateTime.Now.ToFileTimeUtc();
-
-            fileInfo = fileNode.GetFileInfo();
-
-            return STATUS_SUCCESS;
+            catch (Exception e)
+            {
+                Console.WriteLine(e); //TODO: log
+                return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
+            }
         }
 
         public override void Cleanup(
@@ -597,7 +598,7 @@ namespace YaR.MailRuCloud.Fs
             if (null == enumerator)
             {
                 List<String> childrenFileNames = new List<String>();
-                if ("\\" != fileNode.FileName)
+                if ("\\" != fileNode.FileName || "/" != fileNode.FileName)
                 {
                     /* if this is not the root directory add the dot entries */
                     if (null == marker)
@@ -605,8 +606,14 @@ namespace YaR.MailRuCloud.Fs
                     if (null == marker || "." == marker)
                         childrenFileNames.Add("..");
                 }
-                childrenFileNames.AddRange(_fileNodeMap.GetChildrenFileNames(fileNode,
-                    "." != marker && ".." != marker ? marker : null));
+                //childrenFileNames.AddRange(_fileNodeMap.GetChildrenFileNames(fileNode,
+                //    "." != marker && ".." != marker ? marker : null));
+
+                var item = (Folder)_cloud.GetItemAsync(fileNode.FileName).Result;
+                childrenFileNames.AddRange(item.Entries.Select(it => it.FullPath));
+
+
+
                 context = enumerator = childrenFileNames.GetEnumerator();
             }
 
@@ -809,9 +816,6 @@ namespace YaR.MailRuCloud.Fs
             return false;
         }
 
-        private readonly FileNodeMap _fileNodeMap;
-        private readonly UInt32 _maxFileNodes;
-        private readonly UInt32 _maxFileSize;
         private String _volumeLabel;
     }
 }
