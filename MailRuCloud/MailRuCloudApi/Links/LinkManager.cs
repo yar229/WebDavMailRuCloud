@@ -84,7 +84,7 @@ namespace YaR.MailRuCloud.Api.Links
                     //throw new Exception("temp");
 
                     string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
-                    var file = (File)_cloud.GetItem(filepath, MailRuCloud.ItemType.File, false).Result;
+                    var file = (File)_cloud.GetItem(filepath, MailRuCloud.ItemType.File, false);
 
                     if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
                             _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
@@ -164,7 +164,7 @@ namespace YaR.MailRuCloud.Api.Links
                 .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name)).Result)
                 .Where(itl => 
                     itl.IsBad || 
-                    _cloud.GetItem(itl.MapPath, MailRuCloud.ItemType.Folder, false).Result == null)
+                    _cloud.GetItemAsync(itl.MapPath, MailRuCloud.ItemType.Folder, false).Result == null)
                 .ToList();
             if (removes.Count == 0) return 0;
 
@@ -308,7 +308,7 @@ namespace YaR.MailRuCloud.Api.Links
         {
             path = WebDavPath.Clean(path);
 
-            var folder = (Folder)await _cloud.GetItem(path);
+            var folder = (Folder)await _cloud.GetItemAsync(path);
             if (folder.Entries.Any(entry => entry.Name == name))
                 return false;
 
