@@ -500,16 +500,8 @@ namespace YaR.MailRuCloud.Fs
             return STATUS_SUCCESS;
         }
 
-        public override Int32 CanDelete(
-            Object fileNode0,
-            Object fileDesc,
-            String fileName)
+        public override Int32 CanDelete(Object fileNode0, Object fileDesc, String fileName)
         {
-            FileNode fileNode = (FileNode)fileNode0;
-
-            if (_fileNodeMap.HasChild(fileNode))
-                return STATUS_DIRECTORY_NOT_EMPTY;
-
             return STATUS_SUCCESS;
         }
 
@@ -520,48 +512,25 @@ namespace YaR.MailRuCloud.Fs
             String newFileName,
             Boolean replaceIfExists)
         {
-            FileNode fileNode = (FileNode)fileNode0;
+            //TODO: implement replaceIfExists
 
-            var newFileNode = _fileNodeMap.Get(newFileName);
-            if (null != newFileNode && fileNode != newFileNode)
+            try
             {
-                if (!replaceIfExists)
-                    return STATUS_OBJECT_NAME_COLLISION;
-                if (0 != (newFileNode.FileInfo.FileAttributes & (UInt32)FileAttributes.Directory))
-                    return STATUS_ACCESS_DENIED;
+                _cloud.Move(fileName, newFileName);
             }
-
-            if (null != newFileNode && fileNode != newFileNode)
-                _fileNodeMap.Remove(newFileNode);
-
-            List<String> descendantFileNames = new List<String>(_fileNodeMap.GetDescendantFileNames(fileNode));
-            foreach (String descendantFileName in descendantFileNames)
+            catch (Exception e)
             {
-                FileNode descendantFileNode = _fileNodeMap.Get(descendantFileName);
-                if (null == descendantFileNode)
-                    continue; /* should not happen */
-                _fileNodeMap.Remove(descendantFileNode);
-                descendantFileNode.FileName =
-                    newFileName + descendantFileNode.FileName.Substring(fileName.Length);
-                _fileNodeMap.Insert(descendantFileNode);
+                Console.WriteLine(e); //TODO: log
+                return FileSystemBase.STATUS_UNEXPECTED_IO_ERROR;
             }
 
             return STATUS_SUCCESS;
         }
 
-        public override Int32 GetSecurity(
-            Object fileNode0,
-            Object fileDesc,
-            ref Byte[] securityDescriptor)
+        public override Int32 GetSecurity(Object fileNode0, Object fileDesc, ref Byte[] securityDescriptor)
         {
-            if (securityDescriptor == null) throw new ArgumentNullException(nameof(securityDescriptor));
-
-            FileNode fileNode = (FileNode)fileNode0;
-
-            if (null != fileNode.MainFileNode)
-                fileNode = fileNode.MainFileNode;
-
-            securityDescriptor = fileNode.FileSecurity;
+            FileNode cfn = (FileNode)fileNode0;
+            securityDescriptor = cfn.FileSecurity;
 
             return STATUS_SUCCESS;
         }
@@ -572,15 +541,7 @@ namespace YaR.MailRuCloud.Fs
             AccessControlSections sections,
             Byte[] securityDescriptor)
         {
-            FileNode fileNode = (FileNode)fileNode0;
-
-            if (null != fileNode.MainFileNode)
-                fileNode = fileNode.MainFileNode;
-
-            fileNode.FileSecurity = ModifySecurityDescriptor(
-                fileNode.FileSecurity, sections, securityDescriptor);
-
-            return STATUS_SUCCESS;
+            return STATUS_INVALID_DEVICE_REQUEST;
         }
 
         public override Boolean ReadDirectoryEntry(
@@ -609,7 +570,7 @@ namespace YaR.MailRuCloud.Fs
                 //childrenFileNames.AddRange(_fileNodeMap.GetChildrenFileNames(fileNode,
                 //    "." != marker && ".." != marker ? marker : null));
 
-                var item = (Folder)_cloud.GetItemAsync(fileNode.FileName).Result;
+                var item = (Folder)_cloud.GetItem(fileNode.FileName);
                 childrenFileNames.AddRange(item.Entries.Select(it => it.FullPath));
 
 
