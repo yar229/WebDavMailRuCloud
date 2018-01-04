@@ -17,7 +17,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             string source = WebDavPath.Clean(Parames.Count == 1 ? Path : Parames[0]);
             string target = WebDavPath.Clean(Parames.Count == 1 ? Parames[0] : Parames[1]);
 
-            var sourceEntry = await Cloud.GetItem(source);
+            var sourceEntry = await Cloud.GetItemAsync(source);
             if (null == sourceEntry)
                 return SpecialCommandResult.Fail;
 
