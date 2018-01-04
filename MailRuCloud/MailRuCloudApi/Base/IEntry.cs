@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -10,5 +11,7 @@ namespace YaR.MailRuCloud.Api.Base
         string FullPath { get; }
         DateTime CreationTimeUtc { get; }
         string PublicLink { get; }
+
+        FileAttributes Attributes { get; }
     }
 }
