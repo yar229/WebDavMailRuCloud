@@ -30,7 +30,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// Gets default size in bytes.
         /// </summary>
         /// <value>File size.</value>
-        public long DefaultValue => _defValue;
+        public long DefaultValue => _defValue; //TODO: make it ulong
 
 
         #region == Equality ===================================================================================================================
@@ -42,6 +42,11 @@ namespace YaR.MailRuCloud.Api.Base
         public static implicit operator long(FileSize fsize)
         {
             return fsize.DefaultValue;
+        }
+
+        public static implicit operator ulong(FileSize fsize)
+        {
+            return (ulong)fsize.DefaultValue;
         }
 
         public static FileSize operator +(FileSize first, FileSize second)
