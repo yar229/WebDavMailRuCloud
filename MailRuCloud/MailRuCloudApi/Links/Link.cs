@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Links.Dto;
 using File = YaR.MailRuCloud.Api.Base.File;
@@ -65,6 +66,7 @@ namespace YaR.MailRuCloud.Api.Links
         public string Href { get; }
 
         public string PublicLink => Href;
+        public FileAttributes Attributes => FileAttributes.Normal; //TODO: dunno what to do
 
         public FileSize Size { get; set; }
         public DateTime CreationTimeUtc { get; set; }
