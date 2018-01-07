@@ -1,36 +1,88 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
+using Topshelf;
+using Topshelf.Logging;
 
 namespace YaR.CloudMailRu.Console
 {
-#if NET45
-    [DesignerCategory("")]
-    [AC0KG.WindowsService.ServiceName("wdmrc")]
-    class Service : AC0KG.WindowsService.ServiceShell { }
+    class SampleService :
+        ServiceControl
+    {
+        readonly bool _throwOnStart;
+        readonly bool _throwOnStop;
+        readonly bool _throwUnhandled;
+        static readonly LogWriter _log = HostLogger.Get<SampleService>();
 
-    [RunInstaller(true)]
-    [AC0KG.WindowsService.ServiceName("wdmrc",
-        DisplayName = "WebDavMailRuCloud",
-        Description = "WebDAV proxy for Cloud mail.ru Service")]
-    public class Installer : AC0KG.WindowsService.InstallerShell { }
-#endif
+        public SampleService(bool throwOnStart, bool throwOnStop, bool throwUnhandled)
+        {
+            _throwOnStart = throwOnStart;
+            _throwOnStop = throwOnStop;
+            _throwUnhandled = throwUnhandled;
+        }
+
+        public bool Start(HostControl hostControl)
+        {
+            _log.Info("SampleService Starting...");
+
+            hostControl.RequestAdditionalTime(TimeSpan.FromSeconds(10));
+
+            Thread.Sleep(1000);
+
+            if (_throwOnStart)
+            {
+                _log.Info("Throwing as requested");
+                throw new InvalidOperationException("Throw on Start Requested");
+            }
+
+            ThreadPool.QueueUserWorkItem(x =>
+            {
+                Thread.Sleep(3000);
+
+                if (_throwUnhandled)
+                    throw new InvalidOperationException("Throw Unhandled In Random Thread");
+
+                _log.Info("Requesting stop");
+
+                hostControl.Stop();
+            });
+            _log.Info("SampleService Started");
+
+            return true;
+        }
+
+        public bool Stop(HostControl hostControl)
+        {
+            _log.Info("SampleService Stopped");
+
+            if (_throwOnStop)
+                throw new InvalidOperationException("Throw on Stop Requested!");
+
+            return true;
+        }
+
+        public bool Pause(HostControl hostControl)
+        {
+            _log.Info("SampleService Paused");
+
+            return true;
+        }
+
+        public bool Continue(HostControl hostControl)
+        {
+            _log.Info("SampleService Continued");
+
+            return true;
+        }
+    }
+
 
     public class Program 
     {
         static void Main(string[] args)
         {
-#if NET45
-            if (AC0KG.WindowsService.ServiceShell.ProcessInstallOptions(args))
-                return;
-
-            Service.StartService<Service>(
-                () => { Task.Factory.StartNew(() => Payload.Run(args), Payload.CancellationTokenSource.Token); },
-                () => { Payload.CancellationTokenSource.Cancel(); },
-                Environment.UserInteractive);
-#else
             Payload.Run(args);
-#endif
         }
     }
 }
