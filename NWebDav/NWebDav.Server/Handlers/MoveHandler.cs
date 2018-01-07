@@ -115,7 +115,7 @@ namespace NWebDav.Server.Handlers
             if (await sourceCollection.GetItemAsync(sourceName, httpContext).ConfigureAwait(false) is IStoreCollection moveCollection)
             {
                 // Create a new collection
-                var newCollectionResult = await destinationCollection.CreateCollectionAsync(destinationName, overwrite, httpContext);
+                var newCollectionResult = await destinationCollection.CreateCollectionAsync(destinationName, overwrite, httpContext).ConfigureAwait(false);
                 if (newCollectionResult.Result != DavStatusCode.Created && newCollectionResult.Result != DavStatusCode.NoContent)
                 {
                     errors.AddResult(subBaseUri, newCollectionResult.Result);
@@ -124,10 +124,10 @@ namespace NWebDav.Server.Handlers
 
                 // Move all subitems
                 foreach (var entry in await moveCollection.GetItemsAsync(httpContext).ConfigureAwait(false))
-                    await MoveAsync(moveCollection, entry.Name, newCollectionResult.Collection, entry.Name, overwrite, httpContext, subBaseUri, errors);
+                    await MoveAsync(moveCollection, entry.Name, newCollectionResult.Collection, entry.Name, overwrite, httpContext, subBaseUri, errors).ConfigureAwait(false);
 
                 // Delete the source collection
-                var deleteResult = await sourceCollection.DeleteItemAsync(sourceName, httpContext);
+                var deleteResult = await sourceCollection.DeleteItemAsync(sourceName, httpContext).ConfigureAwait(false);
                 if (deleteResult != DavStatusCode.Ok)
                 {
                     errors.AddResult(subBaseUri, newCollectionResult.Result);
@@ -137,7 +137,7 @@ namespace NWebDav.Server.Handlers
             else
             {
                 // Items should be moved directly
-                var result = await sourceCollection.MoveItemAsync(sourceName, destinationCollection, destinationName, overwrite, httpContext);
+                var result = await sourceCollection.MoveItemAsync(sourceName, destinationCollection, destinationName, overwrite, httpContext).ConfigureAwait(false);
                 if (result.Result != DavStatusCode.Created && result.Result != DavStatusCode.NoContent)
                 {
                     errors.AddResult(subBaseUri, result.Result);
