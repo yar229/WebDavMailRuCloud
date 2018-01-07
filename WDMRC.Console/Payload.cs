@@ -21,7 +21,7 @@ namespace YaR.CloudMailRu.Console
 
         public static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
 
-        public static void Run(string[] args)
+        public static void Run(CommandLineOptions options)
         {
             // trying to fix "infinite recursion during resource lookup with system.private.corelib"
             // .Net Core 2.0.0
@@ -33,51 +33,40 @@ namespace YaR.CloudMailRu.Console
 
             LoggerFactory.Factory = new Log4NetAdapter();
 
-            var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
 
-            var exitCode = result
-              .MapResult(
-                options =>
-                {
-                    ShowInfo(options);
-                    CloudManager.Init();
-                    CloudManager.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName;
+            ShowInfo(options);
+            CloudManager.Init();
+            CloudManager.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName;
 
-                    var webdavProtocol = "http";
-                    var webdavIp = "127.0.0.1";
-                    var webdavPort = options.Port;
-                    var webdavHost = string.IsNullOrWhiteSpace(options.Host)
-                        ? $"{webdavProtocol}://{webdavIp}"
-                        : options.Host.TrimEnd('/');
-                    if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
+            var webdavProtocol = "http";
+            var webdavIp = "127.0.0.1";
+            var webdavPort = options.Port;
+            var webdavHost = string.IsNullOrWhiteSpace(options.Host)
+                ? $"{webdavProtocol}://{webdavIp}"
+                : options.Host.TrimEnd('/');
+            if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
 
 
-                    var httpListener = new HttpListener();
-                    try
-                    {
-                        httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
-                        httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
-                        httpListener.Start();
+            var httpListener = new HttpListener();
+            try
+            {
+                httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
+                httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
+                httpListener.Start();
 
-                        Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
+                Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
 
-                        // Start dispatching requests
-                        var t = DispatchHttpRequestsAsync(httpListener, CancellationTokenSource.Token, options.MaxThreadCount);
-                        t.Wait(CancellationTokenSource.Token);
+                // Start dispatching requests
+                var t = DispatchHttpRequestsAsync(httpListener, CancellationTokenSource.Token, options.MaxThreadCount);
+                t.Wait(CancellationTokenSource.Token);
 
-                        //do not use console input - it uses 100% CPU when running mono-service in ubuntu
-                    }
-                    finally
-                    {
-                        CancellationTokenSource.Cancel();
-                        httpListener.Stop();
-                    }
-                    return 0;
-
-                },
-                errors => 1);
-
-            if (exitCode > 0) Environment.Exit(exitCode);
+                //do not use console input - it uses 100% CPU when running mono-service in ubuntu
+            }
+            finally
+            {
+                CancellationTokenSource.Cancel();
+                httpListener.Stop();
+            }
         }
 
 

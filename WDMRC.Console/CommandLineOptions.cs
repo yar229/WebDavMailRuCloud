@@ -25,6 +25,13 @@ namespace YaR.WebDavMailRu
         [Option("user-agent", HelpText = "\"browser\" user-agent")]
         public string UserAgent { get; set; }
 
+        [Option("install", Required = false, HelpText = "install as Windows service")]
+        public string ServiceName { get; set; }
 
+        [Option("uninstall", Required = false, HelpText = "uninstall Windows service")]
+        public string ServiceUninstall { get; set; }
+
+        [Option("service", Required = false, Default = false, HelpText = "Started as a service")]
+        public bool ServiceRun { get; set; }
     }
 }

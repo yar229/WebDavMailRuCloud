@@ -1,88 +1,61 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Threading;
-using System.Threading.Tasks;
-using Topshelf;
-using Topshelf.Logging;
+using System.Reflection;
+using CommandLine;
+using WinServiceInstaller;
+using YaR.WebDavMailRu;
 
 namespace YaR.CloudMailRu.Console
 {
-    class SampleService :
-        ServiceControl
+    public class Program
     {
-        readonly bool _throwOnStart;
-        readonly bool _throwOnStop;
-        readonly bool _throwUnhandled;
-        static readonly LogWriter _log = HostLogger.Get<SampleService>();
+        private static ServiceConfigurator _c;
 
-        public SampleService(bool throwOnStart, bool throwOnStop, bool throwUnhandled)
-        {
-            _throwOnStart = throwOnStart;
-            _throwOnStop = throwOnStop;
-            _throwUnhandled = throwUnhandled;
-        }
-
-        public bool Start(HostControl hostControl)
-        {
-            _log.Info("SampleService Starting...");
-
-            hostControl.RequestAdditionalTime(TimeSpan.FromSeconds(10));
-
-            Thread.Sleep(1000);
-
-            if (_throwOnStart)
-            {
-                _log.Info("Throwing as requested");
-                throw new InvalidOperationException("Throw on Start Requested");
-            }
-
-            ThreadPool.QueueUserWorkItem(x =>
-            {
-                Thread.Sleep(3000);
-
-                if (_throwUnhandled)
-                    throw new InvalidOperationException("Throw Unhandled In Random Thread");
-
-                _log.Info("Requesting stop");
-
-                hostControl.Stop();
-            });
-            _log.Info("SampleService Started");
-
-            return true;
-        }
-
-        public bool Stop(HostControl hostControl)
-        {
-            _log.Info("SampleService Stopped");
-
-            if (_throwOnStop)
-                throw new InvalidOperationException("Throw on Stop Requested!");
-
-            return true;
-        }
-
-        public bool Pause(HostControl hostControl)
-        {
-            _log.Info("SampleService Paused");
-
-            return true;
-        }
-
-        public bool Continue(HostControl hostControl)
-        {
-            _log.Info("SampleService Continued");
-
-            return true;
-        }
-    }
-
-
-    public class Program 
-    {
         static void Main(string[] args)
         {
-            Payload.Run(args);
+            var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
+            
+            var exitCode = result
+                .MapResult(
+                    options =>
+                    {
+                        _c = new ServiceConfigurator
+                        {
+                            Assembly = Assembly.GetExecutingAssembly(),
+                            Name = options.ServiceName ?? options.ServiceUninstall ?? "wdmrc",
+                            DisplayName = "WebDavMailRuCloud",
+                            Description = "WebDAV proxy for Cloud mail.ru",
+                            CommandLine = "--service",
+
+                            FireStart = () => Payload.Run(options),
+                            FireStop = () => Payload.CancellationTokenSource.Cancel(),
+
+                        };
+
+
+                        if (options.ServiceName != null)
+                        {
+                            _c.Install();
+                            return 0;
+                        }
+                        else if (options.ServiceUninstall != null)
+                        {
+                            _c.Uninstall();
+                            return 0;
+                        }
+                        else if (options.ServiceRun)
+                        {
+                            _c.Run();
+                            return 0;
+                        }
+
+
+                        Payload.Run(options);
+                        return 0;
+                    },
+                    errors => 1);
+
+            if (exitCode > 0) Environment.Exit(exitCode);
         }
+
     }
 }
