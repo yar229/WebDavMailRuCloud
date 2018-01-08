@@ -73,6 +73,13 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 
 #### Windows
 
+Using as windows service
+* Run `cmd` with Administrator rights
+* Then, for example, `wdmrc.exe --install wdmrc -p 801 --maxthreads 15` <br/>
+* `net start wdmrc`
+
+<br/>
+
 <details> 
 <summary>Using from explorer requires enabled Basic Auth for WebDAV </summary>
 * Press Win+R, type `regedit`, click OK
