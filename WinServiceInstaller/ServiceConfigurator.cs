@@ -2,6 +2,8 @@
 using System.Configuration.Install;
 using System.Reflection;
 using System.ServiceProcess;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WinServiceInstaller
 {
@@ -47,35 +49,42 @@ namespace WinServiceInstaller
         public Action FireStart { get; set; }
         public Action FireStop { get; set; }
 
-
         public void Install()
         {
-            ManagedInstallerClass.InstallHelper(new[] {Assembly.Location});
+            //ManagedInstallerClass.InstallHelper(new[] {Assembly.Location});
+            ManagedInstallerClass.InstallHelper(new[] { Assembly.GetExecutingAssembly().Location });
 
+            string cmd = Assembly.Location;
             if (!string.IsNullOrWhiteSpace(CommandLine))
-                AddCommandLineParametersToStartupOptions(CommandLine);
+                cmd += " " + CommandLine;
+            SetCommandLine(cmd);
         }
 
         public void Run()
         {
-            using (var service = new StubService
-            {
-                ServiceName = Name,
-                FireStart = FireStart,
-                FireStop = FireStop
-            })
-            {
-                ServiceBase.Run(service);
-            }
+            //_runner = Task.Factory.StartNew(() =>
+            //{
+                var service = new StubService
+                {
+                    ServiceName = "wdmrc",
+                    FireStart = FireStart,
+                    FireStop = FireStop
+                };
+
+                ServiceBase.Run(new ServiceBase[] {service});
+            //});
+            //_runner.Start();
         }
 
         public void Uninstall()
         {
-            ManagedInstallerClass.InstallHelper(new[] { "/u", Assembly.Location });
+            string cmd = Assembly.GetExecutingAssembly().Location;
+            SetCommandLine(cmd);
+            ManagedInstallerClass.InstallHelper(new[] { "/u", cmd });
         }
 
 
-        private void AddCommandLineParametersToStartupOptions(string args)
+        private void SetCommandLine(string cmd)
         {
             var serviceKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(
                 $"SYSTEM\\CurrentControlSet\\Services\\{Name}",
@@ -86,8 +95,8 @@ namespace WinServiceInstaller
                 throw new Exception($"Could not locate Registry Key for service '{Name}'");
             }
 
-            var cmd = serviceKey.GetValue("ImagePath");
-            serviceKey.SetValue("ImagePath", $"{cmd} {args}", Microsoft.Win32.RegistryValueKind.String);
+            //var cmd = serviceKey.GetValue("ImagePath");
+            serviceKey.SetValue("ImagePath", cmd, Microsoft.Win32.RegistryValueKind.String);
         }
     }
 }

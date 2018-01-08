@@ -26,7 +26,7 @@ namespace YaR.WebDavMailRu
         public string UserAgent { get; set; }
 
         [Option("install", Required = false, HelpText = "install as Windows service")]
-        public string ServiceName { get; set; }
+        public string ServiceInstall { get; set; }
 
         [Option("uninstall", Required = false, HelpText = "uninstall Windows service")]
         public string ServiceUninstall { get; set; }

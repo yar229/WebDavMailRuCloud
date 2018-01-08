@@ -5,7 +5,7 @@ using System.ServiceProcess;
 namespace WinServiceInstaller
 {
     [RunInstaller(true)]
-    class MyServiceInstaller : Installer
+    public class MyServiceInstaller : Installer
     {
         public MyServiceInstaller()
         {

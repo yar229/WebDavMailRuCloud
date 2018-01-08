@@ -1,13 +1,20 @@
 ﻿using System;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 
 namespace WinServiceInstaller
 {
     class StubService : ServiceBase
     {
+        private Task _runner;
+
         protected override void OnStart(string[] args)
         {
-            FireStart?.Invoke();
+            _runner = Task.Factory.StartNew(() =>
+            {
+                FireStart?.Invoke();
+            });
+            
         }
 
         protected override void OnStop()

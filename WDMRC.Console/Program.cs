@@ -21,19 +21,21 @@ namespace YaR.CloudMailRu.Console
                         _c = new ServiceConfigurator
                         {
                             Assembly = Assembly.GetExecutingAssembly(),
-                            Name = options.ServiceName ?? options.ServiceUninstall ?? "wdmrc",
+                            Name = options.ServiceInstall ?? options.ServiceUninstall ?? "wdmrc",
                             DisplayName = "WebDavMailRuCloud",
                             Description = "WebDAV proxy for Cloud mail.ru",
-                            CommandLine = "--service",
 
                             FireStart = () => Payload.Run(options),
                             FireStop = () => Payload.CancellationTokenSource.Cancel(),
 
                         };
 
-
-                        if (options.ServiceName != null)
+                        if (options.ServiceInstall != null)
                         {
+                            options.ServiceRun = true;
+                            options.ServiceInstall = null;
+                            _c.CommandLine = CommandLine.Parser.Default.FormatCommandLine<CommandLineOptions>(options);
+
                             _c.Install();
                             return 0;
                         }
