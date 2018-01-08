@@ -14,9 +14,9 @@ buildNet45:
   name: "WebDAVCloudMailRu_${CI_COMMIT_TAG}_dotNet45"
   when: on_success
   paths:
-  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.exe
-  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.dll
-  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.config
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net452/*.exe
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net452/*.dll
+  - /builds/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net452/*.config
   - /builds/yar229/WebDavMailRuCloud/readme.md
   
 buildCore20:

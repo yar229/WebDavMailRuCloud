@@ -100,7 +100,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             new DavQuotaAvailableBytes<MailruStoreCollection>
             {
-                Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Result.Free.DefaultValue : long.MaxValue,
+                Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
@@ -351,7 +351,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             try
             {
-                CloudManager.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath).Wait();
+                CloudManager.Instance(httpContext.Session.Principal.Identity).CreateFolder(name, FullPath);
             }
             catch (Exception exc)
             {
@@ -428,7 +428,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         await instance.Rename(item, tmpName);
                         fi.SetName(tmpName);
 
-                        await instance.Move(fi, destinationStoreCollection.FullPath);
+                        await instance.MoveAsync(fi, destinationStoreCollection.FullPath);
 
                         fi.SetPath(destinationStoreCollection.FullPath);
 

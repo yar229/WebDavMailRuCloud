@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -116,6 +117,8 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual DateTime CreationTimeUtc { get; set; }
         public virtual DateTime LastWriteTimeUtc { get; set; }
         public virtual DateTime LastAccessTimeUtc { get; set; }
+
+        public FileAttributes Attributes { get; set; } = FileAttributes.Normal;
 
         public bool IsFile => true;
         public FilenameServiceInfo ServiceInfo { get; protected set; }
