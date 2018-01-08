@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET452
+using System;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 
@@ -26,3 +27,4 @@ namespace WinServiceInstaller
         public Action FireStop { get; set; }
     }
 }
+#endif

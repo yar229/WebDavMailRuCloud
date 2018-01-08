@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Reflection;
+
+#if NET452
+using System;
 using System.Configuration.Install;
 using System.Reflection;
 using System.ServiceProcess;
@@ -100,3 +104,34 @@ namespace WinServiceInstaller
         }
     }
 }
+#else
+
+namespace WinServiceInstaller
+{
+    public class ServiceConfigurator
+    {
+        public Assembly Assembly { get; set; }
+        public string Name { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+        public string CommandLine { get; set; }
+
+        public Action FireStart { get; set; }
+        public Action FireStop { get; set; }
+
+        public void Install()
+        {
+        }
+
+        public void Run()
+        {
+        }
+
+        public void Uninstall()
+        {
+        }
+    }
+}
+
+
+#endif

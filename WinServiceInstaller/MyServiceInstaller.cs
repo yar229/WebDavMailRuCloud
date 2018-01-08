@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿#if NET452
+using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
 
@@ -32,3 +33,5 @@ namespace WinServiceInstaller
         public static string Description { get; set; }
     }
 }
+
+#endif
