@@ -17,7 +17,9 @@
 `WebDAVCloudMailRu-*-dotNet45.zip` / `WebDAVCloudMailRu-*-dotNetCore20.zip` respectively
 
 #### Usage
-``` 	
+```
+	--install <servicename>       (Windows/.Net only) Install as windows service
+	--uninstall <servicename>       (Windows/.Net only) Uninstall windows service
 	-p, --port        (Default: 801) WebDAV server port
 	-h, --host	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
