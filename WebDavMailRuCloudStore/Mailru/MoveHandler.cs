@@ -124,7 +124,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             var subBaseUri = UriHelper.Combine(baseUri, destinationName);
 
             // Items should be moved directly
-            var result = await sourceCollection.MoveItemAsync(sourceName, destinationCollection, destinationName, overwrite, httpContext);
+            var result = await sourceCollection.MoveItemAsync(sourceName, destinationCollection, destinationName, overwrite, httpContext).ConfigureAwait(false);
             if (result.Result != DavStatusCode.Created && result.Result != DavStatusCode.NoContent)
                 errors.AddResult(subBaseUri, result.Result);
         }

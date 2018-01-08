@@ -108,7 +108,7 @@ namespace NWebDav.Server.Handlers
 
                 // Delete all entries first
                 foreach (var entry in await deleteCollection.GetItemsAsync(httpContext).ConfigureAwait(false))
-                    await DeleteItemAsync(deleteCollection, entry.Name, httpContext, subBaseUri, errors);
+                    await DeleteItemAsync(deleteCollection, entry.Name, httpContext, subBaseUri, errors).ConfigureAwait(false);
             }
 
             // Attempt to delete the item

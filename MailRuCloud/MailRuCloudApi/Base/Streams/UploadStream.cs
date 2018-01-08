@@ -9,7 +9,7 @@
         }
     }
 
-#elif NET45
+#elif NET452
 
     internal class UploadStream : UploadStreamHttpWebRequest
     {
