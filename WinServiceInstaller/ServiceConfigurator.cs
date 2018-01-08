@@ -8,6 +8,8 @@ namespace WinServiceInstaller
     public class ServiceConfigurator
     {
         private string _name;
+        private string _displayName;
+        private string _description;
         public Assembly Assembly { get; set; }
 
         public string Name
@@ -20,8 +22,26 @@ namespace WinServiceInstaller
             }
         }
 
-        public string DisplayName { get; set; }
-        public string Description { get; set; }
+        public string DisplayName
+        {
+            get => _displayName;
+            set
+            {
+                MyServiceInstaller.DisplayName = value;
+                _displayName = value;
+            }
+        }
+
+        public string Description
+        {
+            get => _description;
+            set
+            {
+                MyServiceInstaller.Description = value;
+                _description = value;
+            }
+        }
+
         public string CommandLine { get; set; }
 
         public Action FireStart { get; set; }

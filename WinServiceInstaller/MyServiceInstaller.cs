@@ -18,7 +18,9 @@ namespace WinServiceInstaller
             var serviceInstaller = new ServiceInstaller
             {
                 StartType = ServiceStartMode.Automatic,
-                ServiceName = ServiceName
+                ServiceName = ServiceName,
+                DisplayName = DisplayName,
+                Description = Description
             };
 
             Installers.Add(serviceInstaller);
@@ -26,5 +28,7 @@ namespace WinServiceInstaller
         }
 
         public static string ServiceName { get; set; }
+        public static string DisplayName { get; set; }
+        public static string Description { get; set; }
     }
 }
