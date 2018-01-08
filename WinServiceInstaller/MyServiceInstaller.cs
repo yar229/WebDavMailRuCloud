@@ -10,7 +10,6 @@ namespace WinServiceInstaller
     {
         public MyServiceInstaller()
         {
-            // Instantiate installers for process and services.
             var processInstaller = new ServiceProcessInstaller
             {
                 Account = ServiceAccount.LocalSystem

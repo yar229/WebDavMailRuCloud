@@ -55,7 +55,6 @@ namespace WinServiceInstaller
 
         public void Install()
         {
-            //ManagedInstallerClass.InstallHelper(new[] {Assembly.Location});
             ManagedInstallerClass.InstallHelper(new[] { Assembly.GetExecutingAssembly().Location });
 
             string cmd = Assembly.Location;
@@ -66,8 +65,6 @@ namespace WinServiceInstaller
 
         public void Run()
         {
-            //_runner = Task.Factory.StartNew(() =>
-            //{
                 var service = new StubService
                 {
                     ServiceName = "wdmrc",
@@ -76,8 +73,6 @@ namespace WinServiceInstaller
                 };
 
                 ServiceBase.Run(new ServiceBase[] {service});
-            //});
-            //_runner.Start();
         }
 
         public void Uninstall()
