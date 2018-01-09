@@ -1,17 +1,16 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace WebDAV.Uploader
+namespace YaR.CloudMailRu.Client.Console
 {
-    class Program
+    static class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
+            System.Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
 
 
             string user = args[0].Trim('"');
@@ -26,18 +25,18 @@ namespace WebDAV.Uploader
 
             targetpath = WebDavPath.Clean(targetpath);
 
-            var cloud = new MailRuCloud(user, password, null);
+            var cloud = new MailRuCloud.Api.MailRuCloud(user, password, null);
 
             using (var file = new StreamReader(listname))
             {
                 string line;
                 while ((line = file.ReadLine()) != null)
                 {
-                    Console.WriteLine($"Source: {line}");
+                    System.Console.WriteLine($"Source: {line}");
                     var fileInfo = new FileInfo(line);
 
                     string targetfile = WebDavPath.Combine(targetpath, fileInfo.Name);
-                    Console.WriteLine($"Target: {targetfile}");
+                    System.Console.WriteLine($"Target: {targetfile}");
 
                     using (var source = System.IO.File.Open(line, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
@@ -46,7 +45,7 @@ namespace WebDAV.Uploader
                         var hash = hasher.HashString;
                         if (cloud.AddFile(hash, targetfile, fileInfo.Length, ConflictResolver.Rename).Result.Success)
                         {
-                            Console.WriteLine("Added by hash");
+                            System.Console.WriteLine("Added by hash");
                         }
                         else
                         {
@@ -60,17 +59,17 @@ namespace WebDAV.Uploader
                                 {
                                     target.Write(buffer, 0, read);
                                     wrote += read;
-                                    Console.Write($"\r{wrote / fileInfo.Length * 100}%");
+                                    System.Console.Write($"\r{wrote / fileInfo.Length * 100}%");
                                 }
                             }
                         }
 
-                        Console.WriteLine(" Done.");
+                        System.Console.WriteLine(" Done.");
                         //source.CopyTo(target);
                     }
                 }
             }
-            Console.ReadKey();
+            System.Console.ReadKey();
         }
     }
 }
