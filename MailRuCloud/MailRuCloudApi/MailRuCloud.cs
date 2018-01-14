@@ -409,10 +409,8 @@ namespace YaR.MailRuCloud.Api
         /// <param name="folder">Source folder info.</param>
         /// <param name="newFileName">New folder name.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Rename(Folder folder, string newFileName)
-        {
-            return await Rename(folder.FullPath, newFileName);
-        }
+        public async Task<bool> Rename(Folder folder, string newFileName) 
+            => await Rename(folder.FullPath, newFileName);
 
         /// <summary>
         /// Rename file on the server.

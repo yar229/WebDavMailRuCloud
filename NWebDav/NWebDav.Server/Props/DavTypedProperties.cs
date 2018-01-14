@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -197,7 +196,7 @@ namespace NWebDav.Server.Props
             }
         }
 
-        private static IConverter TypeConverter { get; } = new Rfc1123DateConverter();
+        public static IConverter TypeConverter { get; } = new Rfc1123DateConverter();
 
         /// <summary>
         /// Converter to map RFC1123 dates to/from a <see cref="DateTime"/>.
@@ -241,7 +240,7 @@ namespace NWebDav.Server.Props
             }
         }
 
-        private static IConverter TypeConverter { get; } = new Iso8601DateConverter();
+        public static IConverter TypeConverter { get; } = new Iso8601DateConverter();
 
         /// <summary>
         /// Converter to map ISO 8601 dates to/from a <see cref="DateTime"/>.
@@ -264,7 +263,7 @@ namespace NWebDav.Server.Props
             public Boolean FromXml(IHttpContext httpContext, object value) => int.Parse(value.ToString()) != 0;
         }
 
-        private static IConverter TypeConverter { get; } = new BooleanConverter();
+        public static IConverter TypeConverter { get; } = new BooleanConverter();
 
         /// <summary>
         /// Converter to map an XML boolean to/from a <see cref="bool"/>.
@@ -287,7 +286,7 @@ namespace NWebDav.Server.Props
             public string FromXml(IHttpContext httpContext, object value) => value.ToString();
         }
 
-        private static IConverter TypeConverter { get; } = new StringConverter();
+        public static IConverter TypeConverter { get; } = new StringConverter();
 
         /// <summary>
         /// Converter to map an XML string to/from a <see cref="string"/>.
@@ -310,7 +309,7 @@ namespace NWebDav.Server.Props
             public Int32 FromXml(IHttpContext httpContext, object value) => int.Parse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
 
-        private static IConverter TypeConverter { get; } = new Int32Converter();
+        public static IConverter TypeConverter { get; } = new Int32Converter();
 
         /// <summary>
         /// Converter to map an XML number to/from a <see cref="int"/>.
@@ -333,7 +332,7 @@ namespace NWebDav.Server.Props
             public Int64 FromXml(IHttpContext httpContext, object value) => int.Parse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture);
         }
 
-        private static IConverter TypeConverter { get; } = new Int64Converter();
+        public static IConverter TypeConverter { get; } = new Int64Converter();
 
         /// <summary>
         /// Converter to map an XML number to/from a <see cref="long"/>.
@@ -356,7 +355,7 @@ namespace NWebDav.Server.Props
             public IEnumerable<XElement> FromXml(IHttpContext httpContext, object value) => (IEnumerable<XElement>)value;
         }
 
-        private static IConverter TypeConverter { get; } = new XElementArrayConverter();
+        public static IConverter TypeConverter { get; } = new XElementArrayConverter();
 
         /// <summary>
         /// Converter to map an XML number to/from an <see cref="XElement"/> array.
@@ -379,7 +378,7 @@ namespace NWebDav.Server.Props
             public XElement FromXml(IHttpContext httpContext, object value) => (XElement)value;
         }
 
-        private static IConverter TypeConverter { get; } = new XElementConverter();
+        public static IConverter TypeConverter { get; } = new XElementConverter();
 
         /// <summary>
         /// Converter to map an XML number to/from a <see cref="XElement"/>.
@@ -402,7 +401,7 @@ namespace NWebDav.Server.Props
             public Uri FromXml(IHttpContext httpContext, object value) => new Uri((string)value);
         }
 
-        private static IConverter TypeConverter { get; } = new UriConverter();
+        public static IConverter TypeConverter { get; } = new UriConverter();
 
         /// <summary>
         /// Converter to map an XML string to/from a <see cref="Uri"/>.

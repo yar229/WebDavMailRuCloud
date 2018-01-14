@@ -88,7 +88,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Uploading to {_file.FullPath} failed with {e.Message}");
+                    Logger.Error($"Uploading to {_file.FullPath} failed with {e.Message}"); //TODO remove duplicate exception catch?
                     throw;
                 }
             });
