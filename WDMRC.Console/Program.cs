@@ -34,7 +34,7 @@ namespace YaR.CloudMailRu.Console
                         {
                             options.ServiceRun = true;
                             options.ServiceInstall = null;
-                            _c.CommandLine = CommandLine.Parser.Default.FormatCommandLine<CommandLineOptions>(options);
+                            _c.CommandLine = Parser.Default.FormatCommandLine(options);
 
                             _c.Install();
                             return 0;
