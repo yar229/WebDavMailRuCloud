@@ -53,10 +53,10 @@ namespace YaR.MailRuCloud.Api
         /// <param name="login">Login name as the email.</param>
         /// <param name="password">Password, associated with this email.</param>
         /// <param name="twoFaHandler"></param>
-        public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
+        public MailRuCloud(CloudSettings settings, Credentials credentials)//(string login, string password, ITwoFaHandler twoFaHandler)
         {
             //CloudApi = new CloudApi(login, password, twoFaHandler);
-            Account = new Account(login, password, twoFaHandler);
+            Account = new Account(settings, credentials);
             if (!Account.Login())
             {
                 throw new AuthenticationException("Auth token has't been retrieved.");

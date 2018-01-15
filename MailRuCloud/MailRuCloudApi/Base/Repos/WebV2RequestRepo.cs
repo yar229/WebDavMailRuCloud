@@ -28,11 +28,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public int PendingDownloads { get; set; }
 
-        public WebV2RequestRepo(IWebProxy proxy, IAuth auth)
+        public WebV2RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             HttpSettings.Proxy = proxy;
 
-            Authent = auth;
+            Authent = new WebAuth(HttpSettings, creds, onAuthCodeRequired);
 
             _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));

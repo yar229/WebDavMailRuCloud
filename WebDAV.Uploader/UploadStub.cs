@@ -25,7 +25,13 @@ namespace YaR.CloudMailRu.Client.Console
 
             targetpath = WebDavPath.Clean(targetpath);
 
-            var cloud = new MailRuCloud.Api.MailRuCloud(user, password, null);
+            var settings = new CloudSettings
+            {
+                TwoFaHandler = null,
+                Protocol = Protocol.WebM1
+            };
+            var credentials = new Credentials(user, password);
+            var cloud = new MailRuCloud.Api.MailRuCloud(settings, credentials);
 
             using (var file = new StreamReader(listname))
             {
