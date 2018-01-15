@@ -57,12 +57,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
             request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
-            request.Method = "POST";
-            request.ContentLength = file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
+            request.Method = "PUT";
+            request.ContentLength = file.OriginalSize; // + boundary.Start.LongLength + boundary.End.LongLength;
             request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
             request.Headers.Add("Origin", ConstSettings.CloudDomain);
             request.Host = url.Host;
-            request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
+            //request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
             request.Accept = "*/*";
             request.UserAgent = HttpSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
