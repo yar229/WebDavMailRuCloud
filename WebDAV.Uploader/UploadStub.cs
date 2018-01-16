@@ -28,7 +28,7 @@ namespace YaR.CloudMailRu.Client.Console
             var settings = new CloudSettings
             {
                 TwoFaHandler = null,
-                Protocol = Protocol.WebM1
+                Protocol = Protocol.WebM1Bin
             };
             var credentials = new Credentials(user, password);
             var cloud = new MailRuCloud.Api.MailRuCloud(settings, credentials);

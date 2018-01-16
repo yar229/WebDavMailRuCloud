@@ -50,10 +50,7 @@ namespace YaR.MailRuCloud.Api
         /// <summary>
         /// Initializes a new instance of the <see cref="MailRuCloud" /> class.
         /// </summary>
-        /// <param name="login">Login name as the email.</param>
-        /// <param name="password">Password, associated with this email.</param>
-        /// <param name="twoFaHandler"></param>
-        public MailRuCloud(CloudSettings settings, Credentials credentials)//(string login, string password, ITwoFaHandler twoFaHandler)
+        public MailRuCloud(CloudSettings settings, Credentials credentials)
         {
             //CloudApi = new CloudApi(login, password, twoFaHandler);
             Account = new Account(settings, credentials);

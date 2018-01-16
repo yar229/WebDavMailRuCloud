@@ -35,7 +35,7 @@ namespace YaR.WebDavMailRu
         [Option("service", Required = false, Default = false, HelpText = "Started as a service")]
         public bool ServiceRun { get; set; }
 
-        [Option("protocol", Default = Protocol.WebM1, HelpText = "Cloud protocol")]
+        [Option("protocol", Default = Protocol.WebM1Bin, HelpText = "Cloud protocol")]
         public Protocol Protocol { get; set; }
     }
 }

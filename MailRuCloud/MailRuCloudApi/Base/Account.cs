@@ -6,13 +6,6 @@ using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-
-    public enum Protocol
-    {
-        WebM1,
-        WebV2
-    }
-
     //TODO: refact, maybe we don't need this class
     //TODO: refact, Requestrepo - wrong place?
     public class Account
@@ -27,11 +20,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
-        /// <param name="login">Login name as email.</param>
-        /// <param name="password">Password related with this login</param>
-        /// <param name="twoFaHandler"></param>
-        /// <param name="protocol"></param>
-        public Account(CloudSettings settings, Credentials credentials) //(string login, string password, ITwoFaHandler twoFaHandler, Protocol protocol)
+        public Account(CloudSettings settings, Credentials credentials)
         {
             Credentials = credentials;
 
@@ -43,7 +32,7 @@ namespace YaR.MailRuCloud.Api.Base
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
 
-            RequestRepo = Protocol.WebM1 == settings.Protocol
+            RequestRepo = Protocol.WebM1Bin == settings.Protocol
                 ? (IRequestRepo)new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
                 : Protocol.WebV2 == settings.Protocol
                     ? new WebV2RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
