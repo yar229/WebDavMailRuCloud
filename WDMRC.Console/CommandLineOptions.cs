@@ -1,5 +1,6 @@
 ﻿using System;
 using CommandLine;
+using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.WebDavMailRu
 {
@@ -33,5 +34,8 @@ namespace YaR.WebDavMailRu
 
         [Option("service", Required = false, Default = false, HelpText = "Started as a service")]
         public bool ServiceRun { get; set; }
+
+        [Option("protocol", Default = Protocol.WebM1Bin, HelpText = "Cloud protocol")]
+        public Protocol Protocol { get; set; }
     }
 }

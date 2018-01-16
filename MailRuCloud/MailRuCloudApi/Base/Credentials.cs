@@ -3,7 +3,7 @@ using System.Security.Authentication;
 
 namespace YaR.MailRuCloud.Api.Base
 {
-    internal class Credentials : IBasicCredentials
+    public class Credentials : IBasicCredentials
     {
         public Credentials(string login, string password)
         {

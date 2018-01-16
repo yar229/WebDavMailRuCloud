@@ -213,9 +213,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                 return DavStatusCode.Ok;
             }
 
-
-
-
             // Copy the stream
             try
             {

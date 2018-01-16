@@ -9,6 +9,7 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
+using YaR.MailRuCloud.Api;
 using YaR.WebDavMailRu;
 using YaR.WebDavMailRu.CloudStore;
 using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
@@ -27,16 +28,18 @@ namespace YaR.CloudMailRu.Console
             // .Net Core 2.0.0
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-us");
-
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
             log4net.Config.XmlConfigurator.Configure(repo, Config.Log4Net);
 
             LoggerFactory.Factory = new Log4NetAdapter();
 
-
             ShowInfo(options);
-            CloudManager.Init();
-            CloudManager.TwoFactorHandlerName = Config.TwoFactorAuthHandlerName;
+
+            CloudManager.Settings = new CloudSettings
+            {
+                TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandlerName),
+                Protocol = options.Protocol
+            };
 
             var webdavProtocol = "http";
             var webdavIp = "127.0.0.1";
@@ -69,6 +72,18 @@ namespace YaR.CloudMailRu.Console
             }
         }
 
+        private static ITwoFaHandler LoadHandler(string handlerName)
+        {
+            ITwoFaHandler twoFaHandler = null;
+            if (!string.IsNullOrEmpty(handlerName))
+            {
+                twoFaHandler = TwoFaHandlers.Get(handlerName);
+                if (null == twoFaHandler)
+                    Logger.Error($"Cannot load two-factor auth handler {handlerName}");
+            }
+
+            return twoFaHandler;
+        }
 
         private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
         {
@@ -137,6 +152,7 @@ namespace YaR.CloudMailRu.Console
             Logger.Info($"User interactive: {Environment.UserInteractive}");
             Logger.Info($"Version: {version}");
             Logger.Info($"Max threads count: {options.MaxThreadCount}");
+            Logger.Info($"Cloud protocol: {options.Protocol}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
@@ -26,13 +27,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
         };
 
-        public int PendingDownloads { get; set; }
-
-        public WebV2RequestRepo(IWebProxy proxy, IAuth auth)
+        public WebV2RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             HttpSettings.Proxy = proxy;
 
-            Authent = auth;
+            Authent = new WebAuth(HttpSettings, creds, onAuthCodeRequired);
 
             _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));
@@ -58,21 +57,67 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             var request = (HttpWebRequest)WebRequest.Create(url.OriginalString);
             request.Proxy = HttpSettings.Proxy;
             request.CookieContainer = Authent.Cookies;
-            request.Method = "POST";
-            request.ContentLength = file.OriginalSize + boundary.Start.LongLength + boundary.End.LongLength;
+            request.Method = "PUT";
+            request.ContentLength = file.OriginalSize; // + boundary.Start.LongLength + boundary.End.LongLength;
             request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
             request.Headers.Add("Origin", ConstSettings.CloudDomain);
             request.Host = url.Host;
-            request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
+            //request.ContentType = $"multipart/form-data; boundary=----{boundary.Guid}";
             request.Accept = "*/*";
             request.UserAgent = HttpSettings.UserAgent;
             request.AllowWriteStreamBuffering = false;
             return request;
         }
 
-        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
+        public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
-            throw new NotImplementedException();
+
+            CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
+            {
+
+                bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
+
+                string downloadkey = isLinked
+                    ? Authent.DownloadToken
+                    : Authent.AccessToken;
+
+                var shard = isLinked
+                    ? _cachedShards.Value[ShardType.WeblinkGet]
+                    : _cachedShards.Value[ShardType.Get];
+
+                string url = !isLinked
+                    ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
+                    : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+
+                var request = (HttpWebRequest) WebRequest.Create(url);
+
+                request.Headers.Add("Accept-Ranges", "bytes");
+                request.AddRange(instart, inend);
+                request.Proxy = HttpSettings.Proxy;
+                request.CookieContainer = Authent.Cookies;
+                request.Method = "GET";
+                request.ContentType = MediaTypeNames.Application.Octet;
+                request.Accept = "*/*";
+                request.UserAgent = HttpSettings.UserAgent;
+                request.AllowReadStreamBuffering = false;
+
+                request.Timeout = 15 * 1000;
+
+                var response = (HttpWebResponse)request.GetResponse();
+                return new CustomDisposable<HttpWebResponse>
+                {
+                    Value = response,
+                    OnDispose = () =>
+                    {
+                        //_shardManager.DownloadServersPending.Free(downServer);
+                        //watch.Stop();
+                        //Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri} ({watch.Elapsed.Milliseconds} ms)");
+                    }
+                };
+            }
+
+            var stream = new DownloadStream(ResponseGenerator, afile, start, end);
+            return stream;
         }
 
         //public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
