@@ -18,12 +18,16 @@
 
 #### Usage
 ```
-	--install <servicename>       (Windows/.Net only) Install as windows service
-	--uninstall <servicename>       (Windows/.Net only) Uninstall windows service
 	-p, --port        (Default: 801) WebDAV server port
 	-h, --host	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
-	--user-agent      "browser" user-agent
+	--protocol        (Default: WebM1Bin) Cloud protocol
+				* WebM1Bin	- mix of mobile and DiskO protocols
+				* WebV2		- desktop browser protocol
+
+	--install <servicename>			Install as windows service (Windows/.Net only)
+	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
+	
 	--help            Display this help screen.
 	--version         Display version information.
 ```

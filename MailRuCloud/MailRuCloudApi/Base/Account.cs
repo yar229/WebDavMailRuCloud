@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Repos;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -16,32 +17,33 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         private CookieContainer _cookies;
 
-        private IRequestRepo _requestRepo;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
-        /// <param name="login">Login name as email.</param>
-        /// <param name="password">Password related with this login</param>
-        /// <param name="twoFaHandler"></param>
-        public Account(string login, string password, ITwoFaHandler twoFaHandler)
+        public Account(CloudSettings settings, Credentials credentials)
         {
-            Credentials = new Credentials(login, password);
+            Credentials = credentials;
 
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
             Proxy = WebRequest.DefaultWebProxy;
 
-            var twoFaHandler1 = twoFaHandler;
+            var twoFaHandler1 = settings.TwoFaHandler;
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
-            
+
+            RequestRepo = Protocol.WebM1Bin == settings.Protocol
+                ? (IRequestRepo)new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
+                : Protocol.WebV2 == settings.Protocol
+                    ? new WebV2RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
+                    : throw new Exception("Unknown protocol");
         }
 
-        internal IRequestRepo RequestRepo => _requestRepo ??
-                                             //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
-                                             //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
-                                            (_requestRepo = new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired));
+        internal IRequestRepo RequestRepo { get; }
+                                            //   ??
+                                            //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
+                                            //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
+                                            //------(_requestRepo = new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired));
                                             //MixedRepo(_cloudApi));
 
         /// <summary>

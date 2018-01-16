@@ -5,7 +5,7 @@ namespace YaR.MailRuCloud.Api.Base
 {
     public static class ConstSettings
     {
-        public static readonly string[] AvailDomains = {"mail", "inbox", "bk"};
+        public static readonly string[] AvailDomains = {"mail", "inbox", "bk", "list"};
 
         public const string Domain = "mail.ru";
         public const string CloudDomain = "https://cloud.mail.ru";
