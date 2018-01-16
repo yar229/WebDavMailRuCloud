@@ -11,15 +11,9 @@ namespace YaR.WebDavMailRu.CloudStore
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudManager));
 
-        public static void Init()
-        {
-            //if (!string.IsNullOrEmpty(userAgent))
-            //    ConstSettings.UserAgent = userAgent;
-        }
-
         private static readonly ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud> CloudCache = new ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud>();
 
-        public static string TwoFactorHandlerName { get; set; }
+        public static CloudSettings Settings { get; set; }
 
         public static MailRuCloud.Api.MailRuCloud Instance(IIdentity identityi)
         {
@@ -55,16 +49,9 @@ namespace YaR.WebDavMailRu.CloudStore
                 Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
             }
 
-            //2FA authorization
-            ITwoFaHandler twoFaHandler = null;
-            if (!string.IsNullOrEmpty(TwoFactorHandlerName))
-            {
-                twoFaHandler = TwoFaHandlers.Get(TwoFactorHandlerName);
-                if (null == twoFaHandler)
-                    Logger.Error($"Cannot load two-factor auth handler {TwoFactorHandlerName}");
-            }
+            var credentials = new Credentials(identity.Name, identity.Password);
 
-            var cloud = new MailRuCloud.Api.MailRuCloud(identity.Name, identity.Password, twoFaHandler);
+            var cloud = new MailRuCloud.Api.MailRuCloud(Settings, credentials);
             return cloud;
         }
     }
