@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Net;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
-    internal class MobDownloadServerRequest : BaseRequestString<MobDownloadServerRequest.Result>
+    internal abstract class ServerRequest : BaseRequestString<ServerRequest.Result>
     {
-        public MobDownloadServerRequest(HttpCommonSettings settings) : base(settings, null)
+        public ServerRequest(HttpCommonSettings settings) : base(settings, null)
         {
         }
 
-        protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/d";
+        //protected override string RelationalUri => "https://dispatcher.cloud.mail.ru/d";
 
         protected override RequestResponse<Result> DeserializeMessage(string data)
         {

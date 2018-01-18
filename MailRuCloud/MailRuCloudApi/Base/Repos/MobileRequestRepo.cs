@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
-        public int PendingDownloads { get; set; }
+        //public int PendingDownloads { get; set; }
 
         public MobileRequestRepo(IWebProxy proxy, IAuth auth)
         {
@@ -41,10 +41,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                 },
                 value => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
-            _downloadServer = new Cached<MobDownloadServerRequest.Result>(old =>
+            _downloadServer = new Cached<ServerRequest.Result>(old =>
                 {
                     Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new MobDownloadServerRequest(HttpSettings).MakeRequestAsync().Result;
+                    var server = new GetServerRequest(HttpSettings).MakeRequestAsync().Result;
                     return server;
                 },
                 value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
@@ -56,7 +56,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         private readonly Cached<MobMetaServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
 
-        private readonly Cached<MobDownloadServerRequest.Result> _downloadServer;
+        private readonly Cached<ServerRequest.Result> _downloadServer;
         private const int DownloadServerExpiresSec = 20 * 60;
 
 

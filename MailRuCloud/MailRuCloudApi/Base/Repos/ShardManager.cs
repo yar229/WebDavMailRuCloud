@@ -31,11 +31,21 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            DownloadServersPending = new Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>>(8,
-                () => new Cached<Requests.WebBin.MobDownloadServerRequest.Result>(old =>
+            DownloadServersPending = new Pending<Cached<Requests.WebBin.ServerRequest.Result>>(8,
+                () => new Cached<Requests.WebBin.ServerRequest.Result>(old =>
                     {
-                        Logger.Debug("Requesting new download server");
-                        var server = new Requests.WebBin.MobDownloadServerRequest(httpsettings).MakeRequestAsync().Result;
+                        var server = new Requests.WebBin.GetServerRequest(httpsettings).MakeRequestAsync().Result;
+                        Logger.Debug($"Download server changed to {server.Url}");
+                        return server;
+                    },
+                    value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
+                ));
+
+            WeblinkDownloadServersPending = new Pending<Cached<Requests.WebBin.ServerRequest.Result>>(8,
+                () => new Cached<Requests.WebBin.ServerRequest.Result>(old =>
+                    {
+                        var server = new Requests.WebBin.WeblinkGetServerRequest(httpsettings).MakeRequestAsync().Result;
+                        Logger.Debug($"weblink Download server changed to {server.Url}");
                         return server;
                     },
                     value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
@@ -43,7 +53,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         }
 
 
-        public Pending<Cached<Requests.WebBin.MobDownloadServerRequest.Result>> DownloadServersPending { get; }
+        public Pending<Cached<Requests.WebBin.ServerRequest.Result>> DownloadServersPending { get; }
+        public Pending<Cached<Requests.WebBin.ServerRequest.Result>> WeblinkDownloadServersPending { get; }
 
         public ShardInfo MetaServer => new ShardInfo {Url = _metaServer.Value.Url, Count = _metaServer.Value.Unknown};
         private readonly Cached<Requests.WebBin.MobMetaServerRequest.Result> _metaServer;

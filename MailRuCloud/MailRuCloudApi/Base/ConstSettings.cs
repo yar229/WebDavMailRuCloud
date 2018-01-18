@@ -7,13 +7,9 @@ namespace YaR.MailRuCloud.Api.Base
     {
         public static readonly string[] AvailDomains = {"mail", "inbox", "bk", "list"};
 
-        public const string Domain = "mail.ru";
         public const string CloudDomain = "https://cloud.mail.ru";
-        public const string AuthDomain = "https://auth.mail.ru";
         public const string PublishFileLink = CloudDomain + "/public/";
 
-        //public static string UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1";
-        public const string DefaultAcceptType = "text / html,application / xhtml + xml,application / xml; q = 0.9,*/*;q=0.8";
         public const string DefaultRequestType = "application/x-www-form-urlencoded";
 
         #region Big freaking list of mime types

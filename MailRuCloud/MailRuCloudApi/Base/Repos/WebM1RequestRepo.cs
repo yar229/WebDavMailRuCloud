@@ -48,23 +48,28 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         private DownloadStream GetDownloadStreamInternal(File afile, long? start = null, long? end = null)
         {
-            Cached<Requests.WebBin.MobDownloadServerRequest.Result> downServer = null;
+            bool isLinked = !string.IsNullOrEmpty(afile.PublicLink);
+
+            Cached<Requests.WebBin.ServerRequest.Result> downServer = null;
+            var pendingServers = isLinked
+                ? _shardManager.WeblinkDownloadServersPending
+                : _shardManager.DownloadServersPending;
             Stopwatch watch = new Stopwatch();
 
+            HttpWebRequest request = null;
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
                 var resp = Retry.Do(() =>
                 {
-                    downServer = _shardManager.DownloadServersPending.Next(downServer);
+                    downServer = pendingServers.Next(downServer);
 
-                    bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
-
-                    string url = isLinked
-                        ? $"{GetShardInfo(ShardType.WeblinkGet).Result.Url}/{file.PublicLink}?token={Authent.AccessToken}"
-                        : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+                    string url =(isLinked
+                            ? $"{downServer.Value.Url}{file.PublicLink}"
+                            : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
+                        $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
                     var uri = new Uri(url);
 
-                    var request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
+                    request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
 
                     request.AddRange(instart, inend);
                     request.Proxy = HttpSettings.Proxy;
@@ -85,7 +90,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
                     request.Timeout = 15 * 1000;
                     request.ReadWriteTimeout = 15 * 1000;
-                    //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
                     watch.Start();
                     var response = (HttpWebResponse)request.GetResponse();
@@ -94,7 +98,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                         Value = response,
                         OnDispose = () =>
                         {
-                            _shardManager.DownloadServersPending.Free(downServer);
+                            pendingServers.Free(downServer);
                             watch.Stop();
                             Logger.Debug($"HTTP:{request.Method}:{request.RequestUri.AbsoluteUri} ({watch.Elapsed.Milliseconds} ms)");
                         }
@@ -104,8 +108,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     ((exception as WebException)?.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound,
                 exception =>
                 {
-                    _shardManager.DownloadServersPending.Free(downServer);
-                    Logger.Warn($"Retrying on exception {exception.Message}");
+                    pendingServers.Free(downServer);
+                    Logger.Warn($"Retrying HTTP:{request.Method}:{request.RequestUri.AbsoluteUri} on exception {exception.Message}");
                 },
                 TimeSpan.FromSeconds(1), 2);
 
@@ -113,8 +117,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             }
 
             var stream = new DownloadStream(ResponseGenerator, afile, start, end);
-            //stream.Open();
-
             return stream;
         }
 
@@ -138,17 +140,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             return request;
         }
-
-
-        //public void BanShardInfo(ShardInfo banShard)
-        //{
-        //    if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
-        //    {
-        //        Logger.Warn($"Shard {banShard.Url} temporarily banned");
-        //        _bannedShards.Value.Add(banShard);
-        //    }
-        //}
-
 
         /// <summary>
         /// Get shard info that to do post get request. Can be use for anonymous user.
@@ -316,3 +307,4 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         }
     }
 }
+

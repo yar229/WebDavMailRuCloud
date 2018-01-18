@@ -38,8 +38,10 @@ namespace YaR.CloudMailRu.Console
             CloudManager.Settings = new CloudSettings
             {
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandlerName),
-                Protocol = options.Protocol
+                Protocol = options.Protocol,
+                UserAgent = options.UserAgent
             };
+            
 
             var webdavProtocol = "http";
             var webdavIp = "127.0.0.1";

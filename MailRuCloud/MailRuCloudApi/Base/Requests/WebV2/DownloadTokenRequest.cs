@@ -25,21 +25,19 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
     class DownloadTokenHtmlRequest : BaseRequestString<DownloadTokenResult>
     {
-        private readonly string _url;
-
         public DownloadTokenHtmlRequest(HttpCommonSettings settings, IAuth auth, string url) : base(settings, auth)
         {
-            _url = url;
+            RelationalUri = url;
         }
 
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
-            var request = base.CreateRequest(ConstSettings.AuthDomain);
-            request.Accept = ConstSettings.DefaultAcceptType;
+            var request = base.CreateRequest(CommonSettings.AuthDomain);
+            request.Accept = CommonSettings.DefaultAcceptType;
             return request;
         }
 
-        protected override string RelationalUri => _url;
+        protected override string RelationalUri { get; }
 
         protected override RequestResponse<DownloadTokenResult> DeserializeMessage(string responseText)
         {

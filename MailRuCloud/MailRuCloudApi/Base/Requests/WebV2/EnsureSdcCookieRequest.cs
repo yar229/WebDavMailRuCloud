@@ -12,8 +12,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
-            var request = base.CreateRequest(ConstSettings.AuthDomain);
-            request.Accept = ConstSettings.DefaultAcceptType;
+            var request = base.CreateRequest(CommonSettings.AuthDomain);
+            request.Accept = CommonSettings.DefaultAcceptType;
             return request;
         }
 
