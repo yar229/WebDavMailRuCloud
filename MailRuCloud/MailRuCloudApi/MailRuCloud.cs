@@ -60,7 +60,7 @@ namespace YaR.MailRuCloud.Api
             }
 
             //TODO: wow very dummy linking, refact cache realization globally!
-            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(settings.CacheListingSec)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
             _linkManager = new LinkManager(this);
         }
 
