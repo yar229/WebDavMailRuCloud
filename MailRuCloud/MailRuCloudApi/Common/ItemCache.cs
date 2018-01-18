@@ -13,11 +13,14 @@ namespace YaR.MailRuCloud.Api.Common
         public ItemCache(TimeSpan expirePeriod)
         {
             _expirePeriod = expirePeriod;
+            _noCache = Math.Abs(_expirePeriod.TotalMilliseconds) < 0.001;
 
             long cleanPeriod = (long)CleanUpPeriod.TotalMilliseconds;
 
             _cleanTimer = new Timer(state => RemoveExpired(), null, cleanPeriod, cleanPeriod);
         }
+
+        private bool _noCache;
 
         private readonly Timer _cleanTimer;
         private readonly ConcurrentDictionary<TKey, TimedItem<TValue>> _items = new ConcurrentDictionary<TKey, TimedItem<TValue>>();
@@ -55,6 +58,9 @@ namespace YaR.MailRuCloud.Api.Common
 
         public TValue Get(TKey key)
         {
+            if (_noCache)
+                return default(TValue);
+
             if (_items.TryGetValue(key, out var item))
             {
                 if (IsExpired(item))
@@ -70,6 +76,8 @@ namespace YaR.MailRuCloud.Api.Common
 
         public void Add(TKey key, TValue value)
         {
+            if (_noCache) return;
+
             var item = new TimedItem<TValue>
             {
                 Created = DateTime.Now,
