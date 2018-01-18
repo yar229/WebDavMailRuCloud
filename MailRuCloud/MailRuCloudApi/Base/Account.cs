@@ -37,6 +37,9 @@ namespace YaR.MailRuCloud.Api.Base
                 : Protocol.WebV2 == settings.Protocol
                     ? new WebV2RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
                     : throw new Exception("Unknown protocol");
+
+            if (!string.IsNullOrWhiteSpace(settings.UserAgent))
+                RequestRepo.HttpSettings.UserAgent = settings.UserAgent;
         }
 
         internal IRequestRepo RequestRepo { get; }
