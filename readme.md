@@ -141,7 +141,7 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 
 See also 
 * [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
-* [Docker image](https://hub.docker.com/r/monster1025/mailru-webdav-docker/) by [monster1025](https://hub.docker.com/u/monster1025/)
+* Docker image by [slothds](https://github.com/slothds) ([DockerHub](https://hub.docker.com/r/slothds/wdmrc-proxy/), [GitHub](https://github.com/slothds/wdmrc-proxy))
 
 <details>
 <summary>Mount with davfs2</summary>
