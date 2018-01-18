@@ -31,7 +31,7 @@ namespace YaR.MailRuCloud.Api.Base
             if (twoFaHandler1 != null)
                 AuthCodeRequiredEvent += twoFaHandler1.Get;
 
-
+            //TODO: make repo fabric
             RequestRepo = Protocol.WebM1Bin == settings.Protocol
                 ? (IRequestRepo)new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired)
                 : Protocol.WebV2 == settings.Protocol

@@ -16,8 +16,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
-            var request = base.CreateRequest(ConstSettings.AuthDomain);
-            request.Accept = ConstSettings.DefaultAcceptType;
+            var request = base.CreateRequest(CommonSettings.AuthDomain);
+            request.Accept = CommonSettings.DefaultAcceptType;
             return request;
         }
 
@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"Login={Uri.EscapeUriString(Auth.Login)}&Domain={ConstSettings.Domain}&Password={Uri.EscapeUriString(Auth.Password)}";
+            string data = $"Login={Uri.EscapeUriString(Auth.Login)}&Domain={CommonSettings.Domain}&Password={Uri.EscapeUriString(Auth.Password)}";
 
             return Encoding.UTF8.GetBytes(data);
         }
