@@ -46,26 +46,17 @@ namespace YaR.CloudMailRu.Console
                 Protocol = options.Protocol,
                 UserAgent = options.UserAgent,
                 CacheListingSec = options.CacheListingSec
-                
             };
             
-            var webdavProtocol = "http";
-            var webdavIp = "127.0.0.1";
-            var webdavPort = options.Port;
-            var webdavHost = string.IsNullOrWhiteSpace(options.Host)
-                ? $"{webdavProtocol}://{webdavIp}"
-                : options.Host.TrimEnd('/');
-            if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
-
-
             var httpListener = new HttpListener();
+            var httpListenerOptions = new HttpListenerOptions(options);
             try
             {
-                httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
-                httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
+                httpListener.Prefixes.Add(httpListenerOptions.Prefix);
+                httpListener.AuthenticationSchemes = httpListenerOptions.AuthenticationScheme;
                 httpListener.Start();
 
-                Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
+                Logger.Info($"WebDAV server running at {httpListenerOptions.Prefix}");
 
                 // Start dispatching requests
                 var t = DispatchHttpRequestsAsync(httpListener, options.MaxThreadCount);
