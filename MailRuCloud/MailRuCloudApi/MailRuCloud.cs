@@ -678,7 +678,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         public void AbortAllAsyncThreads()
         {
-            CancelToken.Cancel(true);
+            CancelToken.Cancel(false);
         }
 
         public byte MaxInnerParallelRequests

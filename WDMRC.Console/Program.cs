@@ -26,7 +26,7 @@ namespace YaR.CloudMailRu.Console
                             Description = "WebDAV proxy for Cloud mail.ru",
 
                             FireStart = () => Payload.Run(options),
-                            FireStop = () => Payload.CancellationTokenSource.Cancel(),
+                            FireStop = Payload.Stop
 
                         };
 
@@ -50,7 +50,7 @@ namespace YaR.CloudMailRu.Console
                             return 0;
                         }
 
-
+                        System.Console.CancelKeyPress += (sender, eventArgs) => Payload.Stop();
                         Payload.Run(options);
                         return 0;
                     },
