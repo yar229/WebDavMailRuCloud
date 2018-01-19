@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base
         public File(string fullPath, long size, string hash = "")
         {
             FullPath = fullPath;
-            ServiceInfo = FilenameServiceInfo.Parse(WebDavPath.Name(fullPath));
+            ServiceInfo = FilenameServiceInfo.Parse(WebDavPath.Name(FullPath));
 
             _originalSize = size;
             _hash = hash;
