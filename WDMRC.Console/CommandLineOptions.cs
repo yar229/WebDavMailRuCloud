@@ -37,5 +37,8 @@ namespace YaR.WebDavMailRu
 
         [Option("protocol", Default = Protocol.WebM1Bin, HelpText = "Cloud protocol")]
         public Protocol Protocol { get; set; }
+
+        [Option("cache-listing", Default = 30, HelpText = "Cache folders listing, sec")]
+        public int CacheListingSec { get; set; }
     }
 }

@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         protected virtual HttpWebRequest CreateRequest(string baseDomain = null)
         {
             string domain = string.IsNullOrEmpty(baseDomain) ? ConstSettings.CloudDomain : baseDomain;
-            var uriz = new Uri(new Uri(domain), RelationalUri);
+            var uriz = new Uri(new Uri(domain ?? throw new InvalidOperationException("Empty domain")), RelationalUri);
             
             // supressing escaping is obsolete and breaks, for example, chinese names
             // url generated for %E2%80%8E and %E2%80%8F seems ok, but mail.ru replies error
@@ -87,7 +87,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
                         throw new RequestException(exceptionMessage)
                         {
                             StatusCode = response.StatusCode,
-                            ResponseBody = string.Empty, //responseText,
+                            ResponseBody = string.Empty,
                             Description = result.Description,
                             ErrorCode = result.ErrorCode
                         };
@@ -97,7 +97,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests
                     return retVal;
                 }
             }
+            // ReSharper disable once RedundantCatchClause
+            #pragma warning disable 168
             catch (Exception ex)
+            #pragma warning restore 168
             {
                 throw;
             }

@@ -20,8 +20,13 @@ namespace YaR.CloudMailRu.Console
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
-        public static readonly CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+        public static readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
 
+        public static void Stop()
+        {
+            CancelToken.Cancel(false);
+        }
+        
         public static void Run(CommandLineOptions options)
         {
             // trying to fix "infinite recursion during resource lookup with system.private.corelib"
@@ -38,36 +43,29 @@ namespace YaR.CloudMailRu.Console
             CloudManager.Settings = new CloudSettings
             {
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandlerName),
-                Protocol = options.Protocol
+                Protocol = options.Protocol,
+                UserAgent = options.UserAgent,
+                CacheListingSec = options.CacheListingSec
             };
-
-            var webdavProtocol = "http";
-            var webdavIp = "127.0.0.1";
-            var webdavPort = options.Port;
-            var webdavHost = string.IsNullOrWhiteSpace(options.Host)
-                ? $"{webdavProtocol}://{webdavIp}"
-                : options.Host.TrimEnd('/');
-            if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
-
-
+            
             var httpListener = new HttpListener();
+            var httpListenerOptions = new HttpListenerOptions(options);
             try
             {
-                httpListener.Prefixes.Add($"{webdavHost}:{webdavPort}/");
-                httpListener.AuthenticationSchemes = AuthenticationSchemes.Basic;
+                httpListener.Prefixes.Add(httpListenerOptions.Prefix);
+                httpListener.AuthenticationSchemes = httpListenerOptions.AuthenticationScheme;
                 httpListener.Start();
 
-                Logger.Info($"WebDAV server running at {webdavHost}:{webdavPort}");
+                Logger.Info($"WebDAV server running at {httpListenerOptions.Prefix}");
 
                 // Start dispatching requests
-                var t = DispatchHttpRequestsAsync(httpListener, CancellationTokenSource.Token, options.MaxThreadCount);
-                t.Wait(CancellationTokenSource.Token);
+                var t = DispatchHttpRequestsAsync(httpListener, options.MaxThreadCount);
+                t.Wait(CancelToken.Token);
 
                 //do not use console input - it uses 100% CPU when running mono-service in ubuntu
             }
             finally
             {
-                CancellationTokenSource.Cancel();
                 httpListener.Stop();
             }
         }
@@ -85,7 +83,7 @@ namespace YaR.CloudMailRu.Console
             return twoFaHandler;
         }
 
-        private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, CancellationToken cancellationToken, int maxThreadCount = Int32.MaxValue)
+        private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new WebDavMailRu.CloudStore.Mailru.RequestHandlerFactory();
@@ -99,16 +97,16 @@ namespace YaR.CloudMailRu.Console
                 using (var sem = new SemaphoreSlim(maxThreadCount))
                 {
                     var semclo = sem;
-                    while (!cancellationToken.IsCancellationRequested)
+                    while (!CancelToken.IsCancellationRequested)
                     {
                         var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
                         if (httpListenerContext == null)
                             break;
 
-                        HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity)httpListenerContext.User.Identity;
+                        HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity) httpListenerContext.User.Identity;
                         IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
 
-                        await semclo.WaitAsync(cancellationToken);
+                        await semclo.WaitAsync(CancelToken.Token);
 
                         var task = Task.Run(async () =>
                         {
@@ -122,17 +120,22 @@ namespace YaR.CloudMailRu.Console
                                 semclo.Release();
                             }
 
-                        }, cancellationToken);
+                        }, CancelToken.Token);
                     }
                 }
+            }
+            catch (HttpListenerException) when (CancelToken.IsCancellationRequested)
+            {
+                Logger.Info("Server stopped");
+            }
+            catch (OperationCanceledException)
+            {
+                Logger.Info("Server stopped");
             }
             catch (Exception e)
             {
                 Logger.Error("Global exception", e);
             }
-
-
-
         }
 
 
@@ -153,6 +156,7 @@ namespace YaR.CloudMailRu.Console
             Logger.Info($"Version: {version}");
             Logger.Info($"Max threads count: {options.MaxThreadCount}");
             Logger.Info($"Cloud protocol: {options.Protocol}");
+            Logger.Info($"Cache listings, sec: {options.CacheListingSec}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
