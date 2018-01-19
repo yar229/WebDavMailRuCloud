@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CommandLine;
+using YaR.MailRuCloud.Api.Base;
 
 namespace YaR.CloudMailRu.Client.Console
 {
