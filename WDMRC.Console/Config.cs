@@ -1,6 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Xml;
 
 namespace YaR.CloudMailRu.Console
@@ -16,7 +14,6 @@ namespace YaR.CloudMailRu.Console
 
         private static readonly XmlDocument Document;
 
-
         public static XmlElement Log4Net => (XmlElement)Document.SelectSingleNode("/config/log4net");
 
         public static string TwoFactorAuthHandlerName
@@ -25,8 +22,6 @@ namespace YaR.CloudMailRu.Console
             {
                 var res = Document.SelectSingleNode("/config/TwoFactorAuthHandlerName").InnerText;
                 return res;
-
-
             }
         }
     }

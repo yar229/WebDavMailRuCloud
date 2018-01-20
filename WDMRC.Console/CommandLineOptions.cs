@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandLine;
 using YaR.MailRuCloud.Api.Base;
 
-namespace YaR.WebDavMailRu
+namespace YaR.CloudMailRu.Console
 {
     class CommandLineOptions
     {
-        [Option('p', "port", Required = false, Default = 801, HelpText = "WebDAV server port")]
-        public int Port { get; set; }
+        [Option('p', "port", Separator = ',', Required = false, Default = new[]{801}, HelpText = "WebDAV server port")]
+        public IEnumerable<int> Port { get; set; }
 
         [Option('h', "host", Required = false, Default = "http://127.0.0.1", HelpText = "WebDAV server host, including protocol")]
         public string Host { get; set; }
@@ -37,5 +38,8 @@ namespace YaR.WebDavMailRu
 
         [Option("protocol", Default = Protocol.WebM1Bin, HelpText = "Cloud protocol")]
         public Protocol Protocol { get; set; }
+
+        [Option("cache-listing", Default = 30, HelpText = "Cache folders listing, sec")]
+        public int CacheListingSec { get; set; }
     }
 }

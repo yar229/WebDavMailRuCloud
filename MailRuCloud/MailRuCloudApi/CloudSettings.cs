@@ -9,5 +9,7 @@ namespace YaR.MailRuCloud.Api
         public string UserAgent { get; set; }
 
         public Protocol Protocol { get; set; }
+
+        public int CacheListingSec { get; set; } = 30;
     }
 }
