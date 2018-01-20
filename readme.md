@@ -17,7 +17,7 @@
 
 #### Usage
 ```
-	-p, --port        (Default: 801) WebDAV server port
+	-p, --port        (Default: 801) WebDAV server port or several ports separated by `,`
 	-h, --host	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--cache-listing   (Default: 30) Cache folders listing, sec

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using CommandLine;
 using YaR.MailRuCloud.Api.Base;
 
-namespace YaR.WebDavMailRu
+namespace YaR.CloudMailRu.Console
 {
     class CommandLineOptions
     {
