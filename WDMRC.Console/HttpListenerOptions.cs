@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using YaR.WebDavMailRu;
 
 namespace YaR.CloudMailRu.Console
@@ -7,18 +8,21 @@ namespace YaR.CloudMailRu.Console
     {
         public HttpListenerOptions(CommandLineOptions options)
         {
-            var webdavProtocol = "http";
-            var webdavIp = "127.0.0.1";
-            var webdavPort = options.Port;
-            var webdavHost = string.IsNullOrWhiteSpace(options.Host)
-                ? $"{webdavProtocol}://{webdavIp}"
-                : options.Host.TrimEnd('/');
-            if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
+            foreach (int port in options.Port)
+            {
+                var webdavProtocol = "http";
+                var webdavIp = "127.0.0.1";
+                var webdavHost = string.IsNullOrWhiteSpace(options.Host)
+                    ? $"{webdavProtocol}://{webdavIp}"
+                    : options.Host.TrimEnd('/');
+                if (webdavHost.EndsWith("//0.0.0.0")) webdavHost = webdavHost.Replace("//0.0.0.0", "//*");
 
-            Prefix = $"{webdavHost}:{webdavPort}/";
+                string prefix = $"{webdavHost}:{port}/";
+                Prefixes.Add(prefix);
+            }
         }
         
-        public string Prefix { get; }
+        public List<string> Prefixes { get; } = new List<string>();
         public AuthenticationSchemes AuthenticationScheme { get; } = AuthenticationSchemes.Basic;
     }
 }

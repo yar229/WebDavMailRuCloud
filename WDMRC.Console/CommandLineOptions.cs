@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CommandLine;
 using YaR.MailRuCloud.Api.Base;
 
@@ -6,8 +7,8 @@ namespace YaR.WebDavMailRu
 {
     class CommandLineOptions
     {
-        [Option('p', "port", Required = false, Default = 801, HelpText = "WebDAV server port")]
-        public int Port { get; set; }
+        [Option('p', "port", Separator = ',', Required = false, Default = new[]{801}, HelpText = "WebDAV server port")]
+        public IEnumerable<int> Port { get; set; }
 
         [Option('h', "host", Required = false, Default = "http://127.0.0.1", HelpText = "WebDAV server host, including protocol")]
         public string Host { get; set; }

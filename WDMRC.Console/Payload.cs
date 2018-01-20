@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -52,11 +53,12 @@ namespace YaR.CloudMailRu.Console
             var httpListenerOptions = new HttpListenerOptions(options);
             try
             {
-                httpListener.Prefixes.Add(httpListenerOptions.Prefix);
+                foreach (var prefix in httpListenerOptions.Prefixes)
+                    httpListener.Prefixes.Add(prefix);
                 httpListener.AuthenticationSchemes = httpListenerOptions.AuthenticationScheme;
                 httpListener.Start();
 
-                Logger.Info($"WebDAV server running at {httpListenerOptions.Prefix}");
+                Logger.Info($"WebDAV server running at {httpListenerOptions.Prefixes.Aggregate((current, next) => current + ", " + next)}");
 
                 // Start dispatching requests
                 var t = DispatchHttpRequestsAsync(httpListener, options.MaxThreadCount);
