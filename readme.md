@@ -5,7 +5,6 @@
  <a href="http://www.somsubhra.com/github-release-stats/?username=yar229&repository=WebDavMailRuCloud"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right" target="_blank"></a>
 
 
-* You don't need this program if you have [paid account](https://help.mail.ru/cloud_web/app/webdav)  
 * UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
 
 
@@ -17,11 +16,18 @@
 `WebDAVCloudMailRu-*-dotNet45.zip` / `WebDAVCloudMailRu-*-dotNetCore20.zip` respectively
 
 #### Usage
-``` 	
-	-p, --port        (Default: 801) WebDAV server port
+```
+	-p, --port        (Default: 801) WebDAV server port or several ports separated by `,`
 	-h, --host	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads      (Default: 5) Maximum concurrent connections to cloud.mail.ru
-	--user-agent      "browser" user-agent
+	--cache-listing   (Default: 30) Cache folders listing, sec
+	--protocol        (Default: WebM1Bin) Cloud protocol
+				* WebM1Bin	- (preferable) mix of mobile and DiskO protocols
+				* WebV2		- desktop browser protocol
+
+	--install <servicename>		Install as windows service (Windows/.Net only)
+	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
+	
 	--help            Display this help screen.
 	--version         Display version information.
 ```
@@ -70,6 +76,13 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 
 
 #### Windows
+
+Using as windows service
+* Run `cmd` with Administrator rights
+* Then, for example, `wdmrc.exe --install wdmrc -p 801 --maxthreads 15` <br/>
+* `net start wdmrc`
+
+<br/>
 
 <details> 
 <summary>Using from explorer requires enabled Basic Auth for WebDAV </summary>
@@ -128,7 +141,7 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 
 See also 
 * [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
-* [Docker image](https://hub.docker.com/r/monster1025/mailru-webdav-docker/) by [monster1025](https://hub.docker.com/u/monster1025/)
+* Docker image by [slothds](https://github.com/slothds) ([DockerHub](https://hub.docker.com/r/slothds/wdmrc-proxy/), [GitHub](https://github.com/slothds/wdmrc-proxy))
 
 <details>
 <summary>Mount with davfs2</summary>
@@ -180,6 +193,6 @@ Use any client supports webdav.
 
 
 #### See also<br>
-*  [Mail.Ru.net-cloud-client](https://github.com/erastmorgan/Mail.Ru-.net-cloud-client)<br>
+*  Official client [Disk-O:](https://disk-o.cloud/)
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
@@ -15,7 +14,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
             _authCode = authCode;
         }
 
-        protected override string RelationalUri => $"{ConstSettings.AuthDomain}/cgi-bin/secstep";
+        protected override string RelationalUri => $"{CommonSettings.AuthDomain}/cgi-bin/secstep";
 
         protected override byte[] CreateHttpContent()
         {

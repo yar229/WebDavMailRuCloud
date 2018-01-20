@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
     <RootNamespace>YaR.MailRuCloud.Api</RootNamespace>
     <AssemblyName>MailRuCloud.Api</AssemblyName>
-    <AssemblyVersion>1.10.0.5</AssemblyVersion>
-    <FileVersion>1.10.0.5</FileVersion>
+    <AssemblyVersion>1.10.1.5</AssemblyVersion>
+    <FileVersion>1.10.1.5</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1-beta3" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
 

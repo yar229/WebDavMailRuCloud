@@ -10,7 +10,7 @@ install:
 script:
   - nuget restore
   - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
-  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.netcoreapp.publish.csproj -c Release -f netcoreapp2.0
+  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.0
 
 #before_script: 
 #    - |
@@ -24,8 +24,8 @@ script:
   #- "sed -ie 's/\\[assembly: AssemblyFileVersion(\"1.0.0.0\")\\]/\\[assembly: AssemblyFileVersion(\"$TRAVIS_TAG\")\\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs"
   #- "sed -ie 's/\\[assembly: AssemblyVersion(\"1.0.0.0\")\\]/\\[assembly: AssemblyVersion(\"$TRAVIS_TAG\")\\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs"
 before_deploy: 
-  - rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.pdb
-    && zip WebDAVCloudMailRu-$TRAVIS_TAG-dotNet45.zip /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net45/*.* -j
+  - rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net452/*.pdb
+    && zip WebDAVCloudMailRu-$TRAVIS_TAG-dotNet45.zip /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net452/*.* -j
     && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.pdb
     && zip WebDAVCloudMailRu-$TRAVIS_TAG-dotNetCore20.zip /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.0/publish/*.* -j
 deploy:

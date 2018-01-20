@@ -50,20 +50,17 @@ namespace YaR.MailRuCloud.Api
         /// <summary>
         /// Initializes a new instance of the <see cref="MailRuCloud" /> class.
         /// </summary>
-        /// <param name="login">Login name as the email.</param>
-        /// <param name="password">Password, associated with this email.</param>
-        /// <param name="twoFaHandler"></param>
-        public MailRuCloud(string login, string password, ITwoFaHandler twoFaHandler)
+        public MailRuCloud(CloudSettings settings, Credentials credentials)
         {
             //CloudApi = new CloudApi(login, password, twoFaHandler);
-            Account = new Account(login, password, twoFaHandler);
+            Account = new Account(settings, credentials);
             if (!Account.Login())
             {
                 throw new AuthenticationException("Auth token has't been retrieved.");
             }
 
             //TODO: wow very dummy linking, refact cache realization globally!
-            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
+            _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(settings.CacheListingSec)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
             _linkManager = new LinkManager(this);
         }
 
@@ -409,10 +406,8 @@ namespace YaR.MailRuCloud.Api
         /// <param name="folder">Source folder info.</param>
         /// <param name="newFileName">New folder name.</param>
         /// <returns>True or false operation result.</returns>
-        public async Task<bool> Rename(Folder folder, string newFileName)
-        {
-            return await Rename(folder.FullPath, newFileName);
-        }
+        public async Task<bool> Rename(Folder folder, string newFileName) 
+            => await Rename(folder.FullPath, newFileName);
 
         /// <summary>
         /// Rename file on the server.
@@ -683,7 +678,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         public void AbortAllAsyncThreads()
         {
-            CancelToken.Cancel(true);
+            CancelToken.Cancel(false);
         }
 
         public byte MaxInnerParallelRequests

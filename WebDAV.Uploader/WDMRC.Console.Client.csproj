@@ -3,10 +3,14 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
     <AssemblyName>mrclient</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Client.Console</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.2.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />

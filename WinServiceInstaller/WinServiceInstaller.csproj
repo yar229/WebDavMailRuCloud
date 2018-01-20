@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+    <OutputType>library</OutputType>
+    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
+    <PackageId></PackageId>
+    <AssemblyVersion>1.10.0.5</AssemblyVersion>
+    <FileVersion>1.10.0.5</FileVersion>
+    <AssemblyName>WinServiceInstaller</AssemblyName>
+    <RootNamespace>WinServiceInstaller</RootNamespace>
+    <StartupObject></StartupObject>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.Configuration.Install" />
+    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.ServiceProcess" />
+    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.Xml.Linq" />
+    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="Microsoft.CSharp" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>  
+
+</Project>

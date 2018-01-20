@@ -3,7 +3,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
@@ -11,8 +11,8 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.10.0.5</AssemblyVersion>
-    <FileVersion>1.10.0.5</FileVersion>
+    <AssemblyVersion>1.10.1.5</AssemblyVersion>
+    <FileVersion>1.10.1.5</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
     <StartupObject></StartupObject>
@@ -29,17 +29,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.1.1-beta" />
+    <PackageReference Include="CommandLineParser" Version="2.2.0" /> 
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
-    <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'NET452'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
     <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavMailRuCloudStore.csproj" />
+    <ProjectReference Include="..\WinServiceInstaller\WinServiceInstaller.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,5 +48,4 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
 </Project>
