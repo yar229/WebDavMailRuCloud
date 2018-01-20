@@ -82,9 +82,9 @@ namespace YaR.MailRuCloud.Api
         {
             path = WebDavPath.Clean(path);
 
-            var cached = _itemCache.Get(path);
-            if (null != cached)
-                return cached;
+            //var cached = _itemCache.Get(path);
+            //if (null != cached)
+            //    return cached;
 
             //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
@@ -124,6 +124,7 @@ namespace YaR.MailRuCloud.Api
                 var flinks = _linkManager.GetItems(folder.FullPath);
                 if (flinks.Any())
                 {
+                    //var z = flinks.Where(f => f.IsFile).Skip(1).ToList(); //  Take(15).ToList();
                     foreach (var flink in flinks)
                     {
                         string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
@@ -133,7 +134,15 @@ namespace YaR.MailRuCloud.Api
                         else
                         {
                             if (folder.Files.All(inf => inf.FullPath != linkpath))
-                                folder.Files.Add(new File(linkpath, flink.Size){PublicLink = flink.Href});
+                            {
+                                var newfile = new File(linkpath, flink.Size)
+                                {
+                                    PublicLink = flink.Href,
+                                };
+                                if (flink.CreationDate != null)
+                                    newfile.LastWriteTimeUtc = flink.CreationDate.Value;
+                                folder.Files.Add(newfile);
+                            }
                         }
                     }
                 }

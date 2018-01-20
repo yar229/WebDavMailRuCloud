@@ -114,9 +114,10 @@ namespace YaR.MailRuCloud.Api.Base
         public virtual List<File> Parts => new List<File> {this};
         public virtual IList<File> Files => new List<File> { this };
 
-        public virtual DateTime CreationTimeUtc { get; set; }
-        public virtual DateTime LastWriteTimeUtc { get; set; }
-        public virtual DateTime LastAccessTimeUtc { get; set; }
+        private static readonly DateTime MinFileDate = new DateTime(1900, 1, 1);
+        public virtual DateTime CreationTimeUtc { get; set; } = MinFileDate;
+        public virtual DateTime LastWriteTimeUtc { get; set; } = MinFileDate;
+        public virtual DateTime LastAccessTimeUtc { get; set; } = MinFileDate;
 
         public FileAttributes Attributes { get; set; } = FileAttributes.Normal;
 
