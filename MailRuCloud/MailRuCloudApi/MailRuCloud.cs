@@ -82,9 +82,9 @@ namespace YaR.MailRuCloud.Api
         {
             path = WebDavPath.Clean(path);
 
-            //var cached = _itemCache.Get(path);
-            //if (null != cached)
-            //    return cached;
+            var cached = _itemCache.Get(path);
+            if (null != cached)
+                return cached;
 
             //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
