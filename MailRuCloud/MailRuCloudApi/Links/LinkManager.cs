@@ -244,7 +244,10 @@ namespace YaR.MailRuCloud.Api.Links
 
             if (null == wp) return null;
 
-            var link = new Link(wp, path, wp.Href + '/' + Uri.EscapeDataString(right.TrimStart('/')));
+            string addhref = string.IsNullOrEmpty(right)
+                ? string.Empty
+                : '/' + Uri.EscapeDataString(right.TrimStart('/'));
+            var link = new Link(wp, path, wp.Href + addhref);
 
             //resolve additional link properties, e.g. OriginalName, ItemType, Size
             if (doResolveType)
