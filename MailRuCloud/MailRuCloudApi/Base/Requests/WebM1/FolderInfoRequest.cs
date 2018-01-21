@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             // path sended using POST cause of unprintable Unicode charactes may exists
             // https://github.com/yar229/WebDavMailRuCloud/issues/54
             var data = _isWebLink
-                ? $"weblink={Uri.EscapeDataString(_path)}"
+                ? $"weblink={_path}"
                 : $"home={Uri.EscapeDataString(_path)}";
             return Encoding.UTF8.GetBytes(data);
         }
