@@ -72,7 +72,9 @@ Connect with (almost any) file manager that supports WebDAV using Basic authenti
 Automatically split/join when uploading/downloading files larger than cloud allows.
 
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
-[Discussion on geektimes.ru](https://geektimes.ru/post/285520/)
+[geektimes.ru - Снова про WebDAV и Облако Mail.Ru](https://geektimes.ru/post/285520/) <br/>
+[glashkoff.com - Как бесплатно подключить Облако Mail.Ru через WebDAV](https://glashkoff.com/blog/manual/webdav-cloudmailru/) <br/>
+[manjaro.ru - Облако Mail.Ru подключаем через эмулятор WebDav как сетевой диск](https://manjaro.ru/blog/how-to/oblako-mail_ru-podkljuchaem-cherez-jemuljator-webdav-kak-setevoj-disk.html) <br/>
 
 
 #### Windows
