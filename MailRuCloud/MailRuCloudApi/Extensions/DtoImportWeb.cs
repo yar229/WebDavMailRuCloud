@@ -10,6 +10,8 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     internal static class DtoImportWeb
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportWeb));
+
         public static UnpublishResult ToUnpublishResult(this UnpublishRequest.Result data)
         {
             var res = new UnpublishResult
@@ -268,14 +270,15 @@ namespace YaR.MailRuCloud.Api.Extensions
                 ? item.home
                 : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
 
+            
             var file = new File(path ?? item.name, item.size, item.hash)
             {
-                PublicLink =
-                    string.IsNullOrEmpty(item.weblink) ? string.Empty : item.weblink,
-                CreationTimeUtc = UnixTimeStampToDateTime(item.mtime),
-                LastAccessTimeUtc = UnixTimeStampToDateTime(item.mtime),
-                LastWriteTimeUtc = UnixTimeStampToDateTime(item.mtime),
+                PublicLink = string.IsNullOrEmpty(item.weblink) ? string.Empty : item.weblink
             };
+            var dt = UnixTimeStampToDateTime(item.mtime, file.CreationTimeUtc);
+            file.CreationTimeUtc =
+                file.LastAccessTimeUtc =
+                    file.LastWriteTimeUtc = dt;
 
             return file;
             }
@@ -304,12 +307,20 @@ namespace YaR.MailRuCloud.Api.Extensions
             return groupedFiles;
         }
 
-        private static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        private static DateTime UnixTimeStampToDateTime(double unixTimeStamp, DateTime defaultvalue)
         {
-            // Unix timestamp is seconds past epoch
-            var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp); //.ToLocalTime(); - doesn't need, clients usially convert to localtime by itself
-            return dtDateTime;
+            try
+            {
+                // Unix timestamp is seconds past epoch
+                var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                dtDateTime = dtDateTime.AddSeconds(unixTimeStamp); //.ToLocalTime(); - doesn't need, clients usially convert to localtime by itself
+                return dtDateTime;
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Error converting unixTimeStamp {unixTimeStamp} to DateTime, {e.Message}");
+                return defaultvalue;
+            }
         }
     }
 }
