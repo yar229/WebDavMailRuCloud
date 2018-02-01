@@ -11,5 +11,6 @@ namespace YaR.MailRuCloud.Api
         public Protocol Protocol { get; set; }
 
         public int CacheListingSec { get; set; } = 30;
+        public TsaStoreOptions TsaStore { get; set; }
     }
 }

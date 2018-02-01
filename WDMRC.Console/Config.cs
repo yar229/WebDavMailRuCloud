@@ -20,9 +20,19 @@ namespace YaR.CloudMailRu.Console
         {
             get
             {
-                var res = Document.SelectSingleNode("/config/TwoFactorAuthHandlerName").InnerText;
+                var res = Document.SelectSingleNode("/config/TwoFactorAuthHandlerName")?.InnerText ?? string.Empty;
                 return res;
             }
         }
+
+        public static string TsaStorePath
+        {
+            get
+            {
+                var res = Document.SelectSingleNode("/config/TsaStorePath")?.InnerText ?? string.Empty;
+                return res;
+            }
+        }
+
     }
 }
