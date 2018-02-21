@@ -51,21 +51,26 @@ namespace YaR.CloudMailRu.Console
             
             var httpListener = new HttpListener();
             var httpListenerOptions = new HttpListenerOptions(options);
-            try
-            {
-                foreach (var prefix in httpListenerOptions.Prefixes)
-                    httpListener.Prefixes.Add(prefix);
-                httpListener.AuthenticationSchemes = httpListenerOptions.AuthenticationScheme;
-                httpListener.Start();
+	        try
+	        {
+		        foreach (var prefix in httpListenerOptions.Prefixes)
+			        httpListener.Prefixes.Add(prefix);
+		        httpListener.AuthenticationSchemes = httpListenerOptions.AuthenticationScheme;
+		        httpListener.Start();
 
-                Logger.Info($"WebDAV server running at {httpListenerOptions.Prefixes.Aggregate((current, next) => current + ", " + next)}");
+		        Logger.Info(
+			        $"WebDAV server running at {httpListenerOptions.Prefixes.Aggregate((current, next) => current + ", " + next)}");
 
-                // Start dispatching requests
-                var t = DispatchHttpRequestsAsync(httpListener, options.MaxThreadCount);
-                t.Wait(CancelToken.Token);
+		        // Start dispatching requests
+		        var t = DispatchHttpRequestsAsync(httpListener, options.MaxThreadCount);
+		        t.Wait(CancelToken.Token);
 
-                //do not use console input - it uses 100% CPU when running mono-service in ubuntu
-            }
+		        //do not use console input - it uses 100% CPU when running mono-service in ubuntu
+	        }
+	        catch (OperationCanceledException ce) when (ce.CancellationToken.IsCancellationRequested)
+	        {
+		        Logger.Info("Cancelled");
+	        }
             finally
             {
                 httpListener.Stop();
