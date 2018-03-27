@@ -24,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
         {
             int b = _stream.ReadByte();
 
-            Debug.Write($"{b:X} ");
+            //Debug.Write($"{b:X} ");
 
             if (b == -1)
                 throw new Exception("End of stream");
@@ -35,30 +35,30 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
 
         public int ReadIntSpl()
         {
-            Debug.Write($"{nameof(ReadIntSpl)}() = ");
+            //Debug.Write($"{nameof(ReadIntSpl)}() = ");
 
             int res = (ReadInt() & 255) | ((ReadInt() & 255) << 8);
 
-            Debug.WriteLine($" = {res}");
+            //Debug.WriteLine($" = {res}");
             return res;
         }
 
         public byte[] ReadNBytes(int count)
         {
-            Debug.Write($"{nameof(ReadNBytes)}({count}) = ");
+            //Debug.Write($"{nameof(ReadNBytes)}({count}) = ");
             byte[] bytes = new byte[count];
             for (int i = 0; i < count; i++)
             {
                 bytes[i] = (byte)ReadInt();
             }
-            Debug.WriteLine("");
+            //Debug.WriteLine("");
 
             return bytes;
         }
 
         public ulong ReadULong()
         {
-            Debug.Write($"{nameof(ReadULong)}() = ");
+            //Debug.Write($"{nameof(ReadULong)}() = ");
 
             int i = 0;
             byte[] bytes = new byte[8];
@@ -86,13 +86,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
 
             Array.Reverse(bytes);
             UInt64 res = BitConverter.ToUInt64(bytes, 0);
-            Debug.WriteLine($" = {res}");
+            //Debug.WriteLine($" = {res}");
             return res;
         }
 
         public long ReadPu32()
         {
-            Debug.Write($"(");
+            //Debug.Write($"(");
             long j = 0;
             int shift = 0;
             int b;
@@ -103,7 +103,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
                 shift = (byte) (shift + 7);
             } while ((b & 128) != 0);
 
-            Debug.Write($" = {j}) ");
+            //Debug.Write($" = {j}) ");
             return j;
         }
 
@@ -118,7 +118,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
         {
             var data = ReadNBytes(bytesCount);
             string res = Encoding.UTF8.GetString(data);
-            Debug.WriteLine($"string = {res}");
+            //Debug.WriteLine($"string = {res}");
             return res;
         }
 
@@ -147,7 +147,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
         {
             var res = ReadULong().ToDateTime();
 
-            Debug.WriteLine($"datetime = {res}");
+            //Debug.WriteLine($"datetime = {res}");
 
             return res;
         }
