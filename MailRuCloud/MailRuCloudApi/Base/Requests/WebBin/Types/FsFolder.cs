@@ -18,5 +18,7 @@
             Parent = parent;
             Size = size;
         }
+
+	    public bool IsChildsLoaded { get; set; }
     }
 }
