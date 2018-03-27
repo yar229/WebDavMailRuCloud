@@ -21,19 +21,17 @@ namespace YaR.MailRuCloud.Api.Base.Repos
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
         private readonly ShardManager _shardManager;
-		private readonly int _listDepth;
 
-		public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+
+        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
-        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired, int listDepth)
+        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
-	        _listDepth = listDepth;
-
-			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
@@ -203,19 +201,33 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            IEntry entry;
+
+            FolderInfoResult datares;
             try
             {
-	            entry = ulink != null
-		            ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit).MakeRequestAsync())
-						.ToEntry(ulink, path)
-		            : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path, _listDepth).MakeRequestAsync())
-						.ToEntry();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
+
+            MailRuCloud.ItemType itemType;
+            if (null == ulink)
+                itemType = datares.body.home == path
+                    ? MailRuCloud.ItemType.Folder
+                    : MailRuCloud.ItemType.File;
+            else
+                itemType = ulink.ItemType;
+
+
+            var entry = itemType == MailRuCloud.ItemType.File
+                ? (IEntry)datares.ToFile(
+                    home: WebDavPath.Parent(path),
+                    ulink: ulink,
+                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+                    nameReplacement: WebDavPath.Name(path))
+                : datares.ToFolder(path, ulink);
 
             return entry;
         }
