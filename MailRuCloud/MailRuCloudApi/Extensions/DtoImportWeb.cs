@@ -251,7 +251,8 @@ namespace YaR.MailRuCloud.Api.Extensions
                     .Where(it => it.kind == "file")
                     .Select(item => item.ToFile())
                     .ToGroupedFiles()
-                    .ToList()
+                    .ToList(),
+	            IsChildsLoaded = true
             };
 
             return folder;

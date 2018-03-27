@@ -85,8 +85,8 @@ namespace YaR.MailRuCloud.Api
 
 	        if (_settings.CacheListingSec > 0)
 	        {
-		        var cached = _itemCache.Get(path);
-		        if (null != cached)
+		        var cached = CacheGetEntry(path);
+		        if (cached != null)
 			        return cached;
 	        }
 
@@ -154,18 +154,45 @@ namespace YaR.MailRuCloud.Api
 
 	        if (_settings.CacheListingSec > 0)
 	        {
-		        _itemCache.Add(entry.FullPath, entry);
-		        if (entry is Folder cfolder)
-		        {
-			        _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
-			        //cfolder.
-		        }
+		        CacheAddEntry(entry);
 	        }
 
 	        return entry;
         }
 
-        public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
+	    private void CacheAddEntry(IEntry entry)
+	    {
+			if (entry is File cfile)
+			{
+				_itemCache.Add(cfile.FullPath, cfile);
+			}
+			else if (entry is Folder cfolder && cfolder.IsChildsLoaded)
+		    {
+				_itemCache.Add(cfolder.FullPath, cfolder);
+				_itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+
+				foreach (var childFolder in cfolder.Folders)
+				    CacheAddEntry(childFolder);
+			}
+		}
+
+	    private IEntry CacheGetEntry(string path)
+	    {
+		    var cached = _itemCache.Get(path);
+		    if (null != cached)
+		    {
+			    if (cached is File || _settings.ListDepth <= 1)
+				    return cached;
+			    else if (cached is Folder cfolder)
+			    {
+				    if (!cfolder.Folders.Any(f => _itemCache.Get(f.FullPath) == null))
+					    return cfolder;
+			    }
+		    }
+		    return null;
+	    }
+
+	    public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             return GetItemAsync(path, itemType, resolveLinks).Result;
         }

@@ -50,18 +50,23 @@ namespace YaR.MailRuCloud.Api.Extensions
 
 		public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this ListRequest.Result data)
 	    {
-		    var source = data.Item as FsFolder;
-		    var res = new Folder((long)source.Size, data.FullPath);
+		    var res = (data.Item as FsFolder)?.ToFolder();
+		    return res;
+	    }
 
-			res.Files.AddRange(source.Items
+		public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this FsFolder data)
+		{
+			var res = new Folder((long)data.Size, data.FullPath) { IsChildsLoaded = data.IsChildsLoaded };
+
+			res.Files.AddRange(data.Items
 				.OfType<FsFile>()
 				.Select(f => f.ToFile())
-				.ToGroupedFiles() );
+				.ToGroupedFiles());
 
-		    foreach (var it in source.Items.OfType<FsFolder>())
-		    {
-			    res.Folders.Add(new Folder((long)it.Size, it.FullPath));
-		    }
+			foreach (var it in data.Items.OfType<FsFolder>())
+			{
+				res.Folders.Add(it.ToFolder());
+			}
 
 			return res;
 		}

@@ -106,7 +106,9 @@ namespace YaR.MailRuCloud.Api.Base
 
         public bool IsFile => false;
 
-        public PublishInfo ToPublishInfo()
+		public bool IsChildsLoaded { get; internal set; }
+
+		public PublishInfo ToPublishInfo()
         {
             var info = new PublishInfo();
             if (!string.IsNullOrEmpty(PublicLink))

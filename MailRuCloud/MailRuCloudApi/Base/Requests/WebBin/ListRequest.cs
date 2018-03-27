@@ -84,9 +84,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                 res.UsedSpace = data.ReadULong();
 
             res.FingerPrint = data.ReadBytesByLength();
-
             res.Item = Deserialize(data, _fullPath);
-            
 
             return new RequestResponse<Result>
             {
@@ -108,9 +106,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         {
 	        fullPath = WebDavPath.Clean(fullPath);
 
-			var fakeRoot = new FsFolder(string.Empty, null, CloudFolderType.Generic, null, null);
+			var fakeRoot = new FsFolder(WebDavPath.Parent(fullPath), null, CloudFolderType.Generic, null, null);
             FsFolder currentFolder = fakeRoot;
             FsFolder lastFolder = null;
+	        int lvl = 0;
 
             var parseOp = (ParseOp)data.ReadShort();
             while (parseOp != ParseOp.Done)
@@ -124,6 +123,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                         if (lastFolder != null)
                         {
                             currentFolder = lastFolder;
+	                        lvl++;
                             parseOp = (ParseOp)data.ReadShort();
                             continue;
                         }
@@ -139,6 +139,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                         else if (currentFolder.Parent != null)
 						{
                             currentFolder = currentFolder.Parent;
+							lvl--;
 							parseOp = (ParseOp)data.ReadShort();
 							if (currentFolder == null)
                                 throw new Exception("No parent folder A");
@@ -158,10 +159,14 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     default:
                         throw new Exception("Unknown parse operation");
                 }
-                FsItem item = GetItem(data, currentFolder);
+	            FsItem item = GetItem(data, currentFolder);
                 currentFolder.Items.Add(item);
 
-                if (item is FsFolder fsFolder) lastFolder = fsFolder;
+	            if (item is FsFolder fsFolder)
+	            {
+		            lastFolder = fsFolder;
+		            fsFolder.IsChildsLoaded = lvl < Depth;
+	            }
 
                 parseOp = (ParseOp)data.ReadShort();
             }
@@ -249,7 +254,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             public byte[] FingerPrint { get; set; }
 
             public FsItem Item { get; set; }
-            
         }
     }
 }
