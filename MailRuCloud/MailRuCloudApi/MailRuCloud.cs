@@ -34,12 +34,13 @@ namespace YaR.MailRuCloud.Api
         /// Async tasks cancelation token.
         /// </summary>
         public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
+		private readonly CloudSettings _settings;
 
-        /// <summary>
-        /// Gets or sets account to connect with cloud.
-        /// </summary>
-        /// <value>Account info.</value>
-        public Account Account { get; }
+		/// <summary>
+		/// Gets or sets account to connect with cloud.
+		/// </summary>
+		/// <value>Account info.</value>
+		public Account Account { get; }
 
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         public MailRuCloud(CloudSettings settings, Credentials credentials)
         {
-            //CloudApi = new CloudApi(login, password, twoFaHandler);
+	        _settings = settings;
             Account = new Account(settings, credentials);
             if (!Account.Login())
             {
@@ -82,11 +83,14 @@ namespace YaR.MailRuCloud.Api
         {
             path = WebDavPath.Clean(path);
 
-            var cached = _itemCache.Get(path);
-            if (null != cached)
-                return cached;
+	        if (_settings.CacheListingSec > 0)
+	        {
+		        var cached = _itemCache.Get(path);
+		        if (null != cached)
+			        return cached;
+	        }
 
-            //TODO: subject to refact!!!
+	        //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
@@ -148,11 +152,17 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
-			_itemCache.Add(entry.FullPath, entry);
-			if (entry is Folder cfolder)
-				_itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+	        if (_settings.CacheListingSec > 0)
+	        {
+		        _itemCache.Add(entry.FullPath, entry);
+		        if (entry is Folder cfolder)
+		        {
+			        _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+			        //cfolder.
+		        }
+	        }
 
-			return entry;
+	        return entry;
         }
 
         public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
