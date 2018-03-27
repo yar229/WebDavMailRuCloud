@@ -27,11 +27,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         //public int PendingDownloads { get; set; }
 
-        public MobileRequestRepo(IWebProxy proxy, IAuth auth, int listDepth)
+        public MobileRequestRepo(IWebProxy proxy, IAuth auth)
         {
-	        _listDepth = listDepth;
-
-			HttpSettings.Proxy = proxy;
+            HttpSettings.Proxy = proxy;
 
             Authent = auth;
 
@@ -59,8 +57,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         private const int MetaServerExpiresSec = 20 * 60;
 
         private readonly Cached<ServerRequest.Result> _downloadServer;
-		private readonly int _listDepth;
-		private const int DownloadServerExpiresSec = 20 * 60;
+        private const int DownloadServerExpiresSec = 20 * 60;
 
 
         public IAuth Authent { get; }
@@ -133,7 +130,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path, _listDepth);
+            var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path) { Depth = 1};
             var res = await req.MakeRequestAsync();
 
             if (res.Item is FsFolder fsf)

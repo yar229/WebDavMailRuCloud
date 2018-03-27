@@ -34,13 +34,12 @@ namespace YaR.MailRuCloud.Api
         /// Async tasks cancelation token.
         /// </summary>
         public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
-		private readonly CloudSettings _settings;
 
-		/// <summary>
-		/// Gets or sets account to connect with cloud.
-		/// </summary>
-		/// <value>Account info.</value>
-		public Account Account { get; }
+        /// <summary>
+        /// Gets or sets account to connect with cloud.
+        /// </summary>
+        /// <value>Account info.</value>
+        public Account Account { get; }
 
 
         /// <summary>
@@ -53,7 +52,7 @@ namespace YaR.MailRuCloud.Api
         /// </summary>
         public MailRuCloud(CloudSettings settings, Credentials credentials)
         {
-	        _settings = settings;
+            //CloudApi = new CloudApi(login, password, twoFaHandler);
             Account = new Account(settings, credentials);
             if (!Account.Login())
             {
@@ -83,14 +82,11 @@ namespace YaR.MailRuCloud.Api
         {
             path = WebDavPath.Clean(path);
 
-	        if (_settings.CacheListingSec > 0)
-	        {
-		        var cached = CacheGetEntry(path, _settings.ListDepth);
-		        if (cached != null)
-			        return cached;
-	        }
+            var cached = _itemCache.Get(path);
+            if (null != cached)
+                return cached;
 
-	        //TODO: subject to refact!!!
+            //TODO: subject to refact!!!
             var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
@@ -152,47 +148,13 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
-	        if (_settings.CacheListingSec > 0)
-	        {
-		        CacheAddEntry(entry);
-	        }
-
-	        return entry;
+            _itemCache.Add(entry.FullPath, entry);
+            if (entry is Folder cfolder)
+                _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+            return entry;
         }
 
-	    private void CacheAddEntry(IEntry entry)
-	    {
-			if (entry is File cfile)
-			{
-				_itemCache.Add(cfile.FullPath, cfile);
-			}
-			else if (entry is Folder cfolder && cfolder.IsChildsLoaded)
-		    {
-				_itemCache.Add(cfolder.FullPath, cfolder);
-				_itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
-
-				foreach (var childFolder in cfolder.Folders)
-				    CacheAddEntry(childFolder);
-			}
-		}
-
-	    private IEntry CacheGetEntry(string path, int requiredDepth)
-	    {
-		    var cached = _itemCache.Get(path);
-		    if (null != cached)
-		    {
-			    if (cached is File || requiredDepth <= 1)
-				    return cached;
-			    else if (cached is Folder cfolder)
-			    {
-				    if (!cfolder.Folders.Any(f => _itemCache.Get(f.FullPath) == null))
-					    return cfolder;
-			    }
-		    }
-		    return null;
-	    }
-
-	    public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
+        public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             return GetItemAsync(path, itemType, resolveLinks).Result;
         }

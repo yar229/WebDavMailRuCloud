@@ -193,37 +193,13 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-
-		public static IEntry ToEntry(this FolderInfoResult data, Link ulink, string origPath)
-		{
-			MailRuCloud.ItemType itemType;
-			if (null == ulink)
-				itemType = data.body.home == origPath
-					? MailRuCloud.ItemType.Folder
-					: MailRuCloud.ItemType.File;
-			else
-				itemType = ulink.ItemType;
-
-
-			var entry = itemType == MailRuCloud.ItemType.File
-				? (IEntry)data.ToFile(
-					home: WebDavPath.Parent(origPath),
-					ulink: ulink,
-					filename: ulink == null ? WebDavPath.Name(origPath) : ulink.OriginalName,
-					nameReplacement: WebDavPath.Name(origPath))
-				: data.ToFolder(origPath, ulink);
-
-			return entry;
-		}
-
-
-		/// <summary>
-		/// When it's a linked item, need to shift paths
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="home"></param>
-		/// <param name="link"></param>
-		private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
+        /// <summary>
+        /// When it's a linked item, need to shift paths
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="home"></param>
+        /// <param name="link"></param>
+        private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
         {
             if (string.IsNullOrEmpty(home) || null == link)
                 return;
@@ -251,8 +227,7 @@ namespace YaR.MailRuCloud.Api.Extensions
                     .Where(it => it.kind == "file")
                     .Select(item => item.ToFile())
                     .ToGroupedFiles()
-                    .ToList(),
-	            IsChildsLoaded = true
+                    .ToList()
             };
 
             return folder;
@@ -320,6 +295,9 @@ namespace YaR.MailRuCloud.Api.Extensions
             var groupedFiles = list
                 .GroupBy(f => f.ServiceInfo.CleanName,
                     file => file)
+                //.Select(group => group.Count() == 1
+                //    ? group.First()
+                //    : new SplittedFile(group.ToList()));
                 .SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
                     ? group.Take(1)
                     : group.Any(f => f.Name == f.ServiceInfo.CleanName)

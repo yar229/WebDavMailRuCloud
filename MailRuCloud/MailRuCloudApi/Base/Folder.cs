@@ -106,20 +106,12 @@ namespace YaR.MailRuCloud.Api.Base
 
         public bool IsFile => false;
 
-		public bool IsChildsLoaded { get; internal set; }
-
-		public PublishInfo ToPublishInfo()
+        public PublishInfo ToPublishInfo()
         {
             var info = new PublishInfo();
             if (!string.IsNullOrEmpty(PublicLink))
                 info.Items.Add(new PublishInfoItem { Path = FullPath, Url = ConstSettings.PublishFileLink + PublicLink });
             return info;
         }
-
-
-	    //public List<KeyValuePair<string, IEntry>> GetLinearChilds()
-	    //{
-		    
-	    //}
     }
 }
