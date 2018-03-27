@@ -209,6 +209,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             return res;
         }
 
+	    /// <summary>
+		/// 
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="ulink"></param>
+		/// <param name="offset"></param>
+		/// <param name="limit"></param>
+		/// <param name="depth">Not applicable here, always = 1</param>
+		/// <returns></returns>
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
 
