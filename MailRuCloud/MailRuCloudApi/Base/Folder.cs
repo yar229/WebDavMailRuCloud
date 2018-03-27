@@ -113,5 +113,11 @@ namespace YaR.MailRuCloud.Api.Base
                 info.Items.Add(new PublishInfoItem { Path = FullPath, Url = ConstSettings.PublishFileLink + PublicLink });
             return info;
         }
+
+
+	    //public List<KeyValuePair<string, IEntry>> GetLinearChilds()
+	    //{
+		    
+	    //}
     }
 }

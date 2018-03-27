@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -23,18 +24,40 @@ namespace YaR.MailRuCloud.Api.Extensions
 	    public static YaR.MailRuCloud.Api.Base.File ToFile(this ListRequest.Result data)
 	    {
 		    var source = data.Item as FsFile;
-		    var res = new File(data.FullPath, (long)source.Size, source.Sha1.ToHexString());
+		    var res = source.ToFile();//new File(data.FullPath, (long)source.Size, source.Sha1.ToHexString());
 		    return res;
 	    }
 
-	    public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this ListRequest.Result data)
+		public static YaR.MailRuCloud.Api.Base.File ToFile(this FsFile data)
+		{
+			var res = new File(data.FullPath, (long)data.Size, data.Sha1.ToHexString());
+			return res;
+		}
+
+		private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
+		{
+			var groupedFiles = list
+				.GroupBy(f => f.ServiceInfo.CleanName,
+					file => file)
+				.SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
+					? group.Take(1)
+					: group.Any(f => f.Name == f.ServiceInfo.CleanName)
+						? Enumerable.Repeat(new SplittedFile(group.ToList()), 1)
+						: group.Select(file => file));
+
+			return groupedFiles;
+		}
+
+		public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this ListRequest.Result data)
 	    {
 		    var source = data.Item as FsFolder;
 		    var res = new Folder((long)source.Size, data.FullPath);
-		    foreach (var it in source.Items.OfType<FsFile>())
-		    {
-			    res.Files.Add(new File(it.FullPath, (long)it.Size, it.Sha1.ToHexString()));
-		    }
+
+			res.Files.AddRange(source.Items
+				.OfType<FsFile>()
+				.Select(f => f.ToFile())
+				.ToGroupedFiles() );
+
 		    foreach (var it in source.Items.OfType<FsFolder>())
 		    {
 			    res.Folders.Add(new Folder((long)it.Size, it.FullPath));
@@ -42,6 +65,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
 			return res;
 		}
+
 
 
 

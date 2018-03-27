@@ -319,9 +319,6 @@ namespace YaR.MailRuCloud.Api.Extensions
             var groupedFiles = list
                 .GroupBy(f => f.ServiceInfo.CleanName,
                     file => file)
-                //.Select(group => group.Count() == 1
-                //    ? group.First()
-                //    : new SplittedFile(group.ToList()));
                 .SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
                     ? group.Take(1)
                     : group.Any(f => f.Name == f.ServiceInfo.CleanName)
