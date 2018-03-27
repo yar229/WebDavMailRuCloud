@@ -85,7 +85,7 @@ namespace YaR.MailRuCloud.Api
 
 	        if (_settings.CacheListingSec > 0)
 	        {
-		        var cached = CacheGetEntry(path);
+		        var cached = CacheGetEntry(path, _settings.ListDepth);
 		        if (cached != null)
 			        return cached;
 	        }
@@ -176,12 +176,12 @@ namespace YaR.MailRuCloud.Api
 			}
 		}
 
-	    private IEntry CacheGetEntry(string path)
+	    private IEntry CacheGetEntry(string path, int requiredDepth)
 	    {
 		    var cached = _itemCache.Get(path);
 		    if (null != cached)
 		    {
-			    if (cached is File || _settings.ListDepth <= 1)
+			    if (cached is File || requiredDepth <= 1)
 				    return cached;
 			    else if (cached is Folder cfolder)
 			    {
