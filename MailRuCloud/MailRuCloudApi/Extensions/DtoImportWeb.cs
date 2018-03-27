@@ -193,13 +193,37 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
-        /// <summary>
-        /// When it's a linked item, need to shift paths
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="home"></param>
-        /// <param name="link"></param>
-        private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
+
+		public static IEntry ToEntry(this FolderInfoResult data, Link ulink, string origPath)
+		{
+			MailRuCloud.ItemType itemType;
+			if (null == ulink)
+				itemType = data.body.home == origPath
+					? MailRuCloud.ItemType.Folder
+					: MailRuCloud.ItemType.File;
+			else
+				itemType = ulink.ItemType;
+
+
+			var entry = itemType == MailRuCloud.ItemType.File
+				? (IEntry)data.ToFile(
+					home: WebDavPath.Parent(origPath),
+					ulink: ulink,
+					filename: ulink == null ? WebDavPath.Name(origPath) : ulink.OriginalName,
+					nameReplacement: WebDavPath.Name(origPath))
+				: data.ToFolder(origPath, ulink);
+
+			return entry;
+		}
+
+
+		/// <summary>
+		/// When it's a linked item, need to shift paths
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="home"></param>
+		/// <param name="link"></param>
+		private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
         {
             if (string.IsNullOrEmpty(home) || null == link)
                 return;

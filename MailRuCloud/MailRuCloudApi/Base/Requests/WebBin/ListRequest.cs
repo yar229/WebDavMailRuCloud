@@ -9,16 +9,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
     {
         private readonly string _fullPath;
 
-        public ListRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fullPath)
+        public ListRequest(HttpCommonSettings settings, IAuth auth, string metaServer, string fullPath, int depth)
             : base(settings, auth, metaServer)
         {
             _fullPath = fullPath;
+	        Depth = depth;
         }
 
         /// <summary>
         /// Folder list depth
         /// </summary>
-        public long Depth { get; set; } = 1;
+        public long Depth { get; set; } = 2;
 
         public Option Options { get; set; } = Option.Unknown128 | Option.Unknown256 | Option.FolderSize | Option.TotalSpace | Option.UsedSpace;
     
@@ -94,67 +95,78 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             };
         }
 
+	    private enum ParseOp
+	    {
+		    Done = 0,
+		    ReadItem = 1,
+		    Pin = 2,
+		    PinUpper = 3,
+		    Unknown15 = 15
+	    }
+	    
         private FsItem Deserialize(ResponseBodyStream data, string fullPath)
         {
-            var fakeFolder = new FsFolder(string.Empty, null, CloudFolderType.Generic, null, null);
-            FsFolder currentFolder = fakeFolder;
+	        fullPath = WebDavPath.Clean(fullPath);
+
+			var fakeRoot = new FsFolder(string.Empty, null, CloudFolderType.Generic, null, null);
+            FsFolder currentFolder = fakeRoot;
             FsFolder lastFolder = null;
 
-            int itemStart = data.ReadShort();
-            while (itemStart != 0)
+            var parseOp = (ParseOp)data.ReadShort();
+            while (parseOp != ParseOp.Done)
             {
-                switch (itemStart)
+                switch (parseOp)
                 {
-                    case 1:
+                    case ParseOp.ReadItem:
                         break;
 
-                    case 2:
+                    case ParseOp.Pin:
                         if (lastFolder != null)
                         {
                             currentFolder = lastFolder;
-                            itemStart = data.ReadShort();
+                            parseOp = (ParseOp)data.ReadShort();
                             continue;
                         }
                         else
                             throw new Exception("lastFolder = null");
 
-                    case 3:
-                        if (currentFolder == fakeFolder)
+                    case ParseOp.PinUpper:
+                        if (currentFolder == fakeRoot)
                         {
-                            itemStart = data.ReadShort();
+                            parseOp = (ParseOp)data.ReadShort();
                             continue;
                         }
                         else if (currentFolder.Parent != null)
-                        {
+						{
                             currentFolder = currentFolder.Parent;
-                            if (currentFolder == null)
-                                throw new Exception("No parent folder");
-
+							parseOp = (ParseOp)data.ReadShort();
+							if (currentFolder == null)
+                                throw new Exception("No parent folder A");
                             continue;
                         }
                         else
-                            throw new Exception("No parent folder");
+                            throw new Exception("No parent folder B");
 
-                    case 15:
-                        var skip = data.ReadPu32();
-                        for (int i = 0; i < skip; i++)
+                    case ParseOp.Unknown15:
+                        long skip = data.ReadPu32();
+                        for (long i = 0; i < skip; i++)
                         {
                             data.ReadPu32();
                             data.ReadPu32();
                         }
                         break;
                     default:
-                        throw new Exception("Unknown itemStart");
+                        throw new Exception("Unknown parse operation");
                 }
                 FsItem item = GetItem(data, currentFolder);
                 currentFolder.Items.Add(item);
 
                 if (item is FsFolder fsFolder) lastFolder = fsFolder;
 
-                itemStart = data.ReadShort();
+                parseOp = (ParseOp)data.ReadShort();
             }
 
-            var res = fakeFolder.Items[0];
+            var res = fakeRoot.Items[0];
             return res;
         }
 
@@ -194,7 +206,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     data.ReadULong();  // dunno
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(_fullPath, name), treeId, CloudFolderType.MountPoint, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), treeId, CloudFolderType.MountPoint, folder, GetFolderSize());
                     break;
 
                 case 1:
@@ -202,14 +214,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     ulong size = data.ReadULong();
                     byte[] sha1 = data.ReadNBytes(20);
 
-                    item = new FsFile(WebDavPath.Combine(folder.FullPath, name), modifDate, sha1, size);
+                    item = new FsFile(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name),
+						modifDate, sha1, size);
                     break;
 
                 case 2:
                     data.ReadULong(); // dunno
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), null, CloudFolderType.Generic, folder, GetFolderSize());
                     break;
 
                 case 3:
@@ -217,7 +230,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     treeId = data.ReadTreeId();
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.Shared, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), treeId, CloudFolderType.Shared, folder, GetFolderSize());
                     break;
                 default:
                     throw new Exception("unknown opresult " + opresult);

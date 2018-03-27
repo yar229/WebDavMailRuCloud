@@ -148,10 +148,11 @@ namespace YaR.MailRuCloud.Api
                 }
             }
 
-            _itemCache.Add(entry.FullPath, entry);
-            if (entry is Folder cfolder)
-                _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
-            return entry;
+			_itemCache.Add(entry.FullPath, entry);
+			if (entry is Folder cfolder)
+				_itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+
+			return entry;
         }
 
         public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin.Types;
@@ -7,7 +9,45 @@ namespace YaR.MailRuCloud.Api.Extensions
 {
     internal static class DtoImportWebBin
     {
-        public static CopyResult ToCopyResult(this MoveRequest.Result data, string newName)
+	    public static IEntry ToEntry(this ListRequest.Result data)
+	    {
+			MailRuCloud.ItemType itemType = data.Item is FsFile ? MailRuCloud.ItemType.File : MailRuCloud.ItemType.Folder;
+
+		    var entry = itemType == MailRuCloud.ItemType.File
+			    ? (IEntry)data.ToFile()
+			    : data.ToFolder();
+
+		    return entry;
+		}
+
+	    public static YaR.MailRuCloud.Api.Base.File ToFile(this ListRequest.Result data)
+	    {
+		    var source = data.Item as FsFile;
+		    var res = new File(data.FullPath, (long)source.Size, source.Sha1.ToHexString());
+		    return res;
+	    }
+
+	    public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this ListRequest.Result data)
+	    {
+		    var source = data.Item as FsFolder;
+		    var res = new Folder((long)source.Size, data.FullPath);
+		    foreach (var it in source.Items.OfType<FsFile>())
+		    {
+			    res.Files.Add(new File(it.FullPath, (long)it.Size, it.Sha1.ToHexString()));
+		    }
+		    foreach (var it in source.Items.OfType<FsFolder>())
+		    {
+			    res.Folders.Add(new Folder((long)it.Size, it.FullPath));
+		    }
+
+			return res;
+		}
+
+
+
+
+
+		public static CopyResult ToCopyResult(this MoveRequest.Result data, string newName)
         {
             var res = new CopyResult
             {

@@ -46,7 +46,8 @@ namespace YaR.CloudMailRu.Console
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandlerName),
                 Protocol = options.Protocol,
                 UserAgent = options.UserAgent,
-                CacheListingSec = options.CacheListingSec
+                CacheListingSec = options.CacheListingSec,
+	            ListDepth = options.CacheListingDepth
             };
             
             var httpListener = new HttpListener();
