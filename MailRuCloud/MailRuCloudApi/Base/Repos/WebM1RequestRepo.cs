@@ -208,7 +208,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             {
 	            entry = ulink != null
 		            ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit).MakeRequestAsync())
-						.ToEntry()
+						.ToEntry(ulink, path)
 		            : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path, _listDepth).MakeRequestAsync())
 						.ToEntry();
             }

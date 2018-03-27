@@ -206,7 +206,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     data.ReadULong();  // dunno
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), treeId, CloudFolderType.MountPoint, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.MountPoint, folder, GetFolderSize());
                     break;
 
                 case 1:
@@ -214,15 +214,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     ulong size = data.ReadULong();
                     byte[] sha1 = data.ReadNBytes(20);
 
-                    item = new FsFile(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name),
-						modifDate, sha1, size);
-                    break;
+					//item = new FsFile(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), modifDate, sha1, size);
+	                item = new FsFile(WebDavPath.Combine(folder.FullPath, name), modifDate, sha1, size);
+					break;
 
                 case 2:
                     data.ReadULong(); // dunno
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), null, CloudFolderType.Generic, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), null, CloudFolderType.Generic, folder, GetFolderSize());
                     break;
 
                 case 3:
@@ -230,7 +230,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     treeId = data.ReadTreeId();
                     ProcessDelete();
 
-                    item = new FsFolder(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), treeId, CloudFolderType.Shared, folder, GetFolderSize());
+                    item = new FsFolder(WebDavPath.Combine(folder.FullPath, name), treeId, CloudFolderType.Shared, folder, GetFolderSize());
                     break;
                 default:
                     throw new Exception("unknown opresult " + opresult);
