@@ -41,5 +41,8 @@ namespace YaR.CloudMailRu.Console
 
         [Option("cache-listing", Default = 30, HelpText = "Cache folders listing, sec")]
         public int CacheListingSec { get; set; }
-    }
+
+		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth", Hidden = true)]
+		public int CacheListingDepth { get; set; }
+	}
 }
