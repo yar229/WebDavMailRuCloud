@@ -30,7 +30,12 @@ namespace YaR.MailRuCloud.Api.Extensions
 
 		public static YaR.MailRuCloud.Api.Base.File ToFile(this FsFile data)
 		{
-			var res = new File(data.FullPath, (long)data.Size, data.Sha1.ToHexString());
+		    var res = new File(data.FullPath, (long) data.Size, data.Sha1.ToHexString())
+		    {
+                CreationTimeUtc = data.ModifDate,
+                LastAccessTimeUtc = data.ModifDate,
+                LastWriteTimeUtc = data.ModifDate //TODO: this is the main time (
+            };
 			return res;
 		}
 
