@@ -181,13 +181,16 @@ namespace YaR.MailRuCloud.Api
 		    var cached = _itemCache.Get(path);
 		    if (null != cached)
 		    {
-			    if (cached is File || requiredDepth <= 1)
-				    return cached;
-			    else if (cached is Folder cfolder)
-			    {
-				    if (!cfolder.Folders.Any(f => _itemCache.Get(f.FullPath) == null))
-					    return cfolder;
-			    }
+                //TODO: and what if depth > 1 ?
+		        return cached;
+
+		        //  if (cached is File || requiredDepth <= 1)
+				        //return cached;
+		        //  if (cached is Folder cfolder)
+		        //  {
+		        //      if (cfolder.Folders.All(f => _itemCache.Get(f.FullPath) != null))
+		        //          return cfolder;
+		        //  }
 		    }
 		    return null;
 	    }

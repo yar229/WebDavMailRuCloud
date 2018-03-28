@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Base.Requests.WebBin;
 using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using AccountInfoRequest = YaR.MailRuCloud.Api.Base.Requests.WebM1.AccountInfoRequest;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -206,13 +208,19 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             IEntry entry;
             try
             {
-	            entry = ulink != null
-		            ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit).MakeRequestAsync())
-						.ToEntry(ulink, path)
-		            : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path, _listDepth).MakeRequestAsync())
-						.ToEntry();
+                entry = ulink != null
+                    ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit)
+                        .MakeRequestAsync())
+                    .ToEntry(ulink, path)
+                    : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path,
+                        _listDepth).MakeRequestAsync())
+                    .ToEntry();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            catch (FooWebException e) when (e.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }

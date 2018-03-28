@@ -69,8 +69,16 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            if (data.OperationResult != OperationResult.Ok)
-                throw new Exception($"{nameof(ListRequest)} failed with result code {data.OperationResult}");
+            switch (data.OperationResult)
+            {
+                    case OperationResult.Ok:
+                        break;
+                    case OperationResult.NotExists:
+                        throw new FooWebException($"{nameof(ListRequest)} failed with result code {data.OperationResult}", HttpStatusCode.NotFound);
+                    default:
+                        throw new Exception($"{nameof(ListRequest)} failed with result code {data.OperationResult}");
+            }
+
 
             var res = new Result
             {
@@ -255,5 +263,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
             public FsItem Item { get; set; }
         }
+    }
+
+    //TODO: refact with WebException?
+    internal class FooWebException : Exception
+    {
+        public FooWebException(string message, HttpStatusCode statusCode)
+        {
+            Message = message;
+            StatusCode = statusCode;
+        }
+
+        public string Message { get; }
+        public HttpStatusCode StatusCode { get; }
     }
 }
