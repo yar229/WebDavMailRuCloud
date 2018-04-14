@@ -19,7 +19,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
         /// <summary>
         /// Folder list depth
         /// </summary>
-        public long Depth { get; set; } = 2;
+        public long Depth { get; set; }
 
         public Option Options { get; set; } = Option.Unknown128 | Option.Unknown256 | Option.FolderSize | Option.TotalSpace | Option.UsedSpace;
     

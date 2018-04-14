@@ -43,7 +43,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
             return res;
         }
 
-        public byte[] ReadNBytes(int count)
+        public byte[] ReadNBytes(long count)
         {
             //Debug.Write($"{nameof(ReadNBytes)}({count}) = ");
             byte[] bytes = new byte[count];
@@ -114,7 +114,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
             return ReadNBytes((int)len);
         }
 
-        public string ReadNBytesAsString(int bytesCount)
+        public string ReadNBytesAsString(long bytesCount)
         {
             var data = ReadNBytes(bytesCount);
             string res = Encoding.UTF8.GetString(data);
@@ -122,7 +122,15 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
             return res;
         }
 
+        public string ReadString()
+        {
+            string str = ReadNBytesAsString(ReadPu32() - 1);
 
+            if (ReadInt() != 0)
+                throw new FormatException("String does not ends with zero");
+
+            return str;
+        }
 
         public byte[] ReadAllBytes()
         {
