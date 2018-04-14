@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.WebBin;
 using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Common;
@@ -205,25 +204,56 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            IEntry entry;
+            //IEntry entry;
+            //try
+            //{
+            //    //TODO: don't know how to properly get shared links from WebM1Bin proto
+            //    entry = ulink != null
+            //        ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit)
+            //            .MakeRequestAsync())
+            //        .ToEntry(ulink, path)
+            //        : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path,
+            //            _listDepth).MakeRequestAsync())
+            //        .ToEntry();
+            //}
+            ////TODO: refact throwing exceptions from repos
+            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+            //catch (Requests.WebBin.FooWebException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+
+            //return entry;
+
+            FolderInfoResult datares;
             try
             {
-                entry = ulink != null
-                    ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit)
-                        .MakeRequestAsync())
-                    .ToEntry(ulink, path)
-                    : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path,
-                        _listDepth).MakeRequestAsync())
-                    .ToEntry();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
-            catch (FooWebException e) when (e.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
+
+            MailRuCloud.ItemType itemType;
+            if (null == ulink)
+                itemType = datares.body.home == path
+                    ? MailRuCloud.ItemType.Folder
+                    : MailRuCloud.ItemType.File;
+            else
+                itemType = ulink.ItemType;
+
+
+            var entry = itemType == MailRuCloud.ItemType.File
+                ? (IEntry)datares.ToFile(
+                    home: WebDavPath.Parent(path),
+                    ulink: ulink,
+                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
+                    nameReplacement: WebDavPath.Name(path))
+                : datares.ToFolder(path, ulink);
 
             return entry;
         }
