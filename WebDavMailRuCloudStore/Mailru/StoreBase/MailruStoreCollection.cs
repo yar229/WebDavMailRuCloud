@@ -342,9 +342,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (name != string.Empty && FindSubItem(name) != null)
             {
                 if (!overwrite)
-                    return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
+					// rclone tries to create folder on file copy and does not understand PreconditionFailed
+					//return Task.FromResult(new StoreCollectionResult(DavStatusCode.PreconditionFailed));
+					return Task.FromResult(new StoreCollectionResult(DavStatusCode.Created));
 
-                result = DavStatusCode.NoContent;
+				result = DavStatusCode.NoContent;
             }
             else
                 result = DavStatusCode.Created;
