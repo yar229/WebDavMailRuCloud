@@ -14,6 +14,7 @@ using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
+using AccountInfoRequest = YaR.MailRuCloud.Api.Base.Requests.WebM1.AccountInfoRequest;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -21,17 +22,19 @@ namespace YaR.MailRuCloud.Api.Base.Repos
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
         private readonly ShardManager _shardManager;
+		private readonly int _listDepth;
 
-
-        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+		public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
-        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired, int listDepth)
         {
-            ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+	        _listDepth = listDepth;
+
+			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
@@ -201,6 +204,29 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
+            //IEntry entry;
+            //try
+            //{
+            //    //TODO: don't know how to properly get shared links from WebM1Bin proto
+            //    entry = ulink != null
+            //        ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit)
+            //            .MakeRequestAsync())
+            //        .ToEntry(ulink, path)
+            //        : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path,
+            //            _listDepth).MakeRequestAsync())
+            //        .ToEntry();
+            //}
+            ////TODO: refact throwing exceptions from repos
+            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+            //catch (Requests.WebBin.FooWebException e) when (e.StatusCode == HttpStatusCode.NotFound)
+            //{
+            //    return null;
+            //}
+
+            //return entry;
 
             FolderInfoResult datares;
             try
