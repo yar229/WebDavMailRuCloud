@@ -30,6 +30,12 @@ namespace YaR.MailRuCloud.Api.Streams
             {
                 if (!_cloud.Account.Credentials.CanCrypt)
                     throw new Exception($"Cannot upload {file.FullPath} to crypt folder without additional password!");
+
+                // #142 remove crypted file parts if size changed
+                var remoteFile = folder.Files.FirstOrDefault(f => f.FullPath == file.FullPath);
+                if (remoteFile != null && remoteFile.OriginalSize != file.OriginalSize)
+                    await _cloud.Remove(remoteFile);
+                
                 stream = GetCryptoStream(file, onUploaded);
             }
             else
