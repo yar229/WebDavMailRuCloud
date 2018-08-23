@@ -11,7 +11,7 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.10.1.12</AssemblyVersion>
+    <AssemblyVersion>1.10.1.13</AssemblyVersion>
     <FileVersion>1.10.1.11</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
