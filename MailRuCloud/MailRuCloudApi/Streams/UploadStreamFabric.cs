@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Streams
 
                 // #142 remove crypted file parts if size changed
                 var remoteFile = folder.Files.FirstOrDefault(f => f.FullPath == file.FullPath);
-                if (remoteFile != null && remoteFile.OriginalSize != file.OriginalSize)
+                if (remoteFile != null)
                     await _cloud.Remove(remoteFile);
                 
                 stream = GetCryptoStream(file, onUploaded);
