@@ -42,7 +42,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
                 public class Cloud
                 {
                     public Enable enable { get; set; }
-                    public int metad { get; set; }
+                    //public int metad { get; set; }
                     public Beta beta { get; set; }
                     public Bonuses bonuses { get; set; }
                     public long file_size_limit { get; set; }
@@ -73,9 +73,11 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
                     public class Space
                     {
+                        public long bytes_total { get; set; }
                         public bool overquota { get; set; }
-                        public long used { get; set; }
-                        public long total { get; set; }
+                        public long bytes_used { get; set; }
+                        //public long used { get; set; }
+                        //public long total { get; set; }
                     }
 
                     public class Billing

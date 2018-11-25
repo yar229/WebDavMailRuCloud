@@ -116,8 +116,8 @@ namespace YaR.MailRuCloud.Api.Extensions
 
                 DiskUsage = new DiskUsage
                 {
-                    Total = data.body.cloud.space.total * 1024 * 1024,
-                    Used = data.body.cloud.space.used * 1024 * 1024,
+                    Total = data.body.cloud.space.bytes_total, //total * 1024 * 1024,
+                    Used = data.body.cloud.space.bytes_used, //used * 1024 * 1024,
                     OverQuota = data.body.cloud.space.overquota
                 }
             };
