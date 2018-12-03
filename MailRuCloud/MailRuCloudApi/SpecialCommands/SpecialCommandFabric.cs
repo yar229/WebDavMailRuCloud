@@ -73,20 +73,49 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         public SpecialCommand Build(MailRuCloud cloud, string param)
         {
-            if (null == param || !param.Contains("/>>")) return null;
+            var res = ParceLine(param, cloud.Settings.SpecialCommandPrefix);
+            if (!res.IsValid && !string.IsNullOrEmpty(cloud.Settings.AdditionalSpecialCommandPrefix))
+                res = ParceLine(param, cloud.Settings.AdditionalSpecialCommandPrefix);
+            if (!res.IsValid)
+                return null;
 
-            int pos = param.LastIndexOf("/>>", StringComparison.Ordinal);
-            string path = WebDavPath.Clean(param.Substring(0, pos + 1));
-            string data = param.Substring(pos + 3);
-
-            var parames = ParseParameters(data);
+            var parames = ParseParameters(res.Data);
             var commandContainer = FindCommandContainer(parames);
             if (commandContainer == null) return null;
 
             parames = parames.Skip(commandContainer.Commands.Length).ToList();
-            var cmd = commandContainer.CreateFunc(cloud, path, parames);
+            var cmd = commandContainer.CreateFunc(cloud, res.Path, parames);
 
             return cmd;
+        }
+
+        private ParamsData ParceLine(string param, string prefix)
+        {
+            if (string.IsNullOrEmpty(prefix)) return ParamsData.Invalid;
+
+            string pre = "/" + prefix;
+            if (null == param || !param.Contains(pre)) return ParamsData.Invalid;
+
+            int pos = param.LastIndexOf(pre, StringComparison.Ordinal);
+            string path = WebDavPath.Clean(param.Substring(0, pos + 1));
+            string data = param.Substring(pos + pre.Length);
+
+            return new ParamsData
+            {
+                IsValid = true,
+                Path = path,
+                Data = data
+            };
+        }
+
+        private struct  ParamsData
+        {
+            public bool IsValid { get; set; }
+            public string Path { get; set; }
+            public string Data { get; set; }
+
+            public static ParamsData Invalid => new ParamsData {IsValid = false};
+
         }
 
         private SpecialCommandContainer FindCommandContainer(IList<string> parames)

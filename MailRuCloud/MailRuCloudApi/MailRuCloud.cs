@@ -34,7 +34,9 @@ namespace YaR.MailRuCloud.Api
         /// Async tasks cancelation token.
         /// </summary>
         public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
-		private readonly CloudSettings _settings;
+
+        public CloudSettings Settings => _settings;
+        private readonly CloudSettings _settings;
 
 		/// <summary>
 		/// Gets or sets account to connect with cloud.

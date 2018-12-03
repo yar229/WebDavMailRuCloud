@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Xml;
 
 namespace YaR.CloudMailRu.Console
@@ -22,6 +23,25 @@ namespace YaR.CloudMailRu.Console
             {
                 var res = Document.SelectSingleNode("/config/TwoFactorAuthHandlerName").InnerText;
                 return res;
+            }
+        }
+
+        public static string SpecialCommandPrefix => ">>";
+
+        public static string AdditionalSpecialCommandPrefix
+        {
+            get
+            {
+                try
+                {
+                    var res = Document.SelectSingleNode("/config/AdditionalSpecialCommandPrefix").InnerText;
+                    return res;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+
             }
         }
     }
