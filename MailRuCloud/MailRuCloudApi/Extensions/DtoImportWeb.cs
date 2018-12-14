@@ -260,10 +260,11 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static File ToFile(this FolderInfoResult data, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
         {
-            if (string.IsNullOrEmpty(filename))
-            {
-                return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
-            }
+            if (ulink == null || ulink.IsLinkedToFileSystem)
+                if (string.IsNullOrEmpty(filename))
+                {
+                    return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
+                }
 
             PatchEntryPath(data, home, ulink);
 
@@ -273,9 +274,14 @@ namespace YaR.MailRuCloud.Api.Extensions
                                 ? it.ToFile(nameReplacement)
                                 : it.ToFile())
                 .ToList();
+
+            var cmpname = string.IsNullOrEmpty(nameReplacement)
+                ? filename
+                : nameReplacement;
+
             var groupedFile = z?
                 .ToGroupedFiles()
-                .First(it => it.Name == (string.IsNullOrEmpty(nameReplacement) ? filename : nameReplacement));
+                .First(it => string.IsNullOrEmpty(cmpname) || it.Name == cmpname);
 
             return groupedFile;
         }

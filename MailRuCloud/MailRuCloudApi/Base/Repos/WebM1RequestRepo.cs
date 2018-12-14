@@ -252,7 +252,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     home: WebDavPath.Parent(path),
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
+                    nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null )
                 : datares.ToFolder(path, ulink);
 
             return entry;
