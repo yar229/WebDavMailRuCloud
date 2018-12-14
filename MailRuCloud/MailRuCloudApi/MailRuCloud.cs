@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -34,7 +35,9 @@ namespace YaR.MailRuCloud.Api
         /// Async tasks cancelation token.
         /// </summary>
         public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
-		private readonly CloudSettings _settings;
+
+        public CloudSettings Settings => _settings;
+        private readonly CloudSettings _settings;
 
 		/// <summary>
 		/// Gets or sets account to connect with cloud.
@@ -72,6 +75,13 @@ namespace YaR.MailRuCloud.Api
             Unknown
         }
 
+        public virtual async Task<IEntry> GetPublicItemAsync(string path, ItemType itemType = ItemType.Unknown)
+        {
+            var entry = await Account.RequestRepo.FolderInfo(path, new Link(path));
+
+            return entry;
+        }
+
         ///// <summary>
         ///// Get list of files and folders from account.
         ///// </summary>
@@ -81,6 +91,13 @@ namespace YaR.MailRuCloud.Api
         ///// <returns>List of the items.</returns>
         public virtual async Task<IEntry> GetItemAsync(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
+            //TODO: вообще, всё плохо стало, всё запуталось, всё надо переписать
+            var uriMatch = Regex.Match(path, @"\A/https://cloud\.mail\.\w+/public(?<uri>/\S+/\S+)\Z");
+            if (uriMatch.Success)
+            {
+                return await GetPublicItemAsync(uriMatch.Groups["uri"].Value, itemType);
+            }
+
             path = WebDavPath.Clean(path);
 
 	        if (_settings.CacheListingSec > 0)

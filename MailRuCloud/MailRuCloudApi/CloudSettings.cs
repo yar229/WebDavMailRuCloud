@@ -13,9 +13,12 @@ namespace YaR.MailRuCloud.Api
 
 	    public int ListDepth
 	    {
-		    get { return CacheListingSec > 0 ? _listDepth : 1; }
-		    set { _listDepth = value; }
+		    get => CacheListingSec > 0 ? _listDepth : 1;
+	        set => _listDepth = value;
 	    }
 		private int _listDepth = 1;
-	}
+
+        public string SpecialCommandPrefix { get; set; } = ">>";
+        public string AdditionalSpecialCommandPrefix { get; set; } = ">>";
+    }
 }

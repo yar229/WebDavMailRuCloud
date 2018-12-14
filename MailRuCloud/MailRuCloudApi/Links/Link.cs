@@ -8,15 +8,16 @@ namespace YaR.MailRuCloud.Api.Links
 {
     public class Link : IEntry
     {
-        private Link()
+        public Link(string href)
         {
+            Href = href;
+            IsLinkedToFileSystem = false;
         }
 
-        public Link(ItemLink rootLink, string fullPath, string href) : this()
+        public Link(ItemLink rootLink, string fullPath, string href) : this(href)
         {
             _rootLink = rootLink;
             FullPath = fullPath;
-            Href = href;
 
             IsRoot = WebDavPath.PathEquals(WebDavPath.Parent(FullPath), _rootLink.MapTo);
 
@@ -30,6 +31,8 @@ namespace YaR.MailRuCloud.Api.Links
 
             CreationTimeUtc = rootLink.CreationDate ?? DateTime.Now;
         }
+
+        public bool IsLinkedToFileSystem { get; } = true;
 
         private readonly ItemLink _rootLink;
 

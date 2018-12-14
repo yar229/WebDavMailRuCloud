@@ -47,7 +47,8 @@ namespace YaR.CloudMailRu.Console
                 Protocol = options.Protocol,
                 UserAgent = options.UserAgent,
                 CacheListingSec = options.CacheListingSec,
-	            ListDepth = options.CacheListingDepth
+	            ListDepth = options.CacheListingDepth,
+                AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix
             };
             
             var httpListener = new HttpListener();
