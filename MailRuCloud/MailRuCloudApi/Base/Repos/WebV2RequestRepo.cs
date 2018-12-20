@@ -232,8 +232,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             }
 
             MailRuCloud.ItemType itemType;
-            if (null == ulink)
-                itemType = datares.body.home == path
+            if (null == ulink || ulink.ItemType == MailRuCloud.ItemType.Unknown)
+                itemType = datares.body.home == path ||
+                           WebDavPath.PathEquals("/" + datares.body.weblink, path)
+                           //datares.body.list.Any(fi => "/" + fi.weblink == path)
                     ? MailRuCloud.ItemType.Folder
                     : MailRuCloud.ItemType.File;
             else
@@ -245,13 +247,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     home: WebDavPath.Parent(path),
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: WebDavPath.Name(path))
+                    nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null)
                 : datares.ToFolder(path, ulink);
 
             return entry;
-
-            //var res = req;
-            //return res;
         }
 
         public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
@@ -296,6 +295,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             return res;
         }
 
+        public Dictionary<ShardType, ShardInfo> GetShardInfo1()
+        {
+            return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
+        }
 
 
         public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()

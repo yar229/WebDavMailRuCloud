@@ -15,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(ShardManager));
 
-        public ShardManager(HttpCommonSettings httpsettings, IAuth auth)
+        public ShardManager(HttpCommonSettings httpsettings, IAuth auth, IRequestRepo repo)
         {
             _metaServer = new Cached<Requests.WebBin.MobMetaServerRequest.Result>(old =>
                 {
@@ -28,7 +28,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             BannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
                 value => TimeSpan.FromMinutes(2));
 
-            CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo(),
+            //CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo(),
+            //    value => TimeSpan.FromSeconds(ShardsExpiresInSec));
+
+            CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => repo.GetShardInfo1(),
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
             DownloadServersPending = new Pending<Cached<Requests.WebBin.ServerRequest.Result>>(8,
