@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
+using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
@@ -21,10 +23,20 @@ namespace YaR.MailRuCloud.Api.Base.Repos
     class WebM1RequestRepo : IRequestRepo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
-        private readonly ShardManager _shardManager;
-		private readonly int _listDepth;
+        private readonly IBasicCredentials _creds;
+        private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
+        private readonly int _listDepth;
 
-		public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(HttpSettings, Authent, this));
+        private ShardManager _shardManager;
+
+        protected IRequestRepo AnonymousRepo => _anonymousRepo ??
+                                                (_anonymousRepo = new WebV2RequestRepo(HttpSettings.Proxy, _creds,
+                                                    _onAuthCodeRequired));
+        private IRequestRepo _anonymousRepo;
+
+
+        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
@@ -32,13 +44,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired, int listDepth)
         {
-	        _listDepth = listDepth;
+            _creds = creds;
+            _onAuthCodeRequired = onAuthCodeRequired;
+            _listDepth = listDepth;
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
-            _shardManager = new ShardManager(HttpSettings, Authent);
+            //ShardManager = new ShardManager(HttpSettings, Authent);
         }
 
         public IAuth Authent { get; }
@@ -55,8 +69,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             Cached<Requests.WebBin.ServerRequest.Result> downServer = null;
             var pendingServers = isLinked
-                ? _shardManager.WeblinkDownloadServersPending
-                : _shardManager.DownloadServersPending;
+                ? ShardManager.WeblinkDownloadServersPending
+                : ShardManager.DownloadServersPending;
             Stopwatch watch = new Stopwatch();
 
             HttpWebRequest request = null;
@@ -155,21 +169,21 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             for (int i = 0; i < 10; i++)
             {
                 Thread.Sleep(80 * i);
-                var ishards = await Task.Run(() => _shardManager.CachedShards.Value);
+                var ishards = await Task.Run(() => ShardManager.CachedShards.Value);
                 var ishard = ishards[shardType];
-                var banned = _shardManager.BannedShards.Value;
+                var banned = ShardManager.BannedShards.Value;
                 if (banned.All(bsh => bsh.Url != ishard.Url))
                 {
                     if (refreshed) Authent.ExpireDownloadToken();
                     return ishard;
                 }
-                _shardManager.CachedShards.Expire();
+                ShardManager.CachedShards.Expire();
                 refreshed = true;
             }
 
             Logger.Error("Cannot get working shard.");
 
-            var shards = await Task.Run(() => _shardManager.CachedShards.Value);
+            var shards = await Task.Run(() => ShardManager.CachedShards.Value);
             var shard = shards[shardType];
             return shard;
         }
@@ -194,7 +208,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             //var res = req.ToCopyResult();
             //return res;
 
-            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, sourceFullPath, destinationPath)
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, sourceFullPath, destinationPath)
                 .MakeRequestAsync();
 
             var res = req.ToCopyResult(WebDavPath.Name(destinationPath));
@@ -204,29 +218,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
         {
-            //IEntry entry;
-            //try
-            //{
-            //    //TODO: don't know how to properly get shared links from WebM1Bin proto
-            //    entry = ulink != null
-            //        ? (await new FolderInfoRequest(HttpSettings, Authent, ulink.Href, true, offset, limit)
-            //            .MakeRequestAsync())
-            //        .ToEntry(ulink, path)
-            //        : (await new Requests.WebBin.ListRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path,
-            //            _listDepth).MakeRequestAsync())
-            //        .ToEntry();
-            //}
-            ////TODO: refact throwing exceptions from repos
-            //catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            //{
-            //    return null;
-            //}
-            //catch (Requests.WebBin.FooWebException e) when (e.StatusCode == HttpStatusCode.NotFound)
-            //{
-            //    return null;
-            //}
-
-            //return entry;
+            if (_creds.IsAnonymous)
+                return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
             FolderInfoResult datares;
             try
@@ -303,11 +296,20 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             //return res;
 
             string newFullPath = WebDavPath.Combine(WebDavPath.Parent(fullPath), newName);
-            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, fullPath, newFullPath)
+            var req = await new Requests.WebBin.MoveRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, fullPath, newFullPath)
                 .MakeRequestAsync();
 
             var res = req.ToRenameResult();
             return res;
+        }
+
+        public Dictionary<ShardType, ShardInfo> GetShardInfo1()
+        {
+            if (Authent.IsAnonymous)
+                return new Requests.WebV2.ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
+
+
+            return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)
@@ -315,7 +317,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             //return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
             //    .ToCreateFolderResult();
 
-            return (await new Requests.WebBin.CreateFolderRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, path).MakeRequestAsync())
+            return (await new Requests.WebBin.CreateFolderRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
@@ -328,7 +330,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             //using Mobile request because of supporting file modified time
 
             //TODO: refact, make mixed repo
-            var req = await new Requests.WebBin.MobAddFileRequest(HttpSettings, Authent, _shardManager.MetaServer.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
+            var req = await new Requests.WebBin.MobAddFileRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             var res = req.ToAddFileResult();

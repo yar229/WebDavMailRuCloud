@@ -258,6 +258,7 @@ namespace YaR.MailRuCloud.Api.Extensions
             return folder;
         }
 
+        //TODO: subject to heavily refact
         public static File ToFile(this FolderInfoResult data, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
         {
             if (ulink == null || ulink.IsLinkedToFileSystem)
@@ -279,11 +280,18 @@ namespace YaR.MailRuCloud.Api.Extensions
                 ? filename
                 : nameReplacement;
 
-            var groupedFile = z?
-                .ToGroupedFiles()
-                .First(it => string.IsNullOrEmpty(cmpname) || it.Name == cmpname);
+            if (string.IsNullOrEmpty(cmpname) && data.body.weblink != "/" && ulink != null && !ulink.IsLinkedToFileSystem)
+            {
+                cmpname = WebDavPath.Name(ulink.PublicLink);
+            }
 
-            return groupedFile;
+            var groupedFile = z?
+                .ToGroupedFiles();
+
+
+            var res = groupedFile.First(it => string.IsNullOrEmpty(cmpname) || it.Name == cmpname);
+
+            return res;
         }
 
         private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item)

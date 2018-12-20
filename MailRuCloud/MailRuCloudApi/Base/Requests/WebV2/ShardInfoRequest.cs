@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 using YaR.MailRuCloud.Api.Base.Auth;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
@@ -15,10 +14,20 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
         {
             get
             {
-                var uri = string.Format("{0}/api/v2/dispatcher?api=2", ConstSettings.CloudDomain);
-                if (!string.IsNullOrEmpty(Auth.AccessToken))
-                    uri += $"&token={Auth.AccessToken}";
+                //var uri = string.Format("{0}/api/v2/dispatcher?api=2", ConstSettings.CloudDomain);
+                //if (!string.IsNullOrEmpty(Auth.AccessToken))
+                //    uri += $"&token={Auth.AccessToken}";
+                //return uri;
+
+                var uri = $"{ConstSettings.CloudDomain}/api/v2/dispatcher?client_id={Settings.ClientId}";
+                if (!Auth.IsAnonymous)
+                    uri += $"&access_token={Auth.AccessToken}";
+                else
+                {
+                    uri += "&email=anonym&x-email=anonym";
+                }
                 return uri;
+
             }
         }
 

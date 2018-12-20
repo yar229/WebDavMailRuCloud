@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -209,6 +211,13 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                 .MakeRequestAsync();
             var res = new RenameResult { IsSuccess = true };
             return res;
+        }
+
+        public Dictionary<ShardType, ShardInfo> GetShardInfo1()
+        {
+            throw new NotImplementedException("Mobile GetShardInfo1 not implemented");
+            //YaR.MailRuCloud.Api.Base.Requests.WebBin.
+            //return new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo();
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

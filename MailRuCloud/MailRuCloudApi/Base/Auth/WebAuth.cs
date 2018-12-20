@@ -32,9 +32,12 @@ namespace YaR.MailRuCloud.Api.Base.Auth
             _authToken = new Cached<AuthTokenResult>(old =>
                 {
                     Logger.Debug("AuthToken expired, refreshing.");
-                    var token = Auth().Result;
-                    //_cachedDownloadToken.Expire();
-                    return token;
+                    if (!creds.IsAnonymous)
+                    {
+                        var token = Auth().Result;
+                        return token;
+                    }
+                    return null;
                 },
                 value => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 
@@ -86,7 +89,7 @@ namespace YaR.MailRuCloud.Api.Base.Auth
         public string Login => _creds.Login;
         public string Password => _creds.Password;
 
-        public string AccessToken => _authToken.Value.Token;
+        public string AccessToken => _authToken.Value?.Token;
         public string DownloadToken => _cachedDownloadToken.Value;
 
         public void ExpireDownloadToken()

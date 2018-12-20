@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -48,5 +49,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         Task<RemoveResult> Remove(string fullPath);
 
         Task<RenameResult> Rename(string fullPath, string newName);
+        Dictionary<ShardType, ShardInfo> GetShardInfo1();
     }
 }
