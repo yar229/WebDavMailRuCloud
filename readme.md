@@ -67,7 +67,9 @@ Parameters with spaces must be screened by quotes.
 	Be careful, this methods does not usable when application started as a service/daemon. <br>
 	You can make your own 2FA handlers inherited from `ITwoFaHandler` and put it in separate dll which name starts with `MailRuCloudApi.TwoFA`
 	
-Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe when you opens server on 127.0.0.1)
+Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and
+* your cloud.mail.ru email and password
+* or `anonymous` login if only public links list/download required ([WinSCP script example](https://github.com/yar229/WebDavMailRuCloud/issues/146#issuecomment-448978833))
 
 Automatically split/join when uploading/downloading files larger than cloud allows.
 
