@@ -8,10 +8,11 @@ namespace YaR.MailRuCloud.Api.Links
 {
     public class Link : IEntry
     {
-        public Link(string href)
+        public Link(string href, MailRuCloud.ItemType itemType = MailRuCloud.ItemType.Unknown)
         {
             Href = href;
             IsLinkedToFileSystem = false;
+            ItemType = itemType;
         }
 
         public Link(ItemLink rootLink, string fullPath, string href) : this(href)

@@ -4,5 +4,7 @@
     {
         string Login { get; }
         string Password { get; }
+
+        bool IsAnonymous { get; }
     }
 }

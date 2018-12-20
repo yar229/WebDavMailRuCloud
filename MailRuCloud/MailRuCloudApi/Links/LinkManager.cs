@@ -75,24 +75,29 @@ namespace YaR.MailRuCloud.Api.Links
         /// </summary>
         public void Load()
         {
-            Logger.Info($"Loading links from {LinkContainerName}");
 
-            try
+            if (!_cloud.Account.IsAnonymous)
             {
-                lock (_lockContainer)
+                Logger.Info($"Loading links from {LinkContainerName}");
+
+                try
                 {
-                    //throw new Exception("temp");
+                    lock (_lockContainer)
+                    {
+                        //throw new Exception("temp");
 
-                    string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
-                    var file = (File)_cloud.GetItem(filepath, MailRuCloud.ItemType.File, false);
+                        string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
+                        var file = (File) _cloud.GetItem(filepath, MailRuCloud.ItemType.File, false);
 
-                    if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
+                        if (file != null && file.Size > 3
+                        ) //some clients put one/two/three-byte file before original file
                             _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.Warn("Cannot load links", e);
+                catch (Exception e)
+                {
+                    Logger.Warn("Cannot load links", e);
+                }
             }
 
             if (null == _itemList) _itemList = new ItemList();

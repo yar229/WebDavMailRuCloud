@@ -48,6 +48,7 @@ namespace YaR.MailRuCloud.Api.Base
 
         public AccountInfoResult Info { get; private set; }
 
+        public bool IsAnonymous => Credentials.IsAnonymous;
         /// <summary>
         /// Authorize on MAIL.RU server.
         /// </summary>
@@ -63,7 +64,8 @@ namespace YaR.MailRuCloud.Api.Base
         /// <returns>True or false result operation.</returns>
         public async Task<bool> LoginAsync()
         {
-            Info = await RequestRepo.AccountInfo();
+            if (!IsAnonymous)
+                Info = await RequestRepo.AccountInfo();
             return true;
         }
 

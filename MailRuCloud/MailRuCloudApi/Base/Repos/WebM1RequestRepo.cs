@@ -239,8 +239,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             }
 
             MailRuCloud.ItemType itemType;
-            if (null == ulink)
-                itemType = datares.body.home == path
+
+            //TODO: subject to refact, bad-bad-bad
+            if (null == ulink || ulink.ItemType == MailRuCloud.ItemType.Unknown)
+                itemType = datares.body.home == path ||
+                           WebDavPath.PathEquals("/" + datares.body.weblink, path)
                     ? MailRuCloud.ItemType.Folder
                     : MailRuCloud.ItemType.File;
             else

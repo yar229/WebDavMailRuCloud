@@ -22,7 +22,18 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
             _limit = limit;
         }
 
-        protected override string RelationalUri => $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
+        protected override string RelationalUri
+        {
+            get
+            {
+                var url = $"/api/v2/folder?offset={_offset}&limit={_limit}";
+                if (!Auth.IsAnonymous)
+                    url += $"access_token={Auth.AccessToken}";
+
+                return url;
+                // $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
+            }
+        }
 
         protected override byte[] CreateHttpContent()
         {
