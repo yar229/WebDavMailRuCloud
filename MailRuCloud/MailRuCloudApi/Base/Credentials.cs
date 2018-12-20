@@ -1,14 +1,26 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Authentication;
 
 namespace YaR.MailRuCloud.Api.Base
 {
     public class Credentials : IBasicCredentials
     {
+        private static readonly string[] AnonymousLogins = { "anonymous", "anon", "anonym", string.Empty };
+
         public Credentials(string login, string password)
         {
-            if (string.IsNullOrEmpty(login))
-                throw new InvalidCredentialException("Login is null or empty.");
+            if (string.IsNullOrWhiteSpace(login))
+                login = string.Empty; //    throw new InvalidCredentialException("Login is null or empty.");
+
+            if (AnonymousLogins.Contains(login))
+            {
+                IsAnonymous = true;
+                Login = login;
+                Password = string.Empty;
+
+                return;
+            }
 
             if (string.IsNullOrEmpty(password))
                 throw new ArgumentException("Password is null or empty.");
@@ -40,6 +52,8 @@ namespace YaR.MailRuCloud.Api.Base
 
             PasswordCrypt = password.Substring(seppos + separator.Length);
         }
+
+        public bool IsAnonymous { get; set; }
 
 
         public string Login { get; }

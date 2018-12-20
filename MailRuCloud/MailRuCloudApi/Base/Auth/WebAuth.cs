@@ -82,7 +82,7 @@ namespace YaR.MailRuCloud.Api.Base.Auth
         private const int DownloadTokenExpiresSec = 20 * 60;
 
 
-
+        public bool IsAnonymous => _creds.IsAnonymous;
         public string Login => _creds.Login;
         public string Password => _creds.Password;
 

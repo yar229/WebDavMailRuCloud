@@ -40,7 +40,9 @@ namespace YaR.MailRuCloud.Api.Common
                         _value = new Lazy<T>(() => _valueFactory(oldValue));
 
                         var duration = _duration(_value.Value);
-                        _expiration = DateTime.Now.Add(duration);
+                        _expiration = duration == TimeSpan.MaxValue 
+                            ? DateTime.MaxValue
+                            : DateTime.Now.Add(duration);
                     }
                 }
             }

@@ -92,11 +92,12 @@ namespace YaR.MailRuCloud.Api
         public virtual async Task<IEntry> GetItemAsync(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             //TODO: вообще, всё плохо стало, всё запуталось, всё надо переписать
-            var uriMatch = Regex.Match(path, @"\A/https://cloud\.mail\.\w+/public(?<uri>/\S+/\S+)\Z");
+            var uriMatch = Regex.Match(path, @"\A/https://cloud\.mail\.\w+/public(?<uri>/\S+/\S+(/.*)?)\Z");
             if (uriMatch.Success)
-            {
                 return await GetPublicItemAsync(uriMatch.Groups["uri"].Value, itemType);
-            }
+
+            if (Account.IsAnonymous)
+                return null;
 
             path = WebDavPath.Clean(path);
 

@@ -35,14 +35,20 @@ namespace YaR.MailRuCloud.Api.Base.Auth
 
                     return token;
                 },
-                value => value.ExpiresIn.Add(-TimeSpan.FromMinutes(5)));
+                value =>
+                {
+                    if (null == value)
+                        return TimeSpan.MaxValue;
+                    return value.ExpiresIn.Add(-TimeSpan.FromMinutes(5));
+                });
                 //value => TimeSpan.FromSeconds(20));
         }
 
+        public bool IsAnonymous => _creds.IsAnonymous;
         public string Login => _creds.Login;
         public string Password => _creds.Password;
-        public string AccessToken => _authToken.Value.Token;
-        public string DownloadToken => _authToken.Value.Token;
+        public string AccessToken => _authToken.Value?.Token;
+        public string DownloadToken => _authToken.Value?.Token;
         public CookieContainer Cookies { get; }
 
         public void ExpireDownloadToken()
@@ -56,6 +62,9 @@ namespace YaR.MailRuCloud.Api.Base.Auth
 
         private async Task<AuthTokenResult> Auth()
         {
+            if (_creds.IsAnonymous)
+                return null;
+
             var req = await new OAuthRequest(_settings, _creds).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
 

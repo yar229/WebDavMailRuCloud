@@ -14,9 +14,13 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
         {
             get
             {
-                var uri = $"{ConstSettings.CloudDomain}/api/m1/dispatcher?client_id={Settings.ClientId}";
-                if (!string.IsNullOrEmpty(Auth.AccessToken))
+                var uri = $"{ConstSettings.CloudDomain}/api/v2/dispatcher?client_id={Settings.ClientId}";
+                if (!Auth.IsAnonymous)
                     uri += $"&access_token={Auth.AccessToken}";
+                else
+                {
+                    uri += "&email=anonym&x-email=anonym";
+                }
                 return uri;
             }
         }
