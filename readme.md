@@ -58,6 +58,9 @@ Parameters with spaces must be screened by quotes.
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
+* Special command prefix <br/>
+	`<config><AdditionalSpecialCommandPrefix>` <br/>
+	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
 * 2 Factor Authentification <br/>
 	`<config><TwoFactorAuthHandlerName>` <br/>
 	At this time you can use
