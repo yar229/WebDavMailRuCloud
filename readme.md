@@ -206,5 +206,3 @@ Use any client supports webdav.
 *  Official client [Disk-O:](https://disk-o.cloud/)
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
-
-<img src="https://mc.yandex.ru/watch/51753530" style="position:absolute; left:-9999px;" alt=""/>
