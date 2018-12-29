@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 
 using NWebDav.Server.Helpers;
@@ -140,7 +141,9 @@ namespace NWebDav.Server
                     // Handle the request
                     if (await requestHandler.HandleRequestAsync(httpContext, _store).ConfigureAwait(false))
                     {
-                        s_log.Log(LogLevel.Info, () => $"{logRequest} - Finished ({sw.ElapsedMilliseconds}ms, HTTP {httpContext.Response.Status})");
+                        s_log.Log(LogLevel.Info,
+                            () =>
+                                $"{logRequest} - Finished ({sw.ElapsedMilliseconds}ms, HTTP {httpContext.Response.Status})");
                     }
                     else
                     {
@@ -169,6 +172,15 @@ namespace NWebDav.Server
                 {
                     if (excListener.ErrorCode != ERROR_OPERATION_ABORTED)
                         throw;
+                }
+
+                catch (AggregateException aex) when (aex.InnerExceptions.Count == 1 &&
+                                                     aex.InnerExceptions[0] is AuthenticationException auex)
+                {
+                    var status = DavStatusCode.Unauthorized;
+                    httpContext.Response.SetStatus(status);
+                    httpContext.Response.StatusDescription = $"{status.GetStatusDescription()}: {auex.Message}";
+                    s_log.Log(LogLevel.Error, $"Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");
                 }
 
                 catch (Exception exc)
