@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests.WebBin;
@@ -130,7 +131,7 @@ namespace YaR.MailRuCloud.Api.Extensions
         public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
             if (data.error_code > 0 && data.error_code != 15)
-                throw new Exception($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
+                throw new AuthenticationException($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
 
             var res = new AuthTokenResult
             {
