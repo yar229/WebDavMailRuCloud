@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -163,15 +165,37 @@ namespace YaR.MailRuCloud.Api.Base
             return ServiceInfo.CryptInfo.PublicKey;
         }
 
-        public PublishInfo ToPublishInfo()
+        public PublishInfo ToPublishInfo(MailRuCloud cloud, bool generateDirectVideoLink)
         {
             var info = new PublishInfo();
             foreach (var innerFile in Files)
             {
                 if (!string.IsNullOrEmpty(innerFile.PublicLink))
-                    info.Items.Add(new PublishInfoItem{Path = innerFile.FullPath, Url = ConstSettings.PublishFileLink + innerFile.PublicLink});
+                    info.Items.Add(new PublishInfoItem
+                    {
+                        Path = innerFile.FullPath,
+                        Url = ConstSettings.PublishFileLink + innerFile.PublicLink,
+                        PlaylistUrl = generateDirectVideoLink 
+                                        ? ConvertToVideoLink(cloud, innerFile.PublicLink)
+                                        : null
+                    });
             }
+
             return info;
+        }
+
+        private string ConvertToVideoLink(MailRuCloud cloud, string publicLink)
+        {
+            return cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkVideo).Result.Url +
+                   "0p/" +
+                   Base64Encode(publicLink.TrimStart('/')) +
+                   ".m3u8?double_encode=1";
+        }
+
+        private static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(plainTextBytes);
         }
     }
 }

@@ -259,14 +259,14 @@ namespace YaR.MailRuCloud.Api
             return res.Url;
         }
 
-        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
+        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, bool generateDirectVideoLink = false)
         {
             foreach (var innerFile in file.Files)
             {
                 var url = await Publish(innerFile.FullPath);
                 innerFile.PublicLink = url;
             }
-            var info = file.ToPublishInfo();
+            var info = file.ToPublishInfo(this, generateDirectVideoLink);
 
             if (makeShareFile)
             {
@@ -293,12 +293,12 @@ namespace YaR.MailRuCloud.Api
             return info;
         }
 
-        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true)
+        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true, bool generateDirectVideoLink = false)
         {
             if (null == entry) throw new ArgumentNullException(nameof(entry));
 
             if (entry is File file)
-                return await Publish(file, makeShareFile);
+                return await Publish(file, makeShareFile, generateDirectVideoLink);
             if (entry is Folder folder)
                 return await Publish(folder, makeShareFile);
 
