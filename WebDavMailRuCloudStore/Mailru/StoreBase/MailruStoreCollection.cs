@@ -334,6 +334,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             if (cmd != null)
             {
                 var res = cmd.Execute().Result;
+                if (!res.IsSuccess)
+                    Logger.Log(LogLevel.Error, res.Message);
+
                 return Task.FromResult(new StoreCollectionResult(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
             }
 

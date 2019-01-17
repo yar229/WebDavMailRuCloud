@@ -168,6 +168,10 @@ namespace YaR.MailRuCloud.Api.Base
         public PublishInfo ToPublishInfo(MailRuCloud cloud, bool generateDirectVideoLink)
         {
             var info = new PublishInfo();
+
+            bool isSplitted = Files.Count > 1;
+
+            int cnt = 0;
             foreach (var innerFile in Files)
             {
                 if (!string.IsNullOrEmpty(innerFile.PublicLink))
@@ -175,10 +179,13 @@ namespace YaR.MailRuCloud.Api.Base
                     {
                         Path = innerFile.FullPath,
                         Url = ConstSettings.PublishFileLink + innerFile.PublicLink,
-                        PlaylistUrl = generateDirectVideoLink 
-                                        ? ConvertToVideoLink(cloud, innerFile.PublicLink)
-                                        : null
+                        PlaylistUrl = !isSplitted || cnt > 0
+                                          ? generateDirectVideoLink 
+                                                ? ConvertToVideoLink(cloud, innerFile.PublicLink)
+                                                : null
+                                          : null
                     });
+                cnt++;
             }
 
             return info;
