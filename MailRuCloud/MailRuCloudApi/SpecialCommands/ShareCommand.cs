@@ -1,15 +1,22 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
     public class ShareCommand : SpecialCommand
     {
-        public ShareCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+
+        public ShareCommand(MailRuCloud cloud, string path, bool generateDirectVideoLink, bool makeM3UFile, IList<string> parames) : base(cloud, path, parames)
         {
+            _generateDirectVideoLink = generateDirectVideoLink;
+            _makeM3UFile = makeM3UFile;
         }
+
+
+        private readonly bool _generateDirectVideoLink;
+        private readonly bool _makeM3UFile;
 
         protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 1);
 
@@ -29,7 +36,15 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             if (null == entry)
                 return SpecialCommandResult.Fail;
 
-            await Cloud.Publish(entry);
+            try
+            {
+                await Cloud.Publish(entry, true, _generateDirectVideoLink, _makeM3UFile);
+            }
+            catch (Exception e)
+            {
+                return new SpecialCommandResult(false, e.Message);
+            }
+            
             return SpecialCommandResult.Success;
         }
     }

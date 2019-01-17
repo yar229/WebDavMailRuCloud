@@ -61,7 +61,17 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             new SpecialCommandContainer
             {
                 Commands = new [] {"share"},
-                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, param)
+                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, false, false, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"sharev"},
+                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, true, false, param)
+            },
+            new SpecialCommandContainer
+            {
+                Commands = new [] {"pl"},
+                CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, true, true, param)
             },
             new SpecialCommandContainer
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mime;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -259,14 +260,17 @@ namespace YaR.MailRuCloud.Api
             return res.Url;
         }
 
-        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true)
+        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, bool generateDirectVideoLink = false, bool makeM3UFile = false)
         {
+            if (file.Files.Count > 1 && (generateDirectVideoLink || makeM3UFile))
+                throw new ArgumentException($"Cannot generate direct video link for splitted file {file.FullPath}");
+
             foreach (var innerFile in file.Files)
             {
                 var url = await Publish(innerFile.FullPath);
                 innerFile.PublicLink = url;
             }
-            var info = file.ToPublishInfo();
+            var info = file.ToPublishInfo(this, generateDirectVideoLink);
 
             if (makeShareFile)
             {
@@ -274,6 +278,24 @@ namespace YaR.MailRuCloud.Api
                 UploadFileJson(path, info)
                     .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
             }
+
+
+            if (makeM3UFile)
+            {
+                string path = $"{file.FullPath}{PublishInfo.PlaylistFilePostfix}";
+                var content = new StringBuilder();
+                {
+                    content.Append("#EXTM3U\r\n");
+                    foreach (var item in info.Items)
+                    {
+                        content.Append($"#EXTINF:-1,{WebDavPath.Name(item.Path)}\r\n");
+                        content.Append($"{item.PlaylistUrl}\r\n");
+                    }
+                }
+                UploadFile(path, content.ToString())
+                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+            }
+
             return info;
         }
 
@@ -293,12 +315,12 @@ namespace YaR.MailRuCloud.Api
             return info;
         }
 
-        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true)
+        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true, bool generateDirectVideoLink = false, bool makeM3UFile = false)
         {
             if (null == entry) throw new ArgumentNullException(nameof(entry));
 
             if (entry is File file)
-                return await Publish(file, makeShareFile);
+                return await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile);
             if (entry is Folder folder)
                 return await Publish(folder, makeShareFile);
 
@@ -869,20 +891,23 @@ namespace YaR.MailRuCloud.Api
         }
 
 
-        public void UploadFile(string path, byte[] content, bool discardEncryption = false)
+        public bool UploadFile(string path, byte[] content, bool discardEncryption = false)
         {
             using (var stream = GetFileUploadStream(path, content.Length, discardEncryption).Result)
             {
                 stream.Write(content, 0, content.Length);
             }
             _itemCache.Invalidate(path, WebDavPath.Parent(path));
+
+            return true;
         }
 
 
-        public void UploadFile(string path, string content, bool discardEncryption = false)
+        public bool UploadFile(string path, string content, bool discardEncryption = false)
         {
             var data = Encoding.UTF8.GetBytes(content);
-            UploadFile(path, data, discardEncryption);
+            return UploadFile(path, data, discardEncryption);
+            
         }
 
         public bool UploadFileJson<T>(string fullFilePath, T data, bool discardEncryption = false)
