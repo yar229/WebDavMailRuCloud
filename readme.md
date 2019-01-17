@@ -58,6 +58,9 @@ Parameters with spaces must be screened by quotes.
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
+* Special command prefix <br/>
+	`<config><AdditionalSpecialCommandPrefix>` <br/>
+	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
 * 2 Factor Authentification <br/>
 	`<config><TwoFactorAuthHandlerName>` <br/>
 	At this time you can use
@@ -67,7 +70,9 @@ Parameters with spaces must be screened by quotes.
 	Be careful, this methods does not usable when application started as a service/daemon. <br>
 	You can make your own 2FA handlers inherited from `ITwoFaHandler` and put it in separate dll which name starts with `MailRuCloudApi.TwoFA`
 	
-Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and your cloud.mail.ru email and password (it's safe when you opens server on 127.0.0.1)
+Connect with (almost any) file manager that supports WebDAV using Basic authentification with no encryption and
+* your cloud.mail.ru email and password
+* or `anonymous` login if only public links list/download required ([WinSCP script example](https://github.com/yar229/WebDavMailRuCloud/issues/146#issuecomment-448978833))
 
 Automatically split/join when uploading/downloading files larger than cloud allows.
 
