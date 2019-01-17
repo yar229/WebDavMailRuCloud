@@ -51,7 +51,13 @@ Parameters with spaces must be screened by quotes.
 * `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
 * `>>lcopy` `x:/local/path/from /full/server/path/to` If file already in cloud, add it by hash without uploading
 * `>>del [[/]path]` Fast delete (if your client makes recursive deletions of inner items)
-* `>>share [[/]path]` Make file/folder public
+* `>>share [[/]path]` Make file/folder public <br/>
+  - and create `.share.wdmrc` file with links
+* `>>sharev [[/]path]` Make media file public <br/>
+  - and create `.share.wdmrc` file with public and direct play links
+* `>>pl [[/]path]` Make media file public <br/>
+  - and create `.share.wdmrc` file with public and direct play links <br/>
+  - and create `.m3u8` playlist file
 * `>>crypt init` Mark current folder as encrypted
 
 ***Settings*** in `wdmrc.exe.config`
