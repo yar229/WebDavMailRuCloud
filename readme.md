@@ -85,7 +85,7 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
 [geektimes.ru - Снова про WebDAV и Облако Mail.Ru](https://geektimes.ru/post/285520/) <br/>
 [glashkoff.com - Как бесплатно подключить Облако Mail.Ru через WebDAV](https://glashkoff.com/blog/manual/webdav-cloudmailru/) <br/>
-[manjaro.ru - Облако Mail.Ru подключаем через эмулятор WebDav как сетевой диск](https://manjaro.ru/blog/how-to/oblako-mail_ru-podkljuchaem-cherez-jemuljator-webdav-kak-setevoj-disk.html) <br/>
+[manjaro.ru - Облако Mail.Ru подключаем через эмулятор WebDav как сетевой диск](https://manjaro.ru/how-to/oblako-mailru-podklyuchaem-cherez-emulyator-webdav-kak-setevoy-disk.html) <br/>
 
 
 #### Windows
