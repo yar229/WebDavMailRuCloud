@@ -218,7 +218,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 		/// <param name="limit"></param>
 		/// <param name="depth">Not applicable here, always = 1</param>
 		/// <returns></returns>
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
 
             FolderInfoResult datares;

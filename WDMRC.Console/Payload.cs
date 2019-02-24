@@ -166,6 +166,7 @@ namespace YaR.CloudMailRu.Console
             Logger.Info($"Max threads count: {options.MaxThreadCount}");
             Logger.Info($"Cloud protocol: {options.Protocol}");
             Logger.Info($"Cache listings, sec: {options.CacheListingSec}");
+            Logger.Info($"List query folder depth: {options.CacheListingDepth}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute

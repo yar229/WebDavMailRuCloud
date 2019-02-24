@@ -216,15 +216,37 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         }
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
+        private async Task<IEntry> FolderInfo(string path, int depth = 1)
+        {
+            Requests.WebBin.ListRequest.Result datares;
+            try
+            {
+                datares = await new Requests.WebBin.ListRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, path, depth)
+                    .MakeRequestAsync();
+            }
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            var z = datares.ToEntry();
+
+            return z;
+        }
+
+        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
             if (_creds.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
+            if (null == ulink)
+                return await FolderInfo(path, depth);
+
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit)
+                    .MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {

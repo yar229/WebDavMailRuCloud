@@ -104,7 +104,7 @@ namespace YaR.MailRuCloud.Api
 
 	        if (_settings.CacheListingSec > 0)
 	        {
-		        var cached = CacheGetEntry(path, _settings.ListDepth);
+		        var cached = CacheGetEntry(path);
 		        if (cached != null)
 			        return cached;
 	        }
@@ -132,7 +132,7 @@ namespace YaR.MailRuCloud.Api
             //    //_itemCache.Add(cachefolder.Files);
             //}
 
-            var entry = await Account.RequestRepo.FolderInfo(path, ulink);
+            var entry = await Account.RequestRepo.FolderInfo(path, ulink, depth:Settings.ListDepth);
             if (null == entry)
                 return null;
 
@@ -141,45 +141,50 @@ namespace YaR.MailRuCloud.Api
                     ? ItemType.Folder 
                     : ItemType.File;
 
-            // fill folder with links if any
-            if (itemType == ItemType.Folder && entry is Folder folder)
-            {
-                var flinks = _linkManager.GetItems(folder.FullPath);
-                if (flinks.Any())
-                {
-                    //var z = flinks.Where(f => f.IsFile).Skip(1).ToList(); //  Take(15).ToList();
-                    foreach (var flink in flinks)
-                    {
-                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+            if (itemType == ItemType.Folder && entry is Folder folder) // fill folder with links if any
+                FillWithULinks(folder);
 
-                        if (!flink.IsFile)
-                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                        else
+            if (_settings.CacheListingSec > 0)
+		        CacheAddEntry(entry);
+
+	        return entry;
+        }
+
+        private void FillWithULinks(Folder folder)
+        {
+            if (!folder.IsChildsLoaded) return;
+
+            var flinks = _linkManager.GetItems(folder.FullPath);
+            if (flinks.Any())
+            {
+                foreach (var flink in flinks)
+                {
+                    string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
+
+                    if (!flink.IsFile)
+                        folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+                    else
+                    {
+                        if (folder.Files.All(inf => inf.FullPath != linkpath))
                         {
-                            if (folder.Files.All(inf => inf.FullPath != linkpath))
+                            var newfile = new File(linkpath, flink.Size)
                             {
-                                var newfile = new File(linkpath, flink.Size)
-                                {
-                                    PublicLink = flink.Href,
-                                };
-                                if (flink.CreationDate != null)
-                                    newfile.LastWriteTimeUtc = flink.CreationDate.Value;
-                                folder.Files.Add(newfile);
-                            }
+                                PublicLink = flink.Href,
+                            };
+                            if (flink.CreationDate != null)
+                                newfile.LastWriteTimeUtc = flink.CreationDate.Value;
+                            folder.Files.Add(newfile);
                         }
                     }
                 }
             }
 
-	        if (_settings.CacheListingSec > 0)
-	        {
-		        CacheAddEntry(entry);
-	        }
-
-	        return entry;
+            foreach (var childFolder in folder.Folders)
+                FillWithULinks(childFolder);
         }
 
-	    private void CacheAddEntry(IEntry entry)
+
+        private void CacheAddEntry(IEntry entry)
 	    {
 			if (entry is File cfile)
 			{
@@ -195,24 +200,11 @@ namespace YaR.MailRuCloud.Api
 			}
 		}
 
-	    private IEntry CacheGetEntry(string path, int requiredDepth)
+	    private IEntry CacheGetEntry(string path)
 	    {
 		    var cached = _itemCache.Get(path);
-		    if (null != cached)
-		    {
-                //TODO: and what if depth > 1 ?
-		        return cached;
-
-		        //  if (cached is File || requiredDepth <= 1)
-				        //return cached;
-		        //  if (cached is Folder cfolder)
-		        //  {
-		        //      if (cfolder.Folders.All(f => _itemCache.Get(f.FullPath) != null))
-		        //          return cfolder;
-		        //  }
-		    }
-		    return null;
-	    }
+            return cached;
+        }
 
 	    public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
