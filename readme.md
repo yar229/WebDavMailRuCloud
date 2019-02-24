@@ -51,7 +51,13 @@ Parameters with spaces must be screened by quotes.
 * `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
 * `>>lcopy` `x:/local/path/from /full/server/path/to` If file already in cloud, add it by hash without uploading
 * `>>del [[/]path]` Fast delete (if your client makes recursive deletions of inner items)
-* `>>share [[/]path]` Make file/folder public
+* `>>share [[/]path]` Make file/folder public <br/>
+  - and create `.share.wdmrc` file with links
+* `>>sharev [[/]path]` Make media file public <br/>
+  - and create `.share.wdmrc` file with public and direct play links
+* `>>pl [[/]path]` Make media file public <br/>
+  - and create `.share.wdmrc` file with public and direct play links <br/>
+  - and create `.m3u8` playlist file
 * `>>crypt init` Mark current folder as encrypted
 
 ***Settings*** in `wdmrc.exe.config`
@@ -79,7 +85,7 @@ Automatically split/join when uploading/downloading files larger than cloud allo
 [Russian FAQ](https://gist.github.com/yar229/4b702af114503546be1fe221bb098f27) <br/>
 [geektimes.ru - Снова про WebDAV и Облако Mail.Ru](https://geektimes.ru/post/285520/) <br/>
 [glashkoff.com - Как бесплатно подключить Облако Mail.Ru через WebDAV](https://glashkoff.com/blog/manual/webdav-cloudmailru/) <br/>
-[manjaro.ru - Облако Mail.Ru подключаем через эмулятор WebDav как сетевой диск](https://manjaro.ru/blog/how-to/oblako-mail_ru-podkljuchaem-cherez-jemuljator-webdav-kak-setevoj-disk.html) <br/>
+[manjaro.ru - Облако Mail.Ru подключаем через эмулятор WebDav как сетевой диск](https://manjaro.ru/how-to/oblako-mailru-podklyuchaem-cherez-emulyator-webdav-kak-setevoy-disk.html) <br/>
 
 
 #### Windows
@@ -184,6 +190,9 @@ Use any client supports webdav.
 
 
 #### Remarks
+* [**RaiDrive**](https://www.raidrive.com/)
+* [**NetDrive**](http://www.netdrive.net/)
+* [**rclone mount**](https://rclone.org/)
 * [**Total Commander**](http://www.ghisler.com/): 
   - requires to update `WebDAV plugin` to [v.2.9](http://ghisler.fileburst.com/fsplugins/webdav.zip)
   - turn on `(connection properties) -> Send\Receive accents in URLs as UTF-8 Unicode`
