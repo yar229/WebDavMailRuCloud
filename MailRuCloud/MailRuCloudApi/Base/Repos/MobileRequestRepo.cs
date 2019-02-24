@@ -133,7 +133,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             throw new NotImplementedException();
         }
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
             var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path, _listDepth);
             var res = await req.MakeRequestAsync();

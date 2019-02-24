@@ -24,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         Task<ShardInfo> GetShardInfo(ShardType shardType);
 
 
-        Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = int.MaxValue);
+        Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = int.MaxValue, int depth = 1);
 
         Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue);
 
