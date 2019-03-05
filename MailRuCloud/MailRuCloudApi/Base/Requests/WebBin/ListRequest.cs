@@ -74,7 +74,8 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     case OperationResult.Ok:
                         break;
                     case OperationResult.NotExists:
-                        throw new FooWebException($"{nameof(ListRequest)} failed with result code {data.OperationResult}", HttpStatusCode.NotFound);
+                        //throw new NotFoundException($"{nameof(ListRequest)} failed with result code {data.OperationResult}", HttpStatusCode.NotFound);
+                        throw new RequestException(_fullPath) {StatusCode = HttpStatusCode.NotFound};
                     default:
                         throw new Exception($"{nameof(ListRequest)} failed with result code {data.OperationResult}");
             }
@@ -263,18 +264,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
             public FsItem Item { get; set; }
         }
-    }
-
-    //TODO: refact with WebException?
-    internal class FooWebException : Exception
-    {
-        public FooWebException(string message, HttpStatusCode statusCode)
-        {
-            Message = message;
-            StatusCode = statusCode;
-        }
-
-        public string Message { get; }
-        public HttpStatusCode StatusCode { get; }
     }
 }
