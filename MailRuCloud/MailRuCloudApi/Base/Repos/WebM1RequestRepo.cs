@@ -261,7 +261,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             if (_creds.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
-            if (null == ulink)
+            if (null == ulink && depth > 1)
                 return await FolderInfo(path, depth);
 
             FolderInfoResult datares;
