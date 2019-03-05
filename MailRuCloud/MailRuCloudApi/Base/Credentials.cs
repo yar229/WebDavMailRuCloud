@@ -59,7 +59,7 @@ namespace YaR.MailRuCloud.Api.Base
         public string Login { get; }
         public string Password { get; }
 
-        public string PasswordCrypt { get; }
+        public string PasswordCrypt { get; set; }
 
         public bool CanCrypt => !string.IsNullOrEmpty(PasswordCrypt);
 
