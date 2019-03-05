@@ -60,6 +60,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             },
             new SpecialCommandContainer
             {
+                Commands = new [] {"crypt", "passwd"},
+                CreateFunc = (cloud, path, param) => new CryptPasswdCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
                 Commands = new [] {"share"},
                 CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, false, false, param)
             },

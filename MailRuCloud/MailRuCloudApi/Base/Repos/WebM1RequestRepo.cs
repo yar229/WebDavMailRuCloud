@@ -223,6 +223,28 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             {
                 datares = await new Requests.WebBin.ListRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, path, depth)
                     .MakeRequestAsync();
+
+                // если файл разбит или зашифрован - то надо взять все куски
+                // в протоколе V2 на запрос к файлу сразу приходит листинг каталога, в котором он лежит
+                // здесь (протокол Bin) приходит информация именно по указанному файлу
+                // поэтому вот такой костыль с двойным запросом
+                //TODO: переделать двойной запрос к файлу
+                if (datares.Item is Requests.WebBin.Types.FsFile fsfile && fsfile.Size < 2048)
+                {
+                    string name = WebDavPath.Name(path);
+                    path = WebDavPath.Parent(path);
+
+                    datares = await new Requests.WebBin.ListRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, path, 1)
+                        .MakeRequestAsync();
+
+                    var zz = datares.ToFolder();
+
+                    return zz.Files.First(f => f.Name == name);
+                }
+            }
+            catch (RequestException re) when (re.StatusCode ==  HttpStatusCode.NotFound)
+            {
+                return null;
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
@@ -239,7 +261,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             if (_creds.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
-            if (null == ulink)
+            if (null == ulink && depth > 1)
                 return await FolderInfo(path, depth);
 
             FolderInfoResult datares;
