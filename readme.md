@@ -38,9 +38,13 @@
 
 Using XTS AES-256 on-the-fly encryption/decryption
 
+* Set (en/de)cryption password
+  * with `>>crypt passwd` special command <br/>
+	or
+  * Add `#` and separator string to your login: `login@mail.ru#_SEP_`
+  * After your mail.ru password add separator string and password for encrypting: `MyLoginPassword_SEP_MyCryptingPassword`
+
 * Mark folder as encrypted using `>>crypt init` command
-* Add `#` and separator string to your login: `login@mail.ru#_SEP_`
-* After your mail.ru password add separator string and password for encrypting: `MyLoginPassword_SEP_MyCryptingPassword`
 * After that files uploaded to this folder will be encrypted
 
 ***Commands*** <br/>
@@ -61,6 +65,7 @@ Parameters with spaces must be screened by quotes.
   - and create `.share.wdmrc` file with public and direct play links <br/>
   - and create `.m3u8` playlist file
 * `>>crypt init` Mark current folder as encrypted
+* `>>crypt passwd password_for_encryption_decryption` Set password for encryption/decryption
 
 ***Settings*** in `wdmrc.exe.config`
 * Logging <br/>
