@@ -1,24 +1,16 @@
-dist: xenial
-addons:
-  snaps:
-  - name: dotnet-sdk
-    classic: true
-    channel: latest/beta
-sudo: required
 language: csharp
 solution: WebDAVMailRuCloud.sln
+dotnet: 2.0.0
 branches:
   only: 
 #    - master
     - /^\d+\.\d+\.\d+\.\d+$/
 install:
   - nuget restore WebDAVMailRuCloud.sln
-mono: none
 script:
-  - sudo snap alias dotnet-sdk.dotnet dotnet
-  - dotnet --version
   - nuget restore
-  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.0  
+  - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
+  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.0
 
 #before_script: 
 #    - |
