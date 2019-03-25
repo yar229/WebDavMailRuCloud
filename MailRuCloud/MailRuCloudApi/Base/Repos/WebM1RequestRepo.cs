@@ -53,6 +53,17 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
             //ShardManager = new ShardManager(HttpSettings, Authent);
+
+
+            CachedSharedList = new Cached<Dictionary<string, string>>(old =>
+                {
+                    var z = GetShareListInner().Result;
+
+                    var res = z.body.list.ToDictionary(fik => fik.home, fiv => fiv.weblink);
+
+                    return res;
+                }, 
+                value => TimeSpan.FromSeconds(30));
         }
 
         public IAuth Authent { get; }
@@ -316,11 +327,22 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         {
             var req = await new PublishRequest(HttpSettings, Authent, fullPath).MakeRequestAsync();
             var res = req.ToPublishResult();
+
+            if (res.IsSuccess)
+            {
+                CachedSharedList.Value[fullPath] = res.Url;
+            }
+
             return res;
         }
 
         public async Task<UnpublishResult> Unpublish(string publicLink)
         {
+            foreach (var item in CachedSharedList.Value.Where(kvp => kvp.Value == publicLink).ToList())
+            {
+                CachedSharedList.Value.Remove(item.Key);
+            }
+
             var req = await new UnpublishRequest(HttpSettings, Authent, publicLink).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
@@ -354,6 +376,25 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
 
             return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
+        }
+
+
+        public Cached<Dictionary<string, string>> CachedSharedList { get; }
+
+        private async Task<FolderInfoResult> GetShareListInner()
+        {
+            var res = await new SharedListRequest(HttpSettings, Authent)
+                .MakeRequestAsync();
+
+            return res;
+        }
+
+        public string GetShareLink(string path)
+        {
+            if (CachedSharedList.Value.TryGetValue(path, out var link))
+                return link;
+
+            return string.Empty;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

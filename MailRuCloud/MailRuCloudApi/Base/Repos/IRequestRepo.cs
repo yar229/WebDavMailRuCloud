@@ -50,5 +50,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         Task<RenameResult> Rename(string fullPath, string newName);
         Dictionary<ShardType, ShardInfo> GetShardInfo1();
+
+        string GetShareLink(string path);
     }
 }

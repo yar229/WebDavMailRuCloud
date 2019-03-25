@@ -237,7 +237,7 @@ namespace YaR.MailRuCloud.Api
         {
             foreach (var innerFile in file.Files)
             {
-                await Unpublish(innerFile.PublicLink);
+                await Unpublish(innerFile.GetPublicLink(this));
                 innerFile.PublicLink = string.Empty;
             }
             _itemCache.Invalidate(file.FullPath, file.Path);
@@ -714,8 +714,10 @@ namespace YaR.MailRuCloud.Api
                 {
                     var mpath = WebDavPath.Clean(file.FullPath.Substring(0, file.FullPath.Length - PublishInfo.SharedFilePostfix.Length));
                     var item = await GetItemAsync(mpath);
+
+
                     if (item is Folder folder)
-                        await Unpublish(folder.PublicLink);
+                        await Unpublish(folder.GetPublicLink(this));
                     else if (item is File ifile)
                         await Unpublish(ifile);
                 }
@@ -739,6 +741,11 @@ namespace YaR.MailRuCloud.Api
         }
 
         #endregion == Remove ========================================================================================================================
+
+        public string GetSharedLink(string fullPath)
+        {
+            return Account.RequestRepo.GetShareLink(fullPath);
+        }
 
         /// <summary>
         /// Get disk usage for account.

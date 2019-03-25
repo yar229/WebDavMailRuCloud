@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -300,6 +300,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
         }
 
+        public string GetShareLink(string fullPath)
+        {
+            throw new NotImplementedException("WebV2 GetShareLink not implemented");
+        }
 
         public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
         {

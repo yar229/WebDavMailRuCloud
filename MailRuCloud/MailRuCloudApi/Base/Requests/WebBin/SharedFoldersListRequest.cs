@@ -16,6 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
             using (var stream = new RequestBodyStream())
             {
                 stream.WritePu16((byte)Operation.SharedFoldersList);
+                //stream.WriteWithLength(new byte[0]);
                 var body = stream.GetBytes();
                 return body;
             }
@@ -38,8 +39,10 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                 Container = new Dictionary<string, FsFolder>()
             };
 
+
+            //var z = data.ReadAllBytes();
             //
-            var opres = data.ReadShort();
+            var opres = data.OperationResult; //data.ReadShort();
             switch (opres)
             {
                 case 0:
