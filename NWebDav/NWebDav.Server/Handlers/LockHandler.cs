@@ -85,12 +85,14 @@ namespace NWebDav.Server.Handlers
                     // Create an XML document from the stream
                     var xDoc = request.LoadXmlDocument();
 
-                    // The document should contain a 'propertyupdate' element
-                    if (xDoc.Root?.Name != WebDavNamespaces.DavNs + "lockinfo")
-                        throw new Exception("Invalid root element (expected 'lockinfo')");
-
                     // Save the root document
                     var xRoot = xDoc.Root;
+                    if (xRoot == null)
+                        throw new Exception("No root element (expected 'lockinfo')");
+
+                    // The document should contain a 'lockinfo' element
+                    if (xRoot.Name != WebDavNamespaces.DavNs + "lockinfo")
+                        throw new Exception("Invalid root element (expected 'lockinfo')");
 
                     // Check all descendants
                     var xLockScope = xRoot.Elements(WebDavNamespaces.DavNs + "lockscope").Single();
@@ -100,7 +102,7 @@ namespace NWebDav.Server.Handlers
                     else if (xLockScopeValue.Name == WebDavNamespaces.DavNs + "shared")
                         lockScope = LockScope.Shared;
                     else
-                        throw new Exception("Invalid locksope (expected 'exclusive' or 'shared')");
+                        throw new Exception("Invalid lockscope (expected 'exclusive' or 'shared')");
 
                     // Determine the lock-type
                     var xLockType = xRoot.Elements(WebDavNamespaces.DavNs + "locktype").Single();

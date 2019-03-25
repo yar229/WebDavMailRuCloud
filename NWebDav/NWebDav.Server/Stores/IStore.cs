@@ -107,6 +107,9 @@ namespace NWebDav.Server.Stores
         Task<StoreItemResult> CreateItemAsync(string name, bool overwrite, IHttpContext httpContext);
         Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext);
 
+        // Checks if the collection can be moved directly to the destination
+        bool SupportsFastMove(IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext);
+
         // Move items between collections
         Task<StoreItemResult> MoveItemAsync(string sourceName, IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext);
 

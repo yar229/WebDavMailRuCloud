@@ -233,7 +233,7 @@ namespace NWebDav.Server.Props
     /// <typeparam name="TEntry">
     /// Store item or collection to which this DAV property applies.
     /// </typeparam>
-    public class DavGetResourceType<TEntry> : DavXElement<TEntry> where TEntry : IStoreItem
+    public class DavGetResourceType<TEntry> : DavXElementArray<TEntry> where TEntry : IStoreItem
     {
         /// <summary>
         /// Name of the property (static).

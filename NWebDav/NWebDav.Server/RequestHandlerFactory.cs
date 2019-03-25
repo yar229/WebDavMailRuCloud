@@ -47,8 +47,7 @@ namespace NWebDav.Server
         public IRequestHandler GetRequestHandler(IHttpContext httpContext)
         {
             // Obtain the dispatcher
-            IRequestHandler requestHandler;
-            if (!s_requestHandlers.TryGetValue(httpContext.Request.HttpMethod, out requestHandler))
+            if (!s_requestHandlers.TryGetValue(httpContext.Request.HttpMethod, out var requestHandler))
                 return null;
 
             // Create an instance of the request handler

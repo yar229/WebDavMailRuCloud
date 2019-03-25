@@ -1,4 +1,3 @@
-using System;
 using System.Security.Principal;
 
 namespace NWebDav.Server.Http

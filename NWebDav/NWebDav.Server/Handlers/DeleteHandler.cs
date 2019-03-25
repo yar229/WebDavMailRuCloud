@@ -78,7 +78,7 @@ namespace NWebDav.Server.Handlers
             }
 
             // Delete item
-            var status = await DeleteItemAsync(parentCollection, splitUri.Name, httpContext, splitUri.CollectionUri, errors).ConfigureAwait(false);
+            var status = await DeleteItemAsync(parentCollection, splitUri.Name, httpContext, splitUri.CollectionUri).ConfigureAwait(false);
             if (status == DavStatusCode.Ok && errors.HasItems)
             {
                 // Obtain the status document
@@ -97,18 +97,18 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
+        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext, WebDavUri baseUri)
         {
             // Obtain the actual item
-            var deleteCollection = await collection.GetItemAsync(name, httpContext).ConfigureAwait(false) as IStoreCollection;
-            if (deleteCollection != null)
+            var deleteItem = await collection.GetItemAsync(name, httpContext).ConfigureAwait(false);
+            if (deleteItem is IStoreCollection deleteCollection)
             {
                 // Determine the new base URI
                 var subBaseUri = UriHelper.Combine(baseUri, name);
 
                 // Delete all entries first
                 foreach (var entry in await deleteCollection.GetItemsAsync(httpContext).ConfigureAwait(false))
-                    await DeleteItemAsync(deleteCollection, entry.Name, httpContext, subBaseUri, errors).ConfigureAwait(false);
+                    await DeleteItemAsync(deleteCollection, entry.Name, httpContext, subBaseUri).ConfigureAwait(false);
             }
 
             // Attempt to delete the item

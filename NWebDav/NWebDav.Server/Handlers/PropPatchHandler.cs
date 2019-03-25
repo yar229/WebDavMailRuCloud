@@ -44,7 +44,7 @@ namespace NWebDav.Server.Handlers
                 }
             }
 
-            public IList<PropSet> PropertySetters { get; } = new List<PropSet>();
+            private readonly IList<PropSet> _propertySetters = new List<PropSet>();
 
             public PropSetCollection(IHttpRequest request)
             {
@@ -53,7 +53,9 @@ namespace NWebDav.Server.Handlers
 
                 // The document should contain a 'propertyupdate' root element
                 var xRoot = xDoc.Root;
-                if (xRoot?.Name != WebDavNamespaces.DavNs + "propertyupdate")
+                if (xRoot == null)
+                    throw new Exception("No root element (expected 'propertyupdate')");
+                if (xRoot.Name != WebDavNamespaces.DavNs + "propertyupdate")
                     throw new Exception("Invalid root element (expected 'propertyupdate')");
 
                 // Check all descendants
@@ -83,7 +85,7 @@ namespace NWebDav.Server.Handlers
                             }
 
                             // Add the property
-                            PropertySetters.Add(new PropSet(xActualProperty.Name, newValue));
+                            _propertySetters.Add(new PropSet(xActualProperty.Name, newValue));
                         }
                     }
                 }
@@ -93,7 +95,7 @@ namespace NWebDav.Server.Handlers
             {
                 var xResponse = new XElement(WebDavNamespaces.DavNs + "response", new XElement(WebDavNamespaces.DavNs + "href", uri));
                 var xMultiStatus = new XElement(WebDavNamespaces.DavNs + "multistatus", xResponse);
-                foreach (var result in PropertySetters.Where(ps => ps.Result != DavStatusCode.Ok))
+                foreach (var result in _propertySetters.Where(ps => ps.Result != DavStatusCode.Ok))
                     xResponse.Add(result.GetXmlResponse());
                 return xMultiStatus;
             }
@@ -140,7 +142,7 @@ namespace NWebDav.Server.Handlers
             }
 
             // Scan each property
-            foreach (var propSet in propSetCollection.PropertySetters)
+            foreach (var propSet in propSetCollection)
             {
                 // Set the property
                 DavStatusCode result;
@@ -148,7 +150,7 @@ namespace NWebDav.Server.Handlers
                 {
                     result = await item.PropertyManager.SetPropertyAsync(httpContext, item, propSet.Name, propSet.Value).ConfigureAwait(false);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     result = DavStatusCode.Forbidden;
                 }

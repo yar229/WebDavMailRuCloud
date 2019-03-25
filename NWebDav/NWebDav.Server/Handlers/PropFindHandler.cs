@@ -81,8 +81,7 @@ namespace NWebDav.Server.Handlers
             }
 
             // Check if the entry is a collection
-            var topCollection = topEntry as IStoreCollection;
-            if (topCollection != null)
+            if (topEntry is IStoreCollection topCollection)
             {
                 // Determine depth
                 var depth = request.GetDepth();
@@ -135,16 +134,6 @@ namespace NWebDav.Server.Handlers
 
                 // Create tags for property values
                 var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
-                var xProp = new XElement(WebDavNamespaces.DavNs + "prop");
-                xPropStatValues.Add(xProp);
-
-                var xPropStatValues404 = new XElement(WebDavNamespaces.DavNs + "propstat");
-                var xProp404 = new XElement(WebDavNamespaces.DavNs + "prop");
-                xPropStatValues404.Add(xProp404);
-
-                var xPropStatValues500 = new XElement(WebDavNamespaces.DavNs + "propstat");
-                var xProp500 = new XElement(WebDavNamespaces.DavNs + "prop");
-                xPropStatValues500.Add(xProp500);
 
                 // Check if the entry supports properties
                 var propertyManager = entry.Entry.PropertyManager;
@@ -166,29 +155,23 @@ namespace NWebDav.Server.Handlers
                         if ((propertyMode & PropertyMode.AllProperties) != 0)
                         {
                             foreach (var propertyName in propertyManager.Properties.Where(p => !p.IsExpensive).Select(p => p.Name))
-                                await AddPropertyAsync(httpContext, xProp, xProp404, xProp500, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                                await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
                         }
 
                         if ((propertyMode & PropertyMode.SelectedProperties) != 0)
                         {
                             foreach (var propertyName in propertyList)
-                                await AddPropertyAsync(httpContext, xProp, xProp404, xProp500, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                                await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
                         }
 
                         // Add the values (if any)
-                        if (xProp.HasElements)
+                        if (xPropStatValues.HasElements)
                             xResponse.Add(xPropStatValues);
-                        if (xProp404.HasElements)
-                            xResponse.Add(xPropStatValues404);
-                        if (xProp500.HasElements)
-                            xResponse.Add(xPropStatValues500);
                     }
                 }
 
                 // Add the status
                 xPropStatValues.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 200 OK"));
-                xPropStatValues404.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 404 Not Found"));
-                xPropStatValues500.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 500 Internal server error"));
 
                 // Add the property
                 xMultiStatus.Add(xResponse);
@@ -201,7 +184,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xPropValues, XElement xProp404Values, XElement xProp500Values, IPropertyManager propertyManager, IStoreItem item, XName propertyName, IList<XName> addedProperties)
+        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xPropStatValues, IPropertyManager propertyManager, IStoreItem item, XName propertyName, IList<XName> addedProperties)
         {
             if (!addedProperties.Contains(propertyName))
             {
@@ -213,23 +196,34 @@ namespace NWebDav.Server.Handlers
                     {
                         var value = await propertyManager.GetPropertyAsync(httpContext, item, propertyName).ConfigureAwait(false);
                         if (value is IEnumerable<XElement>)
-                            value = ((IEnumerable<XElement>)value).Cast<object>().ToArray();
+                            value = ((IEnumerable<XElement>) value).Cast<object>().ToArray();
 
-                        //xPropValues.Add(new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, value)));
-                        xPropValues.Add(new XElement(propertyName, value));
+                        // Make sure we use the same 'prop' tag to add all properties
+                        var xProp = xPropStatValues.Element(WebDavNamespaces.DavNs + "prop");
+                        if (xProp == null)
+                        {
+                            xProp = new XElement(WebDavNamespaces.DavNs + "prop");
+                            xPropStatValues.Add(xProp);
+                        }
+
+                        xProp.Add(new XElement(propertyName, value));
                     }
-
-                    // disable warning cause of too much junk log messages
-                    //else
-                    //{
-                    //    s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
-                    //    xProp404Values.Add(new XElement(propertyName, ""));
-                    //}
+                    else
+                    {
+                        s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
+                        xResponse.Add(new XElement(WebDavNamespaces.DavNs + "propstat",
+                            new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, null)),
+                            new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 404 Not Found"),
+                            new XElement(WebDavNamespaces.DavNs + "responsedescription", $"Property {propertyName} is not supported.")));
+                    }
                 }
                 catch (Exception exc)
                 {
                     s_log.Log(LogLevel.Error, () => $"Property {propertyName} on item {item.Name} raised an exception.", exc);
-                    xProp500Values.Add(new XElement(propertyName, ""));
+                    xResponse.Add(new XElement(WebDavNamespaces.DavNs + "propstat",
+                        new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, null)),
+                        new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 500 Internal server error"),
+                        new XElement(WebDavNamespaces.DavNs + "responsedescription", $"Property {propertyName} on item {item.Name} raised an exception.")));
                 }
             }
         }
@@ -289,15 +283,14 @@ namespace NWebDav.Server.Handlers
             // Add the collection to the list
             entries.Add(new PropertyEntry(uri, collection));
 
-            // If we have enough depth, then add the childs
+            // If we have enough depth, then add the children
             if (depth > 0)
             {
                 // Add all child collections
                 foreach (var childEntry in await collection.GetItemsAsync(httpContext).ConfigureAwait(false))
                 {
                     var subUri = UriHelper.Combine(uri, childEntry.Name);
-                    var subCollection = childEntry as IStoreCollection;
-                    if (subCollection != null)
+                    if (childEntry is IStoreCollection subCollection)
                         await AddEntriesAsync(subCollection, depth - 1, httpContext, subUri, entries).ConfigureAwait(false);
                     else
                         entries.Add(new PropertyEntry(subUri, childEntry));

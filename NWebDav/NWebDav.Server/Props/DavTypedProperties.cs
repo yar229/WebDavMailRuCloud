@@ -94,7 +94,7 @@ namespace NWebDav.Server.Props
         /// </summary>
         public Func<IHttpContext, TEntry, TType> Getter
         {
-            get { return _getter; }
+            get => _getter;
             set
             {
                 _getter = value;
@@ -111,7 +111,7 @@ namespace NWebDav.Server.Props
         /// </summary>
         public Func<IHttpContext, TEntry, TType, DavStatusCode> Setter
         {
-            get { return _setter; }
+            get => _setter;
             set
             {
                 _setter = value;
@@ -128,7 +128,7 @@ namespace NWebDav.Server.Props
         /// </summary>
         public new Func<IHttpContext, TEntry, Task<TType>> GetterAsync
         {
-            get { return _getterAsync; }
+            get => _getterAsync;
             set
             {
                 _getterAsync = value;
@@ -145,7 +145,7 @@ namespace NWebDav.Server.Props
         /// </summary>
         public new Func<IHttpContext, TEntry, TType, Task<DavStatusCode>> SetterAsync
         {
-            get { return _setterAsync; }
+            get => _setterAsync;
             set
             {
                 _setterAsync = value;

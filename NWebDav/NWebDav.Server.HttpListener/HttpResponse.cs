@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 
 using NWebDav.Server.Http;
@@ -17,14 +16,14 @@ namespace NWebDav.Server.HttpListener
 
         public int Status
         {
-            get { return _response.StatusCode; }
-            set { _response.StatusCode = value; }
+            get => _response.StatusCode;
+            set => _response.StatusCode = value;
         }
 
         public string StatusDescription
         {
-            get { return _response.StatusDescription; }
-            set { _response.StatusDescription = value; }
+            get => _response.StatusDescription;
+            set => _response.StatusDescription = value;
         }
 
         public void SetHeaderValue(string header, string value)
@@ -33,6 +32,10 @@ namespace NWebDav.Server.HttpListener
             {
                 case "Content-Length":
                     _response.ContentLength64 = long.Parse(value);
+                    break;
+
+                case "Content-Type":
+                    _response.ContentType = value;
                     break;
 
                 default:

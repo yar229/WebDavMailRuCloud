@@ -175,6 +175,16 @@ namespace NWebDav.Server
 
         /// <summary>
         /// <para>
+        /// This is used for caching purposes. It is telling to client that
+        /// response has not been modified. So, client can continue to use
+        /// same cached version of response.
+        /// </para>
+        /// </summary>
+        [DavStatusCode("Not Modified")]
+        NotModified = HttpStatusCode.NotModified,
+
+        /// <summary>
+        /// <para>
         /// The request could not be understood by the server due to malformed
         /// syntax. The client SHOULD NOT repeat the request without
         /// modifications.

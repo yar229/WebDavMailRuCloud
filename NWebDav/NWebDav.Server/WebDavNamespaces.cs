@@ -47,7 +47,7 @@ namespace NWebDav.Server
         public static readonly XNamespace ReplNs = "http://schemas.microsoft.com/repl/";
 
         /// <summary>
-        /// Office namesapce (<c>urn:schemas-microsoft-com:office:office</c>).
+        /// Office namespace (<c>urn:schemas-microsoft-com:office:office</c>).
         /// It defines properties for use with Microsoft Office applications.
         /// More information can be found at
         /// <see href="https://msdn.microsoft.com/en-us/library/ms875215(v=exchg.65).aspx"/>.

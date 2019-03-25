@@ -18,15 +18,9 @@ namespace NWebDav.Server.Props
 
         public OverridePropertyManager(IEnumerable<DavProperty<TEntry>> properties, IPropertyManager basePropertyManager, Func<TEntry, IStoreItem> converter = null)
         {
-            // If properties are supported, then the properties should be set
-            if (properties == null)
-                throw new ArgumentNullException(nameof(properties));
-            if (basePropertyManager == null)
-                throw new ArgumentNullException(nameof(basePropertyManager));
-
             // Convert the properties to a dictionary for fast retrieval
-            _properties = properties.ToDictionary(p => p.Name);
-            _basePropertyManager = basePropertyManager;
+            _properties = properties?.ToDictionary(p => p.Name) ?? throw new ArgumentNullException(nameof(properties));
+            _basePropertyManager = basePropertyManager ?? throw new ArgumentNullException(nameof(basePropertyManager));
             _converter = converter ?? (si => si);
 
             // Create the property information immediately
@@ -38,8 +32,7 @@ namespace NWebDav.Server.Props
         public Task<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
         {
             // Find the property
-            DavProperty<TEntry> property;
-            if (!_properties.TryGetValue(propertyName, out property))
+            if (!_properties.TryGetValue(propertyName, out var property))
                 return _basePropertyManager.GetPropertyAsync(httpContext, _converter((TEntry)item), propertyName, skipExpensive);
 
             // Check if the property has a getter
@@ -57,8 +50,7 @@ namespace NWebDav.Server.Props
         public Task<DavStatusCode> SetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, object value)
         {
             // Find the property
-            DavProperty<TEntry> property;
-            if (!_properties.TryGetValue(propertyName, out property))
+            if (!_properties.TryGetValue(propertyName, out var property))
                 return _basePropertyManager.SetPropertyAsync(httpContext, _converter((TEntry)item), propertyName, value);
 
             // Check if the property has a setter
