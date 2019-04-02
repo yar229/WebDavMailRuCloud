@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
     <RootNamespace>YaR.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
   </PropertyGroup>

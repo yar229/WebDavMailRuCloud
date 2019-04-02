@@ -1,6 +1,6 @@
 ﻿namespace YaR.MailRuCloud.Api.Base.Streams
 {
-#if NETCOREAPP2_0
+#if NETCOREAPP2_2
 
     internal class UploadStream : UploadStreamHttpClient
     {
@@ -9,7 +9,7 @@
         }
     }
 
-#elif NET452
+#elif NET461
 
     internal class UploadStream : UploadStreamHttpWebRequest
     {
