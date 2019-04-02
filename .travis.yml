@@ -40,4 +40,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: yar229/WebDavMailRuCloud
-    tags: true    
+    tags: true
+global:
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+    DOTNET_CLI_TELEMETRY_OPTOUT=1
