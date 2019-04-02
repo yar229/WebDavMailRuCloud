@@ -26,8 +26,8 @@ script:
   #- "sed -ie 's/\\[assembly: AssemblyVersion(\"1.0.0.0\")\\]/\\[assembly: AssemblyVersion(\"$TRAVIS_TAG\")\\]/g' /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/Properties/AssemblyInfo.cs"
 before_deploy: 
   - rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/*.pdb
-    && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/Microsoft.*.pdb
-    && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/System.*.pdb
+    && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/Microsoft.*.dll
+    && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/System.*.dll
     && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/netstandard.dll    
     && zip WebDAVCloudMailRu-$TRAVIS_TAG-dotNet461.zip /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/net461/*.* -j
     && rm /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/bin/Release/netcoreapp2.2/publish/*.pdb
