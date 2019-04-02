@@ -13,7 +13,7 @@
 * [Linux](#linux) - Mono 4.8 / [.NET Core 2.2](https://www.microsoft.com/net/core#linuxredhat)
 * [OS X](#mac-os-x) - Mono 4.8 / [.NET Core 2.2](https://www.microsoft.com/net/core#macos)
 
-`WebDAVCloudMailRu-*-dotNet45.zip` / `WebDAVCloudMailRu-*-dotNetCore20.zip` respectively
+`WebDAVCloudMailRu-*-dotNet461.zip` / `WebDAVCloudMailRu-*-dotNetCore22.zip` respectively
 
 #### Usage
 ```
