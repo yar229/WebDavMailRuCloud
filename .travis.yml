@@ -1,5 +1,6 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
+dist: xenial
 dotnet: 2.2
 branches:
   only: 
