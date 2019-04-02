@@ -74,8 +74,7 @@ namespace NWebDav.Server.Props
         public Task<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
         {
             // Find the property
-            DavProperty<TEntry> property;
-            if (!_properties.TryGetValue(propertyName, out property))
+            if (!_properties.TryGetValue(propertyName, out var property))
                 return Task.FromResult((object)null);
 
             // Check if the property has a getter
@@ -107,13 +106,12 @@ namespace NWebDav.Server.Props
         /// </param>
         /// <returns>
         /// A task that represents the set property operation. The task will
-        /// return the WebDAV statuscode of the set operation upon completion.
+        /// return the WebDAV status code of the set operation upon completion.
         /// </returns>
         public Task<DavStatusCode> SetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, object value)
         {
             // Find the property
-            DavProperty<TEntry> property;
-            if (!_properties.TryGetValue(propertyName, out property))
+            if (!_properties.TryGetValue(propertyName, out var property))
                 return Task.FromResult(DavStatusCode.NotFound);
 
             // Check if the property has a setter

@@ -3,8 +3,8 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>library</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
+    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_2</DefineConstants>
     <PackageId></PackageId>
     <AssemblyVersion>1.10.0.5</AssemblyVersion>
     <FileVersion>1.10.0.5</FileVersion>
@@ -19,10 +19,10 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.Configuration.Install" />
-    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.ServiceProcess" />
-    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="System.Xml.Linq" />
-    <Reference Condition="'$(TargetFramework)' == 'NET452'" Include="Microsoft.CSharp" />
+    <Reference Condition="'$(TargetFramework)' == 'NET461'" Include="System.Configuration.Install" />
+    <Reference Condition="'$(TargetFramework)' == 'NET461'" Include="System.ServiceProcess" />
+    <Reference Condition="'$(TargetFramework)' == 'NET461'" Include="System.Xml.Linq" />
+    <Reference Condition="'$(TargetFramework)' == 'NET461'" Include="Microsoft.CSharp" />
   </ItemGroup>
   
   <ItemGroup>

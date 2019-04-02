@@ -110,6 +110,17 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Public link.</value>
         public string PublicLink { get; internal set; }
 
+        public string GetPublicLink(MailRuCloud cloud)
+        {
+            string pl = PublicLink;
+            if (string.IsNullOrEmpty(pl))
+            {
+                pl = cloud.GetSharedLink(FullPath);
+            }
+
+            return pl;
+        }
+
         /// <summary>
         /// List of phisical files contains data
         /// </summary>

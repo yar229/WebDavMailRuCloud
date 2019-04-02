@@ -18,6 +18,7 @@ namespace NWebDav.Server.Helpers
 #if DEBUG
         private static readonly NWebDav.Server.Logging.ILogger s_log = NWebDav.Server.Logging.LoggerFactory.CreateLogger(typeof(ResponseHelper));
 #endif
+        private static readonly UTF8Encoding s_utf8Encoding = new UTF8Encoding(false);  // Suppress BOM (not compatible with WebDrive)
 
         /// <summary>
         /// Set status of the HTTP response.
@@ -83,8 +84,7 @@ namespace NWebDav.Server.Helpers
 #else
                     Indent = false,
 #endif
-                    //Encoding = Encoding.UTF8,
-                    Encoding = Encoding
+                    Encoding = s_utf8Encoding,
                 }))
                 {
                     // Add the namespaces (Win7 WebDAV client requires them like this)
@@ -117,7 +117,5 @@ namespace NWebDav.Server.Helpers
                 await ms.CopyToAsync(response.Stream).ConfigureAwait(false);
             }
         }
-
-        private static readonly Encoding Encoding = new UTF8Encoding(false); //supress BOM (WebDrive not working)
     }
 }

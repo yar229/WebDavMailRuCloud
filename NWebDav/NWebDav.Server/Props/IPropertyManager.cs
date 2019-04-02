@@ -59,7 +59,7 @@ namespace NWebDav.Server.Props
         /// </param>
         /// <returns>
         /// A task that represents the set property operation. The task will
-        /// return the WebDAV statuscode of the set operation upon completion.
+        /// return the WebDAV status code of the set operation upon completion.
         /// </returns>
         Task<DavStatusCode> SetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, object value);
     }

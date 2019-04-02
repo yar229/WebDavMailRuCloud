@@ -94,6 +94,17 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Public link.</value>
         public string PublicLink { get; set; }
 
+        public string GetPublicLink(MailRuCloud cloud)
+        {
+            string pl = PublicLink;
+            if (string.IsNullOrEmpty(pl))
+            {
+                pl = cloud.GetSharedLink(FullPath);
+            }
+
+            return pl;
+        }
+
         public DateTime CreationTimeUtc { get; set; } = DateTime.Now.AddDays(-1);
 
         public DateTime LastWriteTimeUtc { get; set; } = DateTime.Now.AddDays(-1);

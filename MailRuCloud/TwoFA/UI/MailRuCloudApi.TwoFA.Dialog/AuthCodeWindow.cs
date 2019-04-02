@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 using YaR.MailRuCloud.Api;
 
@@ -6,8 +7,12 @@ namespace YaR.MailRuCloud.TwoFA.UI
 {
     public class AuthCodeWindow : ITwoFaHandler
     {
-        public AuthCodeWindow()
-        { }
+        private readonly IEnumerable<KeyValuePair<string, string>> _parames;
+
+        public AuthCodeWindow(IEnumerable<KeyValuePair<string, string>> parames)
+        {
+            _parames = parames;
+        }
 
         public string Get(string login, bool isAutoRelogin)
         {

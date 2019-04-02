@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-#if NET452
+#if NET461
 using System;
 using System.Configuration.Install;
 using System.Reflection;

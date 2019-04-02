@@ -73,10 +73,18 @@ Parameters with spaces must be screened by quotes.
 	`<config><AdditionalSpecialCommandPrefix>` <br/>
 	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
 * 2 Factor Authentification <br/>
-	`<config><TwoFactorAuthHandlerName>` <br/>
 	At this time you can use
-	* `AuthCodeWindow` - asks for authcode in GUI window (only for .NET Framework releases)
-	* `AuthCodeConsole` - asks for authcode in application console
+	* `<TwoFactorAuthHandler Name = "AuthCodeConsole"/>` - asks for authcode in application console
+	* `<TwoFactorAuthHandler Name = "AuthCodeWindow"/>` - asks for authcode in GUI window (only for .NET Framework releases)
+	* 
+		```
+		<TwoFactorAuthHandler Name = "AuthCodeFile">
+			<Param Name = "Directory" Value = "d:"/>
+			<Param Name = "FilenamePrefix" Value = "wdmrc_2FA_"/>
+		</TwoFactorAuthHandler>
+		```
+	   user must write auth code to file. For example, user `test@mail.ru` writes code to `d:\wdmrc_2FA_test@mail.ru`.
+	
 	
 	Be careful, this methods does not usable when application started as a service/daemon. <br>
 	You can make your own 2FA handlers inherited from `ITwoFaHandler` and put it in separate dll which name starts with `MailRuCloudApi.TwoFA`

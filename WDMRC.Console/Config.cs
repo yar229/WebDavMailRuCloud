@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using YaR.WebDavMailRu.CloudStore;
 
 namespace YaR.CloudMailRu.Console
 {
@@ -17,12 +19,26 @@ namespace YaR.CloudMailRu.Console
 
         public static XmlElement Log4Net => (XmlElement)Document.SelectSingleNode("/config/log4net");
 
-        public static string TwoFactorAuthHandlerName
+        public static TwoFactorAuthHandlerInfo TwoFactorAuthHandler
         {
             get
             {
-                var res = Document.SelectSingleNode("/config/TwoFactorAuthHandlerName").InnerText;
-                return res;
+                var info = new TwoFactorAuthHandlerInfo();
+
+                var node = Document.SelectSingleNode("/config/TwoFactorAuthHandler");
+                info.Name = node.Attributes["Name"].InnerText;
+                var parames = new List<KeyValuePair<string, string>>();
+                foreach (XmlNode childNode in node.ChildNodes)
+                {
+                    string pname = childNode.Attributes["Name"].InnerText;
+                    string pvalue = childNode.Attributes["Value"].InnerText;
+                    parames.Add(new KeyValuePair<string, string>(pname, pvalue));
+                }
+
+                info.Parames = parames;
+
+
+                return info;
             }
         }
 

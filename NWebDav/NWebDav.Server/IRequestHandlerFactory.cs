@@ -15,14 +15,14 @@ namespace NWebDav.Server
     /// </para>
     /// <para>
     /// The NWebDAV library provides a default implementation
-    /// (<see cref="NWebDav.Server.Handlers.RequestHandlerFactory"/>) that
+    /// (<see cref="NWebDav.Server.RequestHandlerFactory"/>) that
     /// should be suitable for most situations. You can provide your own
     /// implementation if you wish to change the default mapping or replace
     /// a handler with your own.
     /// </para>
     /// </remarks>
     /// <seealso cref="NWebDav.Server.IRequestHandler"/>
-    /// <seealso cref="NWebDav.Server.Handlers.RequestHandlerFactory"/>
+    /// <seealso cref="NWebDav.Server.RequestHandlerFactory"/>
     public interface IRequestHandlerFactory
     {
         /// <summary>

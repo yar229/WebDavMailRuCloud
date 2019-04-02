@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 using NWebDav.Server.Http;
-using NWebDav.Server.Logging;
 
 namespace NWebDav.Server.Helpers
 {
@@ -123,8 +122,7 @@ namespace NWebDav.Server.Helpers
                 return int.MaxValue;
 
             // Determined depth
-            int depth;
-            if (!int.TryParse(depthHeader, out depth))
+            if (!int.TryParse(depthHeader, out var depth))
                 return int.MaxValue;
 
             // Return depth
@@ -172,21 +170,20 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Return each item
-            Func<string, int> parseTimeout = t =>
+            int ParseTimeout(string t)
             {
                 // Check for 'infinite'
                 if (t == "Infinite")
                     return -1;
 
                 // Parse the number of seconds
-                int timeout;
-                if (!t.StartsWith("Second-") || !int.TryParse(t.Substring(7), out timeout))
+                if (!t.StartsWith("Second-") || !int.TryParse(t.Substring(7), out var timeout))
                     return 0;
                 return timeout;
-            };
+            }
 
             // Return the timeout values
-            return timeoutHeader.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(parseTimeout).Where(t => t != 0).ToArray();
+            return timeoutHeader.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(ParseTimeout).Where(t => t != 0).ToArray();
         }
 
         /// <summary>
@@ -268,8 +265,7 @@ namespace NWebDav.Server.Helpers
                 // Attempt to parse the date. If we don't understand the If-Range
                 // then we need to return the entire file, so we will act as if no
                 // range was specified at all.
-                DateTime dt;
-                if (!DateTime.TryParse(ifRangeHeader, CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+                if (!DateTime.TryParse(ifRangeHeader, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
                     return null;
 
                 // Use the date for the 'If'
@@ -298,8 +294,7 @@ namespace NWebDav.Server.Helpers
             var contentLengthString = request.GetHeaderValue("Content-Length");
             if (contentLengthString != null)
             {
-                int contentLength;
-                if (!int.TryParse(contentLengthString, out contentLength) || contentLength == 0)
+                if (!int.TryParse(contentLengthString, out var contentLength) || contentLength == 0)
                     return null;
             }
 
@@ -311,10 +306,10 @@ namespace NWebDav.Server.Helpers
             var xDocument = XDocument.Load(request.Stream);
 #if DEBUG
             // Dump the XML document to the logging
-            if (xDocument.Root != null && s_log.IsLogEnabled(LogLevel.Debug))
+            if (xDocument.Root != null && s_log.IsLogEnabled(NWebDav.Server.Logging.LogLevel.Debug))
             {
                 // Format the XML document as an in-memory text representation
-                using (var ms = new System.IO.MemoryStream())
+                using (var ms = new MemoryStream())
                 {
                     using (var xmlWriter = System.Xml.XmlWriter.Create(ms, new System.Xml.XmlWriterSettings
                     {
@@ -331,11 +326,11 @@ namespace NWebDav.Server.Helpers
                     ms.Flush();
 
                     // Reset stream and write the stream to the result
-                    ms.Seek(0, System.IO.SeekOrigin.Begin);
+                    ms.Seek(0, SeekOrigin.Begin);
 
                     // Log the XML text to the logging
-                    var reader = new System.IO.StreamReader(ms);
-                    s_log.Log(LogLevel.Debug, () => reader.ReadToEnd());
+                    var reader = new StreamReader(ms);
+                    s_log.Log(NWebDav.Server.Logging.LogLevel.Debug, () => reader.ReadToEnd());
                 }
             }
 #endif

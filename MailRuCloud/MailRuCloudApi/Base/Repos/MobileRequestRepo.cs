@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -218,6 +218,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             throw new NotImplementedException("Mobile GetShardInfo1 not implemented");
             //YaR.MailRuCloud.Api.Base.Requests.WebBin.
             //return new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo();
+        }
+
+        public string GetShareLink(string fullPath)
+        {
+            throw new NotImplementedException("Mobile GetShareLink not implemented");
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

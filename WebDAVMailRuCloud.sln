@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28721.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8950FA45-4F13-42FE-B32D-736C1426E0EF}"
 	ProjectSection(SolutionItems) = preProject
@@ -34,10 +34,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WDMRC.Console.Client", "Web
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinServiceInstaller", "WinServiceInstaller\WinServiceInstaller.csproj", "{902BFB53-D205-4A0F-8818-A8636C6DD17E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailRuCloudApi.TwoFA.File", "MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj", "{7213BC64-B5C1-48BB-9F13-5A4A8623D467}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
@@ -269,6 +268,30 @@ Global
 		{902BFB53-D205-4A0F-8818-A8636C6DD17E}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
 		{902BFB53-D205-4A0F-8818-A8636C6DD17E}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
 		{902BFB53-D205-4A0F-8818-A8636C6DD17E}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|ARM.Build.0 = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|x64.Build.0 = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Debug|x86.Build.0 = Debug|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|ARM.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|ARM.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|x64.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|x64.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|x86.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.Release|x86.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|Any CPU.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|Any CPU.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|ARM.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|ARM.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|x64.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|x64.Build.0 = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|x86.ActiveCfg = Release|Any CPU
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467}.ReleaseBinaries|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -281,9 +304,13 @@ Global
 		{BE0C36C2-6D4A-4F48-B91A-36CC75707984} = {5AB56772-AA33-481C-8CD6-A8D16C0C16C2}
 		{8CA26109-56B3-420E-A1B6-0A2D22FF619F} = {BE0C36C2-6D4A-4F48-B91A-36CC75707984}
 		{D88209ED-696D-450F-92FE-D098651D2565} = {8CA26109-56B3-420E-A1B6-0A2D22FF619F}
+		{7213BC64-B5C1-48BB-9F13-5A4A8623D467} = {8CA26109-56B3-420E-A1B6-0A2D22FF619F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {59A703E3-F9FA-4E67-98D2-514511B4105C}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

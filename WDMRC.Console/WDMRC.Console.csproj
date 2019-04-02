@@ -3,16 +3,16 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;net452</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_0</DefineConstants>
+    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_2</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.10.4.1</AssemblyVersion>
-    <FileVersion>1.10.4.1</FileVersion>
+    <AssemblyVersion>1.10.5.0</AssemblyVersion>
+    <FileVersion>1.10.5.0</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
     <StartupObject></StartupObject>
@@ -29,13 +29,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.2.0" /> 
+    <PackageReference Include="CommandLineParser" Version="2.4.3" /> 
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
-    <ProjectReference Condition="'$(TargetFramework)' == 'NET452'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
+    <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj" />
+    <ProjectReference Condition="'$(TargetFramework)' == 'NET461'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
     <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />

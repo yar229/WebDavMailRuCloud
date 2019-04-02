@@ -1,4 +1,4 @@
-﻿#if NET452
+﻿#if NET461
 using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;

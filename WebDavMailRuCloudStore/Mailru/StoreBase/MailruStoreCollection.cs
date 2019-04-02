@@ -23,6 +23,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
     public sealed class MailruStoreCollection : IMailruStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
+        private static readonly XElement SxDavCollection = new XElement(WebDavNamespaces.DavNs + "collection");
         private readonly IHttpContext _context;
         private readonly Folder _directoryInfo;
         public Folder DirectoryInfo => _directoryInfo;
@@ -146,10 +147,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             },
 
 
+            //new DavGetResourceType<MailruStoreCollection>
+            //{
+            //    Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
+            //},
             new DavGetResourceType<MailruStoreCollection>
             {
-                Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
+                Getter = (context, collection) => new []{SxDavCollection}
             },
+
 
             // Default locking property handling via the LockingManager
             new DavLockDiscoveryDefault<MailruStoreCollection>(),
@@ -365,6 +371,11 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             }
 
             return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(httpContext, LockingManager, new Folder(destinationPath), IsWritable)));
+        }
+
+        public bool SupportsFastMove(IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext)
+        {
+            return false;
         }
 
         public Task<Stream> GetReadableStreamAsync(IHttpContext httpContext) => Task.FromResult((Stream)null);
