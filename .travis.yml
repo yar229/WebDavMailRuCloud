@@ -1,6 +1,6 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
-dotnet: 2.0.0
+dotnet: 2.2.0
 branches:
   only: 
 #    - master
@@ -10,7 +10,7 @@ install:
 script:
   - nuget restore
   - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
-  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.0
+  - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.2
 
 #before_script: 
 #    - |
