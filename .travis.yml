@@ -1,6 +1,6 @@
 language: csharp
 solution: WebDAVMailRuCloud.sln
-dotnet: 2.2.0
+dotnet: 2.2
 branches:
   only: 
 #    - master
