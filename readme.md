@@ -21,6 +21,9 @@
 	-h, --host	   	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads       	  (Default: 5) Maximum concurrent connections to cloud.mail.ru
 	--cache-listing    	  (Default: 30) Cache folders listing, sec
+	--cache-listing-depth  	  (Default: 1) Cache folders listing depth. 
+  					If large folder browsing is extremely slow, set to 2	
+	
 	--protocol         	  (Default: WebM1Bin) Cloud protocol
 				 	  * WebM1Bin	- (preferable) mix of mobile and DiskO protocols
 				 	  * WebV2		- desktop browser protocol
