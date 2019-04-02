@@ -7,6 +7,13 @@ using YaR.MailRuCloud.Api;
 
 namespace YaR.WebDavMailRu.CloudStore
 {
+    public class TwoFactorAuthHandlerInfo
+    {
+        public string Name { get; set; }
+
+        public IEnumerable<KeyValuePair<string, string>> Parames { get; set; }
+    }
+
     public static class TwoFaHandlers
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(TwoFaHandlers));
@@ -19,19 +26,19 @@ namespace YaR.WebDavMailRu.CloudStore
         private static readonly List<Type> HandlerTypes;
 
 
-        public static ITwoFaHandler Get(string name)
+        public static ITwoFaHandler Get(TwoFactorAuthHandlerInfo handlerInfo)
         {
-            var type = HandlerTypes.FirstOrDefault(t => t.Name == name);
+            var type = HandlerTypes.FirstOrDefault(t => t.Name == handlerInfo.Name);
             if (null == type) return null;
 
             ITwoFaHandler inst = null;
             try
             {
-                inst = (ITwoFaHandler)Activator.CreateInstance(type);
+                inst = (ITwoFaHandler)Activator.CreateInstance(type, handlerInfo.Parames);
             }
             catch (Exception e)
             {
-                Logger.Error($"Cannot create instance of 2FA handler {name}. {e}");
+                Logger.Error($"Cannot create instance of 2FA handler {handlerInfo.Name}. {e}");
             }
             
             return inst;

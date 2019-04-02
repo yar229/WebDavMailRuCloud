@@ -5,6 +5,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 {
     class RepoFabric
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(RepoFabric));
+
         private readonly CloudSettings _settings;
         private readonly Credentials _credentials;
         private readonly IWebProxy _proxy;
@@ -18,7 +20,13 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public IRequestRepo Create()
         {
-            string TwoFaHandler(string login, bool isAutoRelogin) => _settings.TwoFaHandler?.Get(login, isAutoRelogin);
+            string TwoFaHandler(string login, bool isAutoRelogin)
+            {
+                Logger.Info($"Waiting 2FA code for {login}");
+                var code = _settings.TwoFaHandler?.Get(login, isAutoRelogin);
+                Logger.Info($"Got 2FA code for {login}");
+                return code;
+            }
 
             IRequestRepo repo;
             switch (_settings.Protocol)

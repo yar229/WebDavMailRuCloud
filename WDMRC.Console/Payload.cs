@@ -5,7 +5,6 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using CommandLine;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
@@ -39,18 +38,20 @@ namespace YaR.CloudMailRu.Console
 
             LoggerFactory.Factory = new Log4NetAdapter();
 
-            ShowInfo(options);
-
             CloudManager.Settings = new CloudSettings
             {
-                TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandlerName),
+                TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandler),
                 Protocol = options.Protocol,
                 UserAgent = options.UserAgent,
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix
             };
-            
+
+            ShowInfo(options);
+
+            //var z = CloudManager.Settings.TwoFaHandler.Get("zzz", true);
+
             var httpListener = new HttpListener();
             var httpListenerOptions = new HttpListenerOptions(options);
 	        try
@@ -79,14 +80,14 @@ namespace YaR.CloudMailRu.Console
             }
         }
 
-        private static ITwoFaHandler LoadHandler(string handlerName)
+        private static ITwoFaHandler LoadHandler(TwoFactorAuthHandlerInfo handlerInfo)
         {
             ITwoFaHandler twoFaHandler = null;
-            if (!string.IsNullOrEmpty(handlerName))
+            if (!string.IsNullOrEmpty(handlerInfo.Name))
             {
-                twoFaHandler = TwoFaHandlers.Get(handlerName);
+                twoFaHandler = TwoFaHandlers.Get(handlerInfo);
                 if (null == twoFaHandler)
-                    Logger.Error($"Cannot load two-factor auth handler {handlerName}");
+                    Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
             }
 
             return twoFaHandler;
@@ -199,4 +200,6 @@ namespace YaR.CloudMailRu.Console
             return ".NET Framework " + Environment.Version;
         }
     }
+
+
 }
