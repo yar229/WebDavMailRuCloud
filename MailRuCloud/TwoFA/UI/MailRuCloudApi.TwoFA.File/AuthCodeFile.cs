@@ -11,10 +11,12 @@ namespace YaR.MailRuCloud.TwoFA.UI
     {
         private readonly IEnumerable<KeyValuePair<string, string>> _parames;
         private string _dirPath;
+        private bool _doDeleteFileAfter;
         private string _filePrefix;
 
         private const string DirectoryParamName = "Directory";
         private const string FilenamePrefixParamName = "FilenamePrefix";
+        private const string DoDeleteFileAfterName = "DoDeleteFileAfter";
 
         public AuthCodeFile(IEnumerable<KeyValuePair<string, string>> parames)
         {
@@ -25,12 +27,13 @@ namespace YaR.MailRuCloud.TwoFA.UI
                 throw new DirectoryNotFoundException($"2FA: directory not found {_dirPath}");
 
             _filePrefix = _parames.First(p => p.Key == FilenamePrefixParamName).Value ?? string.Empty;
+
+            var val = _parames.FirstOrDefault(p => p.Key == DoDeleteFileAfterName).Value;
+            _doDeleteFileAfter = string.IsNullOrWhiteSpace(val) || bool.Parse(val);
         }
 
         private readonly AutoResetEvent _fileSignal = new AutoResetEvent(false);
         private string _code;
-
-        
 
         public string Get(string login, bool isAutoRelogin)
         {
@@ -50,6 +53,14 @@ namespace YaR.MailRuCloud.TwoFA.UI
                     watcher.EnableRaisingEvents = false;
                     Thread.Sleep(500);
                     _code = File.ReadAllText(filepath);
+                    try
+                    {
+                        File.Delete(filepath);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore
+                    }
                     _fileSignal.Set();
                 }
             };
