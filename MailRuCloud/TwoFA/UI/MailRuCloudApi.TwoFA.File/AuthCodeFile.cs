@@ -55,7 +55,8 @@ namespace YaR.MailRuCloud.TwoFA.UI
                     _code = File.ReadAllText(filepath);
                     try
                     {
-                        File.Delete(filepath);
+                        if (_doDeleteFileAfter)
+                            File.Delete(filepath);
                     }
                     catch (Exception)
                     {
