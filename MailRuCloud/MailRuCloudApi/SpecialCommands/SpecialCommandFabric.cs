@@ -80,6 +80,11 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             },
             new SpecialCommandContainer
             {
+                Commands = new [] {"rlist"},
+                CreateFunc = (cloud, path, param) => new ListCommand(cloud, path, param)
+            },
+            new SpecialCommandContainer
+            {
                 Commands = new [] {"test"},
                 CreateFunc = (cloud, path, param) => new TestCommand(cloud, path, param)
             }
