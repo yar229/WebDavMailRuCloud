@@ -171,16 +171,18 @@ Windows 7 client might perform very bad when connecting to any WebDAV server. Th
 See also 
 * [Package for Gentoo Linux](https://github.com/yar229/WebDavMailRuCloud/issues/66) by [powerman](https://github.com/powerman)
 * Docker image by [slothds](https://github.com/slothds) ([DockerHub](https://hub.docker.com/r/slothds/wdmrc-proxy/), [GitHub](https://github.com/slothds/wdmrc-proxy))
+* Docker image by [ivang7](https://github.com/ivang7) HTTP & HTTPS [DockerHub](https://hub.docker.com/r/ivang7/webdav-mailru-cloud)
 
-<details>
-<summary>Mount with davfs2</summary>
+
+
+
+Mount with davfs2
 * `mkdir /mnt/<folder>`
 * edit `/etc/davfs2/davfs2.conf` set `use_locks       0`
 * `sudo mount --rw -t davfs http://<address>:<port> /mnt/<folder>/ -o uid=<current_linux_user>`
-</details>
 
-<details>
-<summary>CERTIFICATE_VERIFY_FAILED exception</summary>
+
+CERTIFICATE_VERIFY_FAILED exception
 [Issue 56](https://github.com/yar229/WebDavMailRuCloud/issues/56)
 [default installation of Mono doesn’t trust anyone](http://www.mono-project.com/docs/faq/security/)
 
@@ -190,7 +192,6 @@ In short:
 # cert-sync ca-bundle.crt
 # rm ca-bundle.crt
 ```
-</details>
 
 #### Mac OS X
 
