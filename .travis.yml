@@ -10,7 +10,7 @@ install:
   - nuget restore WebDAVMailRuCloud.sln
 script:
   - nuget restore
-  - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
+  - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /m:1 /maxcpucount=1 WebDAVMailRuCloud.sln
   - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.2
 
 #before_script: 
