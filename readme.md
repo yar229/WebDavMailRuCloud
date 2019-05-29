@@ -52,7 +52,7 @@ Using XTS AES-256 on-the-fly encryption/decryption
 Commands executed by making directory with special name.<br/>
 Parameters with spaces must be screened by quotes.
 * `>>join SHARED_FOLDER_LINK` Clone shared cloud.mail.ru file/folder to your account
-* `>>join #filehash filesize [/][path]filename]` Clone cloud.mail.ru file to your account by known hash and size
+* `>>join #filehash filesize [/][path]filename` Clone cloud.mail.ru file to your account by known hash and size
 * `>>link SHARED_FOLDER_LINK [linkname]` Link shared folder without wasting your space (or manually edit file /item.links.wdmrc)
   * `>>link check` Remove all dead links (may take time if there's a lot of links)
 * `>>move` `/full/path/from /full/path/to` Fast move (if your client moves inner items recursively)
