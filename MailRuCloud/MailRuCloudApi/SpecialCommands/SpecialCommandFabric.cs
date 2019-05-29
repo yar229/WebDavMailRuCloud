@@ -31,7 +31,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
             new SpecialCommandContainer
             {
                 Commands = new [] {"join"},
-                CreateFunc = (cloud, path, param) => new SharedFolderJoinCommand(cloud, path, param)
+                CreateFunc = (cloud, path, param) => new JoinCommand(cloud, path, param)
             },
             new SpecialCommandContainer
             {

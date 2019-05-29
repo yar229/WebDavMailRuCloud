@@ -5,6 +5,12 @@ namespace YaR.MailRuCloud.Api.Base
 {
     public static class WebDavPath
     {
+        public static bool IsFullPath(string path)
+        {
+            return path.StartsWith("/");
+        }
+
+
         public static string Combine(string a, string b)
         {
             a = Clean(a);
