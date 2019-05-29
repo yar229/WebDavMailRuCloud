@@ -989,6 +989,9 @@ namespace YaR.MailRuCloud.Api
         public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
             var res = await Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
+            
+            if (res.Success)
+                _itemCache.Invalidate(fullFilePath, WebDavPath.Parent(fullFilePath));
 
             return res;
         }

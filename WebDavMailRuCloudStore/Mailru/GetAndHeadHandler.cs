@@ -48,13 +48,17 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             // Determine the requested range
             var range = request.GetRange();
 
-            var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false); //mrstore.ItemCache.Get(request.Url, httpContext); // 
+            // Obtain the WebDAV collection
+            var entry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false);
             if (entry == null)
             {
                 // Set status to not found
                 response.SetStatus(DavStatusCode.NotFound);
                 return true;
             }
+
+            // ETag might be used for a conditional request
+            string etag = null;
 
             // Add non-expensive headers based on properties
             var propertyManager = entry.PropertyManager;
@@ -66,7 +70,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
                     response.SetHeaderValue("Last-Modified", lastModifiedUtc);
 
                 // Add ETag
-                var etag = (string)(await propertyManager.GetPropertyAsync(httpContext, entry, DavGetEtag<IStoreItem>.PropertyName, true).ConfigureAwait(false));
+                etag = (string)(await propertyManager.GetPropertyAsync(httpContext, entry, DavGetEtag<IStoreItem>.PropertyName, true).ConfigureAwait(false));
                 if (etag != null)
                     response.SetHeaderValue("Etag", etag);
 
@@ -133,6 +137,14 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
                     catch (NotSupportedException)
                     {
                         // If the content length is not supported, then we just skip it
+                    }
+
+                    // Do not return the actual item data if ETag matches
+                    if (etag != null && request.GetHeaderValue("If-None-Match") == etag)
+                    {
+                        response.SetHeaderValue("Content-Length", "0");
+                        response.SetStatus(DavStatusCode.NotModified);
+                        return true;
                     }
 
                     // HEAD method doesn't require the actual item data
