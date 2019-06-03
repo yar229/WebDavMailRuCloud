@@ -6,10 +6,14 @@ branches:
   only: 
 #    - master
     - /^\d+\.\d+\.\d+\.\d+$/
+
+before_install:
+  - mkdir -p .nuget
+  - wget -O .nuget/nuget.exe https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+  - mono .nuget/nuget.exe # Output NuGet's version number
 install:
-  - nuget restore WebDAVMailRuCloud.sln
+  - mono .nuget/nuget.exe restore WebDAVMailRuCloud.sln
 script:
-  - nuget restore
   - msbuild /t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" WebDAVMailRuCloud.sln
   - dotnet publish /home/travis/build/yar229/WebDavMailRuCloud/WDMRC.Console/WDMRC.Console.csproj -c Release -f netcoreapp2.2
 
