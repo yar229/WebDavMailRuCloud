@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using YaR.MailRuCloud.Api.Common;
+using YaR.MailRuCloud.Api.Extensions;
 using YaR.WebDavMailRu.CloudStore;
 
 namespace YaR.CloudMailRu.Console
@@ -58,6 +60,23 @@ namespace YaR.CloudMailRu.Console
                     return null;
                 }
 
+            }
+        }
+
+        public static SharedVideoResolution DefaultSharedVideoResolution
+        {
+            get
+            {
+                try
+                {
+                    string evalue = Document.SelectSingleNode("/config/DefaultSharedVideoResolution").InnerText;
+                    var res = EnumExtensions.ParseEnumMemberValue<SharedVideoResolution>(evalue);
+                    return (SharedVideoResolution)res;
+                }
+                catch (Exception)
+                {
+                    return SharedVideoResolution.All;
+                }
             }
         }
     }

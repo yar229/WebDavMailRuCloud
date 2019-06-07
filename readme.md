@@ -61,9 +61,11 @@ Parameters with spaces must be screened by quotes.
 * `>>del [[/]path]` Fast delete (if your client makes recursive deletions of inner items)
 * `>>share [[/]path]` Make file/folder public <br/>
   - and create `.share.wdmrc` file with links
-* `>>sharev [[/]path]` Make media file public <br/>
+* `>>sharev [[/]path] [resolution]` Make media file public <br/>
+  - `resolution` = `0p` (all), `240p`, `360p`, `480p`, `720p`, `1080p`
   - and create `.share.wdmrc` file with public and direct play links
-* `>>pl [[/]path]` Make media file public <br/>
+* `>>pl [[/]path]  [resolution]` Make media file public <br/>
+  - `resolution` = `0p` (all), `240p`, `360p`, `480p`, `720p`, `1080p`
   - and create `.share.wdmrc` file with public and direct play links <br/>
   - and create `.m3u8` playlist file
 * `>>crypt init` Mark current folder as encrypted
@@ -73,6 +75,15 @@ Parameters with spaces must be screened by quotes.
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standart [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
+* Default video resolution for generated m3u playlists
+    `<config><DefaultSharedVideoResolution>` <br/>
+	Values:
+      `0p`      auto, m3u contains links to all availiable resolutions 
+      `240p`    ~ 352 x 240
+      `360p`    ~ 480 x 360
+      `480p`    ~ 858 x 480
+      `720p`    ~ 1280 x 720
+      `1080p`   ~ 1920 x 1080
 * Special command prefix <br/>
 	`<config><AdditionalSpecialCommandPrefix>` <br/>
 	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.

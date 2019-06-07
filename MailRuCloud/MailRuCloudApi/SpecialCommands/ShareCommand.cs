@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
+using YaR.MailRuCloud.Api.Common;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.SpecialCommands
 {
@@ -18,12 +20,17 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         private readonly bool _generateDirectVideoLink;
         private readonly bool _makeM3UFile;
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 1);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 2);
 
         public override async Task<SpecialCommandResult> Execute()
         {
             string path;
-            string param = Parames.Count == 0 ? string.Empty : Parames[0].Replace("\\", WebDavPath.Separator);
+            string param = Parames.Count == 0 
+                ? string.Empty 
+                : Parames[0].Replace("\\", WebDavPath.Separator);
+            SharedVideoResolution videoResolution = Parames.Count < 2 
+                ? Cloud.Settings.DefaultSharedVideoResolution
+                : EnumExtensions.ParseEnumMemberValue<SharedVideoResolution>(Parames[1]);
 
             if (Parames.Count == 0)
                 path = Path;
@@ -38,7 +45,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
             try
             {
-                await Cloud.Publish(entry, true, _generateDirectVideoLink, _makeM3UFile);
+                await Cloud.Publish(entry, true, _generateDirectVideoLink, _makeM3UFile, videoResolution);
             }
             catch (Exception e)
             {

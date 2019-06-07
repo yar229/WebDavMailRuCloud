@@ -9,8 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.MailRuCloud.Api.Common;
+using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -176,7 +177,7 @@ namespace YaR.MailRuCloud.Api.Base
             return ServiceInfo.CryptInfo.PublicKey;
         }
 
-        public PublishInfo ToPublishInfo(MailRuCloud cloud, bool generateDirectVideoLink)
+        public PublishInfo ToPublishInfo(MailRuCloud cloud, bool generateDirectVideoLink, SharedVideoResolution videoResolution)
         {
             var info = new PublishInfo();
 
@@ -192,7 +193,7 @@ namespace YaR.MailRuCloud.Api.Base
                         Url = ConstSettings.PublishFileLink + innerFile.PublicLink,
                         PlaylistUrl = !isSplitted || cnt > 0
                                           ? generateDirectVideoLink 
-                                                ? ConvertToVideoLink(cloud, innerFile.PublicLink)
+                                                ? ConvertToVideoLink(cloud, innerFile.PublicLink, videoResolution)
                                                 : null
                                           : null
                     });
@@ -202,10 +203,10 @@ namespace YaR.MailRuCloud.Api.Base
             return info;
         }
 
-        private string ConvertToVideoLink(MailRuCloud cloud, string publicLink)
+        private string ConvertToVideoLink(MailRuCloud cloud, string publicLink, SharedVideoResolution videoResolution)
         {
             return cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkVideo).Result.Url +
-                   "0p/" +
+                   videoResolution.ToEnumMemberValue() + "/" + //"0p/" +
                    Base64Encode(publicLink.TrimStart('/')) +
                    ".m3u8?double_encode=1";
         }

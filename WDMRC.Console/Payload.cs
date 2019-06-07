@@ -45,7 +45,8 @@ namespace YaR.CloudMailRu.Console
                 UserAgent = options.UserAgent,
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
-                AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix
+                AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
+                DefaultSharedVideoResolution = Config.DefaultSharedVideoResolution
             };
 
             ShowInfo(options);
