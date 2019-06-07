@@ -252,7 +252,8 @@ namespace YaR.MailRuCloud.Api
             return res.Url;
         }
 
-        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, bool generateDirectVideoLink = false, bool makeM3UFile = false)
+        public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, 
+            bool generateDirectVideoLink = false, bool makeM3UFile = false, SharedVideoResolution videoResolution = SharedVideoResolution.All)
         {
             if (file.Files.Count > 1 && (generateDirectVideoLink || makeM3UFile))
                 throw new ArgumentException($"Cannot generate direct video link for splitted file {file.FullPath}");
@@ -262,7 +263,7 @@ namespace YaR.MailRuCloud.Api
                 var url = await Publish(innerFile.FullPath);
                 innerFile.PublicLink = url;
             }
-            var info = file.ToPublishInfo(this, generateDirectVideoLink);
+            var info = file.ToPublishInfo(this, generateDirectVideoLink, videoResolution);
 
             if (makeShareFile)
             {
@@ -307,12 +308,13 @@ namespace YaR.MailRuCloud.Api
             return info;
         }
 
-        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true, bool generateDirectVideoLink = false, bool makeM3UFile = false)
+        public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true, 
+            bool generateDirectVideoLink = false, bool makeM3UFile = false, SharedVideoResolution videoResolution = SharedVideoResolution.All)
         {
             if (null == entry) throw new ArgumentNullException(nameof(entry));
 
             if (entry is File file)
-                return await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile);
+                return await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile, videoResolution);
             if (entry is Folder folder)
                 return await Publish(folder, makeShareFile);
 
