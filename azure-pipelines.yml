@@ -24,6 +24,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish' 
+    projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
     arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
 
