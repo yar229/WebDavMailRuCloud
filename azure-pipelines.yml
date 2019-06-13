@@ -4,7 +4,9 @@
 # https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
 
 trigger:
-- master
+  tags:
+    include:
+    - '1.*'
 
 pool:
   vmImage: 'windows-latest'
