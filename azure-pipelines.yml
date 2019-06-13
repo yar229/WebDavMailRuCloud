@@ -27,6 +27,10 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+
 - task: VSTest@2
   inputs:
     platform: '$(buildPlatform)'
