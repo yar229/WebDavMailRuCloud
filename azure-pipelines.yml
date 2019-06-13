@@ -21,15 +21,17 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
 - task: DotNetCoreCLI@2
   inputs:
-    command: 'build'
+    command: 'publish' 
+    publishWebProjects: false # Required when command == Publish
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
+
+#- task: VSBuild@1
+#  inputs:
+#    solution: '$(solution)'
+#    platform: '$(buildPlatform)'
+#    configuration: '$(buildConfiguration)'
 
 - task: VSTest@2
   inputs:
