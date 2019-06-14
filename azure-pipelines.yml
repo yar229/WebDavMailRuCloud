@@ -23,6 +23,8 @@ steps:
 #  inputs:
 #    restoreSolution: '$(solution)'
 
+#=============================================================================================================
+
 - task: VSBuild@1
   displayName: .NET Build
   inputs:
@@ -32,40 +34,59 @@ steps:
     vsVersion: '16.0'
     msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU"'
 
-#- task: ArchiveFiles@2
-#  displayName: .NET Build Archive
-#  inputs:
-#    rootFolderOrFile: 'WDMRC.Console/bin/Release/net461/'
-#    includeRootFolder: false
-#    archiveType: 'zip'
-#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet461.zip'
-#    replaceExistingArchive: true
+- task: Bash@3
+  displayName: .NET artifacts clean
+  inputs:
+    targetType: 'inline'
+    script: 'rm WDMRC.Console/bin/Release/net461/*.pdb
+    && rm WDMRC.Console/bin/Release/net461/Microsoft.*.dll
+    && rm WDMRC.Console/bin/Release/net461/System.*.dll
+    && rm WDMRC.Console/bin/Release/net461/netstandard.dll'
+
+- task: ArchiveFiles@2
+  displayName: .NET artifacts archive
+  inputs:
+    rootFolderOrFile: 'WDMRC.Console/bin/Release/net461/'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet461.zip'
+    replaceExistingArchive: true
+
+#=============================================================================================================
 
 - task: DotNetCoreCLI@2
-  displayName: .NETCore Build
+  displayName: .NETCore Publish
   inputs:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
     arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
 
-- task: CmdLine@2
+- task: Bash@3
+  displayName: .NETCore artifacts clean
   inputs:
-    script: 'tree $(Build.SourcesDirectory) /F'
+    targetType: 'inline'
+    script: 'rm WDMRC.Console/bin/Release/netcoreapp2.2/*.pdb'
+
+- task: ArchiveFiles@2
+  displayName: .NETCore artifacts archive
+  inputs:
+    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
+    replaceExistingArchive: true
+
+#- task: CmdLine@2
+#  inputs:
+#    script: 'tree $(Build.SourcesDirectory) /F'
 
 - task: CmdLine@2
   inputs:
     script: 'tree $(Build.ArtifactStagingDirectory) /F'
 
 
-#- task: ArchiveFiles@2
-#  displayName: .NETCore Build Archive
-#  inputs:
-#    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/publish/'
-#    includeRootFolder: false
-#    archiveType: 'zip'
-#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
-#    replaceExistingArchive: true
+
 
 
 
