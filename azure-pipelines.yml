@@ -67,7 +67,7 @@ steps:
   displayName: .NETCore copy artifact to $(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip
   inputs:
     targetType: 'inline'
-    script: 'cp WDMRC.Console/bin/Release/netcoreapp2.2/publish.zip '$(Build.ArtifactStagingDirectory)'/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp2.2/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
 
 #- task: CopyFiles@2
 #  displayName: .NETCore copy artifact
