@@ -51,6 +51,10 @@ steps:
 
 - task: CmdLine@2
   inputs:
+    script: 'tree $(Build.SourcesDirectory) /F'
+
+- task: CmdLine@2
+  inputs:
     script: 'tree $(Build.ArtifactStagingDirectory) /F'
 
 
