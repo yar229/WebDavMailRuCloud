@@ -55,7 +55,7 @@ steps:
 #=============================================================================================================
 
 - task: DotNetCoreCLI@2
-  displayName: .NETCore Publish
+  displayName: .NETCore publish to zip
   inputs:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
@@ -63,19 +63,32 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
 
 - task: Bash@3
-  displayName: .NETCore artifacts clean
+  displayName: .NETCore copy artifact to $(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip
   inputs:
     targetType: 'inline'
-    script: 'rm WDMRC.Console/bin/Release/netcoreapp2.2/*.pdb'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp2.2/publish.zip $(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
 
-- task: ArchiveFiles@2
-  displayName: .NETCore artifacts archive
-  inputs:
-    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
-    replaceExistingArchive: true
+#- task: CopyFiles@2
+#  displayName: .NETCore copy artifact
+#  inputs:
+#    SourceFolder: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
+#    Contents: 'publish.zip'
+#    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+#- task: Bash@3
+#  displayName: .NETCore artifacts clean
+#  inputs:
+#    targetType: 'inline'
+#    script: 'rm WDMRC.Console/bin/Release/netcoreapp2.2/*.pdb'
+
+#- task: ArchiveFiles@2
+#  displayName: .NETCore artifacts archive
+#  inputs:
+#    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
+#    includeRootFolder: false
+#    archiveType: 'zip'
+#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
+#    replaceExistingArchive: true
 
 #=============================================================================================================
 
@@ -87,6 +100,7 @@ steps:
 #=============================================================================================================
 
 - task: GitHubRelease@0
+  displayName: Publish artifacts to github
   inputs:
     gitHubConnection: YaRGithubAzure
     repositoryName: '$(Build.Repository.Name)' 
