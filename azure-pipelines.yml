@@ -51,9 +51,7 @@ steps:
 
 - task: CmdLine@2
   inputs:
-    script: 'echo Write your commands here
-      echo Use the environment variables input below to pass secret variables to this script
-      tree $(Build.ArtifactStagingDirectory) /F'
+    script: 'tree $(Build.ArtifactStagingDirectory) /F'
 
 
 #- task: ArchiveFiles@2
