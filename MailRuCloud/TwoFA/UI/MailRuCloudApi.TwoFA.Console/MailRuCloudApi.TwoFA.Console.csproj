@@ -7,6 +7,11 @@
     <AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.2|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\MailRuCloudApi\MailRuCloudApi.csproj" />
   </ItemGroup>
