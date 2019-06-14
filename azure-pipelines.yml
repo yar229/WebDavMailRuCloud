@@ -33,7 +33,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     vsVersion: '16.0'
-    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU"'
+    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
 
 - task: Bash@3
   displayName: .NET artifacts clean
@@ -61,10 +61,10 @@ steps:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
-    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2 /p:CopyOutputSymbolsToPublishDirectory=false'
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
 
 - task: Bash@3
-  displayName: .NETCore copy artifact to $(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip
+  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip
   inputs:
     targetType: 'inline'
     script: 'cp WDMRC.Console/bin/Release/netcoreapp2.2/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
