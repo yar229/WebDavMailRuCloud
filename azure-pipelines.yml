@@ -35,8 +35,8 @@ steps:
 - task: ArchiveFiles@2
   displayName: .NET Build Archive
   inputs:
-    rootFolderOrFile: 'WDMRC.Console\\bin\\Release\\net461'
-    includeRootFolder: true
+    rootFolderOrFile: 'WDMRC.Console/bin/Release/net461/*.*'
+    includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet461.zip'
     replaceExistingArchive: true
@@ -52,8 +52,8 @@ steps:
 - task: ArchiveFiles@2
   displayName: .NETCore Build Archive
   inputs:
-    rootFolderOrFile: 'WDMRC.Console\\bin\\Release\\netcoreapp2.2\\publish'
-    includeRootFolder: true
+    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/publish/*.*'
+    includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
     replaceExistingArchive: true
