@@ -77,20 +77,26 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
     replaceExistingArchive: true
 
-#- task: CmdLine@2
-#  inputs:
-#    script: 'tree $(Build.SourcesDirectory) /F'
-
-- task: CmdLine@2
-  inputs:
-    script: 'tree $(Build.ArtifactStagingDirectory) /F'
-
-
-
-
-
+#=============================================================================================================
 
 #- task: VSTest@2
 #  inputs:
 #    platform: '$(buildPlatform)'
 #    configuration: '$(buildConfiguration)'
+
+#=============================================================================================================
+
+
+
+#=============================================================================================================
+
+#- task: CmdLine@2
+#  inputs:
+#    script: 'tree $(Build.SourcesDirectory) /F'
+
+#- task: CmdLine@2
+#  inputs:
+#    script: 'tree $(Build.ArtifactStagingDirectory) /F'
+
+
+
