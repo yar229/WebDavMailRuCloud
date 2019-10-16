@@ -25,15 +25,16 @@ namespace YaR.CloudMailRu.Console
             get
             {
                 var e = (XmlElement) Document.SelectSingleNode("/config/log4net");
-                var nz = e.SelectNodes("appender/file");
-                foreach (XmlNode eChildNode in nz)
-                {
-                    var attr = eChildNode.Attributes["value"];
-                    if (attr != null)
-                        attr.Value = attr.Value
-                            .Replace('/', Path.DirectorySeparatorChar)
-                            .Replace('\\', Path.DirectorySeparatorChar);
-                }
+                var nz = e?.SelectNodes("appender/file");
+                if (nz != null)
+                    foreach (XmlNode eChildNode in nz)
+                    {
+                        var attr = eChildNode.Attributes?["value"];
+                        if (attr != null)
+                            attr.Value = attr.Value
+                                .Replace('/', Path.DirectorySeparatorChar)
+                                .Replace('\\', Path.DirectorySeparatorChar);
+                    }
                 return e;
             }
         }
