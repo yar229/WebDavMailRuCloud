@@ -32,7 +32,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
 
             // Obtain the parent entry
             var collection = await store.GetCollectionAsync(splitUri.Parent, httpContext).ConfigureAwait(false);
-            if (collection == null)
+            if (collection == null || !collection.IsValid) 
             {
                 // Source not found
                 response.SetStatus(DavStatusCode.Conflict);

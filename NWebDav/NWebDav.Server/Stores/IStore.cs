@@ -117,6 +117,8 @@ namespace NWebDav.Server.Stores
         Task<DavStatusCode> DeleteItemAsync(string name, IHttpContext httpContext);
 
         InfiniteDepthMode InfiniteDepthMode { get; }
+
+        bool IsValid { get; }
     }
 
     /// <summary>
