@@ -40,9 +40,9 @@ steps:
   inputs:
     targetType: 'inline'
     script: 'rm WDMRC.Console/bin/Release/net461/*.pdb
-    && rm WDMRC.Console/bin/Release/net461/Microsoft.*.dll
-    && rm WDMRC.Console/bin/Release/net461/System.*.dll
-    && rm WDMRC.Console/bin/Release/net461/netstandard.dll'
+    && rm -f WDMRC.Console/bin/Release/net461/Microsoft.*.dll
+    && rm -f WDMRC.Console/bin/Release/net461/System.*.dll
+    && rm -f WDMRC.Console/bin/Release/net461/netstandard.dll'
 
 - task: ArchiveFiles@2
   displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet461.zip
