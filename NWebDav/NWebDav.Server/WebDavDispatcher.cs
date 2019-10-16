@@ -92,9 +92,8 @@ namespace NWebDav.Server
             if (null != range)
                 logRequest += $" ({range.Start?.ToString() ?? string.Empty}-{range.End?.ToString() ?? string.Empty})";
 
-
             // Log the request
-            s_log.Log(LogLevel.Info, () => $"{logRequest} - Processing");
+            s_log.Log(LogLevel.Info, () => $"{logRequest} - Start processing");
 
             try
             {
@@ -137,9 +136,8 @@ namespace NWebDav.Server
                     // Handle the request
                     if (await requestHandler.HandleRequestAsync(httpContext, _store).ConfigureAwait(false))
                     {
-                        s_log.Log(LogLevel.Info,
-                            () =>
-                                $"{logRequest} - Finished ({sw.ElapsedMilliseconds}ms, HTTP {httpContext.Response.Status})");
+                        // Log processing duration
+                        s_log.Log(LogLevel.Info, () => $"{logRequest} - Finished processing ({sw.ElapsedMilliseconds}ms, HTTP result: {httpContext.Response.Status})");
                     }
                     else
                     {
@@ -181,7 +179,7 @@ namespace NWebDav.Server
 
                 catch (Exception exc)
                 {
-                    s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}", exc);
+                    s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
                     //, source={request.RemoteEndPoint}", exc); // request.RemoteEndPoint may be disposed
 
                     try
@@ -198,6 +196,7 @@ namespace NWebDav.Server
                 finally
                 {
                     // Check if we need to dispose the request handler
+                    // ReSharper disable once SuspiciousTypeConversion.Global
                     (requestHandler as IDisposable)?.Dispose();
                 }
             }
