@@ -45,7 +45,7 @@ steps:
     && rm WDMRC.Console/bin/Release/net461/netstandard.dll'
 
 - task: ArchiveFiles@2
-  displayName: .NET artifacts archive
+  displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet461.zip
   inputs:
     rootFolderOrFile: 'WDMRC.Console/bin/Release/net461/'
     includeRootFolder: false
