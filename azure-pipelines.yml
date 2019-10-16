@@ -20,6 +20,14 @@ variables:
 steps:
 - task: NuGetToolInstaller@0
 
+#- task: UseDotNet@2
+#  displayName: 'Use .NET Core sdk'
+#  inputs:
+#    packageType: sdk
+#    version: 3.x
+#    includePreviewVersions: true
+#    installationPath: $(Agent.ToolsDirectory)/dotnet
+
 #- task: NuGetCommand@2
 #  inputs:
 #    restoreSolution: '$(solution)'
@@ -61,18 +69,18 @@ steps:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
-    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp2.2'
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.0'
 
 - task: Bash@3
-  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip
+  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
   inputs:
     targetType: 'inline'
-    script: 'cp WDMRC.Console/bin/Release/netcoreapp2.2/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
 
 #- task: CopyFiles@2
 #  displayName: .NETCore copy artifact
 #  inputs:
-#    SourceFolder: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
+#    SourceFolder: 'WDMRC.Console/bin/Release/netcoreapp3.0/'
 #    Contents: 'publish.zip'
 #    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
@@ -80,15 +88,15 @@ steps:
 #  displayName: .NETCore artifacts clean
 #  inputs:
 #    targetType: 'inline'
-#    script: 'rm WDMRC.Console/bin/Release/netcoreapp2.2/*.pdb'
+#    script: 'rm WDMRC.Console/bin/Release/netcoreapp3.0/*.pdb'
 
 #- task: ArchiveFiles@2
 #  displayName: .NETCore artifacts archive
 #  inputs:
-#    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp2.2/'
+#    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp3.0/'
 #    includeRootFolder: false
 #    archiveType: 'zip'
-#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore22.zip'
+#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
 #    replaceExistingArchive: true
 
 #=============================================================================================================

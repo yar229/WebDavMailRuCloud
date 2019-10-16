@@ -3,8 +3,8 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_2</DefineConstants>
+    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
