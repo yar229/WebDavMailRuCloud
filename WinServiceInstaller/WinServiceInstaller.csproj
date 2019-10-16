@@ -3,8 +3,8 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>library</OutputType>
-    <TargetFrameworks>netcoreapp2.2;net461</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP2_2</DefineConstants>
+    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <PackageId></PackageId>
     <AssemblyVersion>1.10.0.5</AssemblyVersion>
     <FileVersion>1.10.0.5</FileVersion>
@@ -18,7 +18,7 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.2|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
