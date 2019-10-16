@@ -496,6 +496,8 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
         }
 
         public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
+        public bool IsValid => !string.IsNullOrEmpty(DirectoryInfo?.FullPath);
+
 
         public override int GetHashCode()
         {

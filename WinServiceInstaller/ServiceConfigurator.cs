@@ -2,9 +2,7 @@
 using System.Reflection;
 
 #if NET461
-using System;
 using System.Configuration.Install;
-using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;

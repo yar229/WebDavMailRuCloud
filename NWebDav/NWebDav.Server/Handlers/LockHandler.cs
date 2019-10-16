@@ -74,7 +74,7 @@ namespace NWebDav.Server.Handlers
             }
             else
             {
-                // Determine lockscope and owner
+                // Determine lock-scope and owner
                 LockScope lockScope;
                 LockType lockType;
                 XElement owner;

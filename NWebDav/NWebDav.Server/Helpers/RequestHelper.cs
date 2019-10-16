@@ -11,7 +11,7 @@ using NWebDav.Server.Http;
 namespace NWebDav.Server.Helpers
 {
     /// <summary>
-    /// Splitted URI consisting of a collection URI and a name string.
+    /// Split URI consisting of a collection URI and a name string.
     /// </summary>
     public class SplitUri
     {

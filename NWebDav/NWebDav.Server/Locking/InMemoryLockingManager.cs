@@ -268,12 +268,7 @@ namespace NWebDav.Server.Locking
 
         private static ActiveLock GetActiveLockInfo(ItemLockInfo itemLockInfo)
         {
-            return new ActiveLock(itemLockInfo.Type, 
-                itemLockInfo.Scope, 
-                itemLockInfo.Recursive ? int.MaxValue : 0, itemLockInfo.Owner, 
-                itemLockInfo.Timeout, 
-                new WebDavUri($"{TokenScheme}:{itemLockInfo.Token:D}"), 
-                itemLockInfo.LockRootUri);
+            return new ActiveLock(itemLockInfo.Type, itemLockInfo.Scope, itemLockInfo.Recursive ? int.MaxValue : 0, itemLockInfo.Owner, itemLockInfo.Timeout, new WebDavUri($"{TokenScheme}:{itemLockInfo.Token:D}"), itemLockInfo.LockRootUri);
         }
 
         private static Guid? GetTokenFromLockToken(WebDavUri lockTokenUri)
