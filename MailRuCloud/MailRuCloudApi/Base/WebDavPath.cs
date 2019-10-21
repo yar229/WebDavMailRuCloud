@@ -132,6 +132,13 @@ namespace YaR.MailRuCloud.Api.Base
         {
             return String.Compare(Clean(path1), Clean(path2), StringComparison.InvariantCultureIgnoreCase) == 0;
         }
+
+        public static string EscapeDataString(string path)
+        {
+            return Uri
+                .EscapeDataString(path)
+                .Replace("#", "%23");
+        }
     }
 
     public struct WebDavPathParts

@@ -92,7 +92,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
                     downServer = pendingServers.Next(downServer);
 
                     string url =(isLinked
-                            ? $"{downServer.Value.Url}{file.PublicLink}"
+                            ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLink)}"
                             : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
                         $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
                     var uri = new Uri(url);
