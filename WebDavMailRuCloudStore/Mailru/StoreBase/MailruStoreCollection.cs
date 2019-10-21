@@ -13,7 +13,6 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.SpecialCommands;
 using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
 using File = YaR.MailRuCloud.Api.Base.File;
 
@@ -335,16 +334,16 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
 
             var destinationPath = WebDavPath.Combine(FullPath, name);
 
-            var cmdFabric = new SpecialCommandFabric();
-            var cmd = cmdFabric.Build(CloudManager.Instance(httpContext.Session.Principal.Identity), destinationPath);
-            if (cmd != null)
-            {
-                var res = cmd.Execute().Result;
-                if (!res.IsSuccess)
-                    Logger.Log(LogLevel.Error, res.Message);
+            //var cmdFabric = new SpecialCommandFabric();
+            //var cmd = cmdFabric.Build(CloudManager.Instance(httpContext.Session.Principal.Identity), destinationPath);
+            //if (cmd != null)
+            //{
+            //    var res = cmd.Execute().Result;
+            //    if (!res.IsSuccess)
+            //        Logger.Log(LogLevel.Error, res.Message);
 
-                return Task.FromResult(new StoreCollectionResult(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
-            }
+            //    return Task.FromResult(new StoreCollectionResult(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed));
+            //}
 
             DavStatusCode result;
 

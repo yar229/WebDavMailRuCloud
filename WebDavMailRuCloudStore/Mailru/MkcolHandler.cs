@@ -3,6 +3,7 @@ using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
+using YaR.MailRuCloud.Api.SpecialCommands;
 
 namespace YaR.WebDavMailRu.CloudStore.Mailru
 {
@@ -26,6 +27,24 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
             // Obtain request and response
             var request = httpContext.Request;
             var response = httpContext.Response;
+
+
+
+
+            var destinationPath = request.Url.LocalPath;
+
+            var cmdFabric = new SpecialCommandFabric();
+            var cmd = cmdFabric.Build(CloudManager.Instance(httpContext.Session.Principal.Identity), destinationPath);
+            if (cmd != null)
+            {
+                var res = cmd.Execute().Result;
+                //if (!res.IsSuccess)
+                //    Logger.Log(LogLevel.Error, res.Message);
+
+                response.SetStatus(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed);
+                return true;
+            }
+
 
             // The collection must always be created inside another collection
             var splitUri = request.Url.Parent;
