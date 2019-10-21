@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using YaR.WebDavMailRu.CloudStore.XTSSharp;
 
 namespace YaR.MailRuCloud.Api.XTSSharp
 {

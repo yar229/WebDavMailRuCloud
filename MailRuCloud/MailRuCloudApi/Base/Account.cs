@@ -9,7 +9,7 @@ namespace YaR.MailRuCloud.Api.Base
     //TODO: refact, Requestrepo - wrong place?
     public class Account
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+        //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
         /// <summary>
         /// Default cookies.

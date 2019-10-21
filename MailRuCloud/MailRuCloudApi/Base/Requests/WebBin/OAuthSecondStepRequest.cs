@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin

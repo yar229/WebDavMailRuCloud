@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.Types;

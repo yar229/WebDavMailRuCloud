@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base
         public bool IsCrypted => CryptInfo != null;
         public CryptInfo CryptInfo { get; set; }
 
-        public bool IsSplitted => SplitInfo != null;
+        //public bool IsSplitted => SplitInfo != null;
         public FileSplitInfo SplitInfo { get; set; }
 
         public override string ToString()

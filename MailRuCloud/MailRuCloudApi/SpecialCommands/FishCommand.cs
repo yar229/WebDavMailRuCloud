@@ -21,7 +21,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
 
         protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0);
 
-        private static Random Random = new Random();
+        private static readonly Random Random = new Random();
 
         public override async Task<SpecialCommandResult> Execute()
         {

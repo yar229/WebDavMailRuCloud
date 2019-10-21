@@ -389,7 +389,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
             var res = await instance.Copy(_directoryInfo, destinationCollection.GetFullPath());
 
-            return new StoreItemResult( res ? DavStatusCode.Created : DavStatusCode.InternalServerError, null);
+            return new StoreItemResult( res ? DavStatusCode.Created : DavStatusCode.InternalServerError);
         }
 
         public async Task<StoreItemResult> MoveItemAsync(string sourceName, IStoreCollection destinationCollection, string destinationName, bool overwrite, IHttpContext httpContext)

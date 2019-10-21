@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace YaR.WebDavMailRu.CloudStore.XTSSharp
+namespace YaR.MailRuCloud.Api.XTSSharp
 {
 	/// <summary>
 	/// XTS-AES-128 implementation

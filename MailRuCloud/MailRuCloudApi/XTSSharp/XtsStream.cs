@@ -26,7 +26,7 @@
 
 using System.IO;
 
-namespace YaR.WebDavMailRu.CloudStore.XTSSharp
+namespace YaR.MailRuCloud.Api.XTSSharp
 {
 	/// <summary>
 	/// A random access, xts encrypted stream

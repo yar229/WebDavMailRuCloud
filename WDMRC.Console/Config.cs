@@ -89,7 +89,7 @@ namespace YaR.CloudMailRu.Console
                 {
                     string evalue = Document.SelectSingleNode("/config/DefaultSharedVideoResolution").InnerText;
                     var res = EnumExtensions.ParseEnumMemberValue<SharedVideoResolution>(evalue);
-                    return (SharedVideoResolution)res;
+                    return res;
                 }
                 catch (Exception)
                 {

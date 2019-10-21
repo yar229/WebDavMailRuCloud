@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace YaR.WebDavMailRu.CloudStore.XTSSharp
+namespace YaR.MailRuCloud.Api.XTSSharp
 {
 	/// <summary>
 	/// The actual Xts cryptography transform
@@ -57,14 +57,8 @@ namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 		/// <param name="decrypting">Is this a decryption transform?</param>
 		public XtsCryptoTransform(ICryptoTransform key1, ICryptoTransform key2, bool decrypting)
 		{
-			if (key1 == null)
-				throw new ArgumentNullException(nameof(key1));
-
-			if (key2 == null)
-				throw new ArgumentNullException(nameof(key2));
-
-			_key1 = key1;
-			_key2 = key2;
+            _key1 = key1 ?? throw new ArgumentNullException(nameof(key1));
+			_key2 = key2 ?? throw new ArgumentNullException(nameof(key2));
 			_decrypting = decrypting;
 		}
 

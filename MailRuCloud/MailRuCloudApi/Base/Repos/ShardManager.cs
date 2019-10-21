@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.WebM1;
 using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -17,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         public ShardManager(HttpCommonSettings httpsettings, IAuth auth, IRequestRepo repo)
         {
-            _metaServer = new Cached<Requests.WebBin.MobMetaServerRequest.Result>(old =>
+            _metaServer = new Cached<Requests.WebBin.ServerRequest.Result>(old =>
                 {
                     Logger.Debug("Requesting new meta server");
                     var server = new Requests.WebBin.MobMetaServerRequest(httpsettings).MakeRequestAsync().Result;
@@ -60,7 +58,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         public Pending<Cached<Requests.WebBin.ServerRequest.Result>> WeblinkDownloadServersPending { get; }
 
         public ShardInfo MetaServer => new ShardInfo {Url = _metaServer.Value.Url, Count = _metaServer.Value.Unknown};
-        private readonly Cached<Requests.WebBin.MobMetaServerRequest.Result> _metaServer;
+        private readonly Cached<Requests.WebBin.ServerRequest.Result> _metaServer;
 
         public Cached<Dictionary<ShardType, ShardInfo>> CachedShards { get; }
 

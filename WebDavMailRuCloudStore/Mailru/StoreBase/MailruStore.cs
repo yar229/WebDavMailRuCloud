@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using NWebDav.Server;
@@ -36,15 +35,15 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
                 }
             }
-            //catch (AggregateException e)
-            //{
-            //    var we = e.InnerExceptions.OfType<WebException>().FirstOrDefault();
-            //    if (we == null || we.Status != WebExceptionStatus.ProtocolError) throw;
-            //}
+            #if DEBUG
+            // ReSharper disable once RedundantCatchClause
+            #pragma warning disable 168
             catch (Exception ex)
+            #pragma warning restore 168
             {
                 throw;
             }
+            #endif
 
             return Task.FromResult<IStoreItem>(null);
         }

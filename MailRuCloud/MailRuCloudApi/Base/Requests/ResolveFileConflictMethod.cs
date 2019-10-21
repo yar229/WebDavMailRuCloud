@@ -16,7 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         public override bool Equals(object obj)
         {
-            return obj is ConflictResolver && Equals((ConflictResolver)obj);
+            return obj is ConflictResolver resolver && Equals(resolver);
         }
 
         public bool Equals(ConflictResolver other)

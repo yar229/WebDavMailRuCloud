@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Mime;
-using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -37,7 +36,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             Authent = auth;
 
-            _metaServer = new Cached<MobMetaServerRequest.Result>(old =>
+            _metaServer = new Cached<ServerRequest.Result>(old =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
                     var server = new MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
@@ -57,7 +56,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
 
 
-        private readonly Cached<MobMetaServerRequest.Result> _metaServer;
+        private readonly Cached<ServerRequest.Result> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
 
         private readonly Cached<ServerRequest.Result> _downloadServer;

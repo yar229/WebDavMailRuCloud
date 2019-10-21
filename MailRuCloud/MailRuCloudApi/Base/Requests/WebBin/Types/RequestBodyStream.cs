@@ -13,7 +13,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
             if (value < 0 || (long)value > 65535)
                 throw new Exception("Invalid PU16 " + value);
 
-            WritePu32((long)value);
+            WritePu32(value);
         }
 
         public void WritePu32(long value)
@@ -34,7 +34,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
         public void WriteString(String value)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(value);
-            WritePu32((long)(bytes.Length + 1));
+            WritePu32(bytes.Length + 1);
             _stream.Write(bytes, 0, bytes.Length);
             _stream.WriteByte(00);
         }

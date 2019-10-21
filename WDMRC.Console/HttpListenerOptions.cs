@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Net;
-using YaR.WebDavMailRu;
 
 namespace YaR.CloudMailRu.Console
 {
