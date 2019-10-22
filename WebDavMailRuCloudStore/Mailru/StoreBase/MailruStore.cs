@@ -35,7 +35,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
                         : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
                 }
             }
-            #if DEBUG
             // ReSharper disable once RedundantCatchClause
             #pragma warning disable 168
             catch (Exception ex)
@@ -43,7 +42,6 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             {
                 throw;
             }
-            #endif
 
             return Task.FromResult<IStoreItem>(null);
         }
