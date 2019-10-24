@@ -1,6 +1,6 @@
 ﻿namespace YaR.MailRuCloud.Api.Base.Streams
 {
-#if NETCOREAPP3_0
+//#if NETCOREAPP3_0
 
     internal class UploadStream : UploadStreamHttpClient
     {
@@ -9,14 +9,14 @@
         }
     }
 
-#elif NET461
+//#elif NET461
 
-    internal class UploadStream : UploadStreamHttpWebRequest
-    {
-        public UploadStream(string destinationPath, MailRuCloud cloud, long size) : base(destinationPath, cloud, size)
-        {
-        }
-    }
+//    internal class UploadStream : UploadStreamHttpWebRequest
+//    {
+//        public UploadStream(string destinationPath, MailRuCloud cloud, long size) : base(destinationPath, cloud, size)
+//        {
+//        }
+//    }
 
-#endif
+//#endif
 }

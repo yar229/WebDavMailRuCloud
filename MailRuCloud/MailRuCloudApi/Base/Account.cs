@@ -37,7 +37,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// </summary>
         /// <value>Proxy settings.</value>
         public IWebProxy Proxy { get; }
-
+        
         /// <summary>
         /// Gets account cookies.
         /// </summary>
