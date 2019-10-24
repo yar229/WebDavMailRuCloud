@@ -29,6 +29,10 @@
 
 	--install <servicename>		Install as windows service (Windows/.Net only)
 	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
+
+	--proxy-address <socks|https|http>://<address>:<port>       Use proxy
+	--proxy-user <username>       Proxy user name
+	--proxy-password <password>       Proxy password
 	
 	--help            Display this help screen.
 	--version         Display version information.

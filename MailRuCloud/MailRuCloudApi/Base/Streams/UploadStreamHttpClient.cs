@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -11,26 +9,6 @@ using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Streams
 {
-
-    class HttpClientFabric
-    {
-        public static HttpClientFabric Instance => _instance ?? (_instance = new HttpClientFabric());
-        private static HttpClientFabric _instance;
-
-        public HttpClient this[Account account] =>
-            _lockDict.GetOrAdd(account, new HttpClient(new HttpClientHandler
-            {
-                UseProxy = true,
-                Proxy = account.RequestRepo.HttpSettings.Proxy,
-                CookieContainer = account.RequestRepo.Authent.Cookies,
-                UseCookies = true,
-                AllowAutoRedirect = true,
-                MaxConnectionsPerServer = int.MaxValue
-            }){Timeout = Timeout.InfiniteTimeSpan});
-
-        private readonly ConcurrentDictionary<Account, HttpClient> _lockDict = new ConcurrentDictionary<Account, HttpClient>();
-
-    }
     /// <summary>
     /// Upload stream based on HttpClient
     /// </summary>
@@ -67,16 +45,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                     var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
                     var url = new Uri($"{shard.Url}?token={_cloud.Account.RequestRepo.Authent.AccessToken}");
 
-                    //var config = new HttpClientHandler
-                    //{
-                    //    UseProxy = true,
-                    //    Proxy = _cloud.Account.RequestRepo.HttpSettings.Proxy,
-                    //    CookieContainer = _cloud.Account.RequestRepo.Authent.Cookies,
-                    //    UseCookies = true,
-                    //    AllowAutoRedirect = true,
-                    //};
-
-                    _client = HttpClientFabric.Instance[_cloud.Account]; //new HttpClient(config) {Timeout = Timeout.InfiniteTimeSpan};
+                    _client = HttpClientFabric.Instance[_cloud.Account];
 
                     _request = new HttpRequestMessage
                     {

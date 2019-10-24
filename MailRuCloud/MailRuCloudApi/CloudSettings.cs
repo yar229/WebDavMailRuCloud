@@ -1,4 +1,5 @@
-﻿using YaR.MailRuCloud.Api.Base;
+﻿using System.Net;
+using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.Common;
 
 namespace YaR.MailRuCloud.Api
@@ -23,5 +24,6 @@ namespace YaR.MailRuCloud.Api
         public string AdditionalSpecialCommandPrefix { get; set; } = ">>";
 
         public SharedVideoResolution DefaultSharedVideoResolution { get; set; } = SharedVideoResolution.All;
+        public IWebProxy Proxy { get; set; }
     }
 }
