@@ -20,7 +20,7 @@ namespace YaR.MailRuCloud.Api.Common
             _cleanTimer = new Timer(state => RemoveExpired(), null, cleanPeriod, cleanPeriod);
         }
 
-        private bool _noCache;
+        private readonly bool _noCache;
 
         private readonly Timer _cleanTimer;
         private readonly ConcurrentDictionary<TKey, TimedItem<TValue>> _items = new ConcurrentDictionary<TKey, TimedItem<TValue>>();
@@ -59,7 +59,7 @@ namespace YaR.MailRuCloud.Api.Common
         public TValue Get(TKey key)
         {
             if (_noCache)
-                return default(TValue);
+                return default;
 
             if (_items.TryGetValue(key, out var item))
             {
@@ -71,7 +71,7 @@ namespace YaR.MailRuCloud.Api.Common
                     return item.Item;
                 }
             }
-            return default(TValue);
+            return default;
         }
 
         public void Add(TKey key, TValue value)
@@ -98,7 +98,7 @@ namespace YaR.MailRuCloud.Api.Common
         public TValue Invalidate(TKey key)
         {
             _items.TryRemove(key, out var item);
-            return item != null ? item.Item : default(TValue);
+            return item != null ? item.Item : default;
         }
 
         public void Invalidate()

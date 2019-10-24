@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using YaR.MailRuCloud.Api.Base.Auth;
+﻿using YaR.MailRuCloud.Api.Base.Auth;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -46,16 +45,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                     var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
                     var url = new Uri($"{shard.Url}?token={_cloud.Account.RequestRepo.Authent.AccessToken}");
 
-                    var config = new HttpClientHandler
-                    {
-                        UseProxy = true,
-                        Proxy = _cloud.Account.RequestRepo.HttpSettings.Proxy,
-                        CookieContainer = _cloud.Account.RequestRepo.Authent.Cookies,
-                        UseCookies = true,
-                        AllowAutoRedirect = true,
-                    };
-
-                    _client = new HttpClient(config) {Timeout = Timeout.InfiniteTimeSpan};
+                    _client = HttpClientFabric.Instance[_cloud.Account];
 
                     _request = new HttpRequestMessage
                     {

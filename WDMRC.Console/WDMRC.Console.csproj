@@ -11,8 +11,8 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.10.8.1</AssemblyVersion>
-    <FileVersion>1.10.8.1</FileVersion>
+    <AssemblyVersion>1.10.9.0</AssemblyVersion>
+    <FileVersion>1.10.8.0</FileVersion>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Console</RootNamespace>
     <StartupObject></StartupObject>
@@ -32,7 +32,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.6.0" /> 
+    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" /> 
   </ItemGroup>
 
   <ItemGroup>

@@ -46,7 +46,9 @@ namespace YaR.CloudMailRu.Console
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
-                DefaultSharedVideoResolution = Config.DefaultSharedVideoResolution
+                DefaultSharedVideoResolution = Config.DefaultSharedVideoResolution,
+
+                Proxy = new ProxyFabric().Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
             };
 
             ShowInfo(options);
@@ -165,6 +167,7 @@ namespace YaR.CloudMailRu.Console
             Logger.Info($"CLR: {GetFrameworkDescription()}");
             Logger.Info($"User interactive: {Environment.UserInteractive}");
             Logger.Info($"Version: {version}");
+            Logger.Info($"Using proxy: {options.ProxyAddress}");
             Logger.Info($"Max threads count: {options.MaxThreadCount}");
             Logger.Info($"Cloud protocol: {options.Protocol}");
             Logger.Info($"Cache listings, sec: {options.CacheListingSec}");
@@ -201,6 +204,4 @@ namespace YaR.CloudMailRu.Console
             return ".NET Framework " + Environment.Version;
         }
     }
-
-
 }

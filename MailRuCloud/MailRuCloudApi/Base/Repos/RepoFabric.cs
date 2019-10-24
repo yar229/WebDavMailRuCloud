@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -9,13 +8,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
         private readonly CloudSettings _settings;
         private readonly Credentials _credentials;
-        private readonly IWebProxy _proxy;
 
-        public RepoFabric(CloudSettings settings, Credentials credentials, IWebProxy proxy)
+        public RepoFabric(CloudSettings settings, Credentials credentials)
         {
             _settings = settings;
             _credentials = credentials;
-            _proxy = proxy;
         }
 
         public IRequestRepo Create()
@@ -32,10 +29,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             switch (_settings.Protocol)
             {
                 case Protocol.WebM1Bin:
-                    repo = new WebM1RequestRepo(_proxy, _credentials, TwoFaHandler, _settings.ListDepth);
+                    repo = new WebM1RequestRepo(_settings.Proxy, _credentials, TwoFaHandler, _settings.ListDepth);
                     break;
                 case Protocol.WebV2:
-                    repo = new WebV2RequestRepo(_proxy, _credentials, TwoFaHandler);
+                    repo = new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
                     break;
                 default:
                     throw new Exception("Unknown protocol");

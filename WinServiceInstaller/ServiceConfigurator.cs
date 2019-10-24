@@ -4,8 +4,6 @@ using System.Reflection;
 #if NET461
 using System.Configuration.Install;
 using System.ServiceProcess;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace WinServiceInstaller
 {

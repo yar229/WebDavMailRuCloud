@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base;
 using YaR.MailRuCloud.Api.XTSSharp;
-using YaR.WebDavMailRu.CloudStore.XTSSharp;
 using File = YaR.MailRuCloud.Api.Base.File;
 
 namespace YaR.MailRuCloud.Api.Streams
@@ -72,6 +71,7 @@ namespace YaR.MailRuCloud.Api.Streams
 
             var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, false, file.ServiceInfo.CryptInfo);
             if (onUploaded != null) ustream.FileUploaded += onUploaded;
+            // ReSharper disable once RedundantArgumentDefaultValue
             var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
 
             return encustream;

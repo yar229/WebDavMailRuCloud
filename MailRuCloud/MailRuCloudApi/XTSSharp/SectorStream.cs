@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 
-namespace YaR.WebDavMailRu.CloudStore.XTSSharp
+namespace YaR.MailRuCloud.Api.XTSSharp
 {
 	/// <summary>
 	/// Sector-based stream
@@ -96,8 +96,8 @@ namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 		/// <returns>The current position within the stream.</returns>
 		public override long Position
 		{
-			get { return _baseStream.Position - _offset; }
-			set
+			get => _baseStream.Position - _offset;
+            set
 			{
 				ValidateSizeMultiple(value);
 

@@ -36,7 +36,7 @@ namespace YaR.MailRuCloud.Api.Common
                 {
                     if (DateTime.Now >= _expiration)
                     {
-                        T oldValue =  null != _value && _value.IsValueCreated ? _value.Value : default(T);
+                        T oldValue =  null != _value && _value.IsValueCreated ? _value.Value : default;
                         _value = new Lazy<T>(() => _valueFactory(oldValue));
 
                         var duration = _duration(_value.Value);

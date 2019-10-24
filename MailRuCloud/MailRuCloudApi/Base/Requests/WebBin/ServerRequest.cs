@@ -4,7 +4,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     internal abstract class ServerRequest : BaseRequestString<ServerRequest.Result>
     {
-        public ServerRequest(HttpCommonSettings settings) : base(settings, null)
+        protected ServerRequest(HttpCommonSettings settings) : base(settings, null)
         {
         }
 

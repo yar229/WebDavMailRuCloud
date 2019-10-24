@@ -153,6 +153,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         {
             var list = Regex
                 .Matches(paramString, @"((""((?<token>.*?)(?<!\\)"")|(?<token>[\S]+))(\s)*)")
+                // ReSharper disable once RedundantEnumerableCastCall
                 .Cast<Match>()
                 .Select(m => m.Groups["token"].Value)
                 .ToList();

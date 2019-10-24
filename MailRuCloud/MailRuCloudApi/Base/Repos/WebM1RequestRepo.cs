@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Auth;
@@ -25,7 +24,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
         private readonly IBasicCredentials _creds;
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
-        private readonly int _listDepth;
 
         protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(HttpSettings, Authent, this));
         private ShardManager _shardManager;
@@ -46,7 +44,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         {
             _creds = creds;
             _onAuthCodeRequired = onAuthCodeRequired;
-            _listDepth = listDepth;
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 

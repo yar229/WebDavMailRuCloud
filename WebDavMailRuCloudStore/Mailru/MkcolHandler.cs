@@ -42,6 +42,9 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru
                 //    Logger.Log(LogLevel.Error, res.Message);
 
                 response.SetStatus(res.IsSuccess ? DavStatusCode.Created : DavStatusCode.PreconditionFailed);
+                if (!res.IsSuccess && !string.IsNullOrEmpty(res.Message))
+                    response.StatusDescription = res.Message;
+
                 return true;
             }
 

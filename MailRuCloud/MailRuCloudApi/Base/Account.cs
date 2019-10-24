@@ -9,13 +9,6 @@ namespace YaR.MailRuCloud.Api.Base
     //TODO: refact, Requestrepo - wrong place?
     public class Account
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
-
-        /// <summary>
-        /// Default cookies.
-        /// </summary>
-        private CookieContainer _cookies;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Account" /> class.
         /// </summary>
@@ -24,25 +17,18 @@ namespace YaR.MailRuCloud.Api.Base
             Credentials = credentials;
 
             WebRequest.DefaultWebProxy.Credentials = CredentialCache.DefaultCredentials;
-            Proxy = WebRequest.DefaultWebProxy;
 
-            RequestRepo = new RepoFabric(settings, credentials, Proxy)
+            RequestRepo = new RepoFabric(settings, credentials)
                 .Create();
         }
 
         internal IRequestRepo RequestRepo { get; }
-
-        /// <summary>
-        /// Gets connection proxy.
-        /// </summary>
-        /// <value>Proxy settings.</value>
-        public IWebProxy Proxy { get; }
-
+        
         /// <summary>
         /// Gets account cookies.
         /// </summary>
         /// <value>Account cookies.</value>
-        public CookieContainer Cookies => _cookies ?? (_cookies = new CookieContainer());
+        //public CookieContainer Cookies => _cookies ?? (_cookies = new CookieContainer());
 
         internal Credentials Credentials { get; }
 

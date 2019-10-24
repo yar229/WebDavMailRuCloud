@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-
-namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
+﻿namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
     internal class WeblinkGetServerRequest : ServerRequest
     {

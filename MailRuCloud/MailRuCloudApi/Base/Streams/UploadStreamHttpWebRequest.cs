@@ -105,10 +105,15 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
                 }
             }
+            #if DEBUG
+            // ReSharper disable once RedundantCatchClause
+            #pragma warning disable 168
             catch (Exception ex)
+            #pragma warning restore 168
             {
                 throw;
             }
+            #endif
             finally 
             {
                 _ringBuffer?.Dispose();

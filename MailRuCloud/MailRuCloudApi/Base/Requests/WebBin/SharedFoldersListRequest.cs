@@ -56,7 +56,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
                     }
                     break;
                 default:
-                    throw new Exception($"{nameof(SharedFoldersListRequest)}: Unknown parse operation {opres}"); ;
+                    throw new Exception($"{nameof(SharedFoldersListRequest)}: Unknown parse operation {opres}");
             }
 
             return new RequestResponse<Result>

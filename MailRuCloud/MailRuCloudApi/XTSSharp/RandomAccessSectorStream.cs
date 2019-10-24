@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 
-namespace YaR.WebDavMailRu.CloudStore.XTSSharp
+namespace YaR.MailRuCloud.Api.XTSSharp
 {
 	/// <summary>
 	/// A wraps a sector based stream and provides random access to it
@@ -94,8 +94,10 @@ namespace YaR.WebDavMailRu.CloudStore.XTSSharp
 		/// <returns>The current position within the stream.</returns>
 		public override long Position
 		{
-			get { return _bufferLoaded ? (_s.Position - _bufferSize + _bufferPos) : _s.Position + _bufferPos; }
-			set
+			get => _bufferLoaded 
+                ? _s.Position - _bufferSize + _bufferPos 
+                : _s.Position + _bufferPos;
+            set
 			{
 				if (value < 0L)
 					throw new ArgumentOutOfRangeException(nameof(value));

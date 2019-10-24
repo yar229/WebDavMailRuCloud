@@ -30,9 +30,9 @@ namespace YaR.MailRuCloud.TwoFA.UI
                 notify.BalloonTipIcon = ToolTipIcon.Info;
 
                 notify.Click += (sender, args) =>
-                    prompt1?.Activate();
+                    prompt1.Activate();
                 notify.BalloonTipClicked += (sender, args) =>
-                    prompt1?.Activate();
+                    prompt1.Activate();
 
                 notify.ShowBalloonTip(30000);
 

@@ -10,9 +10,9 @@ namespace YaR.MailRuCloud.TwoFA.UI
     public class AuthCodeFile : ITwoFaHandler
     {
         private readonly IEnumerable<KeyValuePair<string, string>> _parames;
-        private string _dirPath;
-        private bool _doDeleteFileAfter;
-        private string _filePrefix;
+        private readonly string _dirPath;
+        private readonly bool _doDeleteFileAfter;
+        private readonly string _filePrefix;
 
         private const string DirectoryParamName = "Directory";
         private const string FilenamePrefixParamName = "FilenamePrefix";

@@ -2,7 +2,6 @@
 using System.Reflection;
 using CommandLine;
 using WinServiceInstaller;
-using YaR.WebDavMailRu;
 
 namespace YaR.CloudMailRu.Console
 {

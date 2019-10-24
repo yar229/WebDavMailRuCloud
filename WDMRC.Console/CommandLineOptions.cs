@@ -44,5 +44,12 @@ namespace YaR.CloudMailRu.Console
 
 		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth")]
 		public int CacheListingDepth { get; set; }
-	}
+
+        [Option("proxy-address", Default = "", HelpText = "Proxy address i.e. http://192.168.1.1:8080")]
+        public string ProxyAddress { get; set; }
+        [Option("proxy-user", Default = "", HelpText = "Proxy user")]
+        public string ProxyUser { get; set; }
+        [Option("proxy-password", Default = "", HelpText = "Proxy password")]
+        public string ProxyPassword { get; set; }
+    }
 }
