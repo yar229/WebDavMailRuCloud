@@ -1,8 +1,9 @@
 ﻿using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
-    class AccountInfoRequest : BaseRequestJson<WebV2.AccountInfoRequest.Result>
+    class AccountInfoRequest : BaseRequestJson<AccountInfoRequestResult>
     {
         public AccountInfoRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {

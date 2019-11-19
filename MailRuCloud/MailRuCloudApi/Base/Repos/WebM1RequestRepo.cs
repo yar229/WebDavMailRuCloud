@@ -40,7 +40,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
 
-        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired, int listDepth)
+        public WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
             _creds = creds;
             _onAuthCodeRequired = onAuthCodeRequired;
@@ -49,14 +49,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
-            //ShardManager = new ShardManager(HttpSettings, Authent);
-
 
             CachedSharedList = new Cached<Dictionary<string, string>>(old =>
                 {
                     var z = GetShareListInner().Result;
 
-                    var res = z.body.list.ToDictionary(fik => fik.home, fiv => fiv.weblink);
+                    var res = z.Body.List.ToDictionary(fik => fik.Home, fiv => fiv.Weblink);
 
                     return res;
                 }, 
@@ -287,8 +285,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             //TODO: subject to refact, bad-bad-bad
             if (null == ulink || ulink.ItemType == MailRuCloud.ItemType.Unknown)
-                itemType = datares.body.home == path ||
-                           WebDavPath.PathEquals("/" + datares.body.weblink, path)
+                itemType = datares.Body.Home == path ||
+                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
                     ? MailRuCloud.ItemType.Folder
                     : MailRuCloud.ItemType.File;
             else

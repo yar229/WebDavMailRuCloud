@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class UnpublishRequest : BaseRequestJson<WebV2.UnpublishRequest.Result>
+    class UnpublishRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _publicLink;
 

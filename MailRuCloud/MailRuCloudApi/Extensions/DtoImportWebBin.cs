@@ -22,14 +22,14 @@ namespace YaR.MailRuCloud.Api.Extensions
 		    return entry;
 		}
 
-	    public static YaR.MailRuCloud.Api.Base.File ToFile(this ListRequest.Result data)
+	    public static File ToFile(this ListRequest.Result data)
 	    {
 		    var source = data.Item as FsFile;
 		    var res = source.ToFile();//new File(data.FullPath, (long)source.Size, source.Sha1.ToHexString());
 		    return res;
 	    }
 
-		public static YaR.MailRuCloud.Api.Base.File ToFile(this FsFile data)
+		public static File ToFile(this FsFile data)
 		{
 		    var res = new File(data.FullPath, (long) data.Size, data.Sha1.ToHexString())
 		    {
@@ -54,13 +54,13 @@ namespace YaR.MailRuCloud.Api.Extensions
 			return groupedFiles;
 		}
 
-		public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this ListRequest.Result data)
+		public static Folder ToFolder(this ListRequest.Result data)
 	    {
 		    var res = (data.Item as FsFolder)?.ToFolder();
 		    return res;
 	    }
 
-		public static YaR.MailRuCloud.Api.Base.Folder ToFolder(this FsFolder data)
+		public static Folder ToFolder(this FsFolder data)
 		{
 			var res = new Folder((long)data.Size, data.FullPath) { IsChildsLoaded = data.IsChildsLoaded };
 
@@ -114,14 +114,14 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static AuthTokenResult ToAuthTokenResult(this OAuthRefreshRequest.Result data, string refreshToken)
         {
-            if (data.error_code > 0)
-                throw new Exception($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
+            if (data.ErrorCode > 0)
+                throw new Exception($"OAuth: Error Code={data.ErrorCode}, Value={data.Error}, Description={data.ErrorDescription}");
 
             var res = new AuthTokenResult
             {
                 IsSuccess = true,
-                Token = data.access_token,
-                ExpiresIn = TimeSpan.FromSeconds(data.expires_in),
+                Token = data.AccessToken,
+                ExpiresIn = TimeSpan.FromSeconds(data.ExpiresIn),
                 RefreshToken = refreshToken
             };
 
@@ -130,17 +130,17 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
-            if (data.error_code > 0 && data.error_code != 15)
-                throw new AuthenticationException($"OAuth: Error Code={data.error_code}, Value={data.error}, Description={data.error_description}");
+            if (data.ErrorCode > 0 && data.ErrorCode != 15)
+                throw new AuthenticationException($"OAuth: Error Code={data.ErrorCode}, Value={data.Error}, Description={data.ErrorDescription}");
 
             var res = new AuthTokenResult
             {
                 IsSuccess = true,
-                Token = data.access_token,
-                ExpiresIn = TimeSpan.FromSeconds(data.expires_in),
-                RefreshToken = data.refresh_token,
-                IsSecondStepRequired = data.error_code == 15,
-                TsaToken = data.tsa_token
+                Token = data.AccessToken,
+                ExpiresIn = TimeSpan.FromSeconds(data.ExpiresIn),
+                RefreshToken = data.RefreshToken,
+                IsSecondStepRequired = data.ErrorCode == 15,
+                TsaToken = data.TsaToken
             };
 
             return res;

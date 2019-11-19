@@ -1,7 +1,7 @@
 using System;
 using NWebDav.Server.Logging;
 
-namespace YaR.WebDavMailRu
+namespace YaR.CloudMailRu.Console
 {
     public class Log4NetAdapter : ILoggerFactory
     {

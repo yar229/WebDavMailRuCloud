@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         protected virtual HttpWebRequest CreateRequest(string baseDomain = null)
         {
             string domain = string.IsNullOrEmpty(baseDomain) ? ConstSettings.CloudDomain : baseDomain;
-            var uriz = new Uri(new Uri(domain ?? throw new InvalidOperationException("Empty domain")), RelationalUri);
+            var uriz = new Uri(new Uri(domain), RelationalUri);
             
             // supressing escaping is obsolete and breaks, for example, chinese names
             // url generated for %E2%80%8E and %E2%80%8F seems ok, but mail.ru replies error

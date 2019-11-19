@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
 
-   class RemoveRequest : BaseRequestJson<WebV2.RemoveRequest.Result>
+   class RemoveRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fullPath;
 

@@ -33,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Links
             CreationTimeUtc = rootLink.CreationDate ?? DateTime.Now;
         }
 
-        public bool IsLinkedToFileSystem { get; } = true;
+        public bool IsLinkedToFileSystem { get; }
 
         private readonly ItemLink _rootLink;
 

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
     
-    class RenameRequest : BaseRequestJson<RenameRequest.Result>
+    class RenameRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fullPath;
         private readonly string _newName;
@@ -23,14 +24,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
             var data = string.Format("home={0}&api={1}&token={2}&email={3}&x-email={3}&conflict=rename&name={4}", Uri.EscapeDataString(_fullPath),
                 2, Auth.AccessToken, Auth.Login, Uri.EscapeDataString(_newName));
             return Encoding.UTF8.GetBytes(data);
-        }
-
-        public class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }

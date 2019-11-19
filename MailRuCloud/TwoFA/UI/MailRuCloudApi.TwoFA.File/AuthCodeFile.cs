@@ -7,9 +7,9 @@ using YaR.MailRuCloud.Api;
 
 namespace YaR.MailRuCloud.TwoFA.UI
 {
+    // ReSharper disable once UnusedMember.Global
     public class AuthCodeFile : ITwoFaHandler
     {
-        private readonly IEnumerable<KeyValuePair<string, string>> _parames;
         private readonly string _dirPath;
         private readonly bool _doDeleteFileAfter;
         private readonly string _filePrefix;
@@ -20,15 +20,15 @@ namespace YaR.MailRuCloud.TwoFA.UI
 
         public AuthCodeFile(IEnumerable<KeyValuePair<string, string>> parames)
         {
-            _parames = parames;
+            var parames1 = parames.ToList();
 
-            _dirPath = _parames.First(p => p.Key == DirectoryParamName).Value;
+            _dirPath = parames1.First(p => p.Key == DirectoryParamName).Value;
             if (!Directory.Exists(_dirPath))
                 throw new DirectoryNotFoundException($"2FA: directory not found {_dirPath}");
 
-            _filePrefix = _parames.First(p => p.Key == FilenamePrefixParamName).Value ?? string.Empty;
+            _filePrefix = parames1.First(p => p.Key == FilenamePrefixParamName).Value ?? string.Empty;
 
-            var val = _parames.FirstOrDefault(p => p.Key == DoDeleteFileAfterName).Value;
+            var val = parames1.FirstOrDefault(p => p.Key == DoDeleteFileAfterName).Value;
             _doDeleteFileAfter = string.IsNullOrWhiteSpace(val) || bool.Parse(val);
         }
 

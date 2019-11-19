@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class CopyRequest : BaseRequestJson<WebV2.CopyRequest.Result>
+    class CopyRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;

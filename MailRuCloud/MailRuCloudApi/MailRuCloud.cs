@@ -27,7 +27,7 @@ namespace YaR.MailRuCloud.Api
     /// </summary>
     public class MailRuCloud : IDisposable
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
+        //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
         private readonly LinkManager _linkManager;
 

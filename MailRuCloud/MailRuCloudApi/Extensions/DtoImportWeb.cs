@@ -12,73 +12,73 @@ namespace YaR.MailRuCloud.Api.Extensions
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportWeb));
 
-        public static UnpublishResult ToUnpublishResult(this UnpublishRequest.Result data)
+        public static UnpublishResult ToUnpublishResult(this CommonOperationResult<string> data)
         {
             var res = new UnpublishResult
             {
-                IsSuccess = data.status == 200
+                IsSuccess = data.Status == 200
             };
             return res;
         }
 
-        public static RenameResult ToRenameResult(this RenameRequest.Result data)
+        public static RenameResult ToRenameResult(this CommonOperationResult<string> data)
         {
             var res = new RenameResult
             {
-                IsSuccess = data.status == 200
+                IsSuccess = data.Status == 200
             };
             return res;
         }
 
 
-        public static RemoveResult ToRemoveResult(this RemoveRequest.Result data)
+        public static RemoveResult ToRemoveResult(this CommonOperationResult<string> data)
         {
             var res = new RemoveResult
             {
-                IsSuccess = data.status == 200
+                IsSuccess = data.Status == 200
             };
             return res;
         }
 
-        public static PublishResult ToPublishResult(this PublishRequest.Result data)
+        public static PublishResult ToPublishResult(this CommonOperationResult<string> data)
         {
             var res = new PublishResult
             {
-                IsSuccess = data.status == 200,
-                Url = data.body
+                IsSuccess = data.Status == 200,
+                Url = data.Body
             };
             return res;
         }
 
 
-        public static CopyResult ToCopyResult(this CopyRequest.Result data)
+        public static CopyResult ToCopyResult(this CommonOperationResult<string> data)
         {
             var res = new CopyResult
             {
-                IsSuccess = data.status == 200,
-                NewName = data.body
+                IsSuccess = data.Status == 200,
+                NewName = data.Body
             };
             return res;
         }
 
 
-        public static CloneItemResult ToCloneItemResult(this CloneItemRequest.Result data)
+        public static CloneItemResult ToCloneItemResult(this CommonOperationResult<string> data)
         {
             var res = new CloneItemResult
             {
-                IsSuccess = data.status == 200,
-                Path = data.body
+                IsSuccess = data.Status == 200,
+                Path = data.Body
             };
             return res;
         }
 
 
-        public static AddFileResult ToAddFileResult(this CreateFileRequest.Result data)
+        public static AddFileResult ToAddFileResult(this CommonOperationResult<string> data)
         {
             var res = new AddFileResult
             {
-                Success = data.status == 200,
-                Path = data.body
+                Success = data.Status == 200,
+                Path = data.Body
             };
             return res;
         }
@@ -98,27 +98,27 @@ namespace YaR.MailRuCloud.Api.Extensions
             return res;
         }
 
-        public static CreateFolderResult ToCreateFolderResult(this CreateFolderRequest.Result data)
+        public static CreateFolderResult ToCreateFolderResult(this CommonOperationResult<string> data)
         {
             var res = new CreateFolderResult
             {
-                IsSuccess = data.status == 200,
-                Path = data.body
+                IsSuccess = data.Status == 200,
+                Path = data.Body
             };
             return res;
         }
 
-        public static AccountInfoResult ToAccountInfo(this AccountInfoRequest.Result data)
+        public static AccountInfoResult ToAccountInfo(this AccountInfoRequestResult data)
         {
             var res = new AccountInfoResult
             {
-                FileSizeLimit = data.body.cloud.file_size_limit,
+                FileSizeLimit = data.Body.Cloud.FileSizeLimit,
 
                 DiskUsage = new DiskUsage
                 {
-                    Total = data.body.cloud.space.bytes_total, //total * 1024 * 1024,
-                    Used = data.body.cloud.space.bytes_used, //used * 1024 * 1024,
-                    OverQuota = data.body.cloud.space.overquota
+                    Total = data.Body.Cloud.Space.BytesTotal, //total * 1024 * 1024,
+                    Used = data.Body.Cloud.Space.BytesUsed, //used * 1024 * 1024,
+                    OverQuota = data.Body.Cloud.Space.IsOverquota
                 }
             };
 
@@ -130,7 +130,7 @@ namespace YaR.MailRuCloud.Api.Extensions
             var res = new AuthTokenResult
             {
                 IsSuccess = true,
-                Token = data.body.token,
+                Token = data.Body.Token,
                 ExpiresIn = TimeSpan.FromMinutes(58),
                 RefreshToken = string.Empty
             };
@@ -141,26 +141,26 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static string ToToken(this DownloadTokenResult data)
         {
-            var res = data.body.token;
+            var res = data.Body.Token;
             return res;
         }
 
 
-        public static Dictionary<ShardType, ShardInfo> ToShardInfo(this ShardInfoRequest.Result webdata)
+        public static Dictionary<ShardType, ShardInfo> ToShardInfo(this ShardInfoRequestResult webdata)
         {
             var dict = new Dictionary<ShardType, ShardInfo>
             {
-                {ShardType.Video,             new ShardInfo{Type = ShardType.Video,       Url = webdata.body.video[0].url} },    
-                {ShardType.ViewDirect,        new ShardInfo{Type = ShardType.ViewDirect,  Url = webdata.body.view_direct[0].url} },
-                {ShardType.WeblinkView,       new ShardInfo{Type = ShardType.WeblinkView, Url = webdata.body.weblink_view[0].url} },
-                {ShardType.WeblinkVideo,      new ShardInfo{Type = ShardType.WeblinkVideo, Url = webdata.body.weblink_video[0].url} },
-                {ShardType.WeblinkGet,        new ShardInfo{Type = ShardType.WeblinkGet, Url = webdata.body.weblink_get[0].url} },
-                {ShardType.WeblinkThumbnails, new ShardInfo{Type = ShardType.WeblinkThumbnails, Url = webdata.body.weblink_thumbnails[0].url} },
-                {ShardType.Auth,              new ShardInfo{Type = ShardType.Auth, Url = webdata.body.auth[0].url} },
-                {ShardType.View,              new ShardInfo{Type = ShardType.View, Url = webdata.body.view[0].url} },
-                {ShardType.Get,               new ShardInfo{Type = ShardType.Get, Url = webdata.body.get[0].url} },
-                {ShardType.Upload,            new ShardInfo{Type = ShardType.Upload, Url = webdata.body.upload[0].url} },
-                {ShardType.Thumbnails,        new ShardInfo{Type = ShardType.Thumbnails, Url = webdata.body.thumbnails[0].url} }
+                {ShardType.Video,             new ShardInfo{Type = ShardType.Video,       Url = webdata.Body.Video[0].Url} },    
+                {ShardType.ViewDirect,        new ShardInfo{Type = ShardType.ViewDirect,  Url = webdata.Body.ViewDirect[0].Url} },
+                {ShardType.WeblinkView,       new ShardInfo{Type = ShardType.WeblinkView, Url = webdata.Body.WeblinkView[0].Url} },
+                {ShardType.WeblinkVideo,      new ShardInfo{Type = ShardType.WeblinkVideo, Url = webdata.Body.WeblinkVideo[0].Url} },
+                {ShardType.WeblinkGet,        new ShardInfo{Type = ShardType.WeblinkGet, Url = webdata.Body.WeblinkGet[0].Url} },
+                {ShardType.WeblinkThumbnails, new ShardInfo{Type = ShardType.WeblinkThumbnails, Url = webdata.Body.WeblinkThumbnails[0].Url} },
+                {ShardType.Auth,              new ShardInfo{Type = ShardType.Auth, Url = webdata.Body.Auth[0].Url} },
+                {ShardType.View,              new ShardInfo{Type = ShardType.View, Url = webdata.Body.View[0].Url} },
+                {ShardType.Get,               new ShardInfo{Type = ShardType.Get, Url = webdata.Body.Get[0].Url} },
+                {ShardType.Upload,            new ShardInfo{Type = ShardType.Upload, Url = webdata.Body.Upload[0].Url} },
+                {ShardType.Thumbnails,        new ShardInfo{Type = ShardType.Thumbnails, Url = webdata.Body.Thumbnails[0].Url} }
             };
 
             return dict;
@@ -170,20 +170,20 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         public static IEntry ToEntry(this FolderInfoResult data)
         {
-            if (data.body.kind == "file")
+            if (data.Body.Kind == "file")
             {
                 var file = data.ToFile();
                 return file;
             }
 
-            var folder = new Folder(data.body.size, WebDavPath.Combine(data.body.home ?? WebDavPath.Root, data.body.name))
+            var folder = new Folder(data.Body.Size, WebDavPath.Combine(data.Body.Home ?? WebDavPath.Root, data.Body.Name))
             {
-                Folders = data.body.list?
-                    .Where(it => FolderKinds.Contains(it.kind))
+                Folders = data.Body.List?
+                    .Where(it => FolderKinds.Contains(it.Kind))
                     .Select(item => item.ToFolder())
                     .ToList(),
-                Files = data.body.list?
-                    .Where(it => it.kind == "file")
+                Files = data.Body.List?
+                    .Where(it => it.Kind == "file")
                     .Select(item => item.ToFile())
                     .ToGroupedFiles()
                     .ToList()
@@ -194,27 +194,27 @@ namespace YaR.MailRuCloud.Api.Extensions
         }
 
 
-		public static IEntry ToEntry(this FolderInfoResult data, Link ulink, string origPath)
-		{
-			MailRuCloud.ItemType itemType;
-			if (null == ulink)
-				itemType = data.body.home == origPath
-					? MailRuCloud.ItemType.Folder
-					: MailRuCloud.ItemType.File;
-			else
-				itemType = ulink.ItemType;
+		//public static IEntry ToEntry(this FolderInfoResult data, Link ulink, string origPath)
+		//{
+		//	MailRuCloud.ItemType itemType;
+		//	if (null == ulink)
+		//		itemType = data.Body.Home == origPath
+		//			? MailRuCloud.ItemType.Folder
+		//			: MailRuCloud.ItemType.File;
+		//	else
+		//		itemType = ulink.ItemType;
 
 
-			var entry = itemType == MailRuCloud.ItemType.File
-				? (IEntry)data.ToFile(
-					home: WebDavPath.Parent(origPath),
-					ulink: ulink,
-					filename: ulink == null ? WebDavPath.Name(origPath) : ulink.OriginalName,
-					nameReplacement: WebDavPath.Name(origPath))
-				: data.ToFolder(origPath, ulink);
+		//	var entry = itemType == MailRuCloud.ItemType.File
+		//		? (IEntry)data.ToFile(
+		//			home: WebDavPath.Parent(origPath),
+		//			ulink: ulink,
+		//			filename: ulink == null ? WebDavPath.Name(origPath) : ulink.OriginalName,
+		//			nameReplacement: WebDavPath.Name(origPath))
+		//		: data.ToFolder(origPath, ulink);
 
-			return entry;
-		}
+		//	return entry;
+		//}
 
 
 		/// <summary>
@@ -228,27 +228,27 @@ namespace YaR.MailRuCloud.Api.Extensions
             if (string.IsNullOrEmpty(home) || null == link)
                 return;
 
-            foreach (var propse in data.body.list)
+            foreach (var propse in data.Body.List)
             {
-                string name = link.OriginalName == propse.name ? link.Name : propse.name;
-                propse.home = WebDavPath.Combine(home, name);
-                propse.name = name;
+                string name = link.OriginalName == propse.Name ? link.Name : propse.Name;
+                propse.Home = WebDavPath.Combine(home, name);
+                propse.Name = name;
             }
-            data.body.home = home;
+            data.Body.Home = home;
         }
 
         public static Folder ToFolder(this FolderInfoResult data, string home = null, Link link = null)
         {
             PatchEntryPath(data, home, link);
 
-            var folder = new Folder(data.body.size, data.body.home ?? data.body.name, data.body.weblink)
+            var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, data.Body.Weblink)
             {
-                Folders = data.body.list?
-                    .Where(it => FolderKinds.Contains(it.kind))
+                Folders = data.Body.List?
+                    .Where(it => FolderKinds.Contains(it.Kind))
                     .Select(item => item.ToFolder())
                     .ToList(),
-                Files = data.body.list?
-                    .Where(it => it.kind == "file")
+                Files = data.Body.List?
+                    .Where(it => it.Kind == "file")
                     .Select(item => item.ToFile())
                     .ToGroupedFiles()
                     .ToList(),
@@ -264,14 +264,14 @@ namespace YaR.MailRuCloud.Api.Extensions
             if (ulink == null || ulink.IsLinkedToFileSystem)
                 if (string.IsNullOrEmpty(filename))
                 {
-                    return new File(WebDavPath.Combine(data.body.home ?? "", data.body.name), data.body.size);
+                    return new File(WebDavPath.Combine(data.Body.Home ?? "", data.Body.Name), data.Body.Size);
                 }
 
             PatchEntryPath(data, home, ulink);
 
-            var z = data.body.list?
-                .Where(it => it.kind == "file")
-                .Select(it => filename != null && it.name == filename
+            var z = data.Body.List?
+                .Where(it => it.Kind == "file")
+                .Select(it => filename != null && it.Name == filename
                                 ? it.ToFile(nameReplacement)
                                 : it.ToFile())
                 .ToList();
@@ -280,7 +280,7 @@ namespace YaR.MailRuCloud.Api.Extensions
                 ? filename
                 : nameReplacement;
 
-            if (string.IsNullOrEmpty(cmpname) && data.body.weblink != "/" && ulink != null && !ulink.IsLinkedToFileSystem)
+            if (string.IsNullOrEmpty(cmpname) && data.Body.Weblink != "/" && ulink != null && !ulink.IsLinkedToFileSystem)
             {
                 cmpname = WebDavPath.Name(ulink.PublicLink);
             }
@@ -296,7 +296,7 @@ namespace YaR.MailRuCloud.Api.Extensions
 
         private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item)
         {
-            var folder = new Folder(item.size, item.home ?? item.name, string.IsNullOrEmpty(item.weblink) ? "" : item.weblink);
+            var folder = new Folder(item.Size, item.Home ?? item.Name, string.IsNullOrEmpty(item.Weblink) ? "" : item.Weblink);
             return folder;
         }
 
@@ -305,21 +305,21 @@ namespace YaR.MailRuCloud.Api.Extensions
             try
             {
 
-            var path = string.IsNullOrEmpty(nameReplacement)
-                ? item.home
-                : WebDavPath.Combine(WebDavPath.Parent(item.home), nameReplacement);
+                var path = string.IsNullOrEmpty(nameReplacement)
+                    ? item.Home
+                    : WebDavPath.Combine(WebDavPath.Parent(item.Home), nameReplacement);
 
             
-            var file = new File(path ?? item.name, item.size, item.hash)
-            {
-                PublicLink = string.IsNullOrEmpty(item.weblink) ? string.Empty : item.weblink
-            };
-            var dt = UnixTimeStampToDateTime(item.mtime, file.CreationTimeUtc);
-            file.CreationTimeUtc =
-                file.LastAccessTimeUtc =
-                    file.LastWriteTimeUtc = dt;
+                var file = new File(path ?? item.Name, item.Size, item.Hash)
+                {
+                    PublicLink = string.IsNullOrEmpty(item.Weblink) ? string.Empty : item.Weblink
+                };
+                var dt = UnixTimeStampToDateTime(item.Mtime, file.CreationTimeUtc);
+                file.CreationTimeUtc =
+                    file.LastAccessTimeUtc =
+                        file.LastWriteTimeUtc = dt;
 
-            return file;
+                return file;
             }
             catch (Exception e)
             {

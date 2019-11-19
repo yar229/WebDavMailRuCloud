@@ -1,14 +1,13 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
+﻿using Newtonsoft.Json;
+
+namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class DownloadTokenResult
+    internal class DownloadTokenResult : CommonOperationResult<DownloadTokenResult.DownloadTokenBody>
     {
-        public string email { get; set; }
-        public DownloadTokenBody body { get; set; }
-        public long time { get; set; }
-        public int status { get; set; }
-    }
-    public class DownloadTokenBody
-    {
-        public string token { get; set; }
+        public class DownloadTokenBody
+        {
+            [JsonProperty("token")]
+            public string Token { get; set; }
+        }
     }
 }

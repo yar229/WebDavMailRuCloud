@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
-    class CopyRequest : BaseRequestJson<CopyRequest.Result>
+    class CopyRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _sourceFullPath;
         private readonly string _destinationPath;
@@ -36,15 +37,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
                 Uri.EscapeDataString(_destinationPath)));
 
             return data;
-        }
-
-
-        internal class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }

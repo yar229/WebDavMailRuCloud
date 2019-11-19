@@ -148,14 +148,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         //}
 
 
-        public void BanShardInfo(ShardInfo banShard)
-        {
-            if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
-            {
-                Logger.Warn($"Shard {banShard.Url} temporarily banned");
-                _bannedShards.Value.Add(banShard);
-            }
-        }
+        //public void BanShardInfo(ShardInfo banShard)
+        //{
+        //    if (!_bannedShards.Value.Any(bsh => bsh.Type == banShard.Type && bsh.Url == banShard.Url))
+        //    {
+        //        Logger.Warn($"Shard {banShard.Url} temporarily banned");
+        //        _bannedShards.Value.Add(banShard);
+        //    }
+        //}
 
 
         /// <summary>
@@ -233,8 +233,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             MailRuCloud.ItemType itemType;
             if (null == ulink || ulink.ItemType == MailRuCloud.ItemType.Unknown)
-                itemType = datares.body.home == path ||
-                           WebDavPath.PathEquals("/" + datares.body.weblink, path)
+                itemType = datares.Body.Home == path ||
+                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
                            //datares.body.list.Any(fi => "/" + fi.weblink == path)
                     ? MailRuCloud.ItemType.Folder
                     : MailRuCloud.ItemType.File;
@@ -305,22 +305,22 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             throw new NotImplementedException("WebV2 GetShareLink not implemented");
         }
 
-        public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
-        {
-            var req = await new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync();
-            var res = req.ToShardInfo();
-            return res;
-        }
+        //public async Task<Dictionary<ShardType, ShardInfo>> ShardInfo()
+        //{
+        //    var req = await new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync();
+        //    var res = req.ToShardInfo();
+        //    return res;
+        //}
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            return (await new Requests.WebV2.CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
+            return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
                 .ToCreateFolderResult();
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new Requests.WebV2.CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var res = await new CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

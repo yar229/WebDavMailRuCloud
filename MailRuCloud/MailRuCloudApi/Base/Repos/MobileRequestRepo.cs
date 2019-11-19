@@ -76,26 +76,26 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             throw new NotImplementedException();
         }
 
-        public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
-        {
-            string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id={HttpSettings.ClientId}";
+        //public HttpWebRequest DownloadRequest(long instart, long inend, File file, ShardInfo shard)
+        //{
+        //    string url = $"{_downloadServer.Value.Url}{Uri.EscapeDataString(file.FullPath)}?token={Authent.AccessToken}&client_id={HttpSettings.ClientId}";
 
-            var request = (HttpWebRequest)WebRequest.Create(url);
+        //    var request = (HttpWebRequest)WebRequest.Create(url);
 
-            request.Headers.Add("Accept-Ranges", "bytes");
-            request.AddRange(instart, inend);
-            request.Proxy = HttpSettings.Proxy;
-            request.CookieContainer = Authent.Cookies;
-            request.Method = "GET";
-            request.ContentType = MediaTypeNames.Application.Octet;
-            request.Accept = "*/*";
-            request.UserAgent = HttpSettings.UserAgent;
-            request.AllowReadStreamBuffering = false;
+        //    request.Headers.Add("Accept-Ranges", "bytes");
+        //    request.AddRange(instart, inend);
+        //    request.Proxy = HttpSettings.Proxy;
+        //    request.CookieContainer = Authent.Cookies;
+        //    request.Method = "GET";
+        //    request.ContentType = MediaTypeNames.Application.Octet;
+        //    request.Accept = "*/*";
+        //    request.UserAgent = HttpSettings.UserAgent;
+        //    request.AllowReadStreamBuffering = false;
 
-            request.Timeout = 15 * 1000;
+        //    request.Timeout = 15 * 1000;
 
-            return request;
-        }
+        //    return request;
+        //}
 
 
         public void BanShardInfo(ShardInfo banShard)

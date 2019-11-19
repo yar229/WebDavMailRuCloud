@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 {
@@ -34,12 +35,17 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin
 
         public class Result
         {
-            public string access_token { get; set; }
-            public int expires_in { get; set; }
+            [JsonProperty("access_token")]
+            public string AccessToken { get; set; }
+            [JsonProperty("expires_in")]
+            public int ExpiresIn { get; set; }
 
-            public string error { get; set; }
-            public int error_code { get; set; }
-            public string error_description { get; set; }
+            [JsonProperty("error")]
+            public string Error { get; set; }
+            [JsonProperty("error_code")]
+            public int ErrorCode { get; set; }
+            [JsonProperty("error_description")]
+            public string ErrorDescription { get; set; }
         }
     }
 }

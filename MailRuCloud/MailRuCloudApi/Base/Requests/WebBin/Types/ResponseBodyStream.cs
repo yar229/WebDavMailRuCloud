@@ -142,7 +142,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebBin.Types
                     ms.Write(buffer, 0, count);
                 return ms.ToArray();
             }
-
         }
 
         public TreeId ReadTreeId()

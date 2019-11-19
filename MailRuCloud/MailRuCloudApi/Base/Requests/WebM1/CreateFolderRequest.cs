@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-   class CreateFolderRequest : BaseRequestJson<WebV2.CreateFolderRequest.Result>
+   class CreateFolderRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fullPath;
 

@@ -1,4 +1,6 @@
-﻿using YaR.MailRuCloud.Api.Base.Auth;
+﻿using Newtonsoft.Json;
+using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
@@ -17,16 +19,12 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
             }
         }
 
-        public class Result
+        public class Result : CommonOperationResult<Result.AuthTokenResultBody>
         {
-            public string email { get; set; }
-            public AuthTokenResultBody body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
-
             public class AuthTokenResultBody
             {
-                public string token { get; set; }
+                [JsonProperty("token")]
+                public string Token { get; set; }
             }
         }
 

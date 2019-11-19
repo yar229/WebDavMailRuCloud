@@ -1,8 +1,9 @@
 ﻿using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class ShardInfoRequest : BaseRequestJson<WebV2.ShardInfoRequest.Result>
+    class ShardInfoRequest : BaseRequestJson<ShardInfoRequestResult>
     {
         public ShardInfoRequest(HttpCommonSettings settings, IAuth auth) : base(settings, auth)
         {

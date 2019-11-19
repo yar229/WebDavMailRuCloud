@@ -20,17 +20,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
             _limit = limit;
         }
 
-        //protected override string RelationalUri
-        //{
-        //    get
-        //    {
-        //        var uri = _isWebLink
-        //            ? $"/api/v2/folder?token={Auth.AccessToken}&weblink={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}"
-        //            : $"/api/v2/folder?token={Auth.AccessToken}&home={Uri.EscapeDataString(_path)}&offset={_offset}&limit={_limit}";
-        //        return uri;
-        //    }
-        //}
-
         protected override string RelationalUri
         {
             get
@@ -45,19 +34,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
                 return uri;
             }
         }
-
-
-        //protected override string RelationalUri
-        //{
-        //    get
-        //    {
-        //        var url = $"/api/v2/folder?offset={_offset}&limit={_limit}";
-        //        if (!Auth.IsAnonymous)
-        //            url += $"access_token={Auth.AccessToken}";
-
-        //        return url;
-        //        // $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
-        //    }
-        //}
     }
 }

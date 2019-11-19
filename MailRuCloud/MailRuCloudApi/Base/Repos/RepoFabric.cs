@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             switch (_settings.Protocol)
             {
                 case Protocol.WebM1Bin:
-                    repo = new WebM1RequestRepo(_settings.Proxy, _credentials, TwoFaHandler, _settings.ListDepth);
+                    repo = new WebM1RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
                     break;
                 case Protocol.WebV2:
                     repo = new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);

@@ -1,9 +1,10 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
-    class CloneItemRequest : BaseRequestJson<CloneItemRequest.Result>
+    class CloneItemRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fromUrl;
         private readonly string _toPath;
@@ -23,14 +24,5 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
                 return uri;
             }
         }
-
-        public class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
-        }
-
     }
 }

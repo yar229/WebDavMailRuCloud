@@ -62,6 +62,7 @@ namespace YaR.CloudMailRu.Console
             }
         }
 
+
         public static string SpecialCommandPrefix => ">>";
 
         public static string AdditionalSpecialCommandPrefix

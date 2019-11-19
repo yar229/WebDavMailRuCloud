@@ -1,9 +1,10 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class CloneItemRequest : BaseRequestJson<WebV2.CloneItemRequest.Result>
+    class CloneItemRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fromUrl;
         private readonly string _toPath;

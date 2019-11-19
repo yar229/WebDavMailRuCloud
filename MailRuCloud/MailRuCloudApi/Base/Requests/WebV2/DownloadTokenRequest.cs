@@ -1,6 +1,4 @@
-﻿using System.Net;
-using System.Text.RegularExpressions;
-using YaR.MailRuCloud.Api.Base.Auth;
+﻿using YaR.MailRuCloud.Api.Base.Auth;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
@@ -23,38 +21,38 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 
 
 
-    class DownloadTokenHtmlRequest : BaseRequestString<DownloadTokenResult>
-    {
-        public DownloadTokenHtmlRequest(HttpCommonSettings settings, IAuth auth, string url) : base(settings, auth)
-        {
-            RelationalUri = url;
-        }
+    //class DownloadTokenHtmlRequest : BaseRequestString<DownloadTokenResult>
+    //{
+    //    public DownloadTokenHtmlRequest(HttpCommonSettings settings, IAuth auth, string url) : base(settings, auth)
+    //    {
+    //        RelationalUri = url;
+    //    }
 
-        protected override HttpWebRequest CreateRequest(string baseDomain = null)
-        {
-            var request = base.CreateRequest(CommonSettings.AuthDomain);
-            request.Accept = CommonSettings.DefaultAcceptType;
-            return request;
-        }
+    //    protected override HttpWebRequest CreateRequest(string baseDomain = null)
+    //    {
+    //        var request = base.CreateRequest(CommonSettings.AuthDomain);
+    //        request.Accept = CommonSettings.DefaultAcceptType;
+    //        return request;
+    //    }
 
-        protected override string RelationalUri { get; }
+    //    protected override string RelationalUri { get; }
 
-        protected override RequestResponse<DownloadTokenResult> DeserializeMessage(string responseText)
-        {
-            var m = Regex.Match(responseText,
-                @"""tokens"":{""download""\s*:\s*""(?<token>.*?)""");
+    //    protected override RequestResponse<DownloadTokenResult> DeserializeMessage(string responseText)
+    //    {
+    //        var m = Regex.Match(responseText,
+    //            @"""tokens"":{""download""\s*:\s*""(?<token>.*?)""");
 
-            var msg = new RequestResponse<DownloadTokenResult>
-            {
-                Ok = m.Success,
-                Result = new DownloadTokenResult
-                {
-                    body = new DownloadTokenBody{token = m.Groups["token"].Value } 
-                }
-            };
-            return msg;
-        }
-    }
+    //        var msg = new RequestResponse<DownloadTokenResult>
+    //        {
+    //            Ok = m.Success,
+    //            Result = new DownloadTokenResult
+    //            {
+    //                Body = new DownloadTokenBody{Token = m.Groups["token"].Value } 
+    //            }
+    //        };
+    //        return msg;
+    //    }
+    //}
 
 
 }

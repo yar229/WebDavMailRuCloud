@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
 {
-   class CreateFileRequest : BaseRequestJson<CreateFileRequest.Result>
+   class CreateFileRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fullPath;
         private readonly string _hash;
@@ -28,14 +29,6 @@ namespace YaR.MailRuCloud.Api.Base.Requests.WebV2
             string data = $"home={Uri.EscapeDataString(_fullPath)}&conflict={_conflictResolver}&api=2&token={Auth.AccessToken}" + filePart;
 
             return Encoding.UTF8.GetBytes(data);
-        }
-
-        internal class Result
-        {
-            public string email { get; set; }
-            public string body { get; set; }
-            public long time { get; set; }
-            public int status { get; set; }
         }
     }
 }

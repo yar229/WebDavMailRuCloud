@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Text;
 using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Requests.Types;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.WebM1
 {
-    class RenameRequest : BaseRequestJson<WebV2.RenameRequest.Result>
+    class RenameRequest : BaseRequestJson<CommonOperationResult<string>>
     {
         private readonly string _fullPath;
         private readonly string _newName;
