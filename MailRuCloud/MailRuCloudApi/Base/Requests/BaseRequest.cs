@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Repos;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {

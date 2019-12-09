@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Repos;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;

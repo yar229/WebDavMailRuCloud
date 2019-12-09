@@ -1,4 +1,6 @@
 ﻿using System;
+using YaR.MailRuCloud.Api.Base.Repos.WebBin;
+using YaR.MailRuCloud.Api.Base.Repos.WebV2;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -29,7 +31,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             switch (_settings.Protocol)
             {
                 case Protocol.WebM1Bin:
-                    repo = new WebM1RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
+                    repo = new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
                     break;
                 case Protocol.WebV2:
                     repo = new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);

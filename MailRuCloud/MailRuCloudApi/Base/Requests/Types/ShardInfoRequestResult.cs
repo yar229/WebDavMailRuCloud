@@ -15,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests.Types
             public List<ShardSection> WeblinkView { get; set; }
             [JsonProperty("weblink_video")]
             public List<ShardSection> WeblinkVideo { get; set; }
-            [JsonProperty("weblink_video")]
+            [JsonProperty("weblink_get")]
             public List<ShardSection> WeblinkGet { get; set; }
             [JsonProperty("weblink_thumbnails")]
             public List<ShardSection> WeblinkThumbnails { get; set; }
