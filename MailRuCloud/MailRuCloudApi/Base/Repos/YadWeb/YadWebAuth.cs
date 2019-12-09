@@ -1,0 +1,60 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Security.Authentication;
+using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests;
+using YaR.MailRuCloud.Api.Base.Requests;
+
+namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
+{
+    class YadWebAuth : IAuth
+    {
+        public YadWebAuth(HttpCommonSettings settings, IBasicCredentials creds)
+        {
+            _settings = settings;
+            _creds = creds;
+            Cookies = new CookieContainer();
+        }
+
+        private readonly IBasicCredentials _creds;
+        private readonly HttpCommonSettings _settings;
+
+        public async Task<bool> MakeLogin()
+        {
+            var preAuthResult = await new YadPreAuthRequest(_settings, this)
+                .MakeRequestAsync();
+
+            var loginAuth = await new YadAuthLoginRequest(_settings, this, preAuthResult.Csrf, preAuthResult.ProcessUUID)
+                    .MakeRequestAsync();
+            if (loginAuth.HasError)
+                throw new AuthenticationException($"{nameof(YadAuthLoginRequest)} error");
+
+            var passwdAuth = await new YadAuthPasswordRequest(_settings, this, preAuthResult.Csrf, loginAuth.TrackId)
+                .MakeRequestAsync();
+            if (passwdAuth.HasError)
+                throw new AuthenticationException($"{nameof(YadAuthPasswordRequest)} error");
+
+
+            var accsAuth = await new YadAuthAccountsRequest(_settings, this, preAuthResult.Csrf)
+                .MakeRequestAsync();
+            if (accsAuth.HasError)
+                throw new AuthenticationException($"{nameof(YadAuthAccountsRequest)} error");
+
+            return true;
+        }
+
+
+
+        public bool IsAnonymous { get; }
+        public string Login { get; }
+        public string Password { get; }
+        public string AccessToken { get; }
+        public string DownloadToken { get; }
+        public CookieContainer Cookies { get; }
+        public void ExpireDownloadToken()
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

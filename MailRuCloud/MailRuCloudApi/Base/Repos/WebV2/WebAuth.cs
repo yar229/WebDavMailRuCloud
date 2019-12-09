@@ -11,11 +11,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos.WebV2
 {
     class WebAuth : IAuth
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebAuth));
+
         public CookieContainer Cookies { get; }
 
         private readonly HttpCommonSettings _settings;
         private readonly IBasicCredentials _creds;
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebAuth));
 
         public WebAuth(HttpCommonSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
         {
