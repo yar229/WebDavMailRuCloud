@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 
@@ -17,6 +18,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         }
 
         protected override string RelationalUri => "/registration-validations/auth/accounts";
+
+        protected override HttpWebRequest CreateRequest(string baseDomain = null)
+        {
+            var request = base.CreateRequest("https://passport.yandex.ru");
+            return request;
+        }
 
         protected override byte[] CreateHttpContent()
         {

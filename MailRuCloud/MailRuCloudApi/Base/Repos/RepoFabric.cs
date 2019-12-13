@@ -1,6 +1,7 @@
 ﻿using System;
 using YaR.MailRuCloud.Api.Base.Repos.WebBin;
 using YaR.MailRuCloud.Api.Base.Repos.WebV2;
+using YaR.MailRuCloud.Api.Base.Repos.YadWeb;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -30,6 +31,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             IRequestRepo repo;
             switch (_settings.Protocol)
             {
+                case Protocol.YadWeb:
+                    repo = new YadWebRequestRepo(_settings.Proxy, _credentials);
+                    break;
                 case Protocol.WebM1Bin:
                     repo = new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
                     break;

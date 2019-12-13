@@ -34,8 +34,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 
         protected override RequestResponse<YadPreAuthRequestResult> DeserializeMessage(string responseText)
         {
-            var matchCsrf = Regex.Match(responseText, @"data-csrf=""(<csrf>.*?)""");
-            var matchUuid = Regex.Match(responseText, @"process_uuid=(<uuid>.*?)""");
+            var matchCsrf = Regex.Match(responseText, @"data-csrf=""(?<csrf>.*?)""");
+            var matchUuid = Regex.Match(responseText, @"process_uuid=(?<uuid>\S+?)&quot;");
 
             var msg = new RequestResponse<YadPreAuthRequestResult>
             {

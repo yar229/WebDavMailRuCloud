@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+using System.Text;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 
@@ -14,7 +18,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         [JsonProperty("track_id")]
         public string TrackId { get; set; }
 
-        
+
+
+        [JsonProperty("errors")]
+        public List<string> Errors { get; set; }
     }
 
     class YadAuthLoginRequest : BaseRequestJson<YadAuthLoginRequestResult>
@@ -33,10 +40,28 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 
         protected override string RelationalUri => "/registration-validations/auth/multi_step/start";
 
+        protected override HttpWebRequest CreateRequest(string baseDomain = null)
+        {
+            var request = base.CreateRequest("https://passport.yandex.ru");
+            return request;
+        }
+
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&process_uuid={_uuid}&login={_auth.Login}");
-            return data;
+            
+            var keyValues = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("csrf_token", _csrf),
+                new KeyValuePair<string, string>("process_uuid", _uuid),
+                new KeyValuePair<string, string>("login", _auth.Login),
+            };
+            FormUrlEncodedContent z = new FormUrlEncodedContent(keyValues);
+            var d = z.ReadAsByteArrayAsync().Result;
+            return d;
+
+            //var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&process_uuid={_uuid}&login={_auth.Login}");
+            //return data;
         }
+
     }
 }

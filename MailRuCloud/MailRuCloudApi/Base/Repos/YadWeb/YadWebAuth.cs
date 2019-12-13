@@ -15,6 +15,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             _settings = settings;
             _creds = creds;
             Cookies = new CookieContainer();
+
+            var z = MakeLogin().Result;
         }
 
         private readonly IBasicCredentials _creds;
@@ -44,11 +46,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             return true;
         }
 
-
+        public string Login => _creds.Login;
+        public string Password => _creds.Password;
 
         public bool IsAnonymous { get; }
-        public string Login { get; }
-        public string Password { get; }
         public string AccessToken { get; }
         public string DownloadToken { get; }
         public CookieContainer Cookies { get; }
