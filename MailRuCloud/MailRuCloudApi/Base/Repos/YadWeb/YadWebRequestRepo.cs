@@ -44,7 +44,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
                     .Result;
 
                 var url = urldata.Models[0].Data.Digest; //File;
-                var request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend).Request;
+                HttpWebRequest request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend);
                 var response = (HttpWebResponse)request.GetResponse();
 
                 return new CustomDisposable<HttpWebResponse>

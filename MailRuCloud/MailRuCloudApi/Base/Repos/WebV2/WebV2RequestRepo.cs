@@ -60,7 +60,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.WebV2
 
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                var request = new DownloadRequest(file, instart, inend, Authent, HttpSettings, _cachedShards).Request;
+                HttpWebRequest request = new DownloadRequest(file, instart, inend, Authent, HttpSettings, _cachedShards);
                 var response = (HttpWebResponse)request.GetResponse();
 
                 return new CustomDisposable<HttpWebResponse>
