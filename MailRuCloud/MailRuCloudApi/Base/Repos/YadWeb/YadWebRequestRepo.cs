@@ -6,7 +6,9 @@ using YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Streams;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Links;
+using Stream = System.IO.Stream;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
 {
@@ -33,9 +35,27 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
         };
 
-        public System.IO.Stream GetDownloadStream(File file, long? start = null, long? end = null)
+        public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
-            throw new NotImplementedException();
+            CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
+            {
+                var urldata = new YadGetResourceUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath)
+                    .MakeRequestAsync()
+                    .Result;
+
+                var url = urldata.Models[0].Data.Digest; //File;
+                var request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend).Request;
+                var response = (HttpWebResponse)request.GetResponse();
+
+                return new CustomDisposable<HttpWebResponse>
+                {
+                    Value = response,
+                    OnDispose = () => {}
+                };
+            }
+
+            var stream = new DownloadStream(ResponseGenerator, afile, start, end);
+            return stream;
         }
 
         public HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary)
