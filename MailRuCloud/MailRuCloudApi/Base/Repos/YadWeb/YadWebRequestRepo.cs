@@ -61,7 +61,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new YadAccountInfoRequest(HttpSettings, Authent).MakeRequestAsync();
+            var req = await new YadAccountInfoRequest(HttpSettings, (YadWebAuth)Authent).MakeRequestAsync();
             var res = req.ToAccountInfo();
             return res;
         }

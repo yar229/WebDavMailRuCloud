@@ -39,7 +39,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
             request.UserAgent = Settings.UserAgent;
-
+            
             return request;
         }
 

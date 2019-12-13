@@ -26,6 +26,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
         {
             var preAuthResult = await new YadPreAuthRequest(_settings, this)
                 .MakeRequestAsync();
+            Uuid = preAuthResult.ProcessUUID;
 
             var loginAuth = await new YadAuthLoginRequest(_settings, this, preAuthResult.Csrf, preAuthResult.ProcessUUID)
                     .MakeRequestAsync();
@@ -43,11 +44,24 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             if (accsAuth.HasError)
                 throw new AuthenticationException($"{nameof(YadAuthAccountsRequest)} error");
 
+            var skReq = await new YadAuthDiskSkRequest(_settings, this)
+                .MakeRequestAsync();
+            if (skReq.HasError)
+                throw new AuthenticationException($"{nameof(YadAuthDiskSkRequest)} error");
+            DiskSk = skReq.DiskSk;
+
+            //Csrf = preAuthResult.Csrf;
+
             return true;
         }
 
         public string Login => _creds.Login;
         public string Password => _creds.Password;
+        public string DiskSk { get; set; }
+        public string Uuid { get; set; }
+        //public string Csrf { get; set; }
+        
+
 
         public bool IsAnonymous { get; }
         public string AccessToken { get; }

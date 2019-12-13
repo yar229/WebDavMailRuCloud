@@ -4,13 +4,13 @@ using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 {
-    class YadPreAuthRequestResult
+    class YadAuthPreAuthRequestResult
     {
         public string Csrf { get; set; }
         public string ProcessUUID { get; set; }
     }
 
-    class YadPreAuthRequest : BaseRequestString<YadPreAuthRequestResult>
+    class YadPreAuthRequest : BaseRequestString<YadAuthPreAuthRequestResult>
     {
         public YadPreAuthRequest(HttpCommonSettings settings, IAuth auth) 
             : base(settings, auth)
@@ -32,15 +32,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         //    return Encoding.UTF8.GetBytes(data);
         //}
 
-        protected override RequestResponse<YadPreAuthRequestResult> DeserializeMessage(string responseText)
+        protected override RequestResponse<YadAuthPreAuthRequestResult> DeserializeMessage(string responseText)
         {
             var matchCsrf = Regex.Match(responseText, @"data-csrf=""(?<csrf>.*?)""");
             var matchUuid = Regex.Match(responseText, @"process_uuid=(?<uuid>\S+?)&quot;");
 
-            var msg = new RequestResponse<YadPreAuthRequestResult>
+            var msg = new RequestResponse<YadAuthPreAuthRequestResult>
             {
                 Ok = true,
-                Result = new YadPreAuthRequestResult
+                Result = new YadAuthPreAuthRequestResult
                 {
                     Csrf = matchCsrf.Success ? matchCsrf.Groups["csrf"].Value : string.Empty,
                     ProcessUUID = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty,
