@@ -34,7 +34,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         protected override byte[] CreateHttpContent()
         {
             var data = Encoding.UTF8.GetBytes($"sk={_auth.DiskSk}&idClient={_auth.Uuid}&_model.0=resources" +
-                                              $"&={WebDavPath.Combine("/disk", _path)}" +
+                                              $"&idContext.0={WebDavPath.Combine("/disk", _path)}" +
                                               $"&order.0=1" +
                                               $"&sort.0=name" +
                                               $"&offset.0={_offset}" +
