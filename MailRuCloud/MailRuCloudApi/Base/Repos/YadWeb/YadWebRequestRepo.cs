@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests;
@@ -34,7 +33,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
         };
 
-        public Stream GetDownloadStream(File file, long? start = null, long? end = null)
+        public System.IO.Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
             throw new NotImplementedException();
         }
@@ -49,9 +48,22 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             throw new NotImplementedException();
         }
 
-        public Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            throw new NotImplementedException();
+            YadRequestResult<DataResources, ParamsResources> datares;
+            try
+            {
+                datares = await new YadFolderInfoRequest(HttpSettings, (YadWebAuth)Authent, path, offset, limit)
+                    .MakeRequestAsync();
+            }
+            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            var entry = datares.ToFolder(path);
+
+            return entry;
         }
 
         public Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)

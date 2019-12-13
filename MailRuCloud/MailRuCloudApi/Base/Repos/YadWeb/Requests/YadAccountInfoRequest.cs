@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 {
-    class YadAccountInfoRequest : BaseRequestJson<YadAccountInfoRequestResult>
+    class YadAccountInfoRequest : BaseRequestJson<YadRequestResult<DataAccountInfo, ParamsAccountInfo>>
     {
-        private readonly HttpCommonSettings _settings;
         private readonly YadWebAuth _auth;
 
         public YadAccountInfoRequest(HttpCommonSettings settings, YadWebAuth auth) : base(settings, auth)
         {
-            _settings = settings;
             _auth = auth;
         }
 
@@ -34,53 +30,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         }
     }
 
-
-    public partial class YadAccountInfoRequestResult
-    {
-        public bool HasError => Models?.Any(m => m.Error != null) ?? false;
-
-        [JsonProperty("uid")]
-        //[JsonConverter(typeof(ParseStringConverter))]
-        public long Uid { get; set; }
-
-        [JsonProperty("login")]
-        public string Login { get; set; }
-
-        [JsonProperty("sk")]
-        public string Sk { get; set; }
-
-        [JsonProperty("version")]
-        public string Version { get; set; }
-
-        [JsonProperty("models")]
-        public List<Model> Models { get; set; }
-    }
-
-    public partial class Model
-    {
-        [JsonProperty("model")]
-        public string ModelModel { get; set; }
-
-        [JsonProperty("params")]
-        public Params Params { get; set; }
-
-        [JsonProperty("data")]
-        public Data Data { get; set; }
-
-        [JsonProperty("error")]
-        public Error Error { get; set; }
-    }
-
-    public partial class Error
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-    }
-
-    public partial class Data
+    public class DataAccountInfo
     {
         [JsonProperty("used")]
         public long Used { get; set; }
@@ -105,7 +55,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         public long FilesCount { get; set; }
     }
 
-    public class Params
+    public class ParamsAccountInfo
     {
         [JsonProperty("locale")]
         public string Locale { get; set; }
