@@ -42,7 +42,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         }
     }
 
-    public class ResourceUrlData
+    internal class ResourceUrlData
     {
         [JsonProperty("digest")]
         public string Digest { get; set; }
@@ -51,7 +51,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
         public string File { get; set; }
     }
 
-    public partial class ResourceUrlParams
+    internal class ResourceUrlParams
     {
         [JsonProperty("id")]
         public string Id { get; set; }

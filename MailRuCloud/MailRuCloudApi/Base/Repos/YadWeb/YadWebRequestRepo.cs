@@ -139,9 +139,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             throw new NotImplementedException();
         }
 
-        public Task<RenameResult> Rename(string fullPath, string newName)
+        public async Task<RenameResult> Rename(string fullPath, string newName)
         {
-            throw new NotImplementedException();
+            string destPath = WebDavPath.Parent(fullPath);
+            destPath = WebDavPath.Combine(destPath, newName);
+
+            var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, fullPath, destPath).MakeRequestAsync();
+            var res = req.ToRenameResult();
+            return res;
         }
 
         public Dictionary<ShardType, ShardInfo> GetShardInfo1()

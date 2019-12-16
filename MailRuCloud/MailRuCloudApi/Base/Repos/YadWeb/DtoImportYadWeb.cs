@@ -72,7 +72,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             return res;
         }
 
-
+        public static RenameResult ToRenameResult(this YadRequestResult<MoveData, MoveParams> data)
+        {
+            var res = new RenameResult
+            {
+                IsSuccess = true
+            };
+            return res;
+        }
 
 
 
