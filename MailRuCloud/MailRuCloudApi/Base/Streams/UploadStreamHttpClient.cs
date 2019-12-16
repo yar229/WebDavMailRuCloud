@@ -4,8 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Repos;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
 namespace YaR.MailRuCloud.Api.Base.Streams
@@ -41,22 +39,6 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         return;
                     }
 
-
-
-                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    var url = new Uri($"{shard.Url}?token={_cloud.Account.RequestRepo.Authent.AccessToken}");
-
-                    _client = HttpClientFabric.Instance[_cloud.Account];
-
-                    _request = new HttpRequestMessage
-                    {
-                        RequestUri = url,
-                        Method = HttpMethod.Put
-                    };
-
-                    _request.Headers.Add("Accept", "*/*");
-                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.Account.RequestRepo.HttpSettings.UserAgent);
-
                     _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {
                         try
@@ -72,8 +54,9 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         }
                     });
 
-                    _request.Content = _pushContent;
-                    _request.Content.Headers.ContentLength = _file.OriginalSize;
+                    _request = _cloud.Account.RequestRepo.UploadClientRequest(_pushContent, _file);
+
+                    _client = HttpClientFabric.Instance[_cloud.Account];
 
                     _responseMessage = _client.SendAsync(_request).Result;
                 }

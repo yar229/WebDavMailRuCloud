@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Streams;
+using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Links;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
@@ -17,11 +19,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
 
         Stream GetDownloadStream(File file, long? start = null, long? end = null);
-        HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary);
 
-        //TODO: internal functionality, remove
-        Task<ShardInfo> GetShardInfo(ShardType shardType);
-
+        //HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary);
+        [Obsolete]
+        HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary);
+        HttpRequestMessage UploadClientRequest(PushStreamContent content, File file);
 
         Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = int.MaxValue, int depth = 1);
 
@@ -51,5 +53,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         Dictionary<ShardType, ShardInfo> GetShardInfo1();
 
         string GetShareLink(string path);
+
+
+
+        //TODO: bad quick patch
+        string ConvertToVideoLink(string publicLink, SharedVideoResolution videoResolution);
     }
 }

@@ -28,8 +28,8 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                 try
                 {
                     var boundary = new UploadMultipartBoundary(_file);
-                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    _request = _cloud.Account.RequestRepo.UploadRequest(shard, _file, boundary);
+                    //var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
+                    _request = _cloud.Account.RequestRepo.UploadRequest(_file, boundary);
 
                     Logger.Debug($"HTTP:{_request.Method}:{_request.RequestUri.AbsoluteUri}");
 
