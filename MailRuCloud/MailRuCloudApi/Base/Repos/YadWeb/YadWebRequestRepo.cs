@@ -43,7 +43,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
                     .MakeRequestAsync()
                     .Result;
 
-                var url = urldata.Models[0].Data.Digest; //File;
+                var url = "https:" + urldata.Models[0].Data.File; //var url = urldata.Models[0].Data.Digest;
                 HttpWebRequest request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend);
                 var response = (HttpWebResponse)request.GetResponse();
 

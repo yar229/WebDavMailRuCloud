@@ -15,19 +15,23 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 
         private HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, string url, long instart, long inend,  string userAgent)
         {
-            //url = "https:" + url;
-
             var request = (HttpWebRequest) WebRequest.Create(url);
 
             request.Headers.Add("Accept-Ranges", "bytes");
+            request.Headers.Add("Upgrade-Insecure-Requests", "1");
+            request.Headers.Add("Sec-Fetch-Site", "cross-site");
+            request.Headers.Add("Sec-Fetch-Mode", "nested-navigate");
+
             request.AddRange(instart, inend);
             request.Proxy = proxy;
             request.CookieContainer = authent.Cookies;
             request.Method = "GET";
             request.ContentType = MediaTypeNames.Application.Octet;
-            request.Accept = "*/*";
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
             request.UserAgent = userAgent;
             request.AllowReadStreamBuffering = false;
+            request.AllowAutoRedirect = true;
+            request.Referer = "https://disk.yandex.ru/client/disk";
 
             return request;
         }
