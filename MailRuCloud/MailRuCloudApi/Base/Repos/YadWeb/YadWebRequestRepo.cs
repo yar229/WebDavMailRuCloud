@@ -70,7 +70,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            YadRequestResult<DataResources, ParamsResources> datares;
+            YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources> datares;
             try
             {
                 datares = await new YadFolderInfoRequest(HttpSettings, (YadWebAuth)Authent, path, offset, limit)

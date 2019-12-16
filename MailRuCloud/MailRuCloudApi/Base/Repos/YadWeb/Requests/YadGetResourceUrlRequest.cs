@@ -1,36 +1,44 @@
-﻿using System;
-using System.Net;
-using System.Text;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb.Requests
 {
-    class YadGetResourceUrlRequest : BaseRequestJson<YadRequestResult<ResourceUrlData, ResourceUrlParams>>
+    class YadGetResourceUrlRequest : YadBaseRequestJson<YadRequestResult<ResourceUrlData, ResourceUrlParams>>
     {
-        private readonly YadWebAuth _auth;
         private readonly string _path;
 
         public YadGetResourceUrlRequest(HttpCommonSettings settings, YadWebAuth auth, string path)  : base(settings, auth)
         {
-            _auth = auth;
             _path = path;
         }
 
         protected override string RelationalUri => "/models/?_m=do-get-resource-url";
 
-        protected override HttpWebRequest CreateRequest(string baseDomain = null)
+        protected override IEnumerable<YadPostModel> CreateModels()
         {
-            var request = base.CreateRequest("https://disk.yandex.ru");
-            request.Referer = "https://disk.yandex.ru/client/disk";
-            return request;
+            yield return new YadGetResourceUrlPostModel
+            {
+                Id = WebDavPath.Combine("/disk", _path)
+            };
+        }
+    }
+
+    class YadGetResourceUrlPostModel : YadPostModel
+    {
+        public YadGetResourceUrlPostModel()
+        {
+            Name = "do-get-resource-url";
         }
 
-        protected override byte[] CreateHttpContent()
+        public string Id { get; set; }
+
+        public override IEnumerable<KeyValuePair<string, string>> ToKvp(int index)
         {
-            var data = Encoding.UTF8.GetBytes($"sk={_auth.DiskSk}&idClient={_auth.Uuid}&_model.0=do-get-resource-url" +
-                                              $"&id.0={WebDavPath.Combine("/disk", _path)}");
-            return data;
+            foreach (var pair in base.ToKvp(index))
+                yield return pair;
+            
+            yield return new KeyValuePair<string, string>($"id.{index}", Id);
         }
     }
 

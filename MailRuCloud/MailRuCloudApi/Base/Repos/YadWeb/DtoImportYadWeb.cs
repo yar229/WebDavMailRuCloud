@@ -29,7 +29,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
         }
 
 
-        public static IEntry ToFolder(this YadRequestResult<DataResources, ParamsResources> data, string path)
+        public static IEntry ToFolder(this YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources> data, string path)
         {
             var fi = data.Models
                 .First(m => m.ModelName == "resources")
@@ -50,11 +50,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             return res;
         }
 
-        public static File ToFile(this Resource data)
+        public static File ToFile(this FolderInfoDataResource data)
         {
             var path = data.Path.Remove(0, 5); // remove "/disk"
 
-            var res = new File(path, data.Meta.Size ?? 0)
+            var res = new File(path, data.Meta.Size ?? throw new Exception("File size is null"))
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
@@ -63,7 +63,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YadWeb
             return res;
         }
 
-        public static Folder ToFolder(this Resource resource)
+        public static Folder ToFolder(this FolderInfoDataResource resource)
         {
             var path = resource.Path.Remove(0, 5); // remove "/disk"
 
