@@ -1,57 +1,90 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace YaR.MailRuCloud.Api.Base.Requests.Types
 {
-    public class FolderInfoResult
+    internal class FolderInfoResult : CommonOperationResult<FolderInfoResult.FolderInfoBody>
     {
-        public string email { get; set; }
-        public FolderInfoBody body { get; set; }
-        public long time { get; set; }
-        public int status { get; set; }
-        public bool IsFile { get; set; }
-
         public class FolderInfoBody
         {
-            public FolderInfoCount count { get; set; }
-            public string tree { get; set; }
-            public string name { get; set; }
-            public int grev { get; set; }
-            public long size { get; set; }
-            public FolderInfoSort sort { get; set; }
-            public string kind { get; set; }
-            public int rev { get; set; }
-            public string type { get; set; }
-            public string home { get; set; }
-            public List<FolderInfoProps> list { get; set; }
-            public string weblink { get; set; }
+            [JsonProperty("count")]
+            public FolderInfoCount Count { get; set; }
+
+            [JsonProperty("tree")]
+            public string Tree { get; set; }
+
+            [JsonProperty("name")]
+            public string Name { get; set; }
+
+            [JsonProperty("grev")]
+            public int Grev { get; set; }
+
+            [JsonProperty("size")]
+            public long Size { get; set; }
+
+            [JsonProperty("sort")]
+            public FolderInfoSort Sort { get; set; }
+
+            [JsonProperty("kind")]
+            public string Kind { get; set; }
+
+            [JsonProperty("rev")]
+            public int Rev { get; set; }
+
+            [JsonProperty("type")]
+            public string Type { get; set; }
+
+            [JsonProperty("home")]
+            public string Home { get; set; }
+
+            [JsonProperty("list")]
+            public List<FolderInfoProps> List { get; set; }
+
+            [JsonProperty("weblink")]
+            public string Weblink { get; set; }
 
             public class FolderInfoProps
             {
-                public long mtime;
-                public FolderInfoCount count { get; set; }
-                public string tree { get; set; }
-                public string name { get; set; }
-                public int grev { get; set; }
-                public long size { get; set; }
-                public string kind { get; set; }
-                public int rev { get; set; }
-                public string type { get; set; }
-                public string home { get; set; }
-                public string weblink { get; set; }
-                public string hash { get; set; }
-
+                [JsonProperty("mtime")]
+                public long Mtime;
+                [JsonProperty("count")]
+                public FolderInfoCount Count { get; set; }
+                [JsonProperty("tree")]
+                public string Tree { get; set; }
+                [JsonProperty("name")]
+                public string Name { get; set; }
+                [JsonProperty("grev")]
+                public int Grev { get; set; }
+                [JsonProperty("size")]
+                public long Size { get; set; }
+                [JsonProperty("kind")]
+                public string Kind { get; set; }
+                [JsonProperty("rev")]
+                public int Rev { get; set; }
+                [JsonProperty("type")]
+                public string Type { get; set; }
+                [JsonProperty("home")]
+                public string Home { get; set; }
+                [JsonProperty("weblink")]
+                public string Weblink { get; set; }
+                [JsonProperty("hash")]
+                public string Hash { get; set; }
             }
 
             public class FolderInfoSort
             {
-                public string order { get; set; }
-                public string type { get; set; }
+                [JsonProperty("order")]
+                public string Order { get; set; }
+                [JsonProperty("type")]
+                public string Type { get; set; }
             }
 
             public class FolderInfoCount
             {
-                public int folders { get; set; }
-                public int files { get; set; }
+                [JsonProperty("folders")]
+                public int Folders { get; set; }
+                [JsonProperty("files")]
+                public int Files { get; set; }
             }
         }
     }

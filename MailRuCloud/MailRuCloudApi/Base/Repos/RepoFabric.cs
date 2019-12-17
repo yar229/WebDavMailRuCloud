@@ -1,4 +1,7 @@
 ﻿using System;
+using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin;
+using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2;
+using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb;
 
 namespace YaR.MailRuCloud.Api.Base.Repos
 {
@@ -28,8 +31,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             IRequestRepo repo;
             switch (_settings.Protocol)
             {
+                case Protocol.YadWeb:
+                    repo = new YadWebRequestRepo(_settings.Proxy, _credentials);
+                    break;
                 case Protocol.WebM1Bin:
-                    repo = new WebM1RequestRepo(_settings.Proxy, _credentials, TwoFaHandler, _settings.ListDepth);
+                    repo = new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
                     break;
                 case Protocol.WebV2:
                     repo = new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
@@ -43,12 +49,5 @@ namespace YaR.MailRuCloud.Api.Base.Repos
 
             return repo;
         }
-
-        //   ??
-        //(_requestRepo = new MobileRequestRepo(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials)); 
-        //(_requestRepo = new WebV2RequestRepo(_cloudApi.Account.Proxy, new WebAuth(_cloudApi.Account.Proxy, _cloudApi.Account.Credentials,OnAuthCodeRequired)));
-        //------(_requestRepo = new WebM1RequestRepo(Proxy, Credentials, OnAuthCodeRequired));
-        //MixedRepo(_cloudApi));
-
     }
 }

@@ -3,6 +3,7 @@
     public enum Protocol
     {
         WebM1Bin,
-        WebV2
+        WebV2,
+        YadWeb
     }
 }

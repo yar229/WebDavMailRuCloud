@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Auth;
+using YaR.MailRuCloud.Api.Base.Repos;
 
 namespace YaR.MailRuCloud.Api.Base.Requests
 {
@@ -17,18 +17,36 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         protected override RequestResponse<T> DeserializeMessage(Stream stream)
         {
-            var serializer = new JsonSerializer();
+        //    var serializer = new JsonSerializer();
+
+        //    using (var sr = new StreamReader(stream))
+        //    using (var jsonTextReader = new JsonTextReader(sr))
+        //    {
+                
+
+        //        var msg = new RequestResponse<T>
+        //        {
+        //            Ok = true,
+        //            Result = serializer.Deserialize<T>(jsonTextReader)
+        //        };
+        //        return msg;
+        //    }
 
             using (var sr = new StreamReader(stream))
-            using (var jsonTextReader = new JsonTextReader(sr))
             {
+                string text = sr.ReadToEnd();
+
                 var msg = new RequestResponse<T>
                 {
                     Ok = true,
-                    Result = serializer.Deserialize<T>(jsonTextReader)
+                    Result = JsonConvert.DeserializeObject<T>(text)
                 };
                 return msg;
+
             }
+
         }
+
+
     }
 }

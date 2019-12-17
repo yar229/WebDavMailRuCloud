@@ -42,13 +42,13 @@ namespace YaR.MailRuCloud.Api.Base
 
         }
 
-        public static string Parent(string path)
+        public static string Parent(string path, string cmdPrefix = ">>")
         {
             //TODO: refact
             path = path.TrimEnd('/');
 
             // cause we use >> as a sign of special command
-            int cmdPos = path.IndexOf(">>", StringComparison.Ordinal);
+            int cmdPos = path.IndexOf(cmdPrefix, StringComparison.Ordinal);
 
             int pos = cmdPos > 0
                 ? path.LastIndexOf("/", 0, cmdPos + 1, StringComparison.Ordinal)
@@ -59,13 +59,13 @@ namespace YaR.MailRuCloud.Api.Base
                 : "/";
         }
 
-        public static string Name(string path)
+        public static string Name(string path, string cmdPrefix = ">>")
         {
             //TODO: refact
             path = path.TrimEnd('/');
 
             // cause we use >> as a sign of special command
-            int cmdPos = path.IndexOf(">>", StringComparison.Ordinal);
+            int cmdPos = path.IndexOf(cmdPrefix, StringComparison.Ordinal);
 
             int pos = cmdPos > 0
                     ? path.LastIndexOf("/", 0, cmdPos + 1, StringComparison.Ordinal)

@@ -69,11 +69,6 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             set => throw new NotSupportedException("Cannot set position on RingBufferedStream");
         }
 
-        /// <summary>
-        /// Gets the number of bytes currently buffered.
-        /// </summary>
-        public int BufferedByteCount => _readAvailableByteCount;
-
         /// <inheritdoc/>
         public override void Flush()
         {

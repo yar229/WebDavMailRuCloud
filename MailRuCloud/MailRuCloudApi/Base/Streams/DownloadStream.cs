@@ -10,7 +10,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 {
     internal class DownloadStream : Stream
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
+        //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DownloadStream));
 
         private const int InnerBufferSize = 65536 * 2;
 

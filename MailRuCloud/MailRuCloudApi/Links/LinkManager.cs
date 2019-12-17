@@ -268,11 +268,11 @@ namespace YaR.MailRuCloud.Api.Links
             {
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
                 var infores = await _cloud.Account.RequestRepo.ItemInfo(link.Href, true);
-                link.ItemType = infores.body.kind == "file"
+                link.ItemType = infores.Body.Kind == "file"
                     ? MailRuCloud.ItemType.File
                     : MailRuCloud.ItemType.Folder;
-                link.OriginalName = infores.body.name;
-                link.Size = infores.body.size;
+                link.OriginalName = infores.Body.Name;
+                link.Size = infores.Body.Size;
 
                 link.IsResolved = true;
             }

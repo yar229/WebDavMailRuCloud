@@ -6,8 +6,10 @@ namespace YaR.MailRuCloud.Api
     public class CryptFileInfo
     {
         public const string FileName = ".crypt.wdmrc";
-        public string WDMRCVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
-        public DateTime Initialized { get; set; }
 
+        // ReSharper disable once UnusedMember.Global
+        public string WDMRCVersion => Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+        public DateTime Initialized { get; set; }
     }
 }

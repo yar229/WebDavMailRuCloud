@@ -3,7 +3,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Repos;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Extensions;
 
@@ -15,12 +15,13 @@ namespace YaR.MailRuCloud.Api.Base.Streams
     /// <remarks>Suitable for .NET Core, on .NET desktop POST requests does not return response content.</remarks>
     abstract class UploadStreamHttpClient : Stream
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStream));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStreamHttpClient));
 
         protected UploadStreamHttpClient(string destinationPath, MailRuCloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
+            _cloudFileHasher = Repo.GetHasher();
 
             Initialize();
         }
@@ -31,7 +32,8 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             {
                 try
                 {
-                    if (_file.OriginalSize <= MailRuSha1Hash.Length) // do not send upload request if file content fits to hash
+
+                    if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
                     {
                         using (var ms = new MemoryStream())
                         {
@@ -40,41 +42,26 @@ namespace YaR.MailRuCloud.Api.Base.Streams
                         return;
                     }
 
-
-
-                    var shard = _cloud.Account.RequestRepo.GetShardInfo(ShardType.Upload).Result;
-                    var url = new Uri($"{shard.Url}?token={_cloud.Account.RequestRepo.Authent.AccessToken}");
-
-                    _client = HttpClientFabric.Instance[_cloud.Account];
-
-                    _request = new HttpRequestMessage
-                    {
-                        RequestUri = url,
-                        Method = HttpMethod.Put
-                    };
-
-                    _request.Headers.Add("Accept", "*/*");
-                    _request.Headers.TryAddWithoutValidation("User-Agent", _cloud.Account.RequestRepo.HttpSettings.UserAgent);
-
                     _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
                     {
                         try
                         {
                             _ringBuffer.CopyTo(stream);
                             stream.Close();
-
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e.Message}");
                             throw;
                         }
                     });
 
-                    _request.Content = _pushContent;
-                    _request.Content.Headers.ContentLength = _file.OriginalSize;
+                    _client = HttpClientFabric.Instance[_cloud.Account];
+                    _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
 
-                    _responseMessage = _client.SendAsync(_request).Result;
+                    //_request = Repo.UploadClientRequest(_pushContent, _file);
+                    //_client = HttpClientFabric.Instance[_cloud.Account];
+                    //_responseMessage = _client.SendAsync(_request).Result;
                 }
                 catch (Exception e)
                 {
@@ -85,16 +72,18 @@ namespace YaR.MailRuCloud.Api.Base.Streams
         }
 
         private PushStreamContent _pushContent;
-        private HttpResponseMessage _responseMessage;
+        //private HttpResponseMessage _responseMessage;
         private HttpClient _client;
-        private HttpRequestMessage _request;
+        //private HttpRequestMessage _request;
+        private UploadFileResult _uploadFileResult;
 
         public bool CheckHashes { get; set; } = true;
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            if (CheckHashes || _file.OriginalSize <= MailRuSha1Hash.Length)
-                _sha1.Append(buffer, offset, count);
+            if (CheckHashes || 
+                (_cloudFileHasher != null && Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) )
+                _cloudFileHasher?.Append(buffer, offset, count);
 
             _ringBuffer.Write(buffer, offset, count);
         }
@@ -111,26 +100,25 @@ namespace YaR.MailRuCloud.Api.Base.Streams
 
                 _requestTask.GetAwaiter().GetResult();
 
-                if (null != _responseMessage) // file length > hash length
+                if (null != _uploadFileResult) // file length > hash length
                 {
-                    if (_responseMessage.StatusCode != HttpStatusCode.Created &&
-                        _responseMessage.StatusCode != HttpStatusCode.OK)
-                        throw new Exception("Cannot upload file, status " + _responseMessage.StatusCode);
+                    if (_uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
+                        _uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
+                        throw new Exception("Cannot upload file, status " + _uploadFileResult.HttpStatusCode);
 
-                    var ures = _responseMessage.Content.ReadAsStringAsync().Result
-                        .ToUploadPathResult();
-
-                    if (ures.Size > 0 && _file.OriginalSize != ures.Size)
+                    if (_uploadFileResult.Size > 0 && _file.OriginalSize != _uploadFileResult.Size)
                         throw new Exception("Local and remote file size does not match");
-                    _file.Hash = ures.Hash;
+                    _file.Hash = _uploadFileResult.Hash;
 
-                    if (CheckHashes && _sha1.HashString != ures.Hash)
-                        throw new HashMatchException(_sha1.HashString, ures.Hash);
+                    if (CheckHashes && !string.IsNullOrEmpty(_uploadFileResult.Hash) && 
+                        _cloudFileHasher != null && _cloudFileHasher.HashString != _uploadFileResult.Hash)
+                        throw new HashMatchException(_cloudFileHasher.HashString, _uploadFileResult.Hash);
                 }
                 else
                 {
-                    _file.Hash = _sha1.HashString;
+                    _file.Hash = _cloudFileHasher?.HashString;
                 }
+
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
@@ -139,14 +127,15 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             finally 
             {
                 _ringBuffer?.Dispose();
-                _sha1?.Dispose();
+                _cloudFileHasher?.Dispose();
             }
         }
 
         private readonly MailRuCloud _cloud;
         private readonly File _file;
 
-        private readonly MailRuSha1Hash _sha1 = new MailRuSha1Hash();
+        private IRequestRepo Repo => _cloud.Account.RequestRepo;
+        private readonly ICloudHasher _cloudFileHasher;
         private Task _requestTask;
         private readonly RingBufferedStream _ringBuffer = new RingBufferedStream(65536);
 
