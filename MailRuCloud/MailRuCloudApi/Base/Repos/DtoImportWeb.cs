@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using YaR.MailRuCloud.Api.Base.Repos.WebV2.Requests;
-//using YaR.MailRuCloud.Api.Base.Repos.WebV2.Requests;
+using System.Net.Http;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Links;
 
@@ -83,18 +82,24 @@ namespace YaR.MailRuCloud.Api.Base.Repos
             return res;
         }
 
-
-        public static UploadFileResult ToUploadPathResult(this string data)
+        //TODO: move to repo 
+        public static UploadFileResult ToUploadPathResult(this HttpResponseMessage response)
         {
-            var resp = data.Split(';');
+            var res = new UploadFileResult();
+            res.HttpStatusCode = response.StatusCode;
 
-            var res = new UploadFileResult
+            if (response.IsSuccessStatusCode)
             {
-                Hash = resp[0],
-                Size = resp.Length > 1 
+                var strres = response.Content.ReadAsStringAsync().Result;
+
+                var resp = strres.Split(';');
+
+                res.Hash = resp[0];
+                res.Size = resp.Length > 1
                     ? long.Parse(resp[1].Trim('\r', '\n', ' '))
-                    : 0
-            };
+                    : 0;
+            }
+
             return res;
         }
 

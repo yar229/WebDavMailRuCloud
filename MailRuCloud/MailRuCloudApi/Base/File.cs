@@ -205,17 +205,16 @@ namespace YaR.MailRuCloud.Api.Base
 
         private string ConvertToVideoLink(MailRuCloud cloud, string publicLink, SharedVideoResolution videoResolution)
         {
-            return cloud.Account.RequestRepo.GetShardInfo(ShardType.WeblinkVideo).Result.Url +
-                   videoResolution.ToEnumMemberValue() + "/" + //"0p/" +
-                   Base64Encode(publicLink.TrimStart('/')) +
-                   ".m3u8?double_encode=1";
+            return cloud.Account.RequestRepo.ConvertToVideoLink(publicLink, videoResolution);
+                       
+                       
+                   //    GetShardInfo(ShardType.WeblinkVideo).Result.Url +
+                   //videoResolution.ToEnumMemberValue() + "/" + //"0p/" +
+                   //Base64Encode(publicLink.TrimStart('/')) +
+                   //".m3u8?double_encode=1";
         }
 
-        private static string Base64Encode(string plainText)
-        {
-            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-            return Convert.ToBase64String(plainTextBytes);
-        }
+
     }
 }
 

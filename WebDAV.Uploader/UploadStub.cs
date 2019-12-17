@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using YaR.MailRuCloud.Api;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud;
 
 namespace YaR.CloudMailRu.Client.Console
 {
