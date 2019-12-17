@@ -100,6 +100,17 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
+        public static CopyResult ToCopyResult(this YadRequestResult<YadCopyRequestData, YadCopyRequestParams> data)
+        {
+            var res = new CopyResult
+            {
+                IsSuccess = true,
+                NewName = data.Models[0].Params.Dst.Remove(0, "/disk".Length)
+            };
+            return res;
+        }
+
+
 
 
 

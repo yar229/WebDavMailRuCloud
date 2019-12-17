@@ -4,22 +4,22 @@ using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
-    class YadMoveRequest : YadBaseRequestJson<YadRequestResult<MoveData, MoveParams>>
+    class YadCopyRequest : YadBaseRequestJson<YadRequestResult<YadCopyRequestData, YadCopyRequestParams>>
     {
         private readonly string _sourcePath;
         private readonly string _destPath;
 
-        public YadMoveRequest(HttpCommonSettings settings, YadWebAuth auth, string sourcePath, string destPath)  : base(settings, auth)
+        public YadCopyRequest(HttpCommonSettings settings, YadWebAuth auth, string sourcePath, string destPath)  : base(settings, auth)
         {
             _sourcePath = sourcePath;
             _destPath = destPath;
         }
 
-        protected override string RelationalUri => "/models/?_m=do-resource-move";
+        protected override string RelationalUri => "/models/?_m=do-resource-copy";
 
         protected override IEnumerable<YadPostModel> CreateModels()
         {
-            yield return new YadMovePostModel
+            yield return new YadCopyPostModel
             {
                 Source = _sourcePath,
                 Destination = _destPath
@@ -27,11 +27,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         }
     }
 
-    class YadMovePostModel : YadPostModel
+
+    class YadCopyPostModel : YadPostModel
     {
-        public YadMovePostModel()
+        public YadCopyPostModel()
         {
-            Name = "do-resource-move";
+            Name = "do-resource-copy";
             Force = true;
         }
 
@@ -50,7 +51,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         }
     }
 
-    internal class MoveData
+
+
+    class YadCopyRequestData
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }
@@ -62,7 +65,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public string Type { get; set; }
     }
 
-    internal class MoveParams
+    class YadCopyRequestParams
     {
         [JsonProperty("src")]
         public string Src { get; set; }

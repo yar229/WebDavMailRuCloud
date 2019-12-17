@@ -45,11 +45,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
     }
 
 
-    public class YadCreateFolderRequestData
+    class YadCreateFolderRequestData
     {
     }
 
-    public class YadCreateFolderRequestParams
+    class YadCreateFolderRequestParams
     {
         [JsonProperty("id")]
         public string Id { get; set; }
