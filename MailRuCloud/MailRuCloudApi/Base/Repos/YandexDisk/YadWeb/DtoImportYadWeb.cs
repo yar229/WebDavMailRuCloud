@@ -90,7 +90,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-
+        public static CreateFolderResult ToCreateFolderResult(this YadRequestResult<YadCreateFolderRequestData, YadCreateFolderRequestParams> data)
+        {
+            var res = new CreateFolderResult
+            {
+                IsSuccess = true,
+                Path = data.Models[0].Params.Id.Remove(0, "/disk".Length)
+            };
+            return res;
+        }
 
 
 

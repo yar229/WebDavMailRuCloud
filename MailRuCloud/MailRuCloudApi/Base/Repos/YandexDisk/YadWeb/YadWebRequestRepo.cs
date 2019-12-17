@@ -142,9 +142,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public Task<CreateFolderResult> CreateFolder(string path)
+        public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            throw new NotImplementedException();
+            var req = await new YadCreateFolderRequest(HttpSettings, (YadWebAuth)Authent, path)
+                .MakeRequestAsync();
+            var res = req.ToCreateFolderResult();
+            return res;
         }
 
         public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime,
