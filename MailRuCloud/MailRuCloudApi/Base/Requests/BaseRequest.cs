@@ -49,7 +49,7 @@ namespace YaR.MailRuCloud.Api.Base.Requests
         }
 
 
-        public async Task<T> MakeRequestAsync()
+        public virtual async Task<T> MakeRequestAsync()
         {
             Stopwatch watch = new Stopwatch();
             watch.Start();

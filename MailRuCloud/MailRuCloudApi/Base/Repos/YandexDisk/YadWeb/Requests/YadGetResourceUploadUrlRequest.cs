@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base.Requests;
 
@@ -10,7 +11,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         private readonly long _size;
         private readonly bool _force;
 
-        public YadGetResourceUploadUrlRequest(HttpCommonSettings settings, YadWebAuth auth, string path, long size, bool force = false)  : base(settings, auth)
+        public YadGetResourceUploadUrlRequest(HttpCommonSettings settings, YadWebAuth auth, string path, long size, bool force = true)  : base(settings, auth)
         {
             _path = path;
             _size = size;
@@ -27,6 +28,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
                 Force = _force,
                 Size = _size
             };
+        }
+
+        public override Task<YadRequestResult<ResourceUploadUrlData, ResourceUploadUrlParams>> MakeRequestAsync()
+        {
+            return base.MakeRequestAsync();
         }
     }
 

@@ -34,7 +34,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             var fi = data.Models
                 .First(m => m.ModelName == "resources")
                 .Data
-                .Resources;
+                .Resources.ToList();
+
+            //if (0 == fi.Count)
 
             var res = new Folder(path) { IsChildsLoaded = true };
 
@@ -55,6 +57,19 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             var path = data.Path.Remove(0, 5); // remove "/disk"
 
             var res = new File(path, data.Meta.Size ?? throw new Exception("File size is null"))
+            {
+                CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
+                LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
+                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue)
+            };
+            return res;
+        }
+
+        public static File ToFile(this YadItemInfoRequestData data)
+        {
+            var path = data.Path.Remove(0, 5); // remove "/disk"
+
+            var res = new File(path, data.Meta.Size)
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
