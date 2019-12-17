@@ -16,8 +16,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             _offset = offset;
             _limit = limit;
         }
-
-        protected override string RelationalUri => "/models/?_m=space";
+         
+        protected override string RelationalUri => "/models/?_m=resources";
 
         protected override IEnumerable<YadPostModel> CreateModels()
         {

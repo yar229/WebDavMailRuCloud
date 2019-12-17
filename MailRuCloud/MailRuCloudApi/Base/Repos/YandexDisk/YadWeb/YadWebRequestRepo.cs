@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -114,6 +115,16 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
+            var itemInfo = await new YadItemInfoRequest(HttpSettings, (YadWebAuth)Authent, path)
+                .MakeRequestAsync();
+            var itdata = itemInfo.Models.First().Data;
+
+            if (itdata?.Type == null)
+                return null;
+
+            if (itdata.Type == "file")
+                return itdata.ToFile();
+
             YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources> datares;
             try
             {
