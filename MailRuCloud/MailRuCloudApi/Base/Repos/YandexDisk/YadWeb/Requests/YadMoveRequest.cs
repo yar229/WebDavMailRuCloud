@@ -4,7 +4,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
-    class YadMoveRequest : YadBaseRequestJson<YadRequestResult<MoveData, MoveParams>>
+    class YadMoveRequest : YadBaseRequestJson<YadRequestResult<YadMoveRequestData, YadMoveRequestParams>>
     {
         private readonly string _sourcePath;
         private readonly string _destPath;
@@ -22,7 +22,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             yield return new YadMovePostModel
             {
                 Source = _sourcePath,
-                Destination = _destPath
+                Destination = _destPath,
+                Force = true
             };
         }
     }
@@ -32,7 +33,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public YadMovePostModel()
         {
             Name = "do-resource-move";
-            Force = true;
         }
 
         public string Source { get; set; }
@@ -50,7 +50,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         }
     }
 
-    internal class MoveData
+    internal class YadMoveRequestData
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }
@@ -62,7 +62,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public string Type { get; set; }
     }
 
-    internal class MoveParams
+    internal class YadMoveRequestParams
     {
         [JsonProperty("src")]
         public string Src { get; set; }

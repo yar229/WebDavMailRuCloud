@@ -72,7 +72,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RenameResult ToRenameResult(this YadRequestResult<MoveData, MoveParams> data)
+        public static RenameResult ToRenameResult(this YadRequestResult<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new RenameResult
             {
@@ -110,6 +110,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
+        public static CopyResult ToMoveResult(this YadRequestResult<YadMoveRequestData, YadMoveRequestParams> data)
+        {
+            var res = new CopyResult
+            {
+                IsSuccess = true,
+                NewName = data.Models[0].Params.Dst.Remove(0, "/disk".Length)
+            };
+            return res;
+        }
 
 
 

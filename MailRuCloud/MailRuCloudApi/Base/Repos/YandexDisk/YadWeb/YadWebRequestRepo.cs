@@ -177,9 +177,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
+        public async Task<CopyResult> Move(string sourceFullPath, string destinationPath, ConflictResolver? conflictResolver = null)
         {
-            throw new NotImplementedException();
+            string destFullPath = WebDavPath.Combine(destinationPath, WebDavPath.Name(sourceFullPath));
+
+            var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
+                .MakeRequestAsync();
+
+            var res = req.ToMoveResult();
+            return res;
         }
 
         public Task<PublishResult> Publish(string fullPath)

@@ -22,7 +22,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             yield return new YadCopyPostModel
             {
                 Source = _sourcePath,
-                Destination = _destPath
+                Destination = _destPath,
+                Force = true
             };
         }
     }
@@ -33,7 +34,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public YadCopyPostModel()
         {
             Name = "do-resource-copy";
-            Force = true;
         }
 
         public string Source { get; set; }
