@@ -81,7 +81,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-
+        public static RemoveResult ToRemoveResult(this YadRequestResult<YadDeleteRequestData, YadDeleteRequestParams> data)
+        {
+            var res = new RemoveResult
+            {
+                IsSuccess = data.Models?.FirstOrDefault() != null
+            };
+            return res;
+        }
 
 
 

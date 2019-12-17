@@ -184,9 +184,12 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             throw new NotImplementedException();
         }
 
-        public Task<RemoveResult> Remove(string fullPath)
+        public async Task<RemoveResult> Remove(string fullPath)
         {
-            throw new NotImplementedException();
+            var req = await new YadDeleteRequest(HttpSettings, (YadWebAuth)Authent, fullPath)
+                .MakeRequestAsync();
+            var res = req.ToRemoveResult();
+            return res;
         }
 
         public async Task<RenameResult> Rename(string fullPath, string newName)
