@@ -7,16 +7,15 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile;
 using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
 using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1.Requests;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Links;
+using AnonymousRepo = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
 using AccountInfoRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
 using CreateFolderRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
 using MoveRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.MoveRequest;
@@ -37,7 +36,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
         private ShardManager _shardManager;
 
         protected IRequestRepo AnonymousRepo => _anonymousRepo ??
-                                                (_anonymousRepo = new WebV2RequestRepo(HttpSettings.Proxy, _creds,
+                                                (_anonymousRepo = new AnonymousRepo(HttpSettings.Proxy, _creds,
                                                     _onAuthCodeRequired));
         private IRequestRepo _anonymousRepo;
 
@@ -152,26 +151,26 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
         }
 
 
-        public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        {
-            var shard = GetShardInfo(ShardType.Upload).Result;
-            var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
+        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
+        //{
+        //    var shard = GetShardInfo(ShardType.Upload).Result;
+        //    var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
 
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Proxy = HttpSettings.Proxy;
-            request.CookieContainer = Authent.Cookies;
-            request.Method = "PUT";
-            request.ContentLength = file.OriginalSize;
-            request.Accept = "*/*";
-            request.UserAgent = HttpSettings.UserAgent;
-            request.AllowWriteStreamBuffering = false;
+        //    var request = (HttpWebRequest)WebRequest.Create(url);
+        //    request.Proxy = HttpSettings.Proxy;
+        //    request.CookieContainer = Authent.Cookies;
+        //    request.Method = "PUT";
+        //    request.ContentLength = file.OriginalSize;
+        //    request.Accept = "*/*";
+        //    request.UserAgent = HttpSettings.UserAgent;
+        //    request.AllowWriteStreamBuffering = false;
 
-            request.Timeout = 15 * 1000;
-            request.ReadWriteTimeout = 15 * 1000;
-            //request.ServicePoint.ConnectionLimit = int.MaxValue;
+        //    request.Timeout = 15 * 1000;
+        //    request.ReadWriteTimeout = 15 * 1000;
+        //    //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
-            return request;
-        }
+        //    return request;
+        //}
         
         /// <summary>
         /// Get shard info that to do post get request. Can be use for anonymous user.

@@ -46,15 +46,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2
         private const int ShardsExpiresInSec = 30 * 60;
 
 
-        public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        {
-            var shard = GetShardInfo(ShardType.Upload).Result;
+        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
+        //{
+        //    var shard = GetShardInfo(ShardType.Upload).Result;
 
-            var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
+        //    var url = new Uri($"{shard.Url}?cloud_domain=2&{Authent.Login}");
 
-            var result = new UploadRequest(url.OriginalString, file, Authent, HttpSettings);
-            return result;
-        }
+        //    var result = new UploadRequest(url.OriginalString, file, Authent, HttpSettings);
+        //    return result;
+        //}
 
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {

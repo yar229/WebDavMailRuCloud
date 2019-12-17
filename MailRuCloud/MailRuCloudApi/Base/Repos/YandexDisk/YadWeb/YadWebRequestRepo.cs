@@ -59,19 +59,26 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return stream;
         }
 
-        public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        {
-            var urldata = 
-                new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
-                .MakeRequestAsync()
-                .Result;
-            var url = urldata.Models[0].Data.UploadUrl;
+        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
+        //{
+        //    var urldata = 
+        //        new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
+        //        .MakeRequestAsync()
+        //        .Result;
+        //    var url = urldata.Models[0].Data.UploadUrl;
 
-            var result = new YadUploadRequest(HttpSettings, (YadWebAuth)Authent, url, file.OriginalSize);
-            return result;
+        //    var result = new YadUploadRequest(HttpSettings, (YadWebAuth)Authent, url, file.OriginalSize);
+        //    return result;
+        //}
+
+        public ICloudHasher GetHasher()
+        {
+            return null;
         }
 
-        public HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
+        public bool SupportsAddSmallFileByHash => false;
+
+        private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
         {
             var urldata = 
                 new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
@@ -92,6 +99,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             request.Content.Headers.ContentLength = file.OriginalSize;
 
             return request;
+        }
+
+        public async Task<UploadFileResult> DoUpload(HttpClient client, PushStreamContent content, File file)
+        {
+            var request = UploadClientRequest(content, file);
+            var responseMessage = await client.SendAsync(request);
+            var ures = responseMessage.ToUploadPathResult();
+
+            return ures;
         }
 
 
@@ -131,10 +147,16 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             throw new NotImplementedException();
         }
 
-        public Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime,
+        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime,
             ConflictResolver? conflictResolver)
         {
-            throw new NotImplementedException();
+            var res = new AddFileResult
+            {
+                Path = fileFullPath,
+                Success = true
+            };
+
+            return await Task.FromResult(res);
         }
 
         public Task<CloneItemResult> CloneItem(string fromUrl, string toPath)

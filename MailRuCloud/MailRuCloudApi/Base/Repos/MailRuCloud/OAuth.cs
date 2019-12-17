@@ -6,7 +6,7 @@ using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Common;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
+namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
 {
     internal class OAuth : IAuth
     {

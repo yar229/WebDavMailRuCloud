@@ -7,7 +7,6 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile;
 using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1.Requests;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -147,26 +146,26 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1
         }
 
 
-        public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        {
-            var shard = GetShardInfo(ShardType.Upload).Result;
-            var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
+        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
+        //{
+        //    var shard = GetShardInfo(ShardType.Upload).Result;
+        //    var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
 
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Proxy = HttpSettings.Proxy;
-            request.CookieContainer = Authent.Cookies;
-            request.Method = "PUT";
-            request.ContentLength = file.OriginalSize;
-            request.Accept = "*/*";
-            request.UserAgent = HttpSettings.UserAgent;
-            request.AllowWriteStreamBuffering = false;
+        //    var request = (HttpWebRequest)WebRequest.Create(url);
+        //    request.Proxy = HttpSettings.Proxy;
+        //    request.CookieContainer = Authent.Cookies;
+        //    request.Method = "PUT";
+        //    request.ContentLength = file.OriginalSize;
+        //    request.Accept = "*/*";
+        //    request.UserAgent = HttpSettings.UserAgent;
+        //    request.AllowWriteStreamBuffering = false;
 
-            request.Timeout = 15 * 1000;
-            request.ReadWriteTimeout = 15 * 1000;
-            //request.ServicePoint.ConnectionLimit = int.MaxValue;
+        //    request.Timeout = 15 * 1000;
+        //    request.ReadWriteTimeout = 15 * 1000;
+        //    //request.ServicePoint.ConnectionLimit = int.MaxValue;
 
-            return request;
-        }
+        //    return request;
+        //}
 
         /// <summary>
         /// Get shard info that to do post get request. Can be use for anonymous user.

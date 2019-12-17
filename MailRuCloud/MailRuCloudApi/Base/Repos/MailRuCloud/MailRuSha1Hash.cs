@@ -3,9 +3,9 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
 {
-    public class MailRuSha1Hash : IDisposable
+    public class MailRuSha1Hash : ICloudHasher
     {
         public MailRuSha1Hash()
         {
@@ -66,7 +66,7 @@ namespace YaR.MailRuCloud.Api
             }
         }
 
-        public static long Length => 20;
+        public long Length => 20;
 
         private byte[] _hash;
 

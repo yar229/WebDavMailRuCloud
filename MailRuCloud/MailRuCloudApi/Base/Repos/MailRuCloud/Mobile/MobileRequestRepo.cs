@@ -7,7 +7,6 @@ using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
 using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
 using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;
 using YaR.MailRuCloud.Api.Links;
@@ -27,8 +26,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
         };
-
-        //public int PendingDownloads { get; set; }
 
         public MobileRequestRepo(IWebProxy proxy, IAuth auth, int listDepth)
         {
@@ -68,10 +65,10 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
 
         
 
-        public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        {
-            throw new NotImplementedException();
-        }
+        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public Stream GetDownloadStream(File file, long? start = null, long? end = null)
         {
@@ -217,8 +214,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
         public Dictionary<ShardType, ShardInfo> GetShardInfo1()
         {
             throw new NotImplementedException("Mobile GetShardInfo1 not implemented");
-            //YaR.MailRuCloud.Api.Base.Requests.WebBin.
-            //return new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo();
         }
 
         public string GetShareLink(string fullPath)
@@ -240,19 +235,5 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
 
             return res.ToAddFileResult();
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }
