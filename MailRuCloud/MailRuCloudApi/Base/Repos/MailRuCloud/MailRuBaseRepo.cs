@@ -16,7 +16,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
 
         public static readonly string[] AvailDomains = {"mail", "inbox", "bk", "list"};
 
-        public MailRuBaseRepo(IBasicCredentials creds)
+        protected MailRuBaseRepo(IBasicCredentials creds)
         {
             Credentials = creds;
 
