@@ -25,6 +25,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2
         };
 
         public WebV2RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+            :base(creds)
         {
             HttpSettings.Proxy = proxy;
 

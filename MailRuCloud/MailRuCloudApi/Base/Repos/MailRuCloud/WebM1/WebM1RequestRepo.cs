@@ -26,7 +26,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1
     abstract class WebM1RequestRepo : MailRuBaseRepo, IRequestRepo
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebM1RequestRepo));
-        private readonly IBasicCredentials _creds;
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
         protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(this));
@@ -42,10 +41,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1
         };
 
         protected WebM1RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+            :base(creds)
         {
-            _creds = creds;
             _onAuthCodeRequired = onAuthCodeRequired;
-            
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
@@ -232,7 +230,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            if (_creds.IsAnonymous)
+            if (Credentials.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
             if (null == ulink && depth > 1)
