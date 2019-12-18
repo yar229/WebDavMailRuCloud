@@ -1,38 +1,17 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
-    class YadMoveRequest : YadBaseRequestJson<YadRequestResult<YadMoveRequestData, YadMoveRequestParams>>
-    {
-        private readonly string _sourcePath;
-        private readonly string _destPath;
-
-        public YadMoveRequest(HttpCommonSettings settings, YadWebAuth auth, string sourcePath, string destPath)  : base(settings, auth)
-        {
-            _sourcePath = sourcePath;
-            _destPath = destPath;
-        }
-
-        protected override string RelationalUri => "/models/?_m=do-resource-move";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            yield return new YadMovePostModel
-            {
-                Source = _sourcePath,
-                Destination = _destPath,
-                Force = true
-            };
-        }
-    }
-
     class YadMovePostModel : YadPostModel
     {
-        public YadMovePostModel()
+        public YadMovePostModel(string sourcePath, string destPath, bool force = true)
         {
             Name = "do-resource-move";
+            Source = sourcePath;
+            Destination = destPath;
+            Force = force;
         }
 
         public string Source { get; set; }

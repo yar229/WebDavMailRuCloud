@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
 using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 
@@ -9,9 +10,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportYadWeb));
 
-        public static AccountInfoResult ToAccountInfo(this YadRequestResult<DataAccountInfo, ParamsAccountInfo> data)
+        public static AccountInfoResult ToAccountInfo(this YadResponceModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
         {
-            var info = data.Models[0].Data;
+            var info = data.Data;
             var res = new AccountInfoResult
             {
                 
@@ -29,12 +30,13 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public static IEntry ToFolder(this YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources> data, string path)
+        public static IEntry ToFolder(this YadFolderInfoRequestData data, string path)
         {
-            var fi = data.Models
-                .First(m => m.ModelName == "resources")
-                .Data
-                .Resources.ToList();
+            var fi = data.Resources;
+            //data.Models
+            //    .First(m => m.ModelName == "resources")
+            //    .Data
+            //    .Resources.ToList();
 
             //if (0 == fi.Count)
 
@@ -87,7 +89,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RenameResult ToRenameResult(this YadRequestResult<YadMoveRequestData, YadMoveRequestParams> data)
+        public static RenameResult ToRenameResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new RenameResult
             {
@@ -96,41 +98,41 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RemoveResult ToRemoveResult(this YadRequestResult<YadDeleteRequestData, YadDeleteRequestParams> data)
+        public static RemoveResult ToRemoveResult(this YadResponceModel<YadDeleteRequestData, YadDeleteRequestParams> data)
         {
             var res = new RemoveResult
             {
-                IsSuccess = data.Models?.FirstOrDefault() != null
+                IsSuccess = true
             };
             return res;
         }
 
-        public static CreateFolderResult ToCreateFolderResult(this YadRequestResult<YadCreateFolderRequestData, YadCreateFolderRequestParams> data)
+        public static CreateFolderResult ToCreateFolderResult(this YadCreateFolderRequestParams data)
         {
             var res = new CreateFolderResult
             {
                 IsSuccess = true,
-                Path = data.Models[0].Params.Id.Remove(0, "/disk".Length)
+                Path = data.Id.Remove(0, "/disk".Length)
             };
             return res;
         }
 
-        public static CopyResult ToCopyResult(this YadRequestResult<YadCopyRequestData, YadCopyRequestParams> data)
+        public static CopyResult ToCopyResult(this YadResponceModel<YadCopyRequestData, YadCopyRequestParams> data)
         {
             var res = new CopyResult
             {
                 IsSuccess = true,
-                NewName = data.Models[0].Params.Dst.Remove(0, "/disk".Length)
+                NewName = data.Params.Dst.Remove(0, "/disk".Length)
             };
             return res;
         }
 
-        public static CopyResult ToMoveResult(this YadRequestResult<YadMoveRequestData, YadMoveRequestParams> data)
+        public static CopyResult ToMoveResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new CopyResult
             {
                 IsSuccess = true,
-                NewName = data.Models[0].Params.Dst.Remove(0, "/disk".Length)
+                NewName = data.Params.Dst.Remove(0, "/disk".Length)
             };
             return res;
         }

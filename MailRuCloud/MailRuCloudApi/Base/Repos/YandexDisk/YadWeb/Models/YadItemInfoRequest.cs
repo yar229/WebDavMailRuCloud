@@ -1,37 +1,14 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadItemInfoRequest : YadBaseRequestJson<YadRequestResult<YadItemInfoRequestData, YadItemInfoRequestParams>>
-    {
-        private readonly string _path;
-
-        public YadItemInfoRequest(HttpCommonSettings settings, YadWebAuth auth, string path)  : base(settings, auth)
-        {
-            _path = path;
-        }
-
-        protected override string RelationalUri => "/models/?_m=resource";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            var pd = new YadItemInfoPostModel
-            {
-                Path = _path,
-            };
-
-            yield return pd;
-        }
-    }
-
-
     class YadItemInfoPostModel : YadPostModel
     {
-        public YadItemInfoPostModel()
+        public YadItemInfoPostModel(string path)
         {
             Name = "resource";
+            Path = path;
         }
 
         public string Path { get; set; }
@@ -44,7 +21,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk/", Path));
         }
     }
-
 
     class YadItemInfoRequestData
     {

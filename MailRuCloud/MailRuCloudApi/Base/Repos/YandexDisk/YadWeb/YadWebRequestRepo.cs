@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
 using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests;
 using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
@@ -41,11 +42,16 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
         {
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                var urldata = new YadGetResourceUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath)
-                    .MakeRequestAsync()
-                    .Result;
+                //var urldata = new YadGetResourceUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath)
+                //    .MakeRequestAsync()
+                //    .Result;
 
-                var url = "https:" + urldata.Models[0].Data.File; //var url = urldata.Models[0].Data.Digest;
+                var z = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                    .With(new YadGetResourceUrlPostModel(file.FullPath),
+                        out YadResponceModel<ResourceUrlData, ResourceUrlParams> itemInfo)
+                    .MakeRequestAsync().Result;
+
+                var url = "https:" + itemInfo.Data.File;
                 HttpWebRequest request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend);
                 var response = (HttpWebResponse)request.GetResponse();
 
@@ -81,11 +87,17 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
         private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
         {
-            var urldata = 
-                new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
-                    .MakeRequestAsync()
-                    .Result;
-            var url = urldata.Models[0].Data.UploadUrl;
+            //var urldata = 
+            //    new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
+            //        .MakeRequestAsync()
+            //        .Result;
+            //var url = urldata.Models[0].Data.UploadUrl;
+
+            var z = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize),
+                    out YadResponceModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
+                .MakeRequestAsync().Result;
+            var url = itemInfo.Data.UploadUrl;
 
             var request = new HttpRequestMessage
             {
@@ -115,28 +127,21 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            var itemInfo = await new YadItemInfoRequest(HttpSettings, (YadWebAuth)Authent, path)
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadItemInfoPostModel(path),
+                    out YadResponceModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo)
+                .With(new YadFolderInfoPostModel(path),
+                    out YadResponceModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
                 .MakeRequestAsync();
-            var itdata = itemInfo.Models.First().Data;
 
+            var itdata = itemInfo?.Data;
             if (itdata?.Type == null)
                 return null;
 
             if (itdata.Type == "file")
                 return itdata.ToFile();
 
-            YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources> datares;
-            try
-            {
-                datares = await new YadFolderInfoRequest(HttpSettings, (YadWebAuth)Authent, path, offset, limit)
-                    .MakeRequestAsync();
-            }
-            catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-
-            var entry = datares.ToFolder(path);
+            var entry = folderInfo.Data.ToFolder(path);
 
             return entry;
         }
@@ -148,16 +153,28 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
         public async Task<AccountInfoResult> AccountInfo()
         {
-            var req = await new YadAccountInfoRequest(HttpSettings, (YadWebAuth)Authent).MakeRequestAsync();
-            var res = req.ToAccountInfo();
+            //var req = await new YadAccountInfoRequest(HttpSettings, (YadWebAuth)Authent).MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadAccountInfoPostModel(),
+                    out YadResponceModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                .MakeRequestAsync();
+
+            var res = itemInfo.ToAccountInfo();
             return res;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
-            var req = await new YadCreateFolderRequest(HttpSettings, (YadWebAuth)Authent, path)
+            //var req = await new YadCreateFolderRequest(HttpSettings, (YadWebAuth)Authent, path)
+            //    .MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadCreateFolderPostModel(path),
+                    out YadResponceModel<YadCreateFolderRequestData, YadCreateFolderRequestParams> itemInfo)
                 .MakeRequestAsync();
-            var res = req.ToCreateFolderResult();
+
+            var res = itemInfo.Params.ToCreateFolderResult();
             return res;
         }
 
@@ -182,9 +199,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
         {
             string destFullPath = WebDavPath.Combine(destinationPath, WebDavPath.Name(sourceFullPath));
 
-            var req = await new YadCopyRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
+            //var req = await new YadCopyRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
+            //    .MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadCopyPostModel(sourceFullPath, destFullPath),
+                    out YadResponceModel<YadCopyRequestData, YadCopyRequestParams> itemInfo)
                 .MakeRequestAsync();
-            var res = req.ToCopyResult();
+
+            var res = itemInfo.ToCopyResult();
             return res;
         }
 
@@ -192,10 +215,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
         {
             string destFullPath = WebDavPath.Combine(destinationPath, WebDavPath.Name(sourceFullPath));
 
-            var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
+            //var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
+            //    .MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadMovePostModel(sourceFullPath, destFullPath),
+                    out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
                 .MakeRequestAsync();
 
-            var res = req.ToMoveResult();
+            var res = itemInfo.ToMoveResult();
             return res;
         }
 
@@ -211,9 +239,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
         public async Task<RemoveResult> Remove(string fullPath)
         {
-            var req = await new YadDeleteRequest(HttpSettings, (YadWebAuth)Authent, fullPath)
+            //var req = await new YadDeleteRequest(HttpSettings, (YadWebAuth)Authent, fullPath)
+            //    .MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadDeletePostModel(fullPath),
+                    out YadResponceModel<YadDeleteRequestData, YadDeleteRequestParams> itemInfo)
                 .MakeRequestAsync();
-            var res = req.ToRemoveResult();
+
+            var res = itemInfo.ToRemoveResult();
             return res;
         }
 
@@ -222,8 +256,14 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             string destPath = WebDavPath.Parent(fullPath);
             destPath = WebDavPath.Combine(destPath, newName);
 
-            var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, fullPath, destPath).MakeRequestAsync();
-            var res = req.ToRenameResult();
+            //var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, fullPath, destPath).MakeRequestAsync();
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadMovePostModel(fullPath, destPath),
+                    out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
+                .MakeRequestAsync();
+
+            var res = itemInfo.ToRenameResult();
             return res;
         }
 

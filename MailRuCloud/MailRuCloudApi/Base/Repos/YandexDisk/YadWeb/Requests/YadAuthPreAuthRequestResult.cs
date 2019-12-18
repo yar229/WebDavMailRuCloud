@@ -4,12 +4,6 @@ using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
-    class YadAuthPreAuthRequestResult
-    {
-        public string Csrf { get; set; }
-        public string ProcessUUID { get; set; }
-    }
-
     class YadPreAuthRequest : BaseRequestString<YadAuthPreAuthRequestResult>
     {
         public YadPreAuthRequest(HttpCommonSettings settings, IAuth auth) 
@@ -49,5 +43,11 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 
             return msg;
         }
+    }
+
+    class YadAuthPreAuthRequestResult
+    {
+        public string Csrf { get; set; }
+        public string ProcessUUID { get; set; }
     }
 }

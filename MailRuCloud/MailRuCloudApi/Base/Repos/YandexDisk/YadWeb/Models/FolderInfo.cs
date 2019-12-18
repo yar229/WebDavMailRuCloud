@@ -1,48 +1,18 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadFolderInfoRequest : YadBaseRequestJson<YadRequestResult<FolderInfoDataResources, FolderInfoParamsResources>>
-    {
-        private readonly string _path;
-        private readonly int _offset;
-        private readonly int _limit;
-
-        public YadFolderInfoRequest(HttpCommonSettings settings, YadWebAuth auth, string path, int offset = 0, int limit = int.MaxValue)  : base(settings, auth)
-        {
-            _path = path;
-            _offset = offset;
-            _limit = limit;
-        }
-         
-        protected override string RelationalUri => "/models/?_m=resources";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            var pd = new YadFolderInfoPostModel
-            {
-                IdContext = WebDavPath.Combine("/disk", _path),
-                Order = 1,
-                SortBy = "name",
-                Offset = _offset,
-                Amount = _limit
-            };
-
-            yield return pd;
-        }
-    }
-
     class YadFolderInfoPostModel : YadPostModel
     {
-        public YadFolderInfoPostModel()
+        public YadFolderInfoPostModel(string path)
         {
             Name = "resources";
+            Path = path;
         }
 
-        public string IdContext { get; set; }
-        public int Order { get; set; }
+        public string Path { get; set; }
+        public int Order { get; set; } = 1;
         public string SortBy { get; set; } = "name";
         public int Offset { get; set; } = 0;
         public int Amount { get; set; } = int.MaxValue;
@@ -52,17 +22,15 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
             
-            yield return new KeyValuePair<string, string>($"idContext.{index}", IdContext);
+            yield return new KeyValuePair<string, string>($"idContext.{index}", WebDavPath.Combine("/disk", Path));
             yield return new KeyValuePair<string, string>($"order.{index}", Order.ToString());
             yield return new KeyValuePair<string, string>($"sort.{index}", SortBy);
             yield return new KeyValuePair<string, string>($"offset.{index}", Offset.ToString());
             yield return new KeyValuePair<string, string>($"amount.{index}", Amount.ToString());
-
         }
     }
 
-
-    internal class FolderInfoDataResources
+    internal class YadFolderInfoRequestData
     {
         [JsonProperty("resources")]
         public List<FolderInfoDataResource> Resources { get; set; }
@@ -176,7 +144,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public string Codec { get; set; }
 
         [JsonProperty("id")]
-        //[System.Text.Json.Serialization.JsonConverter(typeof(ParseStringConverter))]
         public long Id { get; set; }
 
         [JsonProperty("bitRate")]
@@ -213,7 +180,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         public long Num { get; set; }
     }
 
-    internal class FolderInfoParamsResources
+    internal class YadFolderInfoRequestParams
     {
         [JsonProperty("idContext")]
         public string IdContext { get; set; }

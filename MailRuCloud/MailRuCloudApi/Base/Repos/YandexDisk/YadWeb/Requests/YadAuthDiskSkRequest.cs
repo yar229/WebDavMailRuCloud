@@ -6,13 +6,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YadAuthDiskSkRequest : BaseRequestString<YadAuthDiskSkRequestResult>
     {
-        private readonly HttpCommonSettings _settings;
-        private readonly YadWebAuth _auth;
-
         public YadAuthDiskSkRequest(HttpCommonSettings settings, YadWebAuth auth) : base(settings, auth)
         {
-            _settings = settings;
-            _auth = auth;
         }
 
         protected override string RelationalUri => "/client/disk";

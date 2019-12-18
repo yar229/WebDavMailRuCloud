@@ -6,22 +6,6 @@ using YaR.MailRuCloud.Api.Base.Requests;
 
 namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
 {
-    class YadAuthLoginRequestResult
-    {
-        public bool HasError => Status == "error";
-
-        [JsonProperty("status")]
-        public string Status { get; set; }
-
-        [JsonProperty("track_id")]
-        public string TrackId { get; set; }
-
-
-
-        [JsonProperty("errors")]
-        public List<string> Errors { get; set; }
-    }
-
     class YadAuthLoginRequest : BaseRequestJson<YadAuthLoginRequestResult>
     {
         private readonly IAuth _auth;
@@ -56,10 +40,22 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             FormUrlEncodedContent z = new FormUrlEncodedContent(keyValues);
             var d = z.ReadAsByteArrayAsync().Result;
             return d;
-
-            //var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&process_uuid={_uuid}&login={_auth.Login}");
-            //return data;
         }
+    }
 
+    class YadAuthLoginRequestResult
+    {
+        public bool HasError => Status == "error";
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("track_id")]
+        public string TrackId { get; set; }
+
+
+
+        [JsonProperty("errors")]
+        public List<string> Errors { get; set; }
     }
 }

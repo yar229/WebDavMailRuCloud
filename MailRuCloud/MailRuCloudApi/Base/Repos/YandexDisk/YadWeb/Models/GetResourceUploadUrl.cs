@@ -1,46 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadGetResourceUploadUrlRequest : YadBaseRequestJson<YadRequestResult<ResourceUploadUrlData, ResourceUploadUrlParams>>
-    {
-        private readonly string _path;
-        private readonly long _size;
-        private readonly bool _force;
-
-        public YadGetResourceUploadUrlRequest(HttpCommonSettings settings, YadWebAuth auth, string path, long size, bool force = true)  : base(settings, auth)
-        {
-            _path = path;
-            _size = size;
-            _force = force;
-        }
-
-        protected override string RelationalUri => "/models/?_m=do-resource-upload-url";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            yield return new YadGetResourceUploadUrlPostModel
-            {
-                Destination = WebDavPath.Combine("/disk", _path),
-                Force = _force,
-                Size = _size
-            };
-        }
-
-        public override Task<YadRequestResult<ResourceUploadUrlData, ResourceUploadUrlParams>> MakeRequestAsync()
-        {
-            return base.MakeRequestAsync();
-        }
-    }
-
     class YadGetResourceUploadUrlPostModel : YadPostModel
     {
-        public YadGetResourceUploadUrlPostModel()
+        public YadGetResourceUploadUrlPostModel(string path, long size, bool force = true)
         {
             Name = "do-resource-upload-url";
+            Destination = path;
+            Size = size;
+            Force = force;
         }
 
         public string Destination { get; set; }
@@ -54,7 +24,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
             
-            yield return new KeyValuePair<string, string>($"dst.{index}", Destination);
+            yield return new KeyValuePair<string, string>($"dst.{index}", WebDavPath.Combine("/disk", Destination));
             yield return new KeyValuePair<string, string>($"force.{index}", Force ? "1" : "0");
             yield return new KeyValuePair<string, string>($"size.{index}", Size.ToString());
             yield return new KeyValuePair<string, string>($"md5.{index}", Md5);
@@ -94,6 +64,4 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
         [JsonProperty("sha256")]
         public string Sha256 { get; set; }
     }
-
-
 }
