@@ -9,14 +9,14 @@ namespace YaR.WebDavMailRu.CloudStore
 {
     internal static class Extensions
     {
-        public static Task<bool> Remove(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item)
+        public static async Task<bool> Remove(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item)
         {
-            if (null == item) return Task.FromResult(false);
+            if (null == item) return await Task.FromResult(false);
 
             if (item is MailruStoreItem storeItem)
-                return cloud.Remove(storeItem.FileInfo);
+                return await cloud.Remove(storeItem.FileInfo);
             if (item is MailruStoreCollection storeCollection)
-                return cloud.Remove(storeCollection.DirectoryInfo);
+                return await cloud.Remove(storeCollection.DirectoryInfo);
 
             throw new ArgumentException(string.Empty, nameof(item));
         }
