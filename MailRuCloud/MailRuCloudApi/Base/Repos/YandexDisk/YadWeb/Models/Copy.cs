@@ -1,39 +1,16 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadCopyRequest : YadBaseRequestJson<YadRequestResult<YadCopyRequestData, YadCopyRequestParams>>
-    {
-        private readonly string _sourcePath;
-        private readonly string _destPath;
-
-        public YadCopyRequest(HttpCommonSettings settings, YadWebAuth auth, string sourcePath, string destPath)  : base(settings, auth)
-        {
-            _sourcePath = sourcePath;
-            _destPath = destPath;
-        }
-
-        protected override string RelationalUri => "/models/?_m=do-resource-copy";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            yield return new YadCopyPostModel
-            {
-                Source = _sourcePath,
-                Destination = _destPath,
-                Force = true
-            };
-        }
-    }
-
-
     class YadCopyPostModel : YadPostModel
     {
-        public YadCopyPostModel()
+        public YadCopyPostModel(string sourcePath, string destPath, bool force = true)
         {
             Name = "do-resource-copy";
+            Source = sourcePath;
+            Destination = destPath;
+            Force = force;
         }
 
         public string Source { get; set; }
@@ -50,8 +27,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             yield return new KeyValuePair<string, string>($"force.{index}", Force ? "1" : "0");
         }
     }
-
-
 
     class YadCopyRequestData
     {

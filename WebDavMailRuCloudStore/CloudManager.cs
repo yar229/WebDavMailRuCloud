@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Linq;
 using System.Net;
 using System.Security.Principal;
 using YaR.MailRuCloud.Api;
@@ -42,12 +41,6 @@ namespace YaR.WebDavMailRu.CloudStore
         private static MailRuCloud.Api.MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
         {
             Logger.Info($"Cloud instance created for {identity.Name}");
-
-            if (!ConstSettings.AvailDomains.Any(d => identity.Name.Contains($"@{d}.")))
-            {
-                string domains = ConstSettings.AvailDomains.Aggregate((c, n) => c + ", @" + n);
-                Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
-            }
 
             var credentials = new Credentials(identity.Name, identity.Password);
 

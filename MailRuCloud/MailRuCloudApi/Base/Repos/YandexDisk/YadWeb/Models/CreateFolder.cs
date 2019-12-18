@@ -1,34 +1,15 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadCreateFolderRequest : YadBaseRequestJson<YadRequestResult<YadCreateFolderRequestData, YadCreateFolderRequestParams>>
-    {
-        private readonly string _path;
-
-        public YadCreateFolderRequest(HttpCommonSettings settings, YadWebAuth auth, string path)  : base(settings, auth)
-        {
-            _path = path;
-        }
-
-        protected override string RelationalUri => "/models/?_m=do-resource-create-folder";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            yield return new YadCreateFolderPostModel
-            {
-                Path = _path
-            };
-        }
-    }
-
     class YadCreateFolderPostModel : YadPostModel
     {
-        public YadCreateFolderPostModel()
+        public YadCreateFolderPostModel(string path, bool force = true)
         {
             Name = "do-resource-create-folder";
+            Path = path;
+            Force = force;
         }
 
         public string Path { get; set; }
@@ -43,7 +24,6 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
             yield return new KeyValuePair<string, string>($"force.{index}", Force ? "1" : "0");
         }
     }
-
 
     class YadCreateFolderRequestData
     {

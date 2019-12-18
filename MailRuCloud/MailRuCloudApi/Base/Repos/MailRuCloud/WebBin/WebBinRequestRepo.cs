@@ -29,14 +29,13 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebBinRequestRepo));
 
-        private readonly IBasicCredentials _creds;
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
         protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(this));
         private ShardManager _shardManager;
 
         protected IRequestRepo AnonymousRepo => _anonymousRepo ??
-                                                (_anonymousRepo = new AnonymousRepo(HttpSettings.Proxy, _creds,
+                                                (_anonymousRepo = new AnonymousRepo(HttpSettings.Proxy, Credentials,
                                                     _onAuthCodeRequired));
         private IRequestRepo _anonymousRepo;
 
@@ -48,8 +47,8 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
         };
 
         public WebBinRequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+            :base(creds)
         {
-            _creds = creds;
             _onAuthCodeRequired = onAuthCodeRequired;
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
@@ -272,7 +271,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
 
         public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            if (_creds.IsAnonymous)
+            if (Credentials.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
 
             if (null == ulink && depth > 1)

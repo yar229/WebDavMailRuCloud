@@ -5,14 +5,18 @@
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
     <RootNamespace>YaR.MailRuCloud.Api</RootNamespace>
     <AssemblyName>MailRuCloud.Api</AssemblyName>
-    <AssemblyVersion>1.11.0.1</AssemblyVersion>
-    <FileVersion>1.11.0.1</FileVersion>
+    <AssemblyVersion>1.11.0.2</AssemblyVersion>
+    <FileVersion>1.11.0.2</FileVersion>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.0|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

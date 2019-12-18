@@ -1,35 +1,14 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class YadDeleteRequest : YadBaseRequestJson<YadRequestResult<YadDeleteRequestData, YadDeleteRequestParams>>
-    {
-        private readonly string _path;
-
-        public YadDeleteRequest(HttpCommonSettings settings, YadWebAuth auth, string path)  : base(settings, auth)
-        {
-            _path = path;
-        }
-
-        protected override string RelationalUri => "/models/?_m=do-resource-delete";
-
-        protected override IEnumerable<YadPostModel> CreateModels()
-        {
-            yield return new YadDeletePostModel
-            {
-                Path = _path
-            };
-        }
-    }
-
-
     class YadDeletePostModel : YadPostModel
     {
-        public YadDeletePostModel()
+        public YadDeletePostModel(string path)
         {
             Name = "do-resource-delete";
+            Path = path;
         }
 
         public string Path { get; set; }

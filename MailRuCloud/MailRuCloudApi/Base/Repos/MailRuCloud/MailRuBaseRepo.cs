@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using YaR.MailRuCloud.Api.Base.Requests;
@@ -11,6 +12,23 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
 {
     abstract class MailRuBaseRepo
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MailRuBaseRepo));
+
+        public static readonly string[] AvailDomains = {"mail", "inbox", "bk", "list"};
+
+        protected MailRuBaseRepo(IBasicCredentials creds)
+        {
+            Credentials = creds;
+
+            if (!AvailDomains.Any(d => creds.Login.Contains($"@{d}.")))
+            {
+                string domains = AvailDomains.Aggregate((c, n) => c + ", @" + n);
+                Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
+            }
+        }
+
+        protected readonly IBasicCredentials Credentials;
+
         public IAuth Authent { get; protected set; }
         public abstract HttpCommonSettings HttpSettings { get; }
 

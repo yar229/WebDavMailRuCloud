@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
 using YaR.MailRuCloud.Api.Base.Requests.Types;
 using YaR.MailRuCloud.Api.Common;
 using YaR.MailRuCloud.Api.Extensions;

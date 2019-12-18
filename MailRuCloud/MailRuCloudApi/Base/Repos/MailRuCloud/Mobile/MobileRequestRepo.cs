@@ -28,6 +28,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
         };
 
         public MobileRequestRepo(IWebProxy proxy, IAuth auth, int listDepth)
+            :base(new Credentials(auth.Login, auth.Password))
         {
 	        _listDepth = listDepth;
 
