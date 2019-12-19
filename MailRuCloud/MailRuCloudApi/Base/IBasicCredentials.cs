@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base
+﻿namespace YaR.Clouds.Base
 {
     internal interface IBasicCredentials
     {

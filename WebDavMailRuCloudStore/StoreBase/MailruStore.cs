@@ -5,9 +5,9 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
+namespace YaR.Clouds.WebDavStore.StoreBase
 {
     public sealed class MailruStore : IStore
     {
@@ -51,7 +51,7 @@ namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
             var path = uri.Path;
 
             var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
-                .GetItem(path, MailRuCloud.Api.MailRuCloud.ItemType.Folder);
+                .GetItem(path, Cloud.ItemType.Folder);
 
             return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, folder, IsWritable));
         }

@@ -26,7 +26,7 @@
 
 using System.IO;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
 	/// <summary>
 	/// Xts sector-based

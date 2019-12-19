@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     /// <summary>
     /// Создает для каталога признак, что файлы в нём будут шифроваться
     /// </summary>
     public class CryptInitCommand : SpecialCommand
     {
-        public CryptInitCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+        public CryptInitCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 

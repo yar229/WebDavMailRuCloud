@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Base.Repos;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class SharedFolderLinkCommand : SpecialCommand
     {
-        public SharedFolderLinkCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
+        public SharedFolderLinkCommand(Cloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
         }
 

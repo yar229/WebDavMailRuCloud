@@ -7,20 +7,20 @@ using System.Net;
 using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1.Requests;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Links;
-using AnonymousRepo = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
-using AccountInfoRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
-using CreateFolderRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
-using MoveRequest = YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.MoveRequest;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Common;
+using YaR.Clouds.Links;
+using AnonymousRepo = YaR.Clouds.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
+using AccountInfoRequest = YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
+using CreateFolderRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
+using MoveRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.MoveRequest;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 {
     /// <summary>
     /// Combination of WebM1 and Mobile protocols
@@ -288,19 +288,19 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
                 return null;
             }
 
-            Api.MailRuCloud.ItemType itemType;
+            Clouds.Cloud.ItemType itemType;
 
             //TODO: subject to refact, bad-bad-bad
-            if (null == ulink || ulink.ItemType == Api.MailRuCloud.ItemType.Unknown)
+            if (null == ulink || ulink.ItemType == Clouds.Cloud.ItemType.Unknown)
                 itemType = datares.Body.Home == path ||
                            WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
-                    ? Api.MailRuCloud.ItemType.Folder
-                    : Api.MailRuCloud.ItemType.File;
+                    ? Clouds.Cloud.ItemType.Folder
+                    : Clouds.Cloud.ItemType.File;
             else
                 itemType = ulink.ItemType;
 
 
-            var entry = itemType == Api.MailRuCloud.ItemType.File
+            var entry = itemType == Clouds.Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
                     home: WebDavPath.Parent(path),
                     ulink: ulink,
@@ -374,7 +374,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin
         public Dictionary<ShardType, ShardInfo> GetShardInfo1()
         {
             if (Authent.IsAnonymous)
-                return new WebV2.Requests.ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
+                return new Clouds.Base.Repos.MailRuCloud.WebV2.Requests.ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
 
 
             return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();

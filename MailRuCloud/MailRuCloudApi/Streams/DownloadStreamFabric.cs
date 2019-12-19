@@ -1,15 +1,15 @@
 ﻿using System.IO;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.XTSSharp;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.XTSSharp;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.MailRuCloud.Api.Streams
+namespace YaR.Clouds.Streams
 {
     public class DownloadStreamFabric
     {
-        private readonly MailRuCloud _cloud;
+        private readonly Cloud _cloud;
 
-        public DownloadStreamFabric(MailRuCloud cloud)
+        public DownloadStreamFabric(Cloud cloud)
         {
             _cloud = cloud;
         }

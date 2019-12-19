@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using MihaZupan;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     class ProxyFabric
     {

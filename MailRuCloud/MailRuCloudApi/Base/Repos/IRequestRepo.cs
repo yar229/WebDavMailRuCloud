@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Links;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Common;
+using YaR.Clouds.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.Clouds.Base.Repos
 {
     interface IRequestRepo
     {

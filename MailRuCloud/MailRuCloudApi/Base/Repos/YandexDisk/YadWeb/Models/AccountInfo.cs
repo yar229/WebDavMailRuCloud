@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class YadAccountInfoPostModel : YadPostModel
     {

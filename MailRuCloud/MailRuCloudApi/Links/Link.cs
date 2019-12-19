@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Links.Dto;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.Links.Dto;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.MailRuCloud.Api.Links
+namespace YaR.Clouds.Links
 {
     public class Link : IEntry
     {
-        public Link(string href, MailRuCloud.ItemType itemType = MailRuCloud.ItemType.Unknown)
+        public Link(string href, Cloud.ItemType itemType = Cloud.ItemType.Unknown)
         {
             Href = href;
             IsLinkedToFileSystem = false;
@@ -23,8 +23,8 @@ namespace YaR.MailRuCloud.Api.Links
             IsRoot = WebDavPath.PathEquals(WebDavPath.Parent(FullPath), _rootLink.MapTo);
 
             ItemType = IsRoot
-                ? rootLink.IsFile ? MailRuCloud.ItemType.File : MailRuCloud.ItemType.Folder
-                : MailRuCloud.ItemType.Unknown;
+                ? rootLink.IsFile ? Cloud.ItemType.File : Cloud.ItemType.Folder
+                : Cloud.ItemType.Unknown;
 
             Size = IsRoot
                 ? rootLink.Size
@@ -41,9 +41,9 @@ namespace YaR.MailRuCloud.Api.Links
 
         public string Name => WebDavPath.Name(FullPath);
 
-        public MailRuCloud.ItemType ItemType { get; set; }
+        public Cloud.ItemType ItemType { get; set; }
 
-        public bool IsFile => ItemType == MailRuCloud.ItemType.File;
+        public bool IsFile => ItemType == Cloud.ItemType.File;
 
         public bool IsBad { get; set; }
 
@@ -60,7 +60,7 @@ namespace YaR.MailRuCloud.Api.Links
 
         public IEntry ToBadEntry()
         {
-            var res = ItemType == MailRuCloud.ItemType.File
+            var res = ItemType == Cloud.ItemType.File
                 ? (IEntry)new File(FullPath, Size, string.Empty)
                 : new Folder(Size, FullPath, string.Empty);
 

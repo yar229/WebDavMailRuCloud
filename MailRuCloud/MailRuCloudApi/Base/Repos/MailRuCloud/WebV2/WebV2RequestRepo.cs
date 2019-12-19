@@ -5,14 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Links;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Common;
+using YaR.Clouds.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 {
     class WebV2RequestRepo: MailRuBaseRepo, IRequestRepo
     {
@@ -192,18 +192,18 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2
                 return null;
             }
 
-            Api.MailRuCloud.ItemType itemType;
-            if (null == ulink || ulink.ItemType == Api.MailRuCloud.ItemType.Unknown)
+            Clouds.Cloud.ItemType itemType;
+            if (null == ulink || ulink.ItemType == Clouds.Cloud.ItemType.Unknown)
                 itemType = datares.Body.Home == path ||
                            WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
                            //datares.body.list.Any(fi => "/" + fi.weblink == path)
-                    ? Api.MailRuCloud.ItemType.Folder
-                    : Api.MailRuCloud.ItemType.File;
+                    ? Clouds.Cloud.ItemType.Folder
+                    : Clouds.Cloud.ItemType.File;
             else
                 itemType = ulink.ItemType;
 
 
-            var entry = itemType == Api.MailRuCloud.ItemType.File
+            var entry = itemType == Clouds.Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
                     home: WebDavPath.Parent(path),
                     ulink: ulink,

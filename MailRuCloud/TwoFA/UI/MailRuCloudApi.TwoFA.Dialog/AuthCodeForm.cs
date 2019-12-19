@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace YaR.MailRuCloud.TwoFA.UI
+namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 {
     public partial class AuthCodeForm : Form
     {

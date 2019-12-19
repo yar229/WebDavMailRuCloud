@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandLine;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     class CommandLineOptions
     {

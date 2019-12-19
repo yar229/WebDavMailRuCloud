@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Authentication;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     public class Credentials : IBasicCredentials
     {

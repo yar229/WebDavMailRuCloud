@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Streams;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.Base.Streams;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.MailRuCloud.Api.Streams
+namespace YaR.Clouds.Streams
 {
     class SplittedUploadStream : Stream
     {
         private readonly string _destinationPath;
-        private readonly MailRuCloud _cloud;
+        private readonly Cloud _cloud;
         private long _size;
         private readonly bool _checkHash;
         private readonly CryptInfo _cryptInfo;
@@ -25,7 +25,7 @@ namespace YaR.MailRuCloud.Api.Streams
         private readonly List<File> _files = new List<File>();
         private bool _performAsSplitted;
 
-        public SplittedUploadStream(string destinationPath, MailRuCloud cloud, long size, bool checkHash = true, CryptInfo cryptInfo = null)
+        public SplittedUploadStream(string destinationPath, Cloud cloud, long size, bool checkHash = true, CryptInfo cryptInfo = null)
         {
             _destinationPath = destinationPath;
             _cloud = cloud;

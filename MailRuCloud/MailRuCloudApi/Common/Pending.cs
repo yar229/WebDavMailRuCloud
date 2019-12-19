@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace YaR.MailRuCloud.Api.Common
+namespace YaR.Clouds.Common
 {
     class Pending<T> where T : class
     {

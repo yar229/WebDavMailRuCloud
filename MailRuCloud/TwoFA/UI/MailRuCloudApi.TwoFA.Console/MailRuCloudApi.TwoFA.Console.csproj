@@ -3,7 +3,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
-    <RootNamespace>YaR.MailRuCloud.TwoFA.UI</RootNamespace>
+    <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
   </PropertyGroup>
 
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MailRuCloudApi\MailRuCloudApi.csproj" />
+    <ProjectReference Include="..\..\..\MailRuCloudApi\YaR.Clouds.csproj" />
   </ItemGroup>
 
 </Project>

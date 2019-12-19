@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace YaR.MailRuCloud.Api.Common
+namespace YaR.Clouds.Common
 {
     public enum SharedVideoResolution
     {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     /// <summary>
     /// Обрабатывает командную строку и возвращает нужный объект команды
@@ -91,7 +91,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         };
 
 
-        public SpecialCommand Build(MailRuCloud cloud, string param)
+        public SpecialCommand Build(Cloud cloud, string param)
         {
             var res = ParceLine(param, cloud.Settings.SpecialCommandPrefix);
             if (!res.IsValid && !string.IsNullOrEmpty(cloud.Settings.AdditionalSpecialCommandPrefix))
@@ -166,7 +166,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
         private class SpecialCommandContainer
         {
             public string[] Commands;
-            public Func<MailRuCloud, string, IList<string>, SpecialCommand> CreateFunc;
+            public Func<Cloud, string, IList<string>, SpecialCommand> CreateFunc;
         }
 
     }

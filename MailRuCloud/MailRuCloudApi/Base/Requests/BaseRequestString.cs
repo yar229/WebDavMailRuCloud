@@ -1,6 +1,6 @@
-﻿using YaR.MailRuCloud.Api.Base.Repos;
+﻿using YaR.Clouds.Base.Repos;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.Clouds.Base.Requests
 {
     internal abstract class BaseRequestString : BaseRequestString<string>
     {

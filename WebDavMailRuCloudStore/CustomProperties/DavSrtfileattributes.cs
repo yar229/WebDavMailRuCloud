@@ -6,7 +6,7 @@ using NWebDav.Server.Http;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 
-namespace YaR.WebDavMailRu.CloudStore.DavCustomProperty
+namespace YaR.Clouds.WebDavStore.CustomProperties
 {
     public class DavSrtfileattributes<TEntry> : DavTypedProperty<TEntry, FileAttributes> where TEntry : IStoreItem
     {

@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
 	/// <summary>
 	/// Xts. See <see cref="XtsAes128"/> and <see cref="XtsAes256"/>.

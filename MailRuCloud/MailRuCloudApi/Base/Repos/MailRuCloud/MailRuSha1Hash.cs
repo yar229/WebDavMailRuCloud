@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
+namespace YaR.Clouds.Base.Repos.MailRuCloud
 {
     public class MailRuSha1Hash : ICloudHasher
     {

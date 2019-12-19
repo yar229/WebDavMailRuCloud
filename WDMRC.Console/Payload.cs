@@ -9,12 +9,11 @@ using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
 using NWebDav.Server.Logging;
-using YaR.MailRuCloud.Api;
-using YaR.WebDavMailRu;
-using YaR.WebDavMailRu.CloudStore;
-using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
+using YaR.Clouds.WebDavStore;
+using YaR.Clouds.WebDavStore.StoreBase;
+using RequestHandlerFactory = YaR.Clouds.WebDavStore.RequestHandlerFactory;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     class Payload
     {
@@ -99,7 +98,7 @@ namespace YaR.CloudMailRu.Console
         private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, int maxThreadCount = Int32.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
-            var requestHandlerFactory = new WebDavMailRu.CloudStore.Mailru.RequestHandlerFactory();
+            var requestHandlerFactory = new RequestHandlerFactory();
 
             // Create WebDAV dispatcher
             var homeFolder = new MailruStore();

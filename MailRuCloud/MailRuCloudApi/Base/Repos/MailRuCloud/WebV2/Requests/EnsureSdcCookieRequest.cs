@@ -1,7 +1,7 @@
 ﻿using System.Net;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     class EnsureSdcCookieRequest : BaseRequestString
     {

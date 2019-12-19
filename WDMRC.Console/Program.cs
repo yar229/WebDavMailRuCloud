@@ -3,7 +3,7 @@ using System.Reflection;
 using CommandLine;
 using WinServiceInstaller;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     public class Program
     {

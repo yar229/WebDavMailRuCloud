@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
 	/// <summary>
 	/// The actual Xts cryptography transform

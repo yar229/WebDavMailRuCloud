@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.Clouds.Base.Repos
 {
     public interface ICloudHasher : IDisposable
     {

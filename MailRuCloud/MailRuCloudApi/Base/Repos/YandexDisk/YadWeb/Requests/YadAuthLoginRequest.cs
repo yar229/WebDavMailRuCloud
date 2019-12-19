@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YadAuthLoginRequest : BaseRequestJson<YadAuthLoginRequestResult>
     {

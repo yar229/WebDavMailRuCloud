@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api.Links.Dto
+namespace YaR.Clouds.Links.Dto
 {
     public class ItemList
     {

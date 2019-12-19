@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using NWebDav.Server;
 using NWebDav.Server.Http;
+using YaR.Clouds.WebDavStore.CustomHandlers;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru
+namespace YaR.Clouds.WebDavStore
 {
     public class RequestHandlerFactory : IRequestHandlerFactory 
     {

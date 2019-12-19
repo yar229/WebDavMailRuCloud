@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.TwoFA.UI
+﻿namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 {
     partial class AuthCodeForm
     {
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(YaR.MailRuCloud.TwoFA.UI.AuthCodeForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AuthCodeForm));
             this.txtLogin = new System.Windows.Forms.TextBox();
             this.lblInfo = new System.Windows.Forms.Label();
             this.btnOk = new System.Windows.Forms.Button();

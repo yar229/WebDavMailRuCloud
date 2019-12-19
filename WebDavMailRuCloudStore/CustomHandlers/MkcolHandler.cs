@@ -3,9 +3,9 @@ using NWebDav.Server;
 using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api.SpecialCommands;
+using YaR.Clouds.SpecialCommands;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru
+namespace YaR.Clouds.WebDavStore.CustomHandlers
 {
     public class MkcolHandler : IRequestHandler
     {

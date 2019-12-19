@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Links;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.Clouds.Base.Repos
 {
     internal static class DtoImportWeb
     {
@@ -85,8 +85,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos
         //TODO: move to repo 
         public static UploadFileResult ToUploadPathResult(this HttpResponseMessage response)
         {
-            var res = new UploadFileResult();
-            res.HttpStatusCode = response.StatusCode;
+            var res = new UploadFileResult { HttpStatusCode = response.StatusCode };
 
             if (response.IsSuccessStatusCode)
             {

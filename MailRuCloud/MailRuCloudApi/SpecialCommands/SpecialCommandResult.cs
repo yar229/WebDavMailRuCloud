@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.SpecialCommands
+﻿namespace YaR.Clouds.SpecialCommands
 {
     public class SpecialCommandResult
     {

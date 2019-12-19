@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class DeleteCommand : SpecialCommand
     {
-        public DeleteCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
+        public DeleteCommand(Cloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
         }
 

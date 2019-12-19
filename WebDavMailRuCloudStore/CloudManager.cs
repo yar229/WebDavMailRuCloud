@@ -1,20 +1,19 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Security.Principal;
-using YaR.MailRuCloud.Api;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.Clouds.WebDavStore
 {
     public static class CloudManager
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudManager));
 
-        private static readonly ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud> CloudCache = new ConcurrentDictionary<string, MailRuCloud.Api.MailRuCloud>();
+        private static readonly ConcurrentDictionary<string, Cloud> CloudCache = new ConcurrentDictionary<string, Cloud>();
 
         public static CloudSettings Settings { get; set; }
 
-        public static MailRuCloud.Api.MailRuCloud Instance(IIdentity identityi)
+        public static Cloud Instance(IIdentity identityi)
         {
             var identity = (HttpListenerBasicIdentity) identityi;
             string key = identity.Name + identity.Password;
@@ -38,13 +37,13 @@ namespace YaR.WebDavMailRu.CloudStore
 
         private static readonly object Locker = new object();
 
-        private static MailRuCloud.Api.MailRuCloud CreateCloud(HttpListenerBasicIdentity identity)
+        private static Cloud CreateCloud(HttpListenerBasicIdentity identity)
         {
             Logger.Info($"Cloud instance created for {identity.Name}");
 
             var credentials = new Credentials(identity.Name, identity.Password);
 
-            var cloud = new MailRuCloud.Api.MailRuCloud(Settings, credentials);
+            var cloud = new Cloud(Settings, credentials);
             return cloud;
         }
     }

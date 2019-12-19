@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.Clouds.Base.Repos;
+using YaR.Clouds.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     //TODO: refact, maybe we don't need this class
     //TODO: refact, Requestrepo - wrong place?

@@ -9,22 +9,22 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
-using YaR.MailRuCloud.Api.Links;
-using YaR.MailRuCloud.Api.Streams;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
+using YaR.Clouds.Links;
+using YaR.Clouds.Streams;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.Clouds
 {
     //TODO: not thread-safe, refact
 
     /// <summary>
     /// Cloud client.
     /// </summary>
-    public class MailRuCloud : IDisposable
+    public class Cloud : IDisposable
     {
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
@@ -51,9 +51,9 @@ namespace YaR.MailRuCloud.Api
         private readonly ItemCache<string, IEntry> _itemCache;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MailRuCloud" /> class.
+        /// Initializes a new instance of the <see cref="Cloud" /> class.
         /// </summary>
-        public MailRuCloud(CloudSettings settings, Credentials credentials)
+        public Cloud(CloudSettings settings, Credentials credentials)
         {
 	        _settings = settings;
             Account = new Account(settings, credentials);
@@ -834,10 +834,10 @@ namespace YaR.MailRuCloud.Api
             return res.IsSuccess;
         }
 
-        public bool CreateFolder(string fullPath)
-        {
-            return CreateFolderAsync(fullPath).Result;
-        }
+        //public bool CreateFolder(string fullPath)
+        //{
+        //    return CreateFolderAsync(fullPath).Result;
+        //}
 
 
         public async Task<CloneItemResult> CloneItem(string path, string url)

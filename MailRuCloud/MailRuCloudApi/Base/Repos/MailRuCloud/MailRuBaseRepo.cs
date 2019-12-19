@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
+namespace YaR.Clouds.Base.Repos.MailRuCloud
 {
     abstract class MailRuBaseRepo
     {

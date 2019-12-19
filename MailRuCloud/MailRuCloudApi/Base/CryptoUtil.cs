@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     public static class CryptoUtil
     {
@@ -28,7 +28,7 @@ namespace YaR.MailRuCloud.Api.Base
             }
         }
 
-        public static CryptoKeyInfo GetCryptoPublicInfo(MailRuCloud cloud, File file)
+        public static CryptoKeyInfo GetCryptoPublicInfo(Cloud cloud, File file)
         {
             var iv = file.EnsurePublicKey(cloud);
             if (null == iv)

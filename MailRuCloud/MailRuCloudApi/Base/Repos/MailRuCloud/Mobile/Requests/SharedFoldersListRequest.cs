@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 {
     internal class SharedFoldersListRequest : BaseRequestMobile<SharedFoldersListRequest.Result>
     {

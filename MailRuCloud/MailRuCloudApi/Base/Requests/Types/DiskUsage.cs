@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Requests.Types
+﻿namespace YaR.Clouds.Base.Requests.Types
 {
     /// <summary>
     /// Get cloud disk usage for current account.

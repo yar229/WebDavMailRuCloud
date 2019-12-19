@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos;
+using YaR.Clouds.Base.Repos;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.Clouds.Base.Requests
 {
     internal abstract class BaseRequest<TConvert, T> where T : class
     {

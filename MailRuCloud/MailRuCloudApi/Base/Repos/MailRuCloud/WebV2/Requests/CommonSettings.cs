@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests
+﻿namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     internal static class CommonSettings
     {

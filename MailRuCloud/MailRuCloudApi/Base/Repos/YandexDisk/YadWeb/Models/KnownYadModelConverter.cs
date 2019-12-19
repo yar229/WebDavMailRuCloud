@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class KnownYadModelConverter : JsonConverter<List<YadResponceModel>>
     {

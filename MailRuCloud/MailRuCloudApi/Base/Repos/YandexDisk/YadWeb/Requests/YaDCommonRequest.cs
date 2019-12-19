@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YaDCommonRequest : BaseRequestJson<YadResponceResult>
     {

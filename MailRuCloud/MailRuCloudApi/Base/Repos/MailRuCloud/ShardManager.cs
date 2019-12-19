@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud
+namespace YaR.Clouds.Base.Repos.MailRuCloud
 {
     class ShardManager
     {

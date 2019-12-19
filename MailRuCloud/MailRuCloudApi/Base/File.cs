@@ -1,19 +1,10 @@
-﻿//-----------------------------------------------------------------------
-// <created file="File.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     /// <summary>
     /// Server file info.
@@ -111,7 +102,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Public link.</value>
         public string PublicLink { get; internal set; }
 
-        public string GetPublicLink(MailRuCloud cloud)
+        public string GetPublicLink(Cloud cloud)
         {
             string pl = PublicLink;
             if (string.IsNullOrEmpty(pl))
@@ -167,7 +158,7 @@ namespace YaR.MailRuCloud.Api.Base
 
 
         //TODO : refact, bad design
-        public CryptoKeyInfo EnsurePublicKey(MailRuCloud cloud)
+        public CryptoKeyInfo EnsurePublicKey(Cloud cloud)
         {
             if (ServiceInfo.IsCrypted && null == ServiceInfo.CryptInfo.PublicKey)
             {
@@ -177,7 +168,7 @@ namespace YaR.MailRuCloud.Api.Base
             return ServiceInfo.CryptInfo.PublicKey;
         }
 
-        public PublishInfo ToPublishInfo(MailRuCloud cloud, bool generateDirectVideoLink, SharedVideoResolution videoResolution)
+        public PublishInfo ToPublishInfo(Cloud cloud, bool generateDirectVideoLink, SharedVideoResolution videoResolution)
         {
             var info = new PublishInfo();
 
@@ -203,7 +194,7 @@ namespace YaR.MailRuCloud.Api.Base
             return info;
         }
 
-        private string ConvertToVideoLink(MailRuCloud cloud, string publicLink, SharedVideoResolution videoResolution)
+        private string ConvertToVideoLink(Cloud cloud, string publicLink, SharedVideoResolution videoResolution)
         {
             return cloud.Account.RequestRepo.ConvertToVideoLink(publicLink, videoResolution);
                        

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.Clouds
 {
     public delegate void FileUploadedDelegate(IEnumerable<File> file);
 }

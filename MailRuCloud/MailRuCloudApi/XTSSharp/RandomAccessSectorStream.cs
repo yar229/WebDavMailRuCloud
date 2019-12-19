@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
 	/// <summary>
 	/// A wraps a sector based stream and provides random access to it

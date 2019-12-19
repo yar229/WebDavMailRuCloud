@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.Clouds.Base.Repos
 {
     internal static class DtoImportExtensions
     {
 	    public static IEntry ToEntry(this ListRequest.Result data)
 	    {
-			Api.MailRuCloud.ItemType itemType = data.Item is FsFile ? Api.MailRuCloud.ItemType.File : Api.MailRuCloud.ItemType.Folder;
+			Clouds.Cloud.ItemType itemType = data.Item is FsFile ? Clouds.Cloud.ItemType.File : Clouds.Cloud.ItemType.Folder;
 
-		    var entry = itemType == Api.MailRuCloud.ItemType.File
+		    var entry = itemType == Clouds.Cloud.ItemType.File
 			    ? (IEntry)data.ToFile()
 			    : data.ToFolder();
 

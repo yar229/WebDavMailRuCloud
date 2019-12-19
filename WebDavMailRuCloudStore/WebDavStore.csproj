@@ -3,8 +3,8 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
-    <RootNamespace>YaR.WebDavMailRu.CloudStore</RootNamespace>
-    <AssemblyName>MailRuCloud.NWebDav.Store</AssemblyName>
+    <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
+    <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -27,8 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
+    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Mailru\" />
   </ItemGroup>
 
 </Project>

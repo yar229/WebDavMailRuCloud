@@ -2,10 +2,10 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 {
     class YadWebAuth : IAuth
     {
@@ -15,7 +15,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             _creds = creds;
             Cookies = new CookieContainer();
 
-            var z = MakeLogin().Result;
+            var _ = MakeLogin().Result;
         }
 
         private readonly IBasicCredentials _creds;

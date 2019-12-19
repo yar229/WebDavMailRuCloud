@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
-using YaR.MailRuCloud.Api.Links;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
+using YaR.Clouds.Links;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 {
     /// <summary>
     /// Part of Mobile protocol.
@@ -44,13 +44,13 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
                 },
                 value => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
-            _downloadServer = new Cached<ServerRequestResult>(old =>
-                {
-                    Logger.Debug("DownloadServer expired, refreshing.");
-                    var server = new GetServerRequest(HttpSettings).MakeRequestAsync().Result;
-                    return server;
-                },
-                value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
+            //_downloadServer = new Cached<ServerRequestResult>(old =>
+            //    {
+            //        Logger.Debug("DownloadServer expired, refreshing.");
+            //        var server = new GetServerRequest(HttpSettings).MakeRequestAsync().Result;
+            //        return server;
+            //    },
+            //    value => TimeSpan.FromSeconds(DownloadServerExpiresSec));
         }
 
 
@@ -59,7 +59,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile
         private readonly Cached<ServerRequestResult> _metaServer;
         private const int MetaServerExpiresSec = 20 * 60;
 
-        private readonly Cached<ServerRequestResult> _downloadServer;
+        //private readonly Cached<ServerRequestResult> _downloadServer;
 		private readonly int _listDepth;
 		private const int DownloadServerExpiresSec = 20 * 60;
 
