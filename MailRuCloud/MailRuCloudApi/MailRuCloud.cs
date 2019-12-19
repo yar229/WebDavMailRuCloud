@@ -740,6 +740,39 @@ namespace YaR.MailRuCloud.Api
             return res;
         }
 
+        /// <summary>
+        /// Remove file or folder.
+        /// </summary>
+        /// <param name="fullPath">Full file or folder name.</param>
+        /// <returns>True or false result operation.</returns>
+        private async Task<bool> Remove(string fullPath)
+        {
+            //TODO: refact
+            var link = await _linkManager.GetItemLink(fullPath, false);
+
+            if (link != null)
+            {
+                //if folder is linked - do not delete inner files/folders if client deleting recursively
+                //just try to unlink folder
+                _linkManager.RemoveLink(fullPath);
+
+                _itemCache.Invalidate(WebDavPath.Parent(fullPath));
+                return true;
+            }
+
+            var res = await Account.RequestRepo.Remove(fullPath);
+            if (res.IsSuccess)
+            {
+                //remove inner links
+                var innerLinks = _linkManager.GetChilds(fullPath);
+                _linkManager.RemoveLinks(innerLinks);
+
+                _itemCache.Invalidate(fullPath);
+                _itemCache.Forget(WebDavPath.Parent(fullPath), fullPath); //_itemCache.Invalidate(WebDavPath.Parent(fullPath));
+            }
+            return res.IsSuccess;
+        }
+
         #endregion == Remove ========================================================================================================================
 
         public string GetSharedLink(string fullPath)
@@ -914,38 +947,6 @@ namespace YaR.MailRuCloud.Api
             string content = JsonConvert.SerializeObject(data, Formatting.Indented);
             UploadFile(fullFilePath, content, discardEncryption);
             return true;
-        }
-
-        /// <summary>
-        /// Remove file or folder.
-        /// </summary>
-        /// <param name="fullPath">Full file or folder name.</param>
-        /// <returns>True or false result operation.</returns>
-        private async Task<bool> Remove(string fullPath)
-        {
-            //TODO: refact
-            var link = await _linkManager.GetItemLink(fullPath, false);
-
-            if (link != null)
-            {
-                //if folder is linked - do not delete inner files/folders if client deleting recursively
-                //just try to unlink folder
-                _linkManager.RemoveLink(fullPath);
-
-                _itemCache.Invalidate(WebDavPath.Parent(fullPath));
-                return true;
-            }
-
-            var res = await Account.RequestRepo.Remove(fullPath);
-            if (res.IsSuccess)
-            {
-                //remove inner links
-                var innerLinks = _linkManager.GetChilds(fullPath);
-                _linkManager.RemoveLinks(innerLinks);
-
-                _itemCache.Invalidate(WebDavPath.Parent(fullPath));
-            }
-            return res.IsSuccess;
         }
 
         #region IDisposable Support
