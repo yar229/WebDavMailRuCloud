@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using YaR.MailRuCloud.Api.Common;
 
 namespace YaR.MailRuCloud.Api.Base
 {
@@ -17,7 +18,7 @@ namespace YaR.MailRuCloud.Api.Base
     /// Server file info.
     /// </summary>
     [DebuggerDisplay("{" + nameof(FullPath) + "}")]
-    public class Folder : IEntry
+    public class Folder : IEntry, ICanForget
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Folder" /> class.
@@ -132,5 +133,20 @@ namespace YaR.MailRuCloud.Api.Base
 	    //{
 		    
 	    //}
+        public void Forget(object whomKey)
+        {
+            string key = whomKey.ToString();
+            if (string.IsNullOrEmpty(key))
+                return;
+            var file = Files.FirstOrDefault(f => f.FullPath == key);
+            if (null != file)
+                Files.Remove(file);
+            else
+            {
+                var folder = Folders.FirstOrDefault(f => f.FullPath == key);
+                if (null != folder)
+                    Folders.Remove(folder);
+            }
+        }
     }
 }

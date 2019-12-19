@@ -119,6 +119,13 @@ namespace YaR.MailRuCloud.Api.Common
             }
         }
 
+        public void Forget(TKey whoKey, TKey whomKey)
+        {
+            var who = Get(whoKey) as ICanForget;
+
+            who?.Forget(whomKey);
+        }
+
         //public TValue Invalidate(TValue item)
         //{
         //    return Invalidate(item.FullPath);
@@ -145,5 +152,12 @@ namespace YaR.MailRuCloud.Api.Common
             public DateTime Created { get; set; }
             public T Item { get; set; }
         }
+
+
+    }
+
+    public interface ICanForget
+    {
+        void Forget(object whomKey);
     }
 }

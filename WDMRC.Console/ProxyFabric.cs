@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using MihaZupan;
 
@@ -10,7 +11,13 @@ namespace YaR.CloudMailRu.Console
         public IWebProxy Get(string proxyAddress, string proxyUser, string proxyPassword)
         {
             if (string.IsNullOrEmpty(proxyAddress))
+#if NET461
                 return WebRequest.DefaultWebProxy;
+#else
+                return HttpClient.DefaultProxy; 
+#endif
+
+
 
             var match = Regex.Match(proxyAddress, @"\A\s*(?<type>(socks|https|http)) :// (?<address>\S*?) : (?<port>\d+) \s* \Z", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
             if (!match.Success)
