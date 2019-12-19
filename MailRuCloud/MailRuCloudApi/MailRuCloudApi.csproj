@@ -5,8 +5,8 @@
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
     <RootNamespace>YaR.MailRuCloud.Api</RootNamespace>
     <AssemblyName>MailRuCloud.Api</AssemblyName>
-    <AssemblyVersion>1.11.0.3</AssemblyVersion>
-    <FileVersion>1.11.0.3</FileVersion>
+    <AssemblyVersion>1.11.0.4</AssemblyVersion>
+    <FileVersion>1.11.0.4</FileVersion>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
