@@ -1,7 +1,7 @@
 ﻿using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
+namespace YaR.Clouds.WebDavStore.StoreBase
 {
     public interface IMailruStoreItem : IStoreItem
     {

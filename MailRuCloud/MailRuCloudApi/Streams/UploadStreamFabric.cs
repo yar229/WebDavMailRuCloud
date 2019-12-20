@@ -2,24 +2,24 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.XTSSharp;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.XTSSharp;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.MailRuCloud.Api.Streams
+namespace YaR.Clouds.Streams
 {
     public class UploadStreamFabric
     {
-        private readonly MailRuCloud _cloud;
+        private readonly Cloud _cloud;
 
-        public UploadStreamFabric(MailRuCloud cloud)
+        public UploadStreamFabric(Cloud cloud)
         {
             _cloud = cloud;
         }
 
         public async Task<Stream> Create(File file, FileUploadedDelegate onUploaded = null, bool discardEncryption = false)
         {
-            if (!(await _cloud.GetItemAsync(file.Path, MailRuCloud.ItemType.Folder) is Folder folder))
+            if (!(await _cloud.GetItemAsync(file.Path, Cloud.ItemType.Folder) is Folder folder))
                 throw new DirectoryNotFoundException(file.Path);
 
             Stream stream;

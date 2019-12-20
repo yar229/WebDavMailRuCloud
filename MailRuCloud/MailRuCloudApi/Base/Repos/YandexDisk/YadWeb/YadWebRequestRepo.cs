@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Streams;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Links;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Common;
+using YaR.Clouds.Links;
 using Stream = System.IO.Stream;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 {
     class YadWebRequestRepo : IRequestRepo
     {
@@ -46,7 +45,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
                 //    .MakeRequestAsync()
                 //    .Result;
 
-                var z = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                     .With(new YadGetResourceUrlPostModel(file.FullPath),
                         out YadResponceModel<ResourceUrlData, ResourceUrlParams> itemInfo)
                     .MakeRequestAsync().Result;
@@ -93,7 +92,7 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
             //        .Result;
             //var url = urldata.Models[0].Data.UploadUrl;
 
-            var z = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+            var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize),
                     out YadResponceModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
                 .MakeRequestAsync().Result;

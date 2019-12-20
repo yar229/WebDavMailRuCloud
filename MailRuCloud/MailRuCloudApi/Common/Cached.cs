@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YaR.MailRuCloud.Api.Common
+namespace YaR.Clouds.Common
 {
     public class Cached<T>
     {

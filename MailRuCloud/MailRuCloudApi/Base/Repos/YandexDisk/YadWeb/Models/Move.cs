@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class YadMovePostModel : YadPostModel
     {

@@ -7,7 +7,7 @@
     <ProjectGuid>{D88209ED-696D-450F-92FE-D098651D2565}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YaR.MailRuCloud.TwoFA.UI</RootNamespace>
+    <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.Dialog</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,9 +54,9 @@
     <EmbeddedResource Include="AuthCodeForm.resx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\MailRuCloudApi\MailRuCloudApi.csproj">
+    <ProjectReference Include="..\..\..\MailRuCloudApi\YaR.Clouds.csproj">
       <Project>{b9238166-0cec-45f2-afa2-caa8f7eba067}</Project>
-      <Name>MailRuCloudApi</Name>
+      <Name>YaR.Clouds</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Types
+namespace YaR.Clouds.Base.Requests.Types
 {
     public class AuthTokenResult
     {

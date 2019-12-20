@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.Clouds
 {
     public class PublishInfo
     {

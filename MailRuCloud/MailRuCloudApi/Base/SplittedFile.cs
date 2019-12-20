@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     public class SplittedFile : File
     {

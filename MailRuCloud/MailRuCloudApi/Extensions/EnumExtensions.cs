@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace YaR.MailRuCloud.Api.Extensions
+namespace YaR.Clouds.Extensions
 {
     public static class EnumExtensions
     {

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
-using YaR.WebDavMailRu.CloudStore;
+using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
+using YaR.Clouds.WebDavStore;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     internal static class Config
     {

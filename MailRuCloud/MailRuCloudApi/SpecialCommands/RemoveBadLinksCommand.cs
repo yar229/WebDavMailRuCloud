@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class RemoveBadLinksCommand : SpecialCommand
     {
-        public RemoveBadLinksCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
+        public RemoveBadLinksCommand(Cloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
         }
 

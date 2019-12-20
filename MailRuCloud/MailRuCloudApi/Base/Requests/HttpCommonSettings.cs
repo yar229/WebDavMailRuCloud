@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.Clouds.Base.Requests
 {
     internal class HttpCommonSettings
     {

@@ -6,7 +6,7 @@ using NWebDav.Server.Helpers;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru
+namespace YaR.Clouds.WebDavStore.CustomHandlers
 {
     /// <summary>
     /// Implementation of the COPY method.

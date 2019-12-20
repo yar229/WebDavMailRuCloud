@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Mime;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     class DownloadRequest
     {

@@ -3,11 +3,11 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Base.Repos;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Extensions;
 
-namespace YaR.MailRuCloud.Api.Base.Streams
+namespace YaR.Clouds.Base.Streams
 {
     /// <summary>
     /// Upload stream based on HttpClient
@@ -17,7 +17,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(UploadStreamHttpClient));
 
-        protected UploadStreamHttpClient(string destinationPath, MailRuCloud cloud, long size)
+        protected UploadStreamHttpClient(string destinationPath, Cloud cloud, long size)
         {
             _cloud = cloud;
             _file = new File(destinationPath, size, null);
@@ -131,7 +131,7 @@ namespace YaR.MailRuCloud.Api.Base.Streams
             }
         }
 
-        private readonly MailRuCloud _cloud;
+        private readonly Cloud _cloud;
         private readonly File _file;
 
         private IRequestRepo Repo => _cloud.Account.RequestRepo;

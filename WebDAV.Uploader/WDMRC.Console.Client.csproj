@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\MailRuCloudApi.csproj" />
+    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
   </ItemGroup>
 
 </Project>

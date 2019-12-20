@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.Base.Streams
+namespace YaR.Clouds.Base.Streams
 {
     /// <summary>
     /// Provides an <see cref="T:System.Net.Http.HttpContent" /> implementation that exposes an output <see cref="T:System.IO.Stream" />

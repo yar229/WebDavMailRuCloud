@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using CommandLine;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     class CommandLineOptions
     {
@@ -21,14 +21,17 @@ namespace YaR.CloudMailRu.Console
         [Option('s', "password", Required = false, HelpText = "Password to Mail.ru Cloud", Hidden = true)]
         public string Password { get; set; }
 
-        [Option("maxthreads", Default = 5, HelpText = "Maximum concurrent connections to cloud.mail.ru")]
+        [Option("maxthreads", Default = 5, HelpText = "Maximum concurrent connections to cloud")]
         public int MaxThreadCount { get; set; }
 
         [Option("user-agent", HelpText = "\"browser\" user-agent")]
         public string UserAgent { get; set; }
 
-        [Option("install", Required = false, HelpText = "install as Windows service")]
+        [Option("install", Required = false, HelpText = "install as Windows service with name")]
         public string ServiceInstall { get; set; }
+
+        [Option("install-display", Required = false, HelpText = "display name for Windows service")]
+        public string ServiceInstallDisplayName { get; set; }
 
         [Option("uninstall", Required = false, HelpText = "uninstall Windows service")]
         public string ServiceUninstall { get; set; }

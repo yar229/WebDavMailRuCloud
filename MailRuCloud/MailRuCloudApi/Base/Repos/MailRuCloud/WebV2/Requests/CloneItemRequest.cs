@@ -1,8 +1,8 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     class CloneItemRequest : BaseRequestJson<CommonOperationResult<string>>
     {

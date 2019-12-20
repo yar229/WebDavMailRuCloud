@@ -3,10 +3,10 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
-    <RootNamespace>YaR.MailRuCloud.Api</RootNamespace>
-    <AssemblyName>MailRuCloud.Api</AssemblyName>
-    <AssemblyVersion>1.11.0.4</AssemblyVersion>
-    <FileVersion>1.11.0.4</FileVersion>
+    <RootNamespace>YaR.Clouds</RootNamespace>
+    <AssemblyName>YaR.Clouds</AssemblyName>
+    <AssemblyVersion>1.11.0.5</AssemblyVersion>
+    <FileVersion>1.11.0.5</FileVersion>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 

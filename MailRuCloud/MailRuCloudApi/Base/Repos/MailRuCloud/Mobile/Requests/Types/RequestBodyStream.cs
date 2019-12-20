@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 {
     class RequestBodyStream : IDisposable
     {

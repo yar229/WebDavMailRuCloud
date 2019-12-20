@@ -1,9 +1,9 @@
-﻿using NWebDav.Server;
+﻿using System.Xml.Linq;
+using NWebDav.Server;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using System.Xml.Linq;
 
-namespace YaR.WebDavMailRu.CloudStore.DavCustomProperty
+namespace YaR.Clouds.WebDavStore.CustomProperties
 {
     public class DavSharedLink<TEntry> : DavString<TEntry> where TEntry : IStoreItem
     {

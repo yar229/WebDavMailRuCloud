@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Text;
 using System.Threading.Tasks;
 using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
-using YaR.WebDavMailRu.CloudStore.Mailru.StoreBase;
+using YaR.Clouds.WebDavStore.StoreBase;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.Clouds.WebDavStore
 {
     internal static class Extensions
     {
-        public static async Task<bool> Remove(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item)
+        public static async Task<bool> Remove(this Cloud cloud, IStoreItem item)
         {
             if (null == item) return await Task.FromResult(false);
 
@@ -21,7 +20,7 @@ namespace YaR.WebDavMailRu.CloudStore
             throw new ArgumentException(string.Empty, nameof(item));
         }
 
-        public static Task<bool> Rename(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item, string destinationName)
+        public static Task<bool> Rename(this Cloud cloud, IStoreItem item, string destinationName)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationName)) throw new ArgumentNullException(nameof(destinationName));
@@ -30,7 +29,7 @@ namespace YaR.WebDavMailRu.CloudStore
             return cloud.Rename(((IMailruStoreItem)item).EntryInfo, destinationName);
         }
 
-        public static Task<bool> Move(this MailRuCloud.Api.MailRuCloud cloud, IStoreItem item, string destinationPath)
+        public static Task<bool> Move(this Cloud cloud, IStoreItem item, string destinationPath)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));

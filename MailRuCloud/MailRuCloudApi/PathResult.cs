@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api
+﻿namespace YaR.Clouds
 {
     public class PathResult
     {

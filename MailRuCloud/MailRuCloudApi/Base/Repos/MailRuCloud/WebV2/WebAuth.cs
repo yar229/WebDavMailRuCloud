@@ -2,12 +2,12 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2.Requests;
-using YaR.MailRuCloud.Api.Base.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests;
+using YaR.Clouds.Base.Requests;
+using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2
+namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 {
     class WebAuth : IAuth
     {

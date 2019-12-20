@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace YaR.MailRuCloud.Api.Common
+namespace YaR.Clouds.Common
 {
     public static class Retry
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Models;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests;
-using YaR.MailRuCloud.Api.Base.Requests.Types;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
+using YaR.Clouds.Base.Requests.Types;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 {
     static class DtoImportYadWeb
     {
@@ -44,7 +43,9 @@ namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb
 
             res.Files.AddRange(fi
                 .Where(it => it.Type == "file")
-                .Select(f => f.ToFile()));
+                .Select(f => f.ToFile())
+                .ToGroupedFiles()
+            );
 
             foreach (var it in fi.Where(it => it.Type == "dir"))
             {

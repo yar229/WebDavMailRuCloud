@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class JoinCommand: SpecialCommand
     {
-        public JoinCommand(MailRuCloud cloud, string path, IList<string> parames): base(cloud, path, parames)
+        public JoinCommand(Cloud cloud, string path, IList<string> parames): base(cloud, path, parames)
         {
             var m = Regex.Match(Parames[0], @"(?snx-) (https://?cloud.mail.ru/public)?(?<data>/\w*/?\w*)/?\s*");
 

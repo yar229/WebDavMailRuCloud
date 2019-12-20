@@ -1,14 +1,14 @@
-﻿using NWebDav.Server;
-using NWebDav.Server.Helpers;
-using NWebDav.Server.Http;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using NWebDav.Server;
+using NWebDav.Server.Helpers;
+using NWebDav.Server.Http;
 using NWebDav.Server.Stores;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru
+namespace YaR.Clouds.WebDavStore.CustomHandlers
 {
     public class MoveHandler : IRequestHandler
     {

@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Text;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 {
     class OAuthRefreshRequest : BaseRequestJson<OAuthRefreshRequest.Result>
     {

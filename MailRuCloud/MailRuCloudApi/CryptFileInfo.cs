@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.Clouds
 {
     public class CryptFileInfo
     {

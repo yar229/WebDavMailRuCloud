@@ -1,18 +1,11 @@
-﻿//-----------------------------------------------------------------------
-// <created file="Folder.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     /// <summary>
     /// Server file info.
@@ -95,7 +88,7 @@ namespace YaR.MailRuCloud.Api.Base
         /// <value>Public link.</value>
         public string PublicLink { get; set; }
 
-        public string GetPublicLink(MailRuCloud cloud)
+        public string GetPublicLink(Cloud cloud)
         {
             string pl = PublicLink;
             if (string.IsNullOrEmpty(pl))

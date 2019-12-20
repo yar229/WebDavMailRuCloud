@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class ListCommand : SpecialCommand
     {
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FishCommand));
 
-        public ListCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+        public ListCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 

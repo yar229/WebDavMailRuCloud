@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Repos;
+using YaR.Clouds.Base.Repos;
 
-namespace YaR.MailRuCloud.Api.Base.Requests
+namespace YaR.Clouds.Base.Requests
 {
     internal abstract class BaseRequestJson<T> : BaseRequest<Stream, T> where T : class
     {
@@ -17,33 +17,33 @@ namespace YaR.MailRuCloud.Api.Base.Requests
 
         protected override RequestResponse<T> DeserializeMessage(Stream stream)
         {
-        //    var serializer = new JsonSerializer();
-
-        //    using (var sr = new StreamReader(stream))
-        //    using (var jsonTextReader = new JsonTextReader(sr))
-        //    {
-                
-
-        //        var msg = new RequestResponse<T>
-        //        {
-        //            Ok = true,
-        //            Result = serializer.Deserialize<T>(jsonTextReader)
-        //        };
-        //        return msg;
-        //    }
+            var serializer = new JsonSerializer();
 
             using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
             {
-                string text = sr.ReadToEnd();
+
 
                 var msg = new RequestResponse<T>
                 {
                     Ok = true,
-                    Result = JsonConvert.DeserializeObject<T>(text)
+                    Result = serializer.Deserialize<T>(jsonTextReader)
                 };
                 return msg;
-
             }
+
+            //using (var sr = new StreamReader(stream))
+            //{
+            //    string text = sr.ReadToEnd();
+
+            //    var msg = new RequestResponse<T>
+            //    {
+            //        Ok = true,
+            //        Result = JsonConvert.DeserializeObject<T>(text)
+            //    };
+            //    return msg;
+
+            //}
 
         }
 

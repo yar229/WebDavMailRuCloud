@@ -12,11 +12,11 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
-using YaR.MailRuCloud.Api.Base;
-using YaR.WebDavMailRu.CloudStore.DavCustomProperty;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.WebDavStore.CustomProperties;
+using File = YaR.Clouds.Base.File;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru.StoreBase
+namespace YaR.Clouds.WebDavStore.StoreBase
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}")]
     public sealed class MailruStoreCollection : IMailruStoreCollection

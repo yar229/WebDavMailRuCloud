@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     /// <summary>
     /// Join random file from cloud. If you got it - you are biggest f@kn lucker of Universe!
@@ -15,7 +14,7 @@ namespace YaR.MailRuCloud.Api.SpecialCommands
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(FishCommand));
 
-        public FishCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+        public FishCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 

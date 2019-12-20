@@ -1,9 +1,9 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebBin;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.WebV2;
-using YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebBin;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebV2;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb;
 
-namespace YaR.MailRuCloud.Api.Base.Repos
+namespace YaR.Clouds.Base.Repos
 {
     class RepoFabric
     {

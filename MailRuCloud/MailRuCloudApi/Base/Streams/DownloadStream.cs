@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api.Base.Streams
+namespace YaR.Clouds.Base.Streams
 {
     internal class DownloadStream : Stream
     {

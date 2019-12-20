@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Links.Dto;
-using File = YaR.MailRuCloud.Api.Base.File;
+using YaR.Clouds.Base;
+using YaR.Clouds.Common;
+using YaR.Clouds.Links.Dto;
 
-namespace YaR.MailRuCloud.Api.Links
+namespace YaR.Clouds.Links
 {
     /// <summary>
     /// Управление ссылками, привязанными к облаку
@@ -20,14 +19,14 @@ namespace YaR.MailRuCloud.Api.Links
 
         public static readonly string LinkContainerName = "item.links.wdmrc";
         public static readonly string HistoryContainerName = "item.links.history.wdmrc";
-        private readonly MailRuCloud _cloud;
+        private readonly Cloud _cloud;
         private ItemList _itemList = new ItemList();
         private readonly ItemCache<string, IEntry> _itemCache;
 
         private readonly object _lockContainer = new object();
 
 
-        public LinkManager(MailRuCloud cloud)
+        public LinkManager(Cloud cloud)
         {
             _cloud = cloud;
             _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(60)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
@@ -87,7 +86,7 @@ namespace YaR.MailRuCloud.Api.Links
                         //throw new Exception("temp");
 
                         string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
-                        var file = (File) _cloud.GetItem(filepath, MailRuCloud.ItemType.File, false);
+                        var file = (File) _cloud.GetItem(filepath, Cloud.ItemType.File, false);
 
                         if (file != null && file.Size > 3
                         ) //some clients put one/two/three-byte file before original file
@@ -169,7 +168,7 @@ namespace YaR.MailRuCloud.Api.Links
                 .Select(it => GetItemLink(WebDavPath.Combine(it.MapTo, it.Name)).Result)
                 .Where(itl => 
                     itl.IsBad || 
-                    _cloud.GetItemAsync(itl.MapPath, MailRuCloud.ItemType.Folder, false).Result == null)
+                    _cloud.GetItemAsync(itl.MapPath, Cloud.ItemType.Folder, false).Result == null)
                 .ToList();
             if (removes.Count == 0) return 0;
 
@@ -269,8 +268,8 @@ namespace YaR.MailRuCloud.Api.Links
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
                 var infores = await _cloud.Account.RequestRepo.ItemInfo(link.Href, true);
                 link.ItemType = infores.Body.Kind == "file"
-                    ? MailRuCloud.ItemType.File
-                    : MailRuCloud.ItemType.Folder;
+                    ? Cloud.ItemType.File
+                    : Cloud.ItemType.Folder;
                 link.OriginalName = infores.Body.Name;
                 link.Size = infores.Body.Size;
 
@@ -439,7 +438,7 @@ namespace YaR.MailRuCloud.Api.Links
                 link.Href,
                 destinationPath,
                 link.Name,
-                link.ItemType == MailRuCloud.ItemType.File,
+                link.ItemType == Cloud.ItemType.File,
                 link.Size,
                 DateTime.Now);
 

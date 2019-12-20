@@ -1,4 +1,4 @@
-﻿namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types
+﻿namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 {
     internal class FsFolder : FsItem
     {

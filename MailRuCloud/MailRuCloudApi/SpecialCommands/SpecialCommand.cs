@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public abstract class SpecialCommand
     {
-        protected readonly MailRuCloud Cloud;
+        protected readonly Cloud Cloud;
         protected readonly string Path;
         protected readonly IList<string> Parames;
 
         protected abstract MinMax<int> MinMaxParamsCount { get; }
 
-        protected SpecialCommand(MailRuCloud cloud, string path, IList<string> parames)
+        protected SpecialCommand(Cloud cloud, string path, IList<string> parames)
         {
             Cloud = cloud;
             Path = path;

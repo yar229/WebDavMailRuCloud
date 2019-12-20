@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     public class HeaderFileContent
     {

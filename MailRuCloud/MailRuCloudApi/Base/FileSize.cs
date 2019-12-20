@@ -1,14 +1,7 @@
-﻿//-----------------------------------------------------------------------
-// <created file="FileSize.cs">
-//     Mail.ru cloud client created in 2016.
-// </created>
-// <author>Korolev Erast.</author>
-//-----------------------------------------------------------------------
-
-using System;
+﻿using System;
 using System.Diagnostics;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     /// <summary>
     /// File size definition.

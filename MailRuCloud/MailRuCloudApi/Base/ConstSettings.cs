@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api.Base
+namespace YaR.Clouds.Base
 {
     public static class ConstSettings
     {

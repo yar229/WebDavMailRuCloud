@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Common;
-using YaR.MailRuCloud.Api.Extensions;
+using YaR.Clouds.Base;
+using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     public class ShareCommand : SpecialCommand
     {
 
-        public ShareCommand(MailRuCloud cloud, string path, bool generateDirectVideoLink, bool makeM3UFile, IList<string> parames) : base(cloud, path, parames)
+        public ShareCommand(Cloud cloud, string path, bool generateDirectVideoLink, bool makeM3UFile, IList<string> parames) : base(cloud, path, parames)
         {
             _generateDirectVideoLink = generateDirectVideoLink;
             _makeM3UFile = makeM3UFile;

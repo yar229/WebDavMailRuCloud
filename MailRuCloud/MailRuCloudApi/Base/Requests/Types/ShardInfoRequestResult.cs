@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace YaR.MailRuCloud.Api.Base.Requests.Types
+namespace YaR.Clouds.Base.Requests.Types
 {
     internal class ShardInfoRequestResult : CommonOperationResult<ShardInfoRequestResult.ShardInfoResultBody>
     {

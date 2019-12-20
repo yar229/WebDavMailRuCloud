@@ -28,6 +28,7 @@
 				 	  * WebV2		- desktop browser protocol
 
 	--install <servicename>		Install as windows service (Windows/.Net only)
+ 	--install-display <displayname>		Display name for Windows service (Windows/.Net only)
 	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
 
 	--proxy-address <socks|https|http>://<address>:<port>       Use proxy

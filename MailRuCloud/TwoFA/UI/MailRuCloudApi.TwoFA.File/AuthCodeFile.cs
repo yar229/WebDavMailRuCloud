@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using YaR.MailRuCloud.Api;
 
-namespace YaR.MailRuCloud.TwoFA.UI
+namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 {
     // ReSharper disable once UnusedMember.Global
     public class AuthCodeFile : ITwoFaHandler

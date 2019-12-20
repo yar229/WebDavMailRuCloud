@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.SpecialCommands
+namespace YaR.Clouds.SpecialCommands
 {
     /// <summary>
     /// Пароль для (де)шифрования
     /// </summary>
     public class CryptPasswdCommand : SpecialCommand
     {
-        public CryptPasswdCommand(MailRuCloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+        public CryptPasswdCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 

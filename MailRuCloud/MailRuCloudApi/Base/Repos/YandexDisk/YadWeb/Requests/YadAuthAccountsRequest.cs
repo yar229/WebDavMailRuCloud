@@ -1,19 +1,17 @@
 ﻿using System.Net;
 using System.Text;
 using Newtonsoft.Json;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.YandexDisk.YadWeb.Requests
+namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YadAuthAccountsRequest : BaseRequestJson<YadAuthAccountsRequestResult>
     {
-        private readonly IAuth _auth;
         private readonly string _csrf;
 
         public YadAuthAccountsRequest(HttpCommonSettings settings, IAuth auth, string csrf) 
             : base(settings, auth)
         {
-            _auth = auth;
             _csrf = csrf;
         }
 

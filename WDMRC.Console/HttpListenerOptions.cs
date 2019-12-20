@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace YaR.CloudMailRu.Console
+namespace YaR.Clouds.Console
 {
     class HttpListenerOptions
     {

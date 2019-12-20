@@ -1,8 +1,8 @@
 ﻿using System;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types;
-using YaR.MailRuCloud.Api.Base.Requests;
+using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Requests;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 {
     class CreateFolderRequest : BaseRequestMobile<CreateFolderRequest.Result>
     {

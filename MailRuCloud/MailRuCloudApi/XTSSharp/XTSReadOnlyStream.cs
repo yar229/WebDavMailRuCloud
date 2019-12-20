@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
     class XTSReadOnlyStream : XtsSectorStream
     {

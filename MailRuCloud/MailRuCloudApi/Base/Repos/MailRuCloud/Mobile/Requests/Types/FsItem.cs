@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace YaR.MailRuCloud.Api.Base.Repos.MailRuCloud.Mobile.Requests.Types
+namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 {
     public class FsItem
     {

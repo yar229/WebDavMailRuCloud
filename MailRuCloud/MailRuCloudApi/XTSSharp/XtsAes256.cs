@@ -27,7 +27,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace YaR.MailRuCloud.Api.XTSSharp
+namespace YaR.Clouds.XTSSharp
 {
 	/// <summary>
 	/// XTS-AES-256 implementation

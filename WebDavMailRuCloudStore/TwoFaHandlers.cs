@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using YaR.MailRuCloud.Api;
 
-namespace YaR.WebDavMailRu.CloudStore
+namespace YaR.Clouds.WebDavStore
 {
     public class TwoFactorAuthHandlerInfo
     {

@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Threading;
 
-namespace YaR.MailRuCloud.Api.Base.Streams
+namespace YaR.Clouds.Base.Streams
 {
     class HttpClientFabric
     {

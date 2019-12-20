@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace YaR.MailRuCloud.Api.Base.Requests.Types
+﻿namespace YaR.Clouds.Base.Requests.Types
 {
     public class ServerRequestResult
     {

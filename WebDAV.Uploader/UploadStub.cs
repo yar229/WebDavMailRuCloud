@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
-using YaR.MailRuCloud.Api;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Base.Repos.MailRuCloud;
+using YaR.Clouds;
+using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 
 namespace YaR.CloudMailRu.Client.Console
 {
@@ -28,7 +28,7 @@ namespace YaR.CloudMailRu.Client.Console
                 Protocol = Protocol.WebM1Bin
             };
             var credentials = new Credentials(user, password);
-            var cloud = new MailRuCloud.Api.MailRuCloud(settings, credentials);
+            var cloud = new Cloud(settings, credentials);
 
             using (var file = new StreamReader(listname))
             {

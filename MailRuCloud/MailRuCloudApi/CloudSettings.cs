@@ -1,8 +1,8 @@
 ﻿using System.Net;
-using YaR.MailRuCloud.Api.Base;
-using YaR.MailRuCloud.Api.Common;
+using YaR.Clouds.Base;
+using YaR.Clouds.Common;
 
-namespace YaR.MailRuCloud.Api
+namespace YaR.Clouds
 {
     public class CloudSettings
     {

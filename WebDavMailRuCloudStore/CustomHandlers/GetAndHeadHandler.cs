@@ -8,7 +8,7 @@ using NWebDav.Server.Http;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 
-namespace YaR.WebDavMailRu.CloudStore.Mailru
+namespace YaR.Clouds.WebDavStore.CustomHandlers
 {
 
     /// <summary>

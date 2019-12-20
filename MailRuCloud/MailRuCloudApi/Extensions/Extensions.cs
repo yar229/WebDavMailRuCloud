@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace YaR.MailRuCloud.Api.Extensions
+namespace YaR.Clouds.Extensions
 {
     public static class Extensions
     {
