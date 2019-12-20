@@ -5,8 +5,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class YadFolderInfoPostModel : YadPostModel
     {
-        public YadFolderInfoPostModel(string path)
+        private readonly string _pathPrefix;
+
+        public YadFolderInfoPostModel(string path, string pathPrefix = "/disk")
         {
+            _pathPrefix = pathPrefix;
             Name = "resources";
             Path = path;
         }
@@ -22,7 +25,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
             
-            yield return new KeyValuePair<string, string>($"idContext.{index}", WebDavPath.Combine("/disk", Path));
+            yield return new KeyValuePair<string, string>($"idContext.{index}", WebDavPath.Combine(_pathPrefix, Path));
             yield return new KeyValuePair<string, string>($"order.{index}", Order.ToString());
             yield return new KeyValuePair<string, string>($"sort.{index}", SortBy);
             yield return new KeyValuePair<string, string>($"offset.{index}", Offset.ToString());
@@ -97,6 +100,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
         [JsonProperty("video_info", NullValueHandling = NullValueHandling.Ignore)]
         public VideoInfo VideoInfo { get; set; }
+
+        [JsonProperty("short_url")]
+        public string UrlShort { get; set; }
     }
 
     class Size

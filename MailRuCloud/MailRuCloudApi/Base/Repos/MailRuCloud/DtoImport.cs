@@ -5,11 +5,11 @@ using System.Net.Http;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Links;
 
-namespace YaR.Clouds.Base.Repos
+namespace YaR.Clouds.Base.Repos.MailRuCloud
 {
-    internal static class DtoImportWeb
+    internal static class DtoImportMailRu
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportWeb));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportMailRu));
 
         public static UnpublishResult ToUnpublishResult(this CommonOperationResult<string> data)
         {
@@ -170,13 +170,27 @@ namespace YaR.Clouds.Base.Repos
             return dict;
         }
 
+
+        private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string publicBaseUrl)
+        {
+            var publicurls = new []
+            {
+                new PublicLinkInfo(publicBaseUrl + item.Weblink)
+            };
+            var folder = new Folder(item.Size, item.Home ?? item.Name, publicurls);
+            return folder;
+        }
+
+
+
+
         private static readonly string[] FolderKinds = { "folder", "camera-upload", "mounted", "shared" };
 
-        public static IEntry ToEntry(this FolderInfoResult data)
+        public static IEntry ToEntry(this FolderInfoResult data, string publicBaseUrl)
         {
             if (data.Body.Kind == "file")
             {
-                var file = data.ToFile();
+                var file = data.ToFile(publicBaseUrl);
                 return file;
             }
 
@@ -184,11 +198,11 @@ namespace YaR.Clouds.Base.Repos
             {
                 Folders = data.Body.List?
                     .Where(it => FolderKinds.Contains(it.Kind))
-                    .Select(item => item.ToFolder())
+                    .Select(item => item.ToFolder(publicBaseUrl))
                     .ToList(),
                 Files = data.Body.List?
                     .Where(it => it.Kind == "file")
-                    .Select(item => item.ToFile())
+                    .Select(item => item.ToFile(publicBaseUrl, ""))
                     .ToGroupedFiles()
                     .ToList()
             };
@@ -198,36 +212,36 @@ namespace YaR.Clouds.Base.Repos
         }
 
 
-		//public static IEntry ToEntry(this FolderInfoResult data, Link ulink, string origPath)
-		//{
-		//	MailRuCloud.ItemType itemType;
-		//	if (null == ulink)
-		//		itemType = data.Body.Home == origPath
-		//			? MailRuCloud.ItemType.Folder
-		//			: MailRuCloud.ItemType.File;
-		//	else
-		//		itemType = ulink.ItemType;
+        public static Folder ToFolder(this FolderInfoResult data, string publicBaseUrl, string home = null, Link link = null)
+        {
+            PatchEntryPath(data, home, link);
 
+            var plinks = new [] { new PublicLinkInfo(publicBaseUrl + data.Body.Weblink)};
 
-		//	var entry = itemType == MailRuCloud.ItemType.File
-		//		? (IEntry)data.ToFile(
-		//			home: WebDavPath.Parent(origPath),
-		//			ulink: ulink,
-		//			filename: ulink == null ? WebDavPath.Name(origPath) : ulink.OriginalName,
-		//			nameReplacement: WebDavPath.Name(origPath))
-		//		: data.ToFolder(origPath, ulink);
+            var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, plinks)
+            {
+                Folders = data.Body.List?
+                    .Where(it => FolderKinds.Contains(it.Kind))
+                    .Select(item => item.ToFolder(publicBaseUrl))
+                    .ToList(),
+                Files = data.Body.List?
+                    .Where(it => it.Kind == "file")
+                    .Select(item => item.ToFile(publicBaseUrl, ""))
+                    .ToGroupedFiles()
+                    .ToList(),
+                IsChildsLoaded = true
+            };
 
-		//	return entry;
-		//}
+            return folder;
+        }
 
-
-		/// <summary>
-		/// When it's a linked item, need to shift paths
-		/// </summary>
-		/// <param name="data"></param>
-		/// <param name="home"></param>
-		/// <param name="link"></param>
-		private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
+        /// <summary>
+        /// When it's a linked item, need to shift paths
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="home"></param>
+        /// <param name="link"></param>
+        private static void PatchEntryPath(FolderInfoResult data, string home, Link link)
         {
             if (string.IsNullOrEmpty(home) || null == link)
                 return;
@@ -241,29 +255,8 @@ namespace YaR.Clouds.Base.Repos
             data.Body.Home = home;
         }
 
-        public static Folder ToFolder(this FolderInfoResult data, string home = null, Link link = null)
-        {
-            PatchEntryPath(data, home, link);
-
-            var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, data.Body.Weblink)
-            {
-                Folders = data.Body.List?
-                    .Where(it => FolderKinds.Contains(it.Kind))
-                    .Select(item => item.ToFolder())
-                    .ToList(),
-                Files = data.Body.List?
-                    .Where(it => it.Kind == "file")
-                    .Select(item => item.ToFile())
-                    .ToGroupedFiles()
-                    .ToList(),
-	            IsChildsLoaded = true
-            };
-
-            return folder;
-        }
-
         //TODO: subject to heavily refact
-        public static File ToFile(this FolderInfoResult data, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
+        public static File ToFile(this FolderInfoResult data, string publicBaseUrl, string home = null, Link ulink = null, string filename = null, string nameReplacement = null)
         {
             if (ulink == null || ulink.IsLinkedToFileSystem)
                 if (string.IsNullOrEmpty(filename))
@@ -276,8 +269,8 @@ namespace YaR.Clouds.Base.Repos
             var z = data.Body.List?
                 .Where(it => it.Kind == "file")
                 .Select(it => filename != null && it.Name == filename
-                                ? it.ToFile(nameReplacement)
-                                : it.ToFile())
+                    ? it.ToFile(publicBaseUrl, nameReplacement)
+                    : it.ToFile(publicBaseUrl, ""))
                 .ToList();
 
             var cmpname = string.IsNullOrEmpty(nameReplacement)
@@ -286,7 +279,7 @@ namespace YaR.Clouds.Base.Repos
 
             if (string.IsNullOrEmpty(cmpname) && data.Body.Weblink != "/" && ulink != null && !ulink.IsLinkedToFileSystem)
             {
-                cmpname = WebDavPath.Name(ulink.PublicLink);
+                cmpname = WebDavPath.Name(ulink.PublicLinks.First().Uri.OriginalString);
             }
 
             var groupedFile = z?
@@ -298,13 +291,7 @@ namespace YaR.Clouds.Base.Repos
             return res;
         }
 
-        private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item)
-        {
-            var folder = new Folder(item.Size, item.Home ?? item.Name, string.IsNullOrEmpty(item.Weblink) ? "" : item.Weblink);
-            return folder;
-        }
-
-        private static File ToFile(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string nameReplacement = null)
+        private static File ToFile(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string publicBaseUrl, string nameReplacement)
         {
             try
             {
@@ -313,11 +300,11 @@ namespace YaR.Clouds.Base.Repos
                     ? item.Home
                     : WebDavPath.Combine(WebDavPath.Parent(item.Home), nameReplacement);
 
-            
-                var file = new File(path ?? item.Name, item.Size, item.Hash)
-                {
-                    PublicLink = string.IsNullOrEmpty(item.Weblink) ? string.Empty : item.Weblink
-                };
+
+                var file = new File(path ?? item.Name, item.Size, item.Hash);
+                if (!string.IsNullOrEmpty(item.Weblink))
+                    file.PublicLinks.Add(new PublicLinkInfo(publicBaseUrl + item.Weblink));
+
                 var dt = UnixTimeStampToDateTime(item.Mtime, file.CreationTimeUtc);
                 file.CreationTimeUtc =
                     file.LastAccessTimeUtc =
@@ -332,6 +319,7 @@ namespace YaR.Clouds.Base.Repos
             }
 
         }
+
 
         private static DateTime UnixTimeStampToDateTime(double unixTimeStamp, DateTime defaultvalue)
         {

@@ -11,7 +11,7 @@ using YaR.Clouds.Links;
 
 namespace YaR.Clouds.Base.Repos
 {
-    interface IRequestRepo
+    public interface IRequestRepo
     {
         IAuth Authent { get; }
         HttpCommonSettings HttpSettings { get; }
@@ -44,7 +44,7 @@ namespace YaR.Clouds.Base.Repos
 
         Task<PublishResult> Publish(string fullPath);
 
-        Task<UnpublishResult> Unpublish(string publicLink);
+        Task<UnpublishResult> Unpublish(Uri publicLink, string fullPath);
 
         Task<RemoveResult> Remove(string fullPath);
 
@@ -53,16 +53,22 @@ namespace YaR.Clouds.Base.Repos
         //TODO: move to inner repo functionality
         Dictionary<ShardType, ShardInfo> GetShardInfo1();
 
-        string GetShareLink(string path);
+        IEnumerable<PublicLinkInfo> GetShareLinks(string path);
 
 
 
         //TODO: bad quick patch
-        string ConvertToVideoLink(string publicLink, SharedVideoResolution videoResolution);
+        string ConvertToVideoLink(Uri publicLink, SharedVideoResolution videoResolution);
 
 
 
         ICloudHasher GetHasher();
+
+
         bool SupportsAddSmallFileByHash { get; }
+
+
+        IEnumerable<string> PublicBaseUrls { get; set; }
+        string PublicBaseUrlDefault { get; }
     }
 }

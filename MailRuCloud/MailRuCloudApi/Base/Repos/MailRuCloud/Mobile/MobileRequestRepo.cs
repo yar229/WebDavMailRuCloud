@@ -192,7 +192,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             throw new NotImplementedException();
         }
 
-        public Task<UnpublishResult> Unpublish(string publicLink)
+        public Task<UnpublishResult> Unpublish(Uri publicLink, string fullPath = null)
         {
             throw new NotImplementedException();
         }
@@ -217,7 +217,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             throw new NotImplementedException("Mobile GetShardInfo1 not implemented");
         }
 
-        public string GetShareLink(string fullPath)
+        public IEnumerable<PublicLinkInfo> GetShareLinks(string fullPath)
         {
             throw new NotImplementedException("Mobile GetShareLink not implemented");
         }

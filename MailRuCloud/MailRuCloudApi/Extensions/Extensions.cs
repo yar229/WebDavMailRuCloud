@@ -9,6 +9,12 @@ namespace YaR.Clouds.Extensions
 {
     public static class Extensions
     {
+        //internal static bool IsAbsoluteUri(this Uri uri)
+        //{
+        //    return Uri.TryCreate(uri.OriginalString, UriKind.Absolute, out _);
+        //}
+
+
         internal static DateTime ToDateTime(this ulong unixTimeStamp)
         {
             var dtDateTime = Epoch.AddSeconds(unixTimeStamp);

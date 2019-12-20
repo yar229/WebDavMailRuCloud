@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Mime;
 using YaR.Clouds.Base.Requests;
@@ -10,8 +11,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     class DownloadRequest
     {
-        public DownloadRequest(File file, long instart, long inend, IAuth authent, HttpCommonSettings settings, Cached<Dictionary<ShardType, ShardInfo>> shards)
+        private readonly IRequestRepo _repo;
+
+        public DownloadRequest(IRequestRepo repo, File file, long instart, long inend, IAuth authent, HttpCommonSettings settings, Cached<Dictionary<ShardType, ShardInfo>> shards)
         {
+            _repo = repo;
             Request = CreateRequest(authent, settings.Proxy, file, instart, inend, settings.UserAgent, shards);
         }
 
@@ -19,7 +23,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
         private HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, File file, long instart, long inend,  string userAgent, Cached<Dictionary<ShardType, ShardInfo>> shards)
         {
-            bool isLinked = !string.IsNullOrEmpty(file.PublicLink);
+            bool isLinked = file.PublicLinks.Any();
 
             string downloadkey = isLinked
                 ? authent.DownloadToken
@@ -31,7 +35,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
             string url = !isLinked
                 ? $"{shard.Url}{Uri.EscapeDataString(file.FullPath)}"
-                : $"{shard.Url}{new Uri(ConstSettings.PublishFileLink + file.PublicLink).PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
+                : $"{shard.Url}{file.PublicLinks.First().Uri.PathAndQuery.Remove(0, "/public".Length)}?key={downloadkey}";
 
             var request = (HttpWebRequest) WebRequest.Create(url);
 

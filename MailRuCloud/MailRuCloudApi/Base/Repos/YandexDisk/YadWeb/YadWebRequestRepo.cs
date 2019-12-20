@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests;
 using YaR.Clouds.Base.Requests;
@@ -28,6 +30,28 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             HttpSettings.Proxy = proxy;
             Authent = new YadWebAuth(HttpSettings, creds);
+
+            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+                {
+                    var res = GetShareListInner().Result;
+                    return res;
+                }, 
+                value => TimeSpan.FromSeconds(30));
+        }
+
+        private async Task<Dictionary<string, IEnumerable<PublicLinkInfo>>> GetShareListInner()
+        {
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadFolderInfoPostModel("/", "/published"),
+                    out YadResponceModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
+                .MakeRequestAsync();
+
+            var res = folderInfo.Data.Resources
+                .ToDictionary(
+                    it => it.Path.Remove(0, "/disk".Length), 
+                    it => Enumerable.Repeat(new PublicLinkInfo("short", it.Meta.UrlShort), 1));
+
+            return res;
         }
 
         public IAuth Authent { get; }
@@ -138,9 +162,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 return null;
 
             if (itdata.Type == "file")
-                return itdata.ToFile();
+                return itdata.ToFile(PublicBaseUrlDefault);
 
-            var entry = folderInfo.Data.ToFolder(path);
+            var entry = folderInfo.Data.ToFolder(itemInfo.Data, path, PublicBaseUrlDefault);
 
             return entry;
         }
@@ -218,22 +242,42 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             //    .MakeRequestAsync();
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadMovePostModel(sourceFullPath, destFullPath),
-                    out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
+                .With(new YadMovePostModel(sourceFullPath, destFullPath), out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToMoveResult();
             return res;
         }
 
-        public Task<PublishResult> Publish(string fullPath)
+        public async Task<PublishResult> Publish(string fullPath)
         {
-            throw new NotImplementedException();
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadPublishPostModel(fullPath, false), out YadResponceModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
+                .MakeRequestAsync();
+
+            var res = itemInfo.ToPublishResult();
+
+            if (res.IsSuccess)
+                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new PublicLinkInfo(res.Url)};
+
+            return res;
         }
 
-        public Task<UnpublishResult> Unpublish(string publicLink)
+        public async Task<UnpublishResult> Unpublish(Uri publicLink, string fullPath)
         {
-            throw new NotImplementedException();
+            foreach (var item in CachedSharedList.Value
+                .Where(kvp => kvp.Key == fullPath).ToList())
+            {
+                CachedSharedList.Value.Remove(item.Key);
+            }
+
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadPublishPostModel(fullPath, true), out YadResponceModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
+                .MakeRequestAsync();
+
+            var res = itemInfo.ToUnpublishResult();
+
+            return res;
         }
 
         public async Task<RemoveResult> Remove(string fullPath)
@@ -271,13 +315,23 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             throw new NotImplementedException();
         }
 
-        public string GetShareLink(string path)
+
+        public IEnumerable<PublicLinkInfo> GetShareLinks(string path)
         {
-            throw new NotImplementedException();
+            if (CachedSharedList.Value.TryGetValue(path, out var links))
+                foreach (var link in links)
+                    yield return link;
         }
 
 
 
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }
+
+        public IEnumerable<string> PublicBaseUrls { get; set; } = new[]
+        {
+            "https://yadi.sk"
+        };
+        public string PublicBaseUrlDefault => PublicBaseUrls.First();
 
 
 
@@ -285,10 +339,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
 
 
-
-
-
-        public string ConvertToVideoLink(string publicLink, SharedVideoResolution videoResolution)
+        public string ConvertToVideoLink(Uri publicLink, SharedVideoResolution videoResolution)
         {
             throw new NotImplementedException("Yad not implemented ConvertToVideoLink");
         }

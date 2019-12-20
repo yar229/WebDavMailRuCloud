@@ -30,7 +30,7 @@ namespace YaR.Clouds.SpecialCommands
             foreach (var e in Flat(data))
             {
                 string hash = (e as File)?.Hash ?? "-";
-                string link = string.IsNullOrWhiteSpace(e.PublicLink) ? "-" : e.PublicLink;
+                string link = e.PublicLinks.Any() ? e.PublicLinks.First().Uri.OriginalString : "-";
                 sb.AppendLine(
                     $"{e.FullPath}\t{e.Size.DefaultValue}\t{e.CreationTimeUtc:yyyy.MM.dd HH:mm:ss}\t{hash}\t{link}");
             }

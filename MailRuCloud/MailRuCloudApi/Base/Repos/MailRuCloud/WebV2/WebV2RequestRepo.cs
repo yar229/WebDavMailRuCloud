@@ -62,7 +62,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                HttpWebRequest request = new DownloadRequest(file, instart, inend, Authent, HttpSettings, _cachedShards);
+                HttpWebRequest request = new DownloadRequest(this, file, instart, inend, Authent, HttpSettings, _cachedShards);
                 var response = (HttpWebResponse)request.GetResponse();
 
                 return new CustomDisposable<HttpWebResponse>
@@ -185,7 +185,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit).MakeRequestAsync();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href.OriginalString : path, ulink != null, offset, limit).MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
@@ -205,11 +205,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 
             var entry = itemType == Clouds.Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
+                    PublicBaseUrlDefault,
                     home: WebDavPath.Parent(path),
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
                     nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null)
-                : datares.ToFolder(path, ulink);
+                : datares.ToFolder(PublicBaseUrlDefault, path, ulink);
 
             return entry;
         }
@@ -235,9 +236,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             return res;
         }
 
-        public async Task<UnpublishResult> Unpublish(string publicLink)
+        public async Task<UnpublishResult> Unpublish(Uri publicLink, string fullPath = null)
         {
-            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink).MakeRequestAsync();
+            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink.OriginalString).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
         }
@@ -261,7 +262,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
         }
 
-        public string GetShareLink(string fullPath)
+        public IEnumerable<PublicLinkInfo> GetShareLinks(string fullPath)
         {
             throw new NotImplementedException("WebV2 GetShareLink not implemented");
         }

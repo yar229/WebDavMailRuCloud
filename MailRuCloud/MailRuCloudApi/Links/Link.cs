@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using YaR.Clouds.Base;
 using YaR.Clouds.Links.Dto;
@@ -8,14 +9,14 @@ namespace YaR.Clouds.Links
 {
     public class Link : IEntry
     {
-        public Link(string href, Cloud.ItemType itemType = Cloud.ItemType.Unknown)
+        public Link(Uri href, Cloud.ItemType itemType = Cloud.ItemType.Unknown)
         {
-            Href = href;
+            Href = href.IsAbsoluteUri ? href : throw new ArgumentException("Absolute uri required");
             IsLinkedToFileSystem = false;
             ItemType = itemType;
         }
 
-        public Link(ItemLink rootLink, string fullPath, string href) : this(href)
+        public Link(ItemLink rootLink, string fullPath, Uri href) : this(href)
         {
             _rootLink = rootLink;
             FullPath = fullPath;
@@ -62,14 +63,16 @@ namespace YaR.Clouds.Links
         {
             var res = ItemType == Cloud.ItemType.File
                 ? (IEntry)new File(FullPath, Size, string.Empty)
-                : new Folder(Size, FullPath, string.Empty);
+                : new Folder(Size, FullPath);
 
             return res;
         }
 
-        public string Href { get; }
 
-        public string PublicLink => Href;
+        public Uri Href { get; }
+        public List<PublicLinkInfo> PublicLinks => new List<PublicLinkInfo> {new PublicLinkInfo("linked", Href) };
+
+
         public FileAttributes Attributes => FileAttributes.Normal; //TODO: dunno what to do
 
         public FileSize Size { get; set; }

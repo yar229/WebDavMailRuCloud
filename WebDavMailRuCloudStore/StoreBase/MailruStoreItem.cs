@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -152,9 +153,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             },
             new DavSharedLink<MailruStoreItem>
             {
-                Getter = (context, item) => string.IsNullOrEmpty(item._fileInfo.PublicLink) 
+                Getter = (context, item) => !item._fileInfo.PublicLinks.Any() 
                                                     ? string.Empty
-                                                    : ConstSettings.PublishFileLink + item._fileInfo.PublicLink,
+                                                    : item._fileInfo.PublicLinks.First().Uri.OriginalString,
                 Setter = (context, item, value) => DavStatusCode.Ok
             }
         });

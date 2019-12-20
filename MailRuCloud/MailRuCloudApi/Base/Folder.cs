@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using YaR.Clouds.Base.Repos;
 using YaR.Clouds.Common;
 
 namespace YaR.Clouds.Base
@@ -26,11 +27,12 @@ namespace YaR.Clouds.Base
         /// </summary>
         /// <param name="size">Folder size.</param>
         /// <param name="fullPath">Full folder path.</param>
-        /// <param name="publicLink">Public folder link.</param>
-        public Folder(FileSize size, string fullPath, string publicLink = null):this(fullPath)
+        /// <param name="publicLinks">Public folder link.</param>
+        public Folder(FileSize size, string fullPath, IEnumerable<PublicLinkInfo> publicLinks = null):this(fullPath)
         {
             Size = size;
-            PublicLink = publicLink;
+            if (null != publicLinks)
+                PublicLinks.AddRange(publicLinks);
         }
 
         public IEnumerable<IEntry> Entries
@@ -82,22 +84,22 @@ namespace YaR.Clouds.Base
             get;
         }
 
+
         /// <summary>
-        /// Gets public folder link.
+        /// Gets public file link.
         /// </summary>
         /// <value>Public link.</value>
-        public string PublicLink { get; set; }
+        public List<PublicLinkInfo> PublicLinks => _publicLinks ??= new List<PublicLinkInfo>();
+        private List<PublicLinkInfo> _publicLinks;
 
-        public string GetPublicLink(Cloud cloud)
+        public IEnumerable<PublicLinkInfo> GetPublicLinks(Cloud cloud)
         {
-            string pl = PublicLink;
-            if (string.IsNullOrEmpty(pl))
-            {
-                pl = cloud.GetSharedLink(FullPath);
-            }
+            if (!PublicLinks.Any())
+                return cloud.GetSharedLinks(FullPath);
 
-            return pl;
+            return PublicLinks;
         }
+
 
         public DateTime CreationTimeUtc { get; set; } = DateTime.Now.AddDays(-1);
 
@@ -116,8 +118,8 @@ namespace YaR.Clouds.Base
 		public PublishInfo ToPublishInfo()
         {
             var info = new PublishInfo();
-            if (!string.IsNullOrEmpty(PublicLink))
-                info.Items.Add(new PublishInfoItem { Path = FullPath, Url = ConstSettings.PublishFileLink + PublicLink });
+            if (PublicLinks.Any())
+                info.Items.Add(new PublishInfoItem { Path = FullPath, Urls = PublicLinks.Select(pli => pli.Uri).ToList() });
             return info;
         }
 

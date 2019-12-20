@@ -27,7 +27,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebM1RequestRepo));
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
-        protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(this));
+        protected ShardManager ShardManager => _shardManager ??= new ShardManager(this);
         private ShardManager _shardManager;
 
 
@@ -49,11 +49,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
 
-            CachedSharedList = new Cached<Dictionary<string, string>>(old =>
+            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
                 {
                     var z = GetShareListInner().Result;
 
-                    var res = z.Body.List.ToDictionary(fik => fik.Home, fiv => fiv.Weblink);
+                    var res = z.Body.List
+                        .ToDictionary(
+                            fik => fik.Home, 
+                            fiv => Enumerable.Repeat(new PublicLinkInfo(PublicBaseUrlDefault + fiv.Weblink), 1) );
 
                     return res;
                 }, 
@@ -70,7 +73,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         private DownloadStream GetDownloadStreamInternal(File afile, long? start = null, long? end = null)
         {
-            bool isLinked = !string.IsNullOrEmpty(afile.PublicLink);
+            bool isLinked = afile.PublicLinks.Any();
 
             Cached<ServerRequestResult> downServer = null;
             var pendingServers = isLinked
@@ -86,7 +89,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
                     downServer = pendingServers.Next(downServer);
 
                     string url =(isLinked
-                            ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLink)}"
+                            ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLinks.First().Uri.PathAndQuery)}"
                             : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
                         $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
                     var uri = new Uri(url);
@@ -238,7 +241,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href : path, ulink != null, offset, limit)
+                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href.OriginalString : path, ulink != null, offset, limit)
                     .MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
@@ -249,7 +252,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             Clouds.Cloud.ItemType itemType;
 
             //TODO: subject to refact, bad-bad-bad
-            if (null == ulink || ulink.ItemType == Clouds.Cloud.ItemType.Unknown)
+            if (null == ulink || ulink.ItemType == Cloud.ItemType.Unknown)
                 itemType = datares.Body.Home == path ||
                            WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
                     ? Clouds.Cloud.ItemType.Folder
@@ -258,13 +261,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
                 itemType = ulink.ItemType;
 
 
-            var entry = itemType == Clouds.Cloud.ItemType.File
+            var entry = itemType == Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
+                    PublicBaseUrlDefault,
                     home: WebDavPath.Parent(path),
                     ulink: ulink,
                     filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
                     nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null )
-                : datares.ToFolder(path, ulink);
+                : datares.ToFolder(PublicBaseUrlDefault, path, ulink);
 
             return entry;
         }
@@ -290,20 +294,21 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
             if (res.IsSuccess)
             {
-                CachedSharedList.Value[fullPath] = res.Url;
+                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new PublicLinkInfo(PublicBaseUrlDefault + res.Url)};
             }
 
             return res;
         }
 
-        public async Task<UnpublishResult> Unpublish(string publicLink)
+        public async Task<UnpublishResult> Unpublish(Uri publicLink, string fullPath = null)
         {
-            foreach (var item in CachedSharedList.Value.Where(kvp => kvp.Value == publicLink).ToList())
+            foreach (var item in CachedSharedList.Value
+                .Where(kvp => kvp.Value.Any(u => u.Uri.Equals(publicLink))).ToList())
             {
                 CachedSharedList.Value.Remove(item.Key);
             }
 
-            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink).MakeRequestAsync();
+            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink.OriginalString).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
         }
@@ -339,7 +344,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
         }
 
 
-        public Cached<Dictionary<string, string>> CachedSharedList { get; }
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }
 
         private async Task<FolderInfoResult> GetShareListInner()
         {
@@ -349,12 +354,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             return res;
         }
 
-        public string GetShareLink(string path)
+        public IEnumerable<PublicLinkInfo> GetShareLinks(string path)
         {
-            if (CachedSharedList.Value.TryGetValue(path, out var link))
-                return link;
-
-            return string.Empty;
+            if (CachedSharedList.Value.TryGetValue(path, out var links))
+                foreach (var link in links)
+                    yield return link;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

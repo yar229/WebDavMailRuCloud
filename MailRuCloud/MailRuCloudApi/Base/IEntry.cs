@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace YaR.Clouds.Base
@@ -10,7 +11,7 @@ namespace YaR.Clouds.Base
         string Name { get; }
         string FullPath { get; }
         DateTime CreationTimeUtc { get; }
-        string PublicLink { get; }
+        List<PublicLinkInfo> PublicLinks { get; }
 
         FileAttributes Attributes { get; }
     }

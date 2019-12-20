@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -34,11 +35,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
         public abstract Task<ShardInfo> GetShardInfo(ShardType shardType);
 
-        public string ConvertToVideoLink(string publicLink, SharedVideoResolution videoResolution)
+        public string ConvertToVideoLink(Uri publicLink, SharedVideoResolution videoResolution)
         {
+            string linkstring = publicLink.PathAndQuery;
             return GetShardInfo(ShardType.WeblinkVideo).Result.Url +
-                   videoResolution.ToEnumMemberValue() + "/" + //"0p/" +
-                   Common.Base64Encode(publicLink.TrimStart('/')) +
+                   videoResolution.ToEnumMemberValue() + "/" +
+                   Common.Base64Encode(linkstring.TrimStart('/')) +
                    ".m3u8?double_encode=1";
         }
 
@@ -79,5 +81,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
             return ures;
         }
+
+
+        public IEnumerable<string> PublicBaseUrls { get; set; } = new[]
+        {
+            "https://cloud.mail.ru/public",
+            "https:/cloud.mail.ru/public"  //TODO: may be obsolete?
+        };
+
+        public string PublicBaseUrlDefault => PublicBaseUrls.First();
     }
 }
