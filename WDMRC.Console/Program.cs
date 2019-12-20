@@ -21,8 +21,10 @@ namespace YaR.Clouds.Console
                         {
                             Assembly = Assembly.GetExecutingAssembly(),
                             Name = options.ServiceInstall ?? options.ServiceUninstall ?? "wdmrc",
-                            DisplayName = "WebDavMailRuCloud",
-                            Description = "WebDAV proxy for Cloud mail.ru",
+                            DisplayName = string.IsNullOrEmpty(options.ServiceInstallDisplayName)  
+                                ? $"WebDavCloud [{options.Protocol}]"
+                                : options.ServiceInstallDisplayName,
+                            Description = "WebDAV gate2cloud",
 
                             FireStart = () => Payload.Run(options),
                             FireStop = Payload.Stop
@@ -38,12 +40,14 @@ namespace YaR.Clouds.Console
                             _c.Install();
                             return 0;
                         }
-                        else if (options.ServiceUninstall != null)
+
+                        if (options.ServiceUninstall != null)
                         {
                             _c.Uninstall();
                             return 0;
                         }
-                        else if (options.ServiceRun)
+
+                        if (options.ServiceRun)
                         {
                             _c.Run();
                             return 0;
