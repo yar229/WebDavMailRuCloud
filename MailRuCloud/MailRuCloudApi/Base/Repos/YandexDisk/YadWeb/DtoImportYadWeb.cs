@@ -43,7 +43,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             res.Files.AddRange(fi
                 .Where(it => it.Type == "file")
-                .Select(f => f.ToFile()));
+                .Select(f => f.ToFile())
+                .ToGroupedFiles()
+            );
 
             foreach (var it in fi.Where(it => it.Type == "dir"))
             {

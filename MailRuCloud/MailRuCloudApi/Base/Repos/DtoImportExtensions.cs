@@ -11,25 +11,25 @@ namespace YaR.Clouds.Base.Repos
 {
     internal static class DtoImportExtensions
     {
-	    public static IEntry ToEntry(this ListRequest.Result data)
+        internal static IEntry ToEntry(this ListRequest.Result data)
 	    {
-			Clouds.Cloud.ItemType itemType = data.Item is FsFile ? Clouds.Cloud.ItemType.File : Clouds.Cloud.ItemType.Folder;
+			Cloud.ItemType itemType = data.Item is FsFile ? Cloud.ItemType.File : Cloud.ItemType.Folder;
 
-		    var entry = itemType == Clouds.Cloud.ItemType.File
+		    var entry = itemType == Cloud.ItemType.File
 			    ? (IEntry)data.ToFile()
 			    : data.ToFolder();
 
 		    return entry;
 		}
 
-	    public static File ToFile(this ListRequest.Result data)
+        internal static File ToFile(this ListRequest.Result data)
 	    {
 		    var source = data.Item as FsFile;
 		    var res = source.ToFile();//new File(data.FullPath, (long)source.Size, source.Sha1.ToHexString());
 		    return res;
 	    }
 
-		public static File ToFile(this FsFile data)
+        internal static File ToFile(this FsFile data)
 		{
 		    var res = new File(data.FullPath, (long) data.Size, data.Sha1.ToHexString())
 		    {
@@ -40,7 +40,7 @@ namespace YaR.Clouds.Base.Repos
 			return res;
 		}
 
-		private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
+		internal static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
 		{
 			var groupedFiles = list
 				.GroupBy(f => f.ServiceInfo.CleanName,
@@ -54,13 +54,13 @@ namespace YaR.Clouds.Base.Repos
 			return groupedFiles;
 		}
 
-		public static Folder ToFolder(this ListRequest.Result data)
+        internal static Folder ToFolder(this ListRequest.Result data)
 	    {
 		    var res = (data.Item as FsFolder)?.ToFolder();
 		    return res;
 	    }
 
-		public static Folder ToFolder(this FsFolder data)
+        internal static Folder ToFolder(this FsFolder data)
 		{
 			var res = new Folder((long)data.Size, data.FullPath) { IsChildsLoaded = data.IsChildsLoaded };
 
@@ -82,7 +82,7 @@ namespace YaR.Clouds.Base.Repos
 
 
 
-		public static CopyResult ToCopyResult(this MoveRequest.Result data, string newName)
+        internal static CopyResult ToCopyResult(this MoveRequest.Result data, string newName)
         {
             var res = new CopyResult
             {
@@ -92,7 +92,7 @@ namespace YaR.Clouds.Base.Repos
             return res;
         }
 
-        public static RenameResult ToRenameResult(this MoveRequest.Result data)
+        internal static RenameResult ToRenameResult(this MoveRequest.Result data)
         {
             var res = new RenameResult
             {
@@ -101,7 +101,7 @@ namespace YaR.Clouds.Base.Repos
             return res;
         }
 
-        public static AddFileResult ToAddFileResult(this MobAddFileRequest.Result data)
+        internal static AddFileResult ToAddFileResult(this MobAddFileRequest.Result data)
         {
             var res = new AddFileResult
             {
@@ -112,7 +112,7 @@ namespace YaR.Clouds.Base.Repos
         }
 
 
-        public static AuthTokenResult ToAuthTokenResult(this OAuthRefreshRequest.Result data, string refreshToken)
+        internal static AuthTokenResult ToAuthTokenResult(this OAuthRefreshRequest.Result data, string refreshToken)
         {
             if (data.ErrorCode > 0)
                 throw new Exception($"OAuth: Error Code={data.ErrorCode}, Value={data.Error}, Description={data.ErrorDescription}");
@@ -128,7 +128,7 @@ namespace YaR.Clouds.Base.Repos
             return res;
         }
 
-        public static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
+        internal static AuthTokenResult ToAuthTokenResult(this OAuthRequest.Result data)
         {
             if (data.ErrorCode > 0 && data.ErrorCode != 15)
                 throw new AuthenticationException($"OAuth: Error Code={data.ErrorCode}, Value={data.Error}, Description={data.ErrorDescription}");
@@ -146,7 +146,7 @@ namespace YaR.Clouds.Base.Repos
             return res;
         }
 
-        public static CreateFolderResult ToCreateFolderResult(this CreateFolderRequest.Result data)
+        internal static CreateFolderResult ToCreateFolderResult(this CreateFolderRequest.Result data)
         {
             var res = new CreateFolderResult
             {

@@ -288,19 +288,19 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 return null;
             }
 
-            Clouds.Cloud.ItemType itemType;
+            Cloud.ItemType itemType;
 
             //TODO: subject to refact, bad-bad-bad
-            if (null == ulink || ulink.ItemType == Clouds.Cloud.ItemType.Unknown)
+            if (null == ulink || ulink.ItemType == Cloud.ItemType.Unknown)
                 itemType = datares.Body.Home == path ||
                            WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
-                    ? Clouds.Cloud.ItemType.Folder
-                    : Clouds.Cloud.ItemType.File;
+                    ? Cloud.ItemType.Folder
+                    : Cloud.ItemType.File;
             else
                 itemType = ulink.ItemType;
 
 
-            var entry = itemType == Clouds.Cloud.ItemType.File
+            var entry = itemType == Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
                     home: WebDavPath.Parent(path),
                     ulink: ulink,

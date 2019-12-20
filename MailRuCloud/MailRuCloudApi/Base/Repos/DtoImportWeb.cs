@@ -333,20 +333,6 @@ namespace YaR.Clouds.Base.Repos
 
         }
 
-        private static IEnumerable<File> ToGroupedFiles(this IEnumerable<File> list)
-        {
-            var groupedFiles = list
-                .GroupBy(f => f.ServiceInfo.CleanName,
-                    file => file)
-                .SelectMany(group => group.Count() == 1         //TODO: DIRTY: if group contains header file, than make SplittedFile, else do not group
-                    ? group.Take(1)
-                    : group.Any(f => f.Name == f.ServiceInfo.CleanName)
-                        ? Enumerable.Repeat(new SplittedFile(group.ToList()), 1) 
-                        : group.Select(file => file));
-
-            return groupedFiles;
-        }
-
         private static DateTime UnixTimeStampToDateTime(double unixTimeStamp, DateTime defaultvalue)
         {
             try
