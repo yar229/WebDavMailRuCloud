@@ -75,9 +75,9 @@ namespace YaR.Clouds
             Unknown
         }
 
-        public virtual async Task<IEntry> GetPublicItemAsync(string path, ItemType itemType = ItemType.Unknown)
+        public virtual async Task<IEntry> GetPublicItemAsync(Uri url, ItemType itemType = ItemType.Unknown)
         {
-            var entry = await Account.RequestRepo.FolderInfo(path, new Link(new Uri(path)));
+            var entry = await Account.RequestRepo.FolderInfo(RemotePath.Get(new Link(url)));
 
             return entry;
         }
@@ -92,9 +92,9 @@ namespace YaR.Clouds
         public virtual async Task<IEntry> GetItemAsync(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             //TODO: вообще, всё плохо стало, всё запуталось, всё надо переписать
-            var uriMatch = Regex.Match(path, @"\A/https://cloud\.mail\.\w+/public(?<uri>/\S+/\S+(/.*)?)\Z");
+            var uriMatch = Regex.Match(path, @"\A/(?<uri>https://cloud\.mail\.\w+/public/\S+/\S+(/.*)?)\Z");
             if (uriMatch.Success)
-                return await GetPublicItemAsync(uriMatch.Groups["uri"].Value, itemType);
+                return await GetPublicItemAsync(new Uri(uriMatch.Groups["uri"].Value, UriKind.Absolute), itemType);
 
             if (Account.IsAnonymous)
                 return null;
@@ -131,7 +131,8 @@ namespace YaR.Clouds
             //    //_itemCache.Add(cachefolder.Files);
             //}
 
-            var entry = await Account.RequestRepo.FolderInfo(path, ulink, depth:Settings.ListDepth);
+            var rp = null == ulink ? RemotePath.Get(path) : RemotePath.Get(ulink);
+            var entry = await Account.RequestRepo.FolderInfo(rp, depth:Settings.ListDepth);
             if (null == entry)
                 return null;
 

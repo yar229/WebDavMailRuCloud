@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos;
 using YaR.Clouds.Common;
 using YaR.Clouds.Links.Dto;
 
@@ -88,9 +89,10 @@ namespace YaR.Clouds.Links
                         string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
                         var file = (File) _cloud.GetItem(filepath, Cloud.ItemType.File, false);
 
-                        if (file != null && file.Size > 3
-                        ) //some clients put one/two/three-byte file before original file
+                        if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
+                        {
                             _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -104,6 +106,8 @@ namespace YaR.Clouds.Links
             foreach (var f in _itemList.Items)
             {
                 f.MapTo = WebDavPath.Clean(f.MapTo);
+                if (!f.Href.IsAbsoluteUri)
+                    f.Href = new Uri(_cloud.Repo.PublicBaseUrlDefault + f.Href);
             }
         }
 
@@ -265,8 +269,12 @@ namespace YaR.Clouds.Links
         {
             try
             {
+                var relahref = link.Href.IsAbsoluteUri
+                    ? link.Href.OriginalString.Remove(0, _cloud.Repo.PublicBaseUrlDefault.Length + 1)
+                    : link.Href.OriginalString;
+
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
-                var infores = await _cloud.Account.RequestRepo.ItemInfo(link.Href.OriginalString, true);
+                var infores = await _cloud.Account.RequestRepo.ItemInfo(RemotePath.Get(link));
                 link.ItemType = infores.Body.Kind == "file"
                     ? Cloud.ItemType.File
                     : Cloud.ItemType.Folder;

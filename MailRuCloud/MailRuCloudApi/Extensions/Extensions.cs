@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using YaR.Clouds.Base;
 
 namespace YaR.Clouds.Extensions
 {
     public static class Extensions
     {
-        //internal static bool IsAbsoluteUri(this Uri uri)
-        //{
-        //    return Uri.TryCreate(uri.OriginalString, UriKind.Absolute, out _);
-        //}
+        internal static IEnumerable<PublicLinkInfo> ToPublicLinkInfos(this string uristring, string publicBaseUrl)
+        {
+            if (!string.IsNullOrEmpty(uristring))
+                yield return new PublicLinkInfo("", publicBaseUrl, uristring);
+        }
 
 
         internal static DateTime ToDateTime(this ulong unixTimeStamp)

@@ -148,12 +148,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
 
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
+            if (path.IsLink)
+                throw new NotImplementedException(nameof(FolderInfo));
+
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadItemInfoPostModel(path),
+                .With(new YadItemInfoPostModel(path.Path),
                     out YadResponceModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo)
-                .With(new YadFolderInfoPostModel(path),
+                .With(new YadFolderInfoPostModel(path.Path),
                     out YadResponceModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
                 .MakeRequestAsync();
 
@@ -164,15 +167,16 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             if (itdata.Type == "file")
                 return itdata.ToFile(PublicBaseUrlDefault);
 
-            var entry = folderInfo.Data.ToFolder(itemInfo.Data, path, PublicBaseUrlDefault);
+            var entry = folderInfo.Data.ToFolder(itemInfo.Data, path.Path, PublicBaseUrlDefault);
 
             return entry;
         }
 
-        public Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
         {
             throw new NotImplementedException();
         }
+
 
         public async Task<AccountInfoResult> AccountInfo()
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Extensions;
 using YaR.Clouds.Links;
 
 namespace YaR.Clouds.Base.Repos.MailRuCloud
@@ -173,11 +174,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
         private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string publicBaseUrl)
         {
-            var publicurls = new []
-            {
-                new PublicLinkInfo(publicBaseUrl + item.Weblink)
-            };
-            var folder = new Folder(item.Size, item.Home ?? item.Name, publicurls);
+            var folder = new Folder(item.Size, item.Home ?? item.Name, item.Weblink.ToPublicLinkInfos(publicBaseUrl));
             return folder;
         }
 
@@ -216,9 +213,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         {
             PatchEntryPath(data, home, link);
 
-            var plinks = new [] { new PublicLinkInfo(publicBaseUrl + data.Body.Weblink)};
-
-            var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, plinks)
+            var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, data.Body.Weblink.ToPublicLinkInfos(publicBaseUrl))
             {
                 Folders = data.Body.List?
                     .Where(it => FolderKinds.Contains(it.Kind))
@@ -302,8 +297,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
 
                 var file = new File(path ?? item.Name, item.Size, item.Hash);
-                if (!string.IsNullOrEmpty(item.Weblink))
-                    file.PublicLinks.Add(new PublicLinkInfo(publicBaseUrl + item.Weblink));
+                file.PublicLinks.AddRange(item.Weblink.ToPublicLinkInfos(publicBaseUrl));
 
                 var dt = UnixTimeStampToDateTime(item.Mtime, file.CreationTimeUtc);
                 file.CreationTimeUtc =

@@ -11,11 +11,19 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
         private readonly int _offset;
         private readonly int _limit;
 
-        public FolderInfoRequest(HttpCommonSettings settings, IAuth auth, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) 
+        public FolderInfoRequest(HttpCommonSettings settings, IAuth auth, RemotePath path, int offset = 0, int limit = int.MaxValue) 
             : base(settings, auth)
         {
-            _path = path;
-            _isWebLink = isWebLink;
+            _isWebLink = path.IsLink;
+
+            if (path.IsLink)
+            {
+                string ustr = path.Link.Href.OriginalString;
+                _path = "/" + ustr.Remove(0, ustr.IndexOf("/public/") + "/public/".Length);
+            }
+            else
+                _path = path.Path;
+            
             _offset = offset;
             _limit = limit;
         }

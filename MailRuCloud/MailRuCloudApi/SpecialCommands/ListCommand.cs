@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos;
 
 namespace YaR.Clouds.SpecialCommands
 {
@@ -24,7 +25,7 @@ namespace YaR.Clouds.SpecialCommands
                 : ".wdmrc.list.lst";
             string target = WebDavPath.Combine(Path, name);
 
-            var data = await Cloud.Account.RequestRepo.FolderInfo(Path, null);
+            var data = await Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(Path));
 
             var sb = new StringBuilder();
             foreach (var e in Flat(data))
@@ -54,7 +55,7 @@ namespace YaR.Clouds.SpecialCommands
                         : it is Folder ifolder
                             ? ifolder.IsChildsLoaded
                                 ? ifolder
-                                : Cloud.Account.RequestRepo.FolderInfo(it.FullPath, null, depth: 3).Result
+                                : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath), depth: 3).Result
                             : throw new NotImplementedException("Unknown item type"))
                     .OrderBy(it => it.Name);
                     

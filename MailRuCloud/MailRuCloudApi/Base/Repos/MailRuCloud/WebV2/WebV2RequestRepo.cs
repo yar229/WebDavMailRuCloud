@@ -179,48 +179,49 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 		/// <param name="limit"></param>
 		/// <param name="depth">Not applicable here, always = 1</param>
 		/// <returns></returns>
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
 
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href.OriginalString : path, ulink != null, offset, limit).MakeRequestAsync();
+                datares = await new FolderInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
 
-            Clouds.Cloud.ItemType itemType;
-            if (null == ulink || ulink.ItemType == Clouds.Cloud.ItemType.Unknown)
-                itemType = datares.Body.Home == path ||
-                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
+            Cloud.ItemType itemType;
+            if (null == path.Link || path.Link.ItemType == Cloud.ItemType.Unknown)
+                itemType = datares.Body.Home == path.Path ||
+                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path.Path)
                            //datares.body.list.Any(fi => "/" + fi.weblink == path)
-                    ? Clouds.Cloud.ItemType.Folder
-                    : Clouds.Cloud.ItemType.File;
+                    ? Cloud.ItemType.Folder
+                    : Cloud.ItemType.File;
             else
-                itemType = ulink.ItemType;
+                itemType = path.Link.ItemType;
 
 
-            var entry = itemType == Clouds.Cloud.ItemType.File
+            var entry = itemType == Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
                     PublicBaseUrlDefault,
-                    home: WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null)
-                : datares.ToFolder(PublicBaseUrlDefault, path, ulink);
+                    home: WebDavPath.Parent(path.Path ?? string.Empty),
+                    ulink: path.Link,
+                    filename: path.Link == null ? WebDavPath.Name(path.Path) : path.Link.OriginalName,
+                    nameReplacement: path.Link?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path.Path) : null)
+                : datares.ToFolder(PublicBaseUrlDefault, path.Path, path.Link);
 
             return entry;
         }
 
-        public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new ItemInfoRequest(HttpSettings, Authent, path, isWebLink, offset, limit).MakeRequestAsync();
+            var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             var res = req;
             return res;
         }
+
 
         public async Task<AccountInfoResult> AccountInfo()
         {

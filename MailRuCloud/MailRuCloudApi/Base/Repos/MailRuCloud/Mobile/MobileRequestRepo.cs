@@ -132,9 +132,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             throw new NotImplementedException();
         }
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
-            var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path, _listDepth);
+            if (path.IsLink)
+                throw new NotImplementedException(nameof(FolderInfo));
+
+            var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path.Path, _listDepth);
             var res = await req.MakeRequestAsync();
 
             if (res.Item is FsFolder fsf)
@@ -175,10 +178,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             return null;
         }
 
-        public Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
         {
             throw new NotImplementedException();
         }
+
+
 
         public async Task<AccountInfoResult> AccountInfo()
         {

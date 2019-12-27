@@ -95,10 +95,29 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 {
                     downServer = pendingServers.Next(downServer);
 
-                    string url =(isLinked
-                            ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLinks.First().Uri.PathAndQuery)}"
-                            : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
-                        $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+                    string url;
+
+                    if (isLinked)
+                    {
+                        var urii = file.PublicLinks.First().Uri;
+                        var uriistr = urii.OriginalString;
+                        var baseura = PublicBaseUrls.First(pbu => uriistr.StartsWith(pbu, StringComparison.InvariantCulture));
+                        if (string.IsNullOrEmpty(baseura))
+                            throw new ArgumentException("url does not starts with base url");
+
+                        url = $"{downServer.Value.Url}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
+                    }
+                    else
+                    {
+                        url = $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}";
+                    }
+
+                    url += $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
+
+                    //string url =(isLinked
+                    //        ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLinks.First().Uri.PathAndQuery)}"
+                    //        : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
+                    //    $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
                     var uri = new Uri(url);
 
                     request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
@@ -272,18 +291,18 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             return z;
         }
 
-        public async Task<IEntry> FolderInfo(string path, Link ulink, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
             if (Credentials.IsAnonymous)
-                return await AnonymousRepo.FolderInfo(path, ulink, offset, limit);
+                return await AnonymousRepo.FolderInfo(path, offset, limit);
 
-            if (null == ulink && depth > 1)
+            if (!path.IsLink && depth > 1)
                 return await FolderInfo(path, depth);
 
             FolderInfoResult datares;
             try
             {
-                datares = await new FolderInfoRequest(HttpSettings, Authent, ulink != null ? ulink.Href.OriginalString : path, ulink != null, offset, limit)
+                datares = await new FolderInfoRequest(HttpSettings, Authent, path, offset, limit)
                     .MakeRequestAsync();
             }
             catch (WebException e) when ((e.Response as HttpWebResponse)?.StatusCode == HttpStatusCode.NotFound)
@@ -294,30 +313,34 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             Cloud.ItemType itemType;
 
             //TODO: subject to refact, bad-bad-bad
-            if (null == ulink || ulink.ItemType == Cloud.ItemType.Unknown)
-                itemType = datares.Body.Home == path ||
-                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path)
+            if (!path.IsLink || path.Link.ItemType == Cloud.ItemType.Unknown)
+                itemType = datares.Body.Home == path.Path ||
+                           WebDavPath.PathEquals("/" + datares.Body.Weblink, path.Path)
                     ? Cloud.ItemType.Folder
                     : Cloud.ItemType.File;
             else
-                itemType = ulink.ItemType;
+                itemType = path.Link.ItemType;
 
 
             var entry = itemType == Cloud.ItemType.File
                 ? (IEntry)datares.ToFile(
                     PublicBaseUrlDefault,
-                    home: WebDavPath.Parent(path),
-                    ulink: ulink,
-                    filename: ulink == null ? WebDavPath.Name(path) : ulink.OriginalName,
-                    nameReplacement: ulink?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path) : null )
-                : datares.ToFolder(PublicBaseUrlDefault, path, ulink);
+                    home: WebDavPath.Parent(path.Path ?? string.Empty),
+                    ulink: path.Link,
+                    filename: path.Link == null ? WebDavPath.Name(path.Path) : path.Link.OriginalName,
+                    nameReplacement: path.Link?.IsLinkedToFileSystem ?? true ? WebDavPath.Name(path.Path) : path.Link.Name )
+                : datares.ToFolder(PublicBaseUrlDefault, path.Path, path.Link);
 
             return entry;
         }
 
-        public async Task<FolderInfoResult> ItemInfo(string path, bool isWebLink = false, int offset = 0, int limit = Int32.MaxValue)
+
+
+
+
+        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
         {
-            var req = await new ItemInfoRequest(HttpSettings, Authent, path, isWebLink, offset, limit).MakeRequestAsync();
+            var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             var res = req;
             return res;
         }
