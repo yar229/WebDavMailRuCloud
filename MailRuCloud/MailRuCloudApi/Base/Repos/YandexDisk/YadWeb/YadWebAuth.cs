@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var passwdAuth = await new YadAuthPasswordRequest(_settings, this, preAuthResult.Csrf, loginAuth.TrackId)
                 .MakeRequestAsync();
             if (passwdAuth.HasError)
-                throw new AuthenticationException($"{nameof(YadAuthPasswordRequest)} error");
+                throw new AuthenticationException($"{nameof(YadAuthPasswordRequest)} errors: {passwdAuth.Errors.Aggregate((f,s) => f + "," + s)}");
 
 
             var accsAuth = await new YadAuthAccountsRequest(_settings, this, preAuthResult.Csrf)

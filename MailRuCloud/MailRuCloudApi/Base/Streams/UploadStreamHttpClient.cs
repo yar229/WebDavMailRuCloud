@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -46,8 +47,16 @@ namespace YaR.Clouds.Base.Streams
                     {
                         try
                         {
+                            Stopwatch watch = new Stopwatch();
+                            watch.Start();
+
                             _ringBuffer.CopyTo(stream);
+                            
+                            Logger.Debug($"----------------stream copy ({watch.Elapsed.Milliseconds} ms)");
+
                             stream.Close();
+
+                            Logger.Debug($"----------------stream close ({watch.Elapsed.Milliseconds} ms)");
                         }
                         catch (Exception e)
                         {

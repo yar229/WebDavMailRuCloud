@@ -222,7 +222,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
                     : null)
                 {
+                    Stopwatch w = new Stopwatch();
+                    w.Start();
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
+                    var z = w.ElapsedMilliseconds;
+                    SLog.Log(LogLevel.Warning, "mrsi upload! " + z);
+                    w.Stop();
                 }
                 return DavStatusCode.Ok;
             }

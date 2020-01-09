@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Requests;
@@ -40,5 +41,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         [JsonProperty("status")]
         public string Status { get; set; }
+
+        [JsonProperty("errors")]
+        public List<string> Errors { get; set; }
     }
 }

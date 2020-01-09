@@ -110,11 +110,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
         {
-            //var urldata = 
-            //    new YadGetResourceUploadUrlRequest(HttpSettings, (YadWebAuth)Authent, file.FullPath, file.OriginalSize)
-            //        .MakeRequestAsync()
-            //        .Result;
-            //var url = urldata.Models[0].Data.UploadUrl;
 
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize),
@@ -134,12 +129,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             request.Content = content;
             request.Content.Headers.ContentLength = file.OriginalSize;
 
+
             return request;
         }
 
         public async Task<UploadFileResult> DoUpload(HttpClient client, PushStreamContent content, File file)
         {
             var request = UploadClientRequest(content, file);
+            
             var responseMessage = await client.SendAsync(request);
             var ures = responseMessage.ToUploadPathResult();
 
