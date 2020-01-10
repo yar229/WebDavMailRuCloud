@@ -26,6 +26,13 @@ namespace YaR.Clouds.Base.Streams
             Initialize();
         }
 
+        public Action FileStreamSent;
+        private void OnFileStreamSent() => FileStreamSent?.Invoke();
+
+        public Action ServerFileProcessed;
+        private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
+
+
         private void Initialize()
         {
             _requestTask = Task.Run(() =>
@@ -47,7 +54,9 @@ namespace YaR.Clouds.Base.Streams
                         try
                         {
                             _ringBuffer.CopyTo(stream);
+                            stream.Flush();
                             stream.Close();
+                            OnFileStreamSent();
                         }
                         catch (Exception e)
                         {
@@ -58,10 +67,6 @@ namespace YaR.Clouds.Base.Streams
 
                     _client = HttpClientFabric.Instance[_cloud.Account];
                     _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
-
-                    //_request = Repo.UploadClientRequest(_pushContent, _file);
-                    //_client = HttpClientFabric.Instance[_cloud.Account];
-                    //_responseMessage = _client.SendAsync(_request).Result;
                 }
                 catch (Exception e)
                 {
@@ -72,9 +77,7 @@ namespace YaR.Clouds.Base.Streams
         }
 
         private PushStreamContent _pushContent;
-        //private HttpResponseMessage _responseMessage;
         private HttpClient _client;
-        //private HttpRequestMessage _request;
         private UploadFileResult _uploadFileResult;
 
         public bool CheckHashes { get; set; } = true;
@@ -93,12 +96,12 @@ namespace YaR.Clouds.Base.Streams
             base.Dispose(disposing);
             if (!disposing) return;
 
-
             try
             {
                 _ringBuffer.Flush();
 
                 _requestTask.GetAwaiter().GetResult();
+                OnServerFileProcessed();
 
                 if (null != _uploadFileResult) // file length > hash length
                 {

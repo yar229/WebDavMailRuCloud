@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using NWebDav.Server;
 using NWebDav.Server.Helpers;
@@ -12,6 +14,7 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb;
 using YaR.Clouds.WebDavStore.CustomProperties;
 using File = YaR.Clouds.Base.File;
 
@@ -20,7 +23,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
     [DebuggerDisplay("{_fileInfo.FullPath}")]
     public sealed class MailruStoreItem : IMailruStoreItem
     {
-        private static readonly ILogger SLog = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreItem));
+        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreItem));
+
+
         private readonly File _fileInfo;
 
         public File FileInfo => _fileInfo;
@@ -152,9 +157,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             },
             new DavSharedLink<MailruStoreItem>
             {
-                Getter = (context, item) => string.IsNullOrEmpty(item._fileInfo.PublicLink) 
+                Getter = (context, item) => !item._fileInfo.PublicLinks.Any() 
                                                     ? string.Empty
-                                                    : ConstSettings.PublishFileLink + item._fileInfo.PublicLink,
+                                                    : item._fileInfo.PublicLinks.First().Uri.OriginalString,
                 Setter = (context, item, value) => DavStatusCode.Ok
             }
         });
@@ -197,14 +202,14 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             // TODO: rewrite
             if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size == 0)
             {
-                SLog.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
+                Logger.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
                 var memStream = new MemoryStream();
                 await inputStream.CopyToAsync(memStream).ConfigureAwait(false);
 
                 _fileInfo.OriginalSize = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size, null, null).ConfigureAwait(false)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -216,9 +221,38 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             // Copy the stream
             try
             {
+                var cts = new CancellationTokenSource();
+
+                // После, собственно, закачки файла, сервер может, например, считать хэш файла (Яндекс.Диск) и это может быть долго
+                // Чтобы клиент не отваливался по таймауту, пишем в ответ понемножку пробелы
+                void StreamCopiedAction()
+                {
+                    var _ = Task.Run(() =>
+                    {
+                        while (!cts.IsCancellationRequested)
+                        {
+                            Thread.Sleep(7_000);
+                            if (cts.IsCancellationRequested) break;
+
+                            httpContext.Response.Stream.WriteByte((byte) ' ');
+                            httpContext.Response.Stream.Flush();
+
+                            Logger.Log(LogLevel.Debug, "Waiting for server processing file...");
+                        }
+                    }, cts.Token);
+                }
+
+                void ServerProcessFinishedAction()
+                {
+                    //Thread.Sleep(10_000);
+                    cts.Cancel();
+                    Logger.Log(LogLevel.Debug, "Server finished file processing");
+                }
+
+
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size).ConfigureAwait(false)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size, StreamCopiedAction, ServerProcessFinishedAction).ConfigureAwait(false)
                     : null)
                 {
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
@@ -268,12 +302,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             }
             catch (IOException ioException) when (ioException.IsDiskFull())
             {
-                SLog.Log(LogLevel.Error, () => "Out of disk space while copying data.", ioException);
+                Logger.Log(LogLevel.Error, () => "Out of disk space while copying data.", ioException);
                 return new StoreItemResult(DavStatusCode.InsufficientStorage);
             }
             catch (Exception exc)
             {
-                SLog.Log(LogLevel.Error, () => "Unexpected exception while copying data.", exc);
+                Logger.Log(LogLevel.Error, () => "Unexpected exception while copying data.", exc);
                 return new StoreItemResult(DavStatusCode.InternalServerError);
             }
         }
@@ -310,4 +344,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return bytes;
         }
     }
+
+
+
 }

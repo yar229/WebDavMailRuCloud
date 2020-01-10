@@ -9,7 +9,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportYadWeb));
 
-        public static AccountInfoResult ToAccountInfo(this YadResponceModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
+        public static AccountInfoResult ToAccountInfo(this YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
         {
             var info = data.Data;
             var res = new AccountInfoResult
@@ -29,21 +29,17 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public static IEntry ToFolder(this YadFolderInfoRequestData data, string path)
+        public static IEntry ToFolder(this YadFolderInfoRequestData data, YadItemInfoRequestData itemInfo, string path, string publicBaseUrl)
         {
             var fi = data.Resources;
-            //data.Models
-            //    .First(m => m.ModelName == "resources")
-            //    .Data
-            //    .Resources.ToList();
 
-            //if (0 == fi.Count)
-
-            var res = new Folder(path) { IsChildsLoaded = true };
+            var res = new Folder(itemInfo.Meta.Size, path) { IsChildsLoaded = true };
+            if (!string.IsNullOrEmpty(itemInfo.Meta.UrlShort))
+                res.PublicLinks.Add(new PublicLinkInfo("short", itemInfo.Meta.UrlShort));
 
             res.Files.AddRange(fi
                 .Where(it => it.Type == "file")
-                .Select(f => f.ToFile())
+                .Select(f => f.ToFile(publicBaseUrl))
                 .ToGroupedFiles()
             );
 
@@ -55,20 +51,22 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static File ToFile(this FolderInfoDataResource data)
+        public static File ToFile(this FolderInfoDataResource data, string publicBaseUrl)
         {
-            var path = data.Path.Remove(0, 5); // remove "/disk"
+            var path = data.Path.Remove(0, "/disk".Length);
 
             var res = new File(path, data.Meta.Size ?? throw new Exception("File size is null"))
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
-                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue)
+                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue),
             };
+            if (!string.IsNullOrEmpty(data.Meta.UrlShort))
+                res.PublicLinks.Add(new PublicLinkInfo("short", data.Meta.UrlShort));
             return res;
         }
 
-        public static File ToFile(this YadItemInfoRequestData data)
+        public static File ToFile(this YadItemInfoRequestData data, string publicBaseUrl)
         {
             var path = data.Path.Remove(0, 5); // remove "/disk"
 
@@ -76,8 +74,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
-                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue)
+                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue),
+                //PublicLink = data.Meta.UrlShort.StartsWith(publicBaseUrl) 
+                //    ? data.Meta.UrlShort.Remove(0, publicBaseUrl.Length)
+                //    : data.Meta.UrlShort
             };
+            if (!string.IsNullOrEmpty(data.Meta.UrlShort))
+                res.PublicLinks.Add(new PublicLinkInfo("short", data.Meta.UrlShort));
+            
             return res;
         }
 
@@ -90,7 +94,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RenameResult ToRenameResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
+        public static RenameResult ToRenameResult(this YadResponseModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new RenameResult
             {
@@ -99,7 +103,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RemoveResult ToRemoveResult(this YadResponceModel<YadDeleteRequestData, YadDeleteRequestParams> data)
+        public static RemoveResult ToRemoveResult(this YadResponseModel<YadDeleteRequestData, YadDeleteRequestParams> data)
         {
             var res = new RemoveResult
             {
@@ -118,7 +122,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static CopyResult ToCopyResult(this YadResponceModel<YadCopyRequestData, YadCopyRequestParams> data)
+        public static CopyResult ToCopyResult(this YadResponseModel<YadCopyRequestData, YadCopyRequestParams> data)
         {
             var res = new CopyResult
             {
@@ -128,7 +132,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static CopyResult ToMoveResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
+        public static CopyResult ToMoveResult(this YadResponseModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new CopyResult
             {
@@ -138,8 +142,24 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
+        public static PublishResult ToPublishResult(this YadResponseModel<YadPublishRequestData, YadPublishRequestParams> data)
+        {
+            var res = new PublishResult
+            {
+                IsSuccess = !string.IsNullOrEmpty(data.Data.ShortUrl),
+                Url = data.Data.ShortUrl
+            };
+            return res;
+        }
 
-
+        public static UnpublishResult ToUnpublishResult(this YadResponseModel<YadPublishRequestData, YadPublishRequestParams> data)
+        {
+            var res = new UnpublishResult
+            {
+                IsSuccess = true
+            };
+            return res;
+        }
 
 
 

@@ -5,9 +5,9 @@
     <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
-    <AssemblyVersion>1.11.0.5</AssemblyVersion>
-    <FileVersion>1.11.0.5</FileVersion>
-    <LangVersion>7.3</LangVersion>
+    <AssemblyVersion>1.11.0.6</AssemblyVersion>
+    <FileVersion>1.11.0.6</FileVersion>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">

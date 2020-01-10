@@ -25,7 +25,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    class YadCreateFolderRequestData
+    class YadCreateFolderRequestData : YadModelDataBase
     {
     }
 

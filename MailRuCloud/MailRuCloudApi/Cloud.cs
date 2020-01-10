@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
@@ -74,9 +75,9 @@ namespace YaR.Clouds
             Unknown
         }
 
-        public virtual async Task<IEntry> GetPublicItemAsync(string path, ItemType itemType = ItemType.Unknown)
+        public virtual async Task<IEntry> GetPublicItemAsync(Uri url, ItemType itemType = ItemType.Unknown)
         {
-            var entry = await Account.RequestRepo.FolderInfo(path, new Link(path));
+            var entry = await Account.RequestRepo.FolderInfo(RemotePath.Get(new Link(url)));
 
             return entry;
         }
@@ -91,9 +92,9 @@ namespace YaR.Clouds
         public virtual async Task<IEntry> GetItemAsync(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             //TODO: вообще, всё плохо стало, всё запуталось, всё надо переписать
-            var uriMatch = Regex.Match(path, @"\A/https://cloud\.mail\.\w+/public(?<uri>/\S+/\S+(/.*)?)\Z");
+            var uriMatch = Regex.Match(path, @"\A/(?<uri>https://cloud\.mail\.\w+/public/\S+/\S+(/.*)?)\Z");
             if (uriMatch.Success)
-                return await GetPublicItemAsync(uriMatch.Groups["uri"].Value, itemType);
+                return await GetPublicItemAsync(new Uri(uriMatch.Groups["uri"].Value, UriKind.Absolute), itemType);
 
             if (Account.IsAnonymous)
                 return null;
@@ -130,7 +131,8 @@ namespace YaR.Clouds
             //    //_itemCache.Add(cachefolder.Files);
             //}
 
-            var entry = await Account.RequestRepo.FolderInfo(path, ulink, depth:Settings.ListDepth);
+            var rp = null == ulink ? RemotePath.Get(path) : RemotePath.Get(ulink);
+            var entry = await Account.RequestRepo.FolderInfo(rp, depth:Settings.ListDepth);
             if (null == entry)
                 return null;
 
@@ -165,10 +167,11 @@ namespace YaR.Clouds
                     {
                         if (folder.Files.All(inf => inf.FullPath != linkpath))
                         {
-                            var newfile = new File(linkpath, flink.Size)
+                            var newfile = new File(linkpath, flink.Size);
                             {
-                                PublicLink = flink.Href,
-                            };
+                                newfile.PublicLinks.Add(new PublicLinkInfo(flink.Href)); 
+                            }
+                            
                             if (flink.CreationDate != null)
                                 newfile.LastWriteTimeUtc = flink.CreationDate.Value;
                             folder.Files.Add(newfile);
@@ -222,10 +225,10 @@ namespace YaR.Clouds
 
         #region == Publish ==========================================================================================================================
 
-        private async Task<bool> Unpublish(string publicLink)
+        private async Task<bool> Unpublish(Uri publicLink, string fullPath)
         {
             //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
-            var res = (await  Account.RequestRepo.Unpublish(publicLink))
+            var res = (await  Account.RequestRepo.Unpublish(publicLink, fullPath))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Unpublish error, link = {publicLink}"));
 
             return res.IsSuccess;
@@ -235,19 +238,19 @@ namespace YaR.Clouds
         {
             foreach (var innerFile in file.Files)
             {
-                await Unpublish(innerFile.GetPublicLink(this));
-                innerFile.PublicLink = string.Empty;
+                await Unpublish(innerFile.GetPublicLinks(this).First().Uri, innerFile.FullPath);
+                innerFile.PublicLinks.Clear();
             }
             _itemCache.Invalidate(file.FullPath, file.Path);
         }
 
 
-        private async Task<string> Publish(string fullPath)
+        private async Task<Uri> Publish(string fullPath)
         {
             var res = (await Account.RequestRepo.Publish(fullPath))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
-            return res.Url;
+            return new Uri(res.Url, UriKind.Absolute);
         }
 
         public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, 
@@ -259,7 +262,8 @@ namespace YaR.Clouds
             foreach (var innerFile in file.Files)
             {
                 var url = await Publish(innerFile.FullPath);
-                innerFile.PublicLink = url;
+                innerFile.PublicLinks.Clear();
+                innerFile.PublicLinks.Add(new PublicLinkInfo(url));
             }
             var info = file.ToPublishInfo(this, generateDirectVideoLink, videoResolution);
 
@@ -293,7 +297,8 @@ namespace YaR.Clouds
         public async Task<PublishInfo> Publish(Folder folder, bool makeShareFile = true)
         {
             var url = await Publish(folder.FullPath);
-            folder.PublicLink = url;
+            folder.PublicLinks.Clear();
+            folder.PublicLinks.Add(new PublicLinkInfo(url));
             var info = folder.ToPublishInfo();
 
             if (makeShareFile)
@@ -336,7 +341,7 @@ namespace YaR.Clouds
             var link = await _linkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
             {
-                var cloneres = await CloneItem(destinationPath, link.Href);
+                var cloneres = await CloneItem(destinationPath, link.Href.OriginalString);
                 if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != link.Name)
                 {
                     var renRes = await Rename(cloneres.Path, link.Name);
@@ -354,7 +359,7 @@ namespace YaR.Clouds
             foreach (var linka in links)
             {
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
-                var cloneres = await CloneItem(linkdest, linka.Href);
+                var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
                 if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
                 {
                     var renRes = await Rename(cloneres.Path, linka.Name);
@@ -422,7 +427,7 @@ namespace YaR.Clouds
             // копируем не саму ссылку, а её содержимое
             if (link != null)
             {
-                var cloneRes = await CloneItem(destPath, link.Href);
+                var cloneRes = await CloneItem(destPath, link.Href.OriginalString);
                 if (doRename || WebDavPath.Name(cloneRes.Path) != newname)
                 {
                     string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(cloneRes.Path));
@@ -613,7 +618,7 @@ namespace YaR.Clouds
                 // поэтому делаем неправильно - копируем содержимое линков
 
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
-                var cloneres = await CloneItem(linkdest, linka.Href);
+                var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
                 if (cloneres.IsSuccess )
                 {
                     _itemCache.Invalidate(destinationPath);
@@ -717,7 +722,7 @@ namespace YaR.Clouds
 
 
                     if (item is Folder folder)
-                        await Unpublish(folder.GetPublicLink(this));
+                        await Unpublish(folder.GetPublicLinks(this).First().Uri, folder.FullPath);
                     else if (item is File ifile)
                         await Unpublish(ifile);
                 }
@@ -775,9 +780,9 @@ namespace YaR.Clouds
 
         #endregion == Remove ========================================================================================================================
 
-        public string GetSharedLink(string fullPath)
+        public IEnumerable<PublicLinkInfo> GetSharedLinks(string fullPath)
         {
-            return Account.RequestRepo.GetShareLink(fullPath);
+            return Account.RequestRepo.GetShareLinks(fullPath);
         }
 
         /// <summary>
@@ -808,6 +813,9 @@ namespace YaR.Clouds
             get => _maxInnerParallelRequests;
             set => _maxInnerParallelRequests = value != 0 ? value : (byte)1;
         }
+
+        public IRequestRepo Repo => Account.RequestRepo;
+
         private byte _maxInnerParallelRequests = 5;
 
         /// <summary>
@@ -857,11 +865,17 @@ namespace YaR.Clouds
         }
 
 
-        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
+        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, Action fileStreamSent, Action serverFileProcessed, bool discardEncryption = false)
         {
             var file = new File(fullFilePath, size, string.Empty);
 
-            var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
+            var f = new UploadStreamFabric(this)
+            {
+                FileStreamSent = fileStreamSent, 
+                ServerFileProcessed = serverFileProcessed
+            };
+
+            var task = await Task.FromResult(f.Create(file, OnFileUploaded, discardEncryption))
                 .ConfigureAwait(false);
             var stream = await task;
 
@@ -925,7 +939,7 @@ namespace YaR.Clouds
 
         public bool UploadFile(string path, byte[] content, bool discardEncryption = false)
         {
-            using (var stream = GetFileUploadStream(path, content.Length, discardEncryption).Result)
+            using (var stream = GetFileUploadStream(path, content.Length, null, null,  discardEncryption).Result)
             {
                 stream.Write(content, 0, content.Length);
             }
@@ -970,7 +984,7 @@ namespace YaR.Clouds
         }
         #endregion
 
-        public async Task<bool> LinkItem(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async Task<bool> LinkItem(Uri url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             var res = await _linkManager.Add(url, path, name, isFile, size, creationDate);
             if (res)

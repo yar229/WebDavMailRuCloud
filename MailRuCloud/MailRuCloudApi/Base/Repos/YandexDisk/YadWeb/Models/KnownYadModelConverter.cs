@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
-    class KnownYadModelConverter : JsonConverter<List<YadResponceModel>>
+    class KnownYadModelConverter : JsonConverter<List<YadResponseModel>>
     {
         private readonly List<object> _createdModels;
 
@@ -15,7 +15,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
             _createdModels = createdModels;
         }
 
-        public override List<YadResponceModel> ReadJson(JsonReader reader, Type objectType, List<YadResponceModel> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override List<YadResponseModel> ReadJson(JsonReader reader, Type objectType, List<YadResponseModel> existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var token = JToken.Load(reader);
 
@@ -32,7 +32,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
         public override bool CanWrite => false;
 
-        public override void WriteJson(JsonWriter writer, List<YadResponceModel> value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, List<YadResponseModel> value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }

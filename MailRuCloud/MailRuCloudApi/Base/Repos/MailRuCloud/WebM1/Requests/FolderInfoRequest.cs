@@ -12,30 +12,26 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests
         private readonly int _offset;
         private readonly int _limit;
 
-        public FolderInfoRequest(HttpCommonSettings settings, IAuth auth, string path, bool isWebLink = false, int offset = 0, int limit = int.MaxValue) 
+        
+        public FolderInfoRequest(HttpCommonSettings settings, IAuth auth, RemotePath path, int offset = 0, int limit = int.MaxValue) 
             : base(settings, auth)
         {
-            _path = path;
-            _isWebLink = isWebLink;
+            _isWebLink = path.IsLink;
+
+            if (path.IsLink)
+            {
+                string ustr = path.Link.Href.OriginalString;
+                _path = "/" + ustr.Remove(0, ustr.IndexOf("/public/") + "/public/".Length);
+            }
+            else
+                _path = path.Path;
+            
             _offset = offset;
             _limit = limit;
         }
 
         protected override string RelationalUri => $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
 
-
-        //protected override string RelationalUri
-        //{
-        //    get
-        //    {
-        //        var url = $"/api/v2/folder?offset={_offset}&limit={_limit}";
-        //        if (!Auth.IsAnonymous)
-        //            url += $"access_token={Auth.AccessToken}";
-
-        //        return url;
-        //        // $"/api/m1/folder?access_token={Auth.AccessToken}&offset={_offset}&limit={_limit}";
-        //    }
-        //}
 
         protected override byte[] CreateHttpContent()
         {

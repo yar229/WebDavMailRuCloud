@@ -32,7 +32,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    internal class ResourceUploadUrlData
+    internal class ResourceUploadUrlData : YadModelDataBase
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }

@@ -2,7 +2,7 @@
 
 namespace YaR.Clouds.Base.Repos
 {
-    internal interface IAuth
+    public interface IAuth
     {
         bool IsAnonymous { get; }
 

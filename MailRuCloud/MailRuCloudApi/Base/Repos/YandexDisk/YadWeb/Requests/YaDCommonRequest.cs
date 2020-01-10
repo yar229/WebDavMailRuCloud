@@ -38,7 +38,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         public YaDCommonRequest With<T, TOut>(T model, out TOut resOUt)
             where T : YadPostModel 
-            where TOut : YadResponceModel, new()
+            where TOut : YadResponseModel, new()
         {
             _postData.Models.Add(model);
             _outData.Add(resOUt = new TOut());

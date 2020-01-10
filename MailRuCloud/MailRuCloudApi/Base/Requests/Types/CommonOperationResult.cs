@@ -2,7 +2,7 @@
 
 namespace YaR.Clouds.Base.Requests.Types
 {
-    internal class CommonOperationResult<T>
+    public class CommonOperationResult<T>
     {
         [JsonProperty("email")]
         public string Email { get; set; }

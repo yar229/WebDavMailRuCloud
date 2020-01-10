@@ -10,7 +10,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    public class YadAccountInfoRequestData
+    public class YadAccountInfoRequestData : YadModelDataBase
     {
         [JsonProperty("used")]
         public long Used { get; set; }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos;
 using YaR.Clouds.Common;
 using YaR.Clouds.Links.Dto;
 
@@ -88,9 +89,10 @@ namespace YaR.Clouds.Links
                         string filepath = WebDavPath.Combine(WebDavPath.Root, LinkContainerName);
                         var file = (File) _cloud.GetItem(filepath, Cloud.ItemType.File, false);
 
-                        if (file != null && file.Size > 3
-                        ) //some clients put one/two/three-byte file before original file
+                        if (file != null && file.Size > 3) //some clients put one/two/three-byte file before original file
+                        {
                             _itemList = _cloud.DownloadFileAsJson<ItemList>(file);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -104,6 +106,8 @@ namespace YaR.Clouds.Links
             foreach (var f in _itemList.Items)
             {
                 f.MapTo = WebDavPath.Clean(f.MapTo);
+                if (!f.Href.IsAbsoluteUri)
+                    f.Href = new Uri(_cloud.Repo.PublicBaseUrlDefault + f.Href);
             }
         }
 
@@ -251,7 +255,7 @@ namespace YaR.Clouds.Links
             string addhref = string.IsNullOrEmpty(right)
                 ? string.Empty
                 : '/' + Uri.EscapeDataString(right.TrimStart('/'));
-            var link = new Link(wp, path, wp.Href + addhref);
+            var link = new Link(wp, path, new Uri(wp.Href.OriginalString + addhref, UriKind.Absolute));
 
             //resolve additional link properties, e.g. OriginalName, ItemType, Size
             if (doResolveType)
@@ -265,8 +269,12 @@ namespace YaR.Clouds.Links
         {
             try
             {
+                var relahref = link.Href.IsAbsoluteUri
+                    ? link.Href.OriginalString.Remove(0, _cloud.Repo.PublicBaseUrlDefault.Length + 1)
+                    : link.Href.OriginalString;
+
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
-                var infores = await _cloud.Account.RequestRepo.ItemInfo(link.Href, true);
+                var infores = await _cloud.Account.RequestRepo.ItemInfo(RemotePath.Get(link));
                 link.ItemType = infores.Body.Kind == "file"
                     ? Cloud.ItemType.File
                     : Cloud.ItemType.Folder;
@@ -311,7 +319,7 @@ namespace YaR.Clouds.Links
         /// <param name="isFile">Признак, что ссылка ведёт на файл, иначе - на папку</param>
         /// <param name="size">Размер данных по ссылке</param>
         /// <param name="creationDate">Дата создания</param>
-        public async Task<bool> Add(string url, string path, string name, bool isFile, long size, DateTime? creationDate)
+        public async Task<bool> Add(Uri url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
             path = WebDavPath.Clean(path);
 
@@ -319,7 +327,7 @@ namespace YaR.Clouds.Links
             if (folder.Entries.Any(entry => entry.Name == name))
                 return false;
 
-            url = GetRelaLink(url);
+            //url = GetRelaLink(url);
             path = WebDavPath.Clean(path);
 
             if (folder.Entries.Any(entry => entry.Name == name))
@@ -345,15 +353,19 @@ namespace YaR.Clouds.Links
 
 
 
-        private const string PublicBaseLink = "https://cloud.mail.ru/public";
-        private const string PublicBaseLink1 = "https:/cloud.mail.ru/public"; //TODO: may be obsolete?
+        //private const string PublicBaseLink = "https://cloud.mail.ru/public";
+        //private const string PublicBaseLink1 = "https:/cloud.mail.ru/public";
 
-        private string GetRelaLink(string url)
-        {
-            if (url.StartsWith(PublicBaseLink)) return url.Remove(PublicBaseLink.Length);
-            if (url.StartsWith(PublicBaseLink1)) return url.Remove(PublicBaseLink1.Length);
-            return url;
-        }
+        //private string GetRelaLink(Uri url)
+        //{
+        //    foreach (string pbu in _cloud.Account.RequestRepo.PublicBaseUrls)
+        //    {
+        //        if (!string.IsNullOrEmpty(pbu))
+        //            if (url.StartsWith(pbu)) 
+        //                return url.Remove(pbu.Length);
+        //    }
+        //    return url;
+        //}
 
         public void ProcessRename(string fullPath, string newName)
         {

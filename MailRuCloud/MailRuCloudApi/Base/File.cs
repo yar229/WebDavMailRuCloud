@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using YaR.Clouds.Common;
 
 namespace YaR.Clouds.Base
@@ -36,13 +37,15 @@ namespace YaR.Clouds.Base
         /// <returns></returns>
         public virtual File New(string newfullPath)
         {
-            return new File(newfullPath, Size, Hash)
+            var file =  new File(newfullPath, Size, Hash)
             {
                 CreationTimeUtc = CreationTimeUtc,
                 LastAccessTimeUtc = LastAccessTimeUtc,
                 LastWriteTimeUtc = LastWriteTimeUtc,
-                PublicLink = PublicLink
             };
+            file.PublicLinks.AddRange(PublicLinks);
+
+            return file;
         }
 
         /// <summary>
@@ -100,17 +103,19 @@ namespace YaR.Clouds.Base
         /// Gets public file link.
         /// </summary>
         /// <value>Public link.</value>
-        public string PublicLink { get; internal set; }
-
-        public string GetPublicLink(Cloud cloud)
+        public List<PublicLinkInfo> PublicLinks
         {
-            string pl = PublicLink;
-            if (string.IsNullOrEmpty(pl))
-            {
-                pl = cloud.GetSharedLink(FullPath);
-            }
+            get => _publicLinks ??= new List<PublicLinkInfo>();
+        }
 
-            return pl;
+        private List<PublicLinkInfo> _publicLinks;
+
+        public IEnumerable<PublicLinkInfo> GetPublicLinks(Cloud cloud)
+        {
+            if (!PublicLinks.Any())
+                return cloud.GetSharedLinks(FullPath);
+
+            return PublicLinks;
         }
 
         /// <summary>
@@ -177,14 +182,14 @@ namespace YaR.Clouds.Base
             int cnt = 0;
             foreach (var innerFile in Files)
             {
-                if (!string.IsNullOrEmpty(innerFile.PublicLink))
+                if (innerFile.PublicLinks.Any())
                     info.Items.Add(new PublishInfoItem
                     {
                         Path = innerFile.FullPath,
-                        Url = ConstSettings.PublishFileLink + innerFile.PublicLink,
+                        Urls =  innerFile.PublicLinks.Select(pli => pli.Uri).ToList(),
                         PlaylistUrl = !isSplitted || cnt > 0
                                           ? generateDirectVideoLink 
-                                                ? ConvertToVideoLink(cloud, innerFile.PublicLink, videoResolution)
+                                                ? ConvertToVideoLink(cloud, innerFile.PublicLinks.First().Uri, videoResolution)
                                                 : null
                                           : null
                     });
@@ -194,7 +199,7 @@ namespace YaR.Clouds.Base
             return info;
         }
 
-        private string ConvertToVideoLink(Cloud cloud, string publicLink, SharedVideoResolution videoResolution)
+        private string ConvertToVideoLink(Cloud cloud, Uri publicLink, SharedVideoResolution videoResolution)
         {
             return cloud.Account.RequestRepo.ConvertToVideoLink(publicLink, videoResolution);
                        

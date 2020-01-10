@@ -250,9 +250,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             },
             new DavSharedLink<MailruStoreCollection>
             {
-                Getter = (context, item) => string.IsNullOrEmpty(item.DirectoryInfo.PublicLink)
+                Getter = (context, item) => !item.DirectoryInfo.PublicLinks.Any()
                     ? string.Empty
-                    : ConstSettings.PublishFileLink + item.DirectoryInfo.PublicLink,
+                    : item.DirectoryInfo.PublicLinks.First().Uri.OriginalString,
                 Setter = (context, item, value) => DavStatusCode.Ok
             }
         });

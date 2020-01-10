@@ -28,7 +28,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    class YadCopyRequestData
+    class YadCopyRequestData : YadModelDataBase
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }

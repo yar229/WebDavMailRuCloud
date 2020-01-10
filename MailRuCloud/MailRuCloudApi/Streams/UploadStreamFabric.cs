@@ -17,6 +17,9 @@ namespace YaR.Clouds.Streams
             _cloud = cloud;
         }
 
+        public Action FileStreamSent;
+        public Action ServerFileProcessed;
+
         public async Task<Stream> Create(File file, FileUploadedDelegate onUploaded = null, bool discardEncryption = false)
         {
             if (!(await _cloud.GetItemAsync(file.Path, Cloud.ItemType.Folder) is Folder folder))
@@ -47,7 +50,7 @@ namespace YaR.Clouds.Streams
 
         private Stream GetPlainStream(File file, FileUploadedDelegate onUploaded)
         {
-            var stream = new SplittedUploadStream(file.FullPath, _cloud, file.Size);
+            var stream = new SplittedUploadStream(file.FullPath, _cloud, file.Size, FileStreamSent, ServerFileProcessed);
             if (onUploaded != null) stream.FileUploaded += onUploaded;
             return stream;
         }
@@ -69,7 +72,7 @@ namespace YaR.Clouds.Streams
                 ? file.OriginalSize.DefaultValue
                 : (file.OriginalSize / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
 
-            var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, false, file.ServiceInfo.CryptInfo);
+            var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, FileStreamSent, ServerFileProcessed, false, file.ServiceInfo.CryptInfo);
             if (onUploaded != null) ustream.FileUploaded += onUploaded;
             // ReSharper disable once RedundantArgumentDefaultValue
             var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);

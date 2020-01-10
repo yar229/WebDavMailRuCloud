@@ -22,7 +22,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    internal class ResourceUrlData
+    internal class ResourceUrlData : YadModelDataBase
     {
         [JsonProperty("digest")]
         public string Digest { get; set; }

@@ -15,7 +15,7 @@ namespace YaR.Clouds
     public class PublishInfoItem
     {
         public string Path { get; set; }
-        public string Url { get; set; }
+        public List<Uri> Urls { get; set; }
         public string PlaylistUrl { get; set; }
     }
 }

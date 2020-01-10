@@ -22,7 +22,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    class YadItemInfoRequestData
+    class YadItemInfoRequestData : YadModelDataBase
     {
         [JsonProperty("ctime")]
         public long Ctime { get; set; }
@@ -71,6 +71,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
         [JsonProperty("size")]
         public long Size { get; set; }
+
+        [JsonProperty("short_url")]
+        public string UrlShort { get; set; }
     }
 
     class YadItemInfoRequestParams

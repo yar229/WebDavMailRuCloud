@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace YaR.Clouds.Base.Requests.Types
 {
-    internal class FolderInfoResult : CommonOperationResult<FolderInfoResult.FolderInfoBody>
+    public class FolderInfoResult : CommonOperationResult<FolderInfoResult.FolderInfoBody>
     {
         public class FolderInfoBody
         {
