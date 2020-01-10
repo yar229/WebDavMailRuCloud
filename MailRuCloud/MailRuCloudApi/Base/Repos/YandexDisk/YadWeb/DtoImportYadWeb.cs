@@ -9,7 +9,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(DtoImportYadWeb));
 
-        public static AccountInfoResult ToAccountInfo(this YadResponceModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
+        public static AccountInfoResult ToAccountInfo(this YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
         {
             var info = data.Data;
             var res = new AccountInfoResult
@@ -94,7 +94,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RenameResult ToRenameResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
+        public static RenameResult ToRenameResult(this YadResponseModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new RenameResult
             {
@@ -103,7 +103,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static RemoveResult ToRemoveResult(this YadResponceModel<YadDeleteRequestData, YadDeleteRequestParams> data)
+        public static RemoveResult ToRemoveResult(this YadResponseModel<YadDeleteRequestData, YadDeleteRequestParams> data)
         {
             var res = new RemoveResult
             {
@@ -122,7 +122,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static CopyResult ToCopyResult(this YadResponceModel<YadCopyRequestData, YadCopyRequestParams> data)
+        public static CopyResult ToCopyResult(this YadResponseModel<YadCopyRequestData, YadCopyRequestParams> data)
         {
             var res = new CopyResult
             {
@@ -132,7 +132,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static CopyResult ToMoveResult(this YadResponceModel<YadMoveRequestData, YadMoveRequestParams> data)
+        public static CopyResult ToMoveResult(this YadResponseModel<YadMoveRequestData, YadMoveRequestParams> data)
         {
             var res = new CopyResult
             {
@@ -142,7 +142,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static PublishResult ToPublishResult(this YadResponceModel<YadPublishRequestData, YadPublishRequestParams> data)
+        public static PublishResult ToPublishResult(this YadResponseModel<YadPublishRequestData, YadPublishRequestParams> data)
         {
             var res = new PublishResult
             {
@@ -152,7 +152,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static UnpublishResult ToUnpublishResult(this YadResponceModel<YadPublishRequestData, YadPublishRequestParams> data)
+        public static UnpublishResult ToUnpublishResult(this YadResponseModel<YadPublishRequestData, YadPublishRequestParams> data)
         {
             var res = new UnpublishResult
             {

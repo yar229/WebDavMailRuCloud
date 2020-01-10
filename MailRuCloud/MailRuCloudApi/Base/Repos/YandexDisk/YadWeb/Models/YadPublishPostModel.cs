@@ -26,7 +26,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    public class YadPublishRequestData
+    public class YadPublishRequestData : YadModelDataBase
     {
         [JsonProperty("url")]
         public string Url { get; set; }

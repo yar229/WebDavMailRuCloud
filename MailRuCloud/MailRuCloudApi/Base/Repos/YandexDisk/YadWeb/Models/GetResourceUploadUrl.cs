@@ -32,7 +32,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    internal class ResourceUploadUrlData
+    internal class ResourceUploadUrlData : YadModelDataBase
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }
@@ -45,30 +45,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
         [JsonProperty("oid")]
         public string Oid { get; set; }
-
-        [JsonProperty("error")]
-        public Error Error { get; set; }
-    }
-
-    internal class Error
-    {
-        [JsonProperty("id")]
-        public string Id { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; }
-
-        [JsonProperty("body")]
-        public ErrBody Body { get; set; }
-    }
-
-    public class ErrBody
-    {
-        [JsonProperty("code")]
-        public long Code { get; set; }
-
-        [JsonProperty("title")]
-        public string Title { get; set; }
     }
 
     internal class ResourceUploadUrlParams

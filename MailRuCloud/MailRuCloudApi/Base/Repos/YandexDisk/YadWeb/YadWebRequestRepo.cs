@@ -42,7 +42,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadFolderInfoPostModel("/", "/published"),
-                    out YadResponceModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
+                    out YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
                 .MakeRequestAsync();
 
             var res = folderInfo.Data.Resources
@@ -70,7 +70,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
                 var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                     .With(new YadGetResourceUrlPostModel(file.FullPath),
-                        out YadResponceModel<ResourceUrlData, ResourceUrlParams> itemInfo)
+                        out YadResponseModel<ResourceUrlData, ResourceUrlParams> itemInfo)
                     .MakeRequestAsync().Result;
 
                 var url = "https:" + itemInfo.Data.File;
@@ -112,7 +112,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize),
-                    out YadResponceModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
+                    out YadResponseModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
                 .MakeRequestAsync().Result;
             var url = itemInfo.Data.UploadUrl;
 
@@ -150,9 +150,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadItemInfoPostModel(path.Path),
-                    out YadResponceModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo)
+                    out YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo)
                 .With(new YadFolderInfoPostModel(path.Path),
-                    out YadResponceModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
+                    out YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
                 .MakeRequestAsync();
 
             var itdata = itemInfo?.Data;
@@ -179,7 +179,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadAccountInfoPostModel(),
-                    out YadResponceModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                    out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToAccountInfo();
@@ -193,7 +193,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadCreateFolderPostModel(path),
-                    out YadResponceModel<YadCreateFolderRequestData, YadCreateFolderRequestParams> itemInfo)
+                    out YadResponseModel<YadCreateFolderRequestData, YadCreateFolderRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.Params.ToCreateFolderResult();
@@ -226,7 +226,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadCopyPostModel(sourceFullPath, destFullPath),
-                    out YadResponceModel<YadCopyRequestData, YadCopyRequestParams> itemInfo)
+                    out YadResponseModel<YadCopyRequestData, YadCopyRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToCopyResult();
@@ -241,7 +241,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             //    .MakeRequestAsync();
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadMovePostModel(sourceFullPath, destFullPath), out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
+                .With(new YadMovePostModel(sourceFullPath, destFullPath), out YadResponseModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToMoveResult();
@@ -251,7 +251,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         public async Task<PublishResult> Publish(string fullPath)
         {
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadPublishPostModel(fullPath, false), out YadResponceModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
+                .With(new YadPublishPostModel(fullPath, false), out YadResponseModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToPublishResult();
@@ -271,7 +271,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             }
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadPublishPostModel(fullPath, true), out YadResponceModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
+                .With(new YadPublishPostModel(fullPath, true), out YadResponseModel<YadPublishRequestData, YadPublishRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToUnpublishResult();
@@ -286,7 +286,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadDeletePostModel(fullPath),
-                    out YadResponceModel<YadDeleteRequestData, YadDeleteRequestParams> itemInfo)
+                    out YadResponseModel<YadDeleteRequestData, YadDeleteRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToRemoveResult();
@@ -302,7 +302,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadMovePostModel(fullPath, destPath),
-                    out YadResponceModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
+                    out YadResponseModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToRenameResult();

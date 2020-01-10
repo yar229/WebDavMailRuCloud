@@ -22,7 +22,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    public class YadDeleteRequestData
+    public class YadDeleteRequestData : YadModelDataBase
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }

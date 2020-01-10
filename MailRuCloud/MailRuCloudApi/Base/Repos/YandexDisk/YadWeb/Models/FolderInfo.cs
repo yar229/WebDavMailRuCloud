@@ -33,7 +33,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    internal class YadFolderInfoRequestData
+    internal class YadFolderInfoRequestData : YadModelDataBase
     {
         [JsonProperty("resources")]
         public List<FolderInfoDataResource> Resources { get; set; }

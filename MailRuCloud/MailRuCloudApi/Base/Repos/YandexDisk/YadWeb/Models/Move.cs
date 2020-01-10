@@ -28,7 +28,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         }
     }
 
-    internal class YadMoveRequestData
+    internal class YadMoveRequestData : YadModelDataBase
     {
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }
