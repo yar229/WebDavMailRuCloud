@@ -87,7 +87,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public static Folder ToFolder(this FolderInfoDataResource resource)
         {
-            var path = resource.Path.Remove(0, 5); // remove "/disk"
+            var path = resource.Path.Remove(0, "/disk".Length); 
 
             var res = new Folder(path) { IsChildsLoaded = false };
 
@@ -107,7 +107,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             var res = new RemoveResult
             {
-                IsSuccess = true
+                IsSuccess = true,
+                DateTime = DateTime.Now,
+                Path = data.Params.Id.Remove(0, "/disk".Length)
             };
             return res;
         }

@@ -10,6 +10,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YaDCommonRequest : BaseRequestJson<YadResponceResult>
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
+
         private readonly YadPostData _postData = new YadPostData();
 
         private readonly List<object> _outData = new List<object>();
@@ -52,18 +54,17 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         protected override RequestResponse<YadResponceResult> DeserializeMessage(System.IO.Stream stream)
         {
-            using (var sr = new StreamReader(stream))
+            using var sr = new StreamReader(stream);
+
+            string text = sr.ReadToEnd();
+            //Logger.Debug(text);
+
+            var msg = new RequestResponse<YadResponceResult>
             {
-                string text = sr.ReadToEnd();
-
-                var msg = new RequestResponse<YadResponceResult>
-                {
-                    Ok = true,
-                    Result = JsonConvert.DeserializeObject<YadResponceResult>(text, new KnownYadModelConverter(_outData))
-                };
-                return msg;
-
-            }
+                Ok = true,
+                Result = JsonConvert.DeserializeObject<YadResponceResult>(text, new KnownYadModelConverter(_outData))
+            };
+            return msg;
         }
     }
 }

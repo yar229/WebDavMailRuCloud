@@ -697,9 +697,8 @@ namespace YaR.Clouds
         /// </summary>
         /// <param name="file">File info.</param>
         /// <param name="removeShareDescription">Also remove share description file (.share.wdmrc)</param>
-        /// <param name="doInvalidateCache"></param>
         /// <returns>True or false operation result.</returns>
-        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true, bool doInvalidateCache = true)
+        public virtual async Task<bool> Remove(File file, bool removeShareDescription = true) //, bool doInvalidateCache = true)
         {
             // remove all parts if file splitted
             var qry = file.Files
@@ -714,8 +713,7 @@ namespace YaR.Clouds
 
             if (res)
             {
-                //unshare master item
-                if (file.Name.EndsWith(PublishInfo.SharedFilePostfix))
+                if (file.Name.EndsWith(PublishInfo.SharedFilePostfix))  //unshare master item
                 {
                     var mpath = WebDavPath.Clean(file.FullPath.Substring(0, file.FullPath.Length - PublishInfo.SharedFilePostfix.Length));
                     var item = await GetItemAsync(mpath);
@@ -728,8 +726,7 @@ namespace YaR.Clouds
                 }
                 else
                 {
-                    //remove share description (.wdmrc.share)
-                    if (removeShareDescription)
+                    if (removeShareDescription) //remove share description (.wdmrc.share)
                     {
                         if (await GetItemAsync(file.FullPath + PublishInfo.SharedFilePostfix) is File sharefile)
                             await Remove(sharefile, false);
@@ -738,9 +735,8 @@ namespace YaR.Clouds
 
             }
 
-
-            if (doInvalidateCache)
-                _itemCache.Invalidate(file.Path, file.FullPath);
+            //if (doInvalidateCache)
+            //    _itemCache.Invalidate(file.Path, file.FullPath);
 
             return res;
         }
