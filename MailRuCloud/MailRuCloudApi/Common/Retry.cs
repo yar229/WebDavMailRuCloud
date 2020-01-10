@@ -34,5 +34,30 @@ namespace YaR.Clouds.Common
             }
             throw new AggregateException(exceptions);
         }
+
+        public static T Do<T>(
+            Func<TimeSpan> sleepBefore,
+            Func<T> action,
+            Func<T, bool> retryIf,
+            TimeSpan retryInterval,
+            int maxAttemptCount = 3)
+        {
+            var sleep = sleepBefore();
+            if (sleep > TimeSpan.Zero)
+                Thread.Sleep(sleep);
+
+            T res = default;
+            for (int attempted = 0; attempted < maxAttemptCount; attempted++)
+            {
+                    if (attempted > 0)
+                        Thread.Sleep(retryInterval);
+
+                    res = action();
+                    if (!retryIf(res))
+                        return res;
+            }
+
+            return res;
+        }
     }
 }

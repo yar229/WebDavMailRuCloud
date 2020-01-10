@@ -19,9 +19,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YadWebRequestRepo));
 
-
-
-
+        private RemoveResult _lastRemoveOperation;
 
         public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
         {
@@ -148,12 +146,39 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
 
-            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadItemInfoPostModel(path.Path),
-                    out YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo)
-                .With(new YadFolderInfoPostModel(path.Path),
-                    out YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
-                .MakeRequestAsync();
+            // YaD perform async deletion
+            YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
+            YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo = null;
+            bool hasRemoveOp = _lastRemoveOperation != null &&
+                               _lastRemoveOperation.IsSuccess &&
+                               WebDavPath.IsParentOrSame(path.Path, _lastRemoveOperation.Path) &&
+                               (DateTime.Now - _lastRemoveOperation.DateTime).TotalMilliseconds < 1_000;
+            Retry.Do(
+                () =>
+                {
+                    var doPreSleep = hasRemoveOp ? TimeSpan.FromMilliseconds(300) : TimeSpan.Zero;
+                    if (doPreSleep > TimeSpan.Zero)
+                        Logger.Debug("Has remove op, sleep before");
+                    return doPreSleep;
+                },
+                () => new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                    .With(new YadItemInfoPostModel(path.Path),
+                        out itemInfo)
+                    .With(new YadFolderInfoPostModel(path.Path),
+                        out folderInfo)
+                    .MakeRequestAsync()
+                    .Result,
+                resp =>
+                {
+                    var doAgain = hasRemoveOp &&
+                           folderInfo.Data.Resources.Any(r =>
+                               WebDavPath.PathEquals(r.Path.Remove(0, "/disk".Length), _lastRemoveOperation.Path));
+                    if (doAgain)
+                        Logger.Debug("Remove op still not finished, let's try again");
+                    return doAgain;
+                }, 
+                TimeSpan.FromMilliseconds(300), 5);
+                
 
             var itdata = itemInfo?.Data;
             if (itdata?.Type == null)
@@ -290,6 +315,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync();
 
             var res = itemInfo.ToRemoveResult();
+
+            _lastRemoveOperation = res;
+
             return res;
         }
 
