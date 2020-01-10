@@ -25,13 +25,16 @@ namespace YaR.Clouds.Streams
         private readonly List<File> _files = new List<File>();
         private bool _performAsSplitted;
 
-        public SplittedUploadStream(string destinationPath, Cloud cloud, long size, bool checkHash = true, CryptInfo cryptInfo = null)
+        public SplittedUploadStream(string destinationPath, Cloud cloud, long size, Action fileStreamSent, Action serverFileProcessed,  bool checkHash = true, CryptInfo cryptInfo = null)
         {
             _destinationPath = destinationPath;
             _cloud = cloud;
             _size = size;
             _checkHash = checkHash;
             _cryptInfo = cryptInfo;
+
+            FileStreamSent = fileStreamSent;
+            ServerFileProcessed = serverFileProcessed;
 
             _maxFileSize = _cloud.Account.Info.FileSizeLimit > 0
                 ? _cloud.Account.Info.FileSizeLimit - 1024
@@ -91,9 +94,17 @@ namespace YaR.Clouds.Streams
 
             _bytesWrote = 0;
             var currFile = _files[_currFileId];
-            _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.OriginalSize) {CheckHashes = _checkHash};
+            _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.OriginalSize)
+            {
+                CheckHashes = _checkHash,
+
+                FileStreamSent = FileStreamSent,
+                ServerFileProcessed = ServerFileProcessed
+            };
         }
 
+        public Action FileStreamSent;
+        public Action ServerFileProcessed;
 
         public override void Flush()
         {

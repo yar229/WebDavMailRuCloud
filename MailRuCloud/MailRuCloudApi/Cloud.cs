@@ -865,11 +865,17 @@ namespace YaR.Clouds
         }
 
 
-        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, bool discardEncryption = false)
+        public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, Action fileStreamSent, Action serverFileProcessed, bool discardEncryption = false)
         {
             var file = new File(fullFilePath, size, string.Empty);
 
-            var task = await Task.FromResult(new UploadStreamFabric(this).Create(file, OnFileUploaded, discardEncryption))
+            var f = new UploadStreamFabric(this)
+            {
+                FileStreamSent = fileStreamSent, 
+                ServerFileProcessed = serverFileProcessed
+            };
+
+            var task = await Task.FromResult(f.Create(file, OnFileUploaded, discardEncryption))
                 .ConfigureAwait(false);
             var stream = await task;
 
@@ -933,7 +939,7 @@ namespace YaR.Clouds
 
         public bool UploadFile(string path, byte[] content, bool discardEncryption = false)
         {
-            using (var stream = GetFileUploadStream(path, content.Length, discardEncryption).Result)
+            using (var stream = GetFileUploadStream(path, content.Length, null, null,  discardEncryption).Result)
             {
                 stream.Write(content, 0, content.Length);
             }

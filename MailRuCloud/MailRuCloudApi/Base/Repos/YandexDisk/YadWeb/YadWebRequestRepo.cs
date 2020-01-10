@@ -11,7 +11,6 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
-using YaR.Clouds.Links;
 using Stream = System.IO.Stream;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
@@ -108,7 +107,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public bool SupportsAddSmallFileByHash => false;
 
-        private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
+        private HttpRequestMessage CreateUploadClientRequest(PushStreamContent content, File file)
         {
 
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
@@ -135,8 +134,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public async Task<UploadFileResult> DoUpload(HttpClient client, PushStreamContent content, File file)
         {
-            var request = UploadClientRequest(content, file);
-            
+            var request = CreateUploadClientRequest(content, file);
             var responseMessage = await client.SendAsync(request);
             var ures = responseMessage.ToUploadPathResult();
 
@@ -345,4 +343,19 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             throw new NotImplementedException("Yad not implemented ConvertToVideoLink");
         }
     }
+
+    //public static class Zzz
+    //{
+    //    private static Stopwatch _sw = new Stopwatch();
+
+    //    static Zzz()
+    //    {
+    //        _sw.Start();
+    //    }
+
+    //    public static long ElapsedMs()
+    //    {
+    //        return _sw.ElapsedMilliseconds;
+    //    }
+    //}
 }

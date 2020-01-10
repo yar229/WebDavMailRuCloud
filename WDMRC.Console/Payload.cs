@@ -120,7 +120,7 @@ namespace YaR.Clouds.Console
 
                         await semclo.WaitAsync(CancelToken.Token);
 
-                        var task = Task.Run(async () =>
+                        var _ = Task.Run(async () =>
                         {
                             try
                             {

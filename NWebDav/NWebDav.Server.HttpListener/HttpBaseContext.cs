@@ -12,6 +12,7 @@ namespace NWebDav.Server.HttpListener
         {
             // Assign properties
             Request = new HttpRequest(request);
+            response.SendChunked = true;
             Response = new HttpResponse(response);
 
             // Save response

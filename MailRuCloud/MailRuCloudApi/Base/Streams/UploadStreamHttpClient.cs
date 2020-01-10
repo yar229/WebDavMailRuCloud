@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -27,6 +26,13 @@ namespace YaR.Clouds.Base.Streams
             Initialize();
         }
 
+        public Action FileStreamSent;
+        private void OnFileStreamSent() => FileStreamSent?.Invoke();
+
+        public Action ServerFileProcessed;
+        private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
+
+
         private void Initialize()
         {
             _requestTask = Task.Run(() =>
@@ -47,16 +53,10 @@ namespace YaR.Clouds.Base.Streams
                     {
                         try
                         {
-                            Stopwatch watch = new Stopwatch();
-                            watch.Start();
-
                             _ringBuffer.CopyTo(stream);
-                            
-                            Logger.Debug($"----------------stream copy ({watch.Elapsed.Milliseconds} ms)");
-
+                            stream.Flush();
                             stream.Close();
-
-                            Logger.Debug($"----------------stream close ({watch.Elapsed.Milliseconds} ms)");
+                            OnFileStreamSent();
                         }
                         catch (Exception e)
                         {
@@ -67,10 +67,6 @@ namespace YaR.Clouds.Base.Streams
 
                     _client = HttpClientFabric.Instance[_cloud.Account];
                     _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
-
-                    //_request = Repo.UploadClientRequest(_pushContent, _file);
-                    //_client = HttpClientFabric.Instance[_cloud.Account];
-                    //_responseMessage = _client.SendAsync(_request).Result;
                 }
                 catch (Exception e)
                 {
@@ -81,9 +77,7 @@ namespace YaR.Clouds.Base.Streams
         }
 
         private PushStreamContent _pushContent;
-        //private HttpResponseMessage _responseMessage;
         private HttpClient _client;
-        //private HttpRequestMessage _request;
         private UploadFileResult _uploadFileResult;
 
         public bool CheckHashes { get; set; } = true;
@@ -102,12 +96,12 @@ namespace YaR.Clouds.Base.Streams
             base.Dispose(disposing);
             if (!disposing) return;
 
-
             try
             {
                 _ringBuffer.Flush();
 
                 _requestTask.GetAwaiter().GetResult();
+                OnServerFileProcessed();
 
                 if (null != _uploadFileResult) // file length > hash length
                 {
