@@ -19,7 +19,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YadWebRequestRepo));
 
-        private RemoveResult _lastRemoveOperation;
+        private ItemOperation _lastRemoveOperation;
 
         public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
         {
@@ -150,7 +150,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
             YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo = null;
             bool hasRemoveOp = _lastRemoveOperation != null &&
-                               _lastRemoveOperation.IsSuccess &&
                                WebDavPath.IsParentOrSame(path.Path, _lastRemoveOperation.Path) &&
                                (DateTime.Now - _lastRemoveOperation.DateTime).TotalMilliseconds < 1_000;
             Retry.Do(
@@ -315,8 +314,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync();
 
             var res = itemInfo.ToRemoveResult();
-
-            _lastRemoveOperation = res;
+                
+            if (res.IsSuccess)
+                _lastRemoveOperation = res.ToItemOperation();
 
             return res;
         }
@@ -334,6 +334,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync();
 
             var res = itemInfo.ToRenameResult();
+
+            if (res.IsSuccess)
+                _lastRemoveOperation = res.ToItemOperation();
+
+
             return res;
         }
 

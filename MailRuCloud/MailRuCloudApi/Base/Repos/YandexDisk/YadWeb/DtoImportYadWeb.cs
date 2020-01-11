@@ -98,7 +98,19 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             var res = new RenameResult
             {
-                IsSuccess = true
+                IsSuccess = true,
+                DateTime = DateTime.Now,
+                Path = data.Params.Src.Remove(0, "/disk".Length)
+            };
+            return res;
+        }
+
+        public static ItemOperation ToItemOperation(this RenameResult data)
+        {
+            var res = new ItemOperation
+            {
+                DateTime = data.DateTime,
+                Path = data.Path
             };
             return res;
         }
@@ -110,6 +122,16 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 IsSuccess = true,
                 DateTime = DateTime.Now,
                 Path = data.Params.Id.Remove(0, "/disk".Length)
+            };
+            return res;
+        }
+
+        public static ItemOperation ToItemOperation(this RemoveResult data)
+        {
+            var res = new ItemOperation
+            {
+                DateTime = data.DateTime,
+                Path = data.Path
             };
             return res;
         }
