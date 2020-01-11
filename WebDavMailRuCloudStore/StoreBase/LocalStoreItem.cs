@@ -14,16 +14,15 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.Clouds.Base;
-using YaR.Clouds.Base.Repos.YandexDisk.YadWeb;
 using YaR.Clouds.WebDavStore.CustomProperties;
 using File = YaR.Clouds.Base.File;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
     [DebuggerDisplay("{_fileInfo.FullPath}")]
-    public sealed class MailruStoreItem : IMailruStoreItem
+    public sealed class LocalStoreItem : ILocalStoreItem
     {
-        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreItem));
+        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreItem));
 
 
         private readonly File _fileInfo;
@@ -33,22 +32,22 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         public long Length => _fileInfo.Size;
         public bool IsReadable => true;
 
-        public MailruStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
+        public LocalStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
         {
             LockingManager = lockingManager;
             _fileInfo = fileInfo;
             IsWritable = isWritable;
         }
 
-        public static PropertyManager<MailruStoreItem> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreItem>(new DavProperty<MailruStoreItem>[]
+        public static PropertyManager<LocalStoreItem> DefaultPropertyManager { get; } = new PropertyManager<LocalStoreItem>(new DavProperty<LocalStoreItem>[]
         {
-            new DavIsreadonly<MailruStoreItem>
+            new DavIsreadonly<LocalStoreItem>
             {
                 Getter = (context, item) => !item.IsWritable
             },
 
             // RFC-2518 properties
-            new DavCreationDate<MailruStoreItem>
+            new DavCreationDate<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.CreationTimeUtc,
                 Setter = (context, item, value) =>
@@ -57,26 +56,26 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavDisplayName<MailruStoreItem>
+            new DavDisplayName<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.Name
             },
-            new DavGetContentLength<MailruStoreItem>
+            new DavGetContentLength<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.Size
             },
-            new DavGetContentType<MailruStoreItem>
+            new DavGetContentType<LocalStoreItem>
             {
                 Getter = (context, item) => item.DetermineContentType()
             },
-            new DavGetEtag<MailruStoreItem>
+            new DavGetEtag<LocalStoreItem>
             {
                 // Calculating the Etag is an expensive operation,
                 // because we need to scan the entire file.
                 IsExpensive = true,
                 Getter = (context, item) => item.CalculateEtag()
             },
-            new DavGetLastModified<MailruStoreItem>
+            new DavGetLastModified<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
                 Setter = (context, item, value) =>
@@ -91,7 +90,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 }
             },
 
-            new DavLastAccessed<MailruStoreItem>
+            new DavLastAccessed<LocalStoreItem>
             {
                 Getter = (context, collection) => collection._fileInfo.LastWriteTimeUtc,
                 Setter = (context, collection, value) =>
@@ -101,24 +100,24 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 }
             },
 
-            new DavGetResourceType<MailruStoreItem>
+            new DavGetResourceType<LocalStoreItem>
             {
                 Getter = (context, item) => null
             },
 
             // Default locking property handling via the LockingManager
-            new DavLockDiscoveryDefault<MailruStoreItem>(),
-            new DavSupportedLockDefault<MailruStoreItem>(),
+            new DavLockDiscoveryDefault<LocalStoreItem>(),
+            new DavSupportedLockDefault<LocalStoreItem>(),
 
             // Hopmann/Lippert collection properties
             // (although not a collection, the IsHidden property might be valuable)
-            new DavExtCollectionIsHidden<MailruStoreItem>
+            new DavExtCollectionIsHidden<LocalStoreItem>
             {
                 Getter = (context, item) => false //(item._fileInfo.Attributes & FileAttributes.Hidden) != 0
             },
 
             // Win32 extensions
-            new Win32CreationTime<MailruStoreItem>
+            new Win32CreationTime<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.CreationTimeUtc,
                 Setter = (context, item, value) =>
@@ -132,7 +131,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                         : DavStatusCode.InternalServerError;
                 }
             },
-            new Win32LastAccessTime<MailruStoreItem>
+            new Win32LastAccessTime<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.LastAccessTimeUtc,
                 Setter = (context, item, value) =>
@@ -141,7 +140,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new Win32LastModifiedTime<MailruStoreItem>
+            new Win32LastModifiedTime<LocalStoreItem>
             {
                 Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
                 Setter = (context, item, value) =>
@@ -150,12 +149,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new Win32FileAttributes<MailruStoreItem>
+            new Win32FileAttributes<LocalStoreItem>
             {
                 Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
                 Setter = (context, item, value) => DavStatusCode.Ok
             },
-            new DavSharedLink<MailruStoreItem>
+            new DavSharedLink<LocalStoreItem>
             {
                 Getter = (context, item) => !item._fileInfo.PublicLinks.Any() 
                                                     ? string.Empty
@@ -270,7 +269,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             try
             {
-                if (destination is MailruStoreCollection collection)
+                if (destination is LocalStoreCollection collection)
                 {
                     if (!collection.IsWritable)
                         return new StoreItemResult(DavStatusCode.PreconditionFailed);
@@ -319,7 +318,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override bool Equals(object obj)
         {
-            if (!(obj is MailruStoreItem storeItem))
+            if (!(obj is LocalStoreItem storeItem))
                 return false;
             return storeItem._fileInfo.FullPath.Equals(_fileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }

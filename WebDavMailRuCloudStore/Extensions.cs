@@ -12,9 +12,9 @@ namespace YaR.Clouds.WebDavStore
         {
             if (null == item) return await Task.FromResult(false);
 
-            if (item is MailruStoreItem storeItem)
+            if (item is LocalStoreItem storeItem)
                 return await cloud.Remove(storeItem.FileInfo);
-            if (item is MailruStoreCollection storeCollection)
+            if (item is LocalStoreCollection storeCollection)
                 return await cloud.Remove(storeCollection.DirectoryInfo);
 
             throw new ArgumentException(string.Empty, nameof(item));
@@ -24,25 +24,25 @@ namespace YaR.Clouds.WebDavStore
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationName)) throw new ArgumentNullException(nameof(destinationName));
-            if (!(item is IMailruStoreItem)) throw new ArgumentException($"{nameof(IMailruStoreItem)} required.", nameof(item));
+            if (!(item is ILocalStoreItem)) throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
-            return cloud.Rename(((IMailruStoreItem)item).EntryInfo, destinationName);
+            return cloud.Rename(((ILocalStoreItem)item).EntryInfo, destinationName);
         }
 
         public static Task<bool> Move(this Cloud cloud, IStoreItem item, string destinationPath)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
-            if (!(item is IMailruStoreItem)) throw new ArgumentException($"{nameof(IMailruStoreItem)} required.", nameof(item));
+            if (!(item is ILocalStoreItem)) throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
-            return cloud.MoveAsync(((IMailruStoreItem)item).EntryInfo, destinationPath);
+            return cloud.MoveAsync(((ILocalStoreItem)item).EntryInfo, destinationPath);
         }
         public static string GetFullPath(this IStoreItem item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            if (!(item is IMailruStoreItem)) throw new ArgumentException($"{nameof(IMailruStoreItem)} required.", nameof(item));
+            if (!(item is ILocalStoreItem)) throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
-            return ((IMailruStoreItem)item).FullPath;
+            return ((ILocalStoreItem)item).FullPath;
         }
 
 

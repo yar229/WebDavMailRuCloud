@@ -19,9 +19,9 @@ using File = YaR.Clouds.Base.File;
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}")]
-    public sealed class MailruStoreCollection : IMailruStoreCollection
+    public sealed class LocalStoreCollection : ILocalStoreCollection
     {
-        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(MailruStoreCollection));
+        private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreCollection));
         private static readonly XElement SxDavCollection = new XElement(WebDavNamespaces.DavNs + "collection");
         private readonly IHttpContext _context;
         private readonly Folder _directoryInfo;
@@ -30,7 +30,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         public long Length => _directoryInfo.Size;
         public bool IsReadable => false;
 
-        public MailruStoreCollection(IHttpContext context, ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
+        public LocalStoreCollection(IHttpContext context, ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
         {
             LockingManager = lockingManager;
             _context = context;
@@ -52,36 +52,36 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return bytes;
         }
 
-        public static PropertyManager<MailruStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<MailruStoreCollection>(new DavProperty<MailruStoreCollection>[]
+        public static PropertyManager<LocalStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<LocalStoreCollection>(new DavProperty<LocalStoreCollection>[]
         {
             //// was added to to make WebDrive work, but no success
-            //new DavHref<MailruStoreCollection>
+            //new DavHref<LocalStoreCollection>
             //{
             //    Getter = (context, collection) => collection._directoryInfo.Name
             //},
 
-            //new DavLoctoken<MailruStoreCollection>
+            //new DavLoctoken<LocalStoreCollection>
             //{
             //    Getter = (context, collection) => ""
             //},
 
             // collection property required for WebDrive
-            new DavCollection<MailruStoreCollection>
+            new DavCollection<LocalStoreCollection>
             {
                 Getter = (context, collection) => string.Empty
             },
 
-            new DavGetEtag<MailruStoreCollection>
+            new DavGetEtag<LocalStoreCollection>
             {
                 Getter = (context, item) => item.CalculateEtag()
             },
 
-            //new DavBsiisreadonly<MailruStoreCollection>
+            //new DavBsiisreadonly<LocalStoreCollection>
             //{
             //    Getter = (context, item) => false
             //},
 
-            //new DavSrtfileattributes<MailruStoreCollection>
+            //new DavSrtfileattributes<LocalStoreCollection>
             //{
             //    Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
             //    Setter = (context, collection, value) =>
@@ -93,18 +93,18 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             ////====================================================================================================
             
 
-            new DavIsreadonly<MailruStoreCollection>
+            new DavIsreadonly<LocalStoreCollection>
             {
                 Getter = (context, item) => !item.IsWritable
             },
 
-            new DavQuotaAvailableBytes<MailruStoreCollection>
+            new DavQuotaAvailableBytes<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Free.DefaultValue : long.MaxValue,
                 IsExpensive = true  //folder listing performance
             },
 
-            new DavQuotaUsedBytes<MailruStoreCollection>
+            new DavQuotaUsedBytes<LocalStoreCollection>
             {
                 Getter = (context, collection) => 
                     collection.DirectoryInfo.Size
@@ -112,7 +112,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             },
 
             // RFC-2518 properties
-            new DavCreationDate<MailruStoreCollection>
+            new DavCreationDate<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection._directoryInfo.CreationTimeUtc,
                 Setter = (context, collection, value) =>
@@ -121,11 +121,11 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavDisplayName<MailruStoreCollection>
+            new DavDisplayName<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection._directoryInfo.Name
             },
-            new DavGetLastModified<MailruStoreCollection>
+            new DavGetLastModified<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
                 Setter = (context, collection, value) =>
@@ -135,7 +135,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 }
             },
 
-            new DavLastAccessed<MailruStoreCollection>
+            new DavLastAccessed<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
                 Setter = (context, collection, value) =>
@@ -146,65 +146,65 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             },
 
 
-            //new DavGetResourceType<MailruStoreCollection>
+            //new DavGetResourceType<LocalStoreCollection>
             //{
             //    Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
             //},
-            new DavGetResourceType<MailruStoreCollection>
+            new DavGetResourceType<LocalStoreCollection>
             {
                 Getter = (context, collection) => new []{SxDavCollection}
             },
 
 
             // Default locking property handling via the LockingManager
-            new DavLockDiscoveryDefault<MailruStoreCollection>(),
-            new DavSupportedLockDefault<MailruStoreCollection>(),
+            new DavLockDiscoveryDefault<LocalStoreCollection>(),
+            new DavSupportedLockDefault<LocalStoreCollection>(),
 
             //Hopmann/Lippert collection properties
-            new DavExtCollectionChildCount<MailruStoreCollection>
+            new DavExtCollectionChildCount<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders + collection.DirectoryInfo.NumberOfFiles
             },
-            new DavExtCollectionIsFolder<MailruStoreCollection>
+            new DavExtCollectionIsFolder<LocalStoreCollection>
             {
                 Getter = (context, collection) => true
             },
-            new DavExtCollectionIsHidden<MailruStoreCollection>
+            new DavExtCollectionIsHidden<LocalStoreCollection>
             {
                 Getter = (context, collection) => false
             },
-            new DavExtCollectionIsStructuredDocument<MailruStoreCollection>
+            new DavExtCollectionIsStructuredDocument<LocalStoreCollection>
             {
                 Getter = (context, collection) => false
             },
 
-            new DavExtCollectionHasSubs<MailruStoreCollection>
+            new DavExtCollectionHasSubs<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders > 0 
             },
 
-            new DavExtCollectionNoSubs<MailruStoreCollection>
+            new DavExtCollectionNoSubs<LocalStoreCollection>
             {
                 Getter = (context, collection) => false
             },
 
-            new DavExtCollectionObjectCount<MailruStoreCollection>
+            new DavExtCollectionObjectCount<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles
             },
 
-            new DavExtCollectionReserved<MailruStoreCollection>
+            new DavExtCollectionReserved<LocalStoreCollection>
             {
                 Getter = (context, collection) => !collection.IsWritable
             },
 
-            new DavExtCollectionVisibleCount<MailruStoreCollection>
+            new DavExtCollectionVisibleCount<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles + collection.DirectoryInfo.NumberOfFolders
             },
 
             // Win32 extensions
-            new Win32CreationTime<MailruStoreCollection>
+            new Win32CreationTime<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection._directoryInfo.CreationTimeUtc,
                 Setter = (context, collection, value) =>
@@ -213,7 +213,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new Win32LastAccessTime<MailruStoreCollection>
+            new Win32LastAccessTime<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
                 Setter = (context, collection, value) =>
@@ -222,7 +222,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new Win32LastModifiedTime<MailruStoreCollection>
+            new Win32LastModifiedTime<LocalStoreCollection>
             {
                 Getter = (context, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
                 Setter = (context, collection, value) =>
@@ -231,7 +231,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new Win32FileAttributes<MailruStoreCollection>
+            new Win32FileAttributes<LocalStoreCollection>
             {
                 Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
                 Setter = (context, collection, value) =>
@@ -240,15 +240,15 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     return DavStatusCode.Ok;
                 }
             },
-            new DavGetContentLength<MailruStoreCollection>
+            new DavGetContentLength<LocalStoreCollection>
             {
                 Getter = (context, item) => item.DirectoryInfo.Size
             },
-            new DavGetContentType<MailruStoreCollection>
+            new DavGetContentType<LocalStoreCollection>
             {
                 Getter = (context, item) => "httpd/unix-directory" //"application/octet-stream"
             },
-            new DavSharedLink<MailruStoreCollection>
+            new DavSharedLink<LocalStoreCollection>
             {
                 Getter = (context, item) => !item.DirectoryInfo.PublicLinks.Any()
                     ? string.Empty
@@ -287,8 +287,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         private IList<IStoreItem> _items;
         private readonly object _itemsLocker = new object();
 
-        public IEnumerable<MailruStoreCollection> Folders => Items.Where(it => it is MailruStoreCollection).Cast<MailruStoreCollection>();
-        public IEnumerable<MailruStoreItem> Files => Items.Where(it => it is MailruStoreItem).Cast<MailruStoreItem>();
+        public IEnumerable<LocalStoreCollection> Folders => Items.Where(it => it is LocalStoreCollection).Cast<LocalStoreCollection>();
+        public IEnumerable<LocalStoreItem> Files => Items.Where(it => it is LocalStoreItem).Cast<LocalStoreItem>();
 
 
         public Task<IStoreItem> GetItemAsync(string name, IHttpContext httpContext)
@@ -304,8 +304,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             var list = _directoryInfo.Entries
                 .Select(entry => entry.IsFile
-                    ? (IStoreItem) new MailruStoreItem(LockingManager, (File) entry, IsWritable)
-                    : new MailruStoreCollection(httpContext, LockingManager, (Folder) entry, IsWritable))
+                    ? (IStoreItem) new LocalStoreItem(LockingManager, (File) entry, IsWritable)
+                    : new LocalStoreCollection(httpContext, LockingManager, (Folder) entry, IsWritable))
                 .ToList();
 
             return Task.FromResult<IList<IStoreItem>>(list);
@@ -324,7 +324,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
             var f = new File(destinationPath, size, null);
 
-            return Task.FromResult(new StoreItemResult(result, new MailruStoreItem(LockingManager, f, IsWritable)));
+            return Task.FromResult(new StoreItemResult(result, new LocalStoreItem(LockingManager, f, IsWritable)));
         }
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -369,7 +369,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new MailruStoreCollection(httpContext, LockingManager, new Folder(destinationPath), IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new LocalStoreCollection(httpContext, LockingManager, new Folder(destinationPath), IsWritable)));
         }
 
         public bool SupportsFastMove(IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext)
@@ -405,7 +405,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
             var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
 
-            if (destinationCollection is MailruStoreCollection destinationStoreCollection)
+            if (destinationCollection is LocalStoreCollection destinationStoreCollection)
             {
                 if (!destinationStoreCollection.IsWritable)
                     return new StoreItemResult(DavStatusCode.PreconditionFailed);
@@ -437,7 +437,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     }
                     else
                     {
-                        var fi = ((MailruStoreItem)item).FileInfo;
+                        var fi = ((LocalStoreItem)item).FileInfo;
 
                         string tmpName = Guid.NewGuid().ToString();
                         await instance.Rename(item, tmpName);
@@ -451,7 +451,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     }
                 }
 
-                return new StoreItemResult(result, new MailruStoreItem(LockingManager, null, IsWritable));
+                return new StoreItemResult(result, new LocalStoreItem(LockingManager, null, IsWritable));
             }
             else
             {
@@ -505,7 +505,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override bool Equals(object obj)
         {
-            if (!(obj is MailruStoreCollection storeCollection))
+            if (!(obj is LocalStoreCollection storeCollection))
                 return false;
             return storeCollection._directoryInfo.FullPath.Equals(_directoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }

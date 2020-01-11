@@ -2,7 +2,7 @@
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
-    public interface IMailruStoreCollection : IStoreCollection, IMailruStoreItem
+    public interface ILocalStoreCollection : IStoreCollection, ILocalStoreItem
     {
     }
 }
