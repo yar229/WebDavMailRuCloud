@@ -42,7 +42,7 @@
 
 ***Yandex.Disk !beta!***
 
-(download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/), use '--protocol YadWeb' command line key)
+(download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/), use `--protocol YadWeb` command line key)
 
 Yandex.Disk WebDAV issues
 
