@@ -3,7 +3,7 @@ using YaR.Clouds.Base;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
-    public interface IMailruStoreItem : IStoreItem
+    public interface ILocalStoreItem : IStoreItem
     {
         bool IsWritable { get; }
         string FullPath { get; }

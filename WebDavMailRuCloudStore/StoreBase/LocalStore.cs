@@ -9,9 +9,9 @@ using YaR.Clouds.Base;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
-    public sealed class MailruStore : IStore
+    public sealed class LocalStore : IStore
     {
-        public MailruStore(bool isWritable = true, ILockingManager lockingManager = null)
+        public LocalStore(bool isWritable = true, ILockingManager lockingManager = null)
         {
             LockingManager = lockingManager ?? new InMemoryLockingManager();
             IsWritable = isWritable;
@@ -31,8 +31,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 if (item != null)
                 {
                     return item.IsFile
-                        ? Task.FromResult<IStoreItem>(new MailruStoreItem(LockingManager, (File)item, IsWritable))
-                        : Task.FromResult<IStoreItem>(new MailruStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
+                        ? Task.FromResult<IStoreItem>(new LocalStoreItem(LockingManager, (File)item, IsWritable))
+                        : Task.FromResult<IStoreItem>(new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
                 }
             }
             // ReSharper disable once RedundantCatchClause
@@ -53,7 +53,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
                 .GetItem(path, Cloud.ItemType.Folder);
 
-            return Task.FromResult<IStoreCollection>(new MailruStoreCollection(httpContext, LockingManager, folder, IsWritable));
+            return Task.FromResult<IStoreCollection>(new LocalStoreCollection(httpContext, LockingManager, folder, IsWritable));
         }
     }
 }
