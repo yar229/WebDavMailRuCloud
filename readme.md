@@ -24,22 +24,37 @@
   					If large folder browsing is extremely slow, set to 2	
 	
 	--protocol         	  (Default: WebM1Bin) Cloud protocol
-				 	  * WebM1Bin	- (preferable) mix of mobile and DiskO protocols
-				 	  * WebV2		- desktop browser protocol
+				 	  * WebM1Bin	- (Cloud.Mail.Ru) mix of mobile and DiskO protocols
+				 	  * WebV2	- (Cloud.Mail.Ru) desktop browser protocol
+				 	  * YadWeb	- (Yandex.Disk) desktop browser protocol
 
 	--install <servicename>		Install as windows service (Windows/.Net only)
- 	--install-display <displayname>		Display name for Windows service (Windows/.Net only)
+ 	--install-display <displayname>	Display name for Windows service (Windows/.Net only)
 	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
 
 	--proxy-address <socks|https|http>://<address>:<port>       Use proxy
 	--proxy-user <username>       Proxy user name
-	--proxy-password <password>       Proxy password
+	--proxy-password <password>   Proxy password
 	
 	--help            Display this help screen.
 	--version         Display version information.
 ```
 
-***How to use encryption  !!!Beta version!!!***
+***Yandex.Disk !beta!***
+
+(download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/))
+
+Yandex.Disk WebDAV issues
+
+* It seems Yandex.Disk WebDAV is limited by speed now.
+* After file uploading yandex servers calculating hash. E.g. for a 10GB file it may take ~1..2 minutes depending on server load. So most of WebDAV clients drops connection on timeout.
+* There's no WebDAV info in official help now. WTF?
+
+This solution allow to bypass that limits using unofficial Yandex.Disk Web API.
+
+
+
+***How to use encryption***
 
 Using XTS AES-256 on-the-fly encryption/decryption
 
