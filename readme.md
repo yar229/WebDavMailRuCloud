@@ -262,4 +262,6 @@ Use any client supports webdav.
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
 
 
-[Buy me a beer](https://www.donationalerts.com/r/yar229)
+
+
+<a href="https://www.donationalerts.com/r/yar229"><img src="https://hangoverbarandgrill.com/files/2019/12/002-beer.png" height="20"></a> [Buy me a beer](https://www.donationalerts.com/r/yar229)
