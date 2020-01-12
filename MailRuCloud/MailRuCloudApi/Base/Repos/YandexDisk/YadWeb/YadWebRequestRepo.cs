@@ -44,6 +44,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync();
 
             var res = folderInfo.Data.Resources
+                .Where(it => !string.IsNullOrEmpty(it.Meta?.UrlShort))
                 .ToDictionary(
                     it => it.Path.Remove(0, "/disk".Length), 
                     it => Enumerable.Repeat(new PublicLinkInfo("short", it.Meta.UrlShort), 1));
