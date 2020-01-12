@@ -210,7 +210,9 @@ namespace NWebDav.Server.Handlers
                     }
                     else
                     {
-                        s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
+                        //spam on each file...
+                        //s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
+
                         xResponse.Add(new XElement(WebDavNamespaces.DavNs + "propstat",
                             new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, null)),
                             new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 404 Not Found"),
