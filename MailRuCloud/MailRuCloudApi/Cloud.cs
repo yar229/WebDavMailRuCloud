@@ -654,9 +654,16 @@ namespace YaR.Clouds
             var qry = file.Files
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, file.Files.Count))
-                .Select(async pfile => await Account.RequestRepo.Move(pfile.FullPath, destinationPath));
+                .Select(async pfile =>
+                {
+                    var moveres =  await Account.RequestRepo.Move(pfile.FullPath, destinationPath);
+                    _itemCache.Forget(file.Path, pfile.FullPath);
+                    return moveres;
+                });
 
-            _itemCache.Invalidate(file.Path, file.FullPath, destinationPath);
+            _itemCache.Forget(file.Path, file.FullPath);
+            _itemCache.Invalidate(destinationPath);
+
             bool res = (await Task.WhenAll(qry))
                 .All(r => r.IsSuccess);
 
@@ -768,7 +775,6 @@ namespace YaR.Clouds
                 var innerLinks = _linkManager.GetChilds(fullPath);
                 _linkManager.RemoveLinks(innerLinks);
 
-                _itemCache.Invalidate(fullPath);
                 _itemCache.Forget(WebDavPath.Parent(fullPath), fullPath); //_itemCache.Invalidate(WebDavPath.Parent(fullPath));
             }
             return res.IsSuccess;
