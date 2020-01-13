@@ -121,8 +121,9 @@ namespace YaR.Clouds.Common
 
         public void Forget(TKey whoKey, TKey whomKey)
         {
-            var who = Get(whoKey) as ICanForget;
+            Invalidate(whomKey);
 
+            var who = Get(whoKey) as ICanForget;
             who?.Forget(whomKey);
         }
 

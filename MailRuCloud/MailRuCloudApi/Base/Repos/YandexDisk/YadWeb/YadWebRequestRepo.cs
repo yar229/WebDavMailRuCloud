@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
@@ -20,6 +21,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YadWebRequestRepo));
 
         private ItemOperation _lastRemoveOperation;
+        
+        private const int OperationStatusCheckIntervalMs = 300;
+        private const int OperationStatusCheckRetryCount = 8;
 
         public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
         {
@@ -137,6 +141,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var responseMessage = await client.SendAsync(request);
             var ures = responseMessage.ToUploadPathResult();
 
+            //Thread.Sleep(1_000);
+
             return ures;
         }
 
@@ -156,7 +162,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             Retry.Do(
                 () =>
                 {
-                    var doPreSleep = hasRemoveOp ? TimeSpan.FromMilliseconds(300) : TimeSpan.Zero;
+                    var doPreSleep = hasRemoveOp ? TimeSpan.FromMilliseconds(OperationStatusCheckIntervalMs) : TimeSpan.Zero;
                     if (doPreSleep > TimeSpan.Zero)
                         Logger.Debug("Has remove op, sleep before");
                     return doPreSleep;
@@ -177,7 +183,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                         Logger.Debug("Remove op still not finished, let's try again");
                     return doAgain;
                 }, 
-                TimeSpan.FromMilliseconds(300), 5);
+                TimeSpan.FromMilliseconds(OperationStatusCheckIntervalMs), OperationStatusCheckRetryCount);
                 
 
             var itdata = itemInfo?.Data;
@@ -262,19 +268,35 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             string destFullPath = WebDavPath.Combine(destinationPath, WebDavPath.Name(sourceFullPath));
 
-            //var req = await new YadMoveRequest(HttpSettings, (YadWebAuth)Authent, sourceFullPath, destFullPath)
-            //    .MakeRequestAsync();
-
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadMovePostModel(sourceFullPath, destFullPath), out YadResponseModel<YadMoveRequestData, YadMoveRequestParams> itemInfo)
                 .MakeRequestAsync();
 
             var res = itemInfo.ToMoveResult();
 
-            if (res.IsSuccess)
-                _lastRemoveOperation = res.ToItemOperation();
+            WaitForOperation(itemInfo.Data.Oid);
 
             return res;
+        }
+
+
+        private void WaitForOperation(string operationOid)
+        {
+            YadResponseModel<YadOperationStatusData, YadOperationStatusParams> itemInfo = null;
+            Retry.Do(
+                () => TimeSpan.Zero,
+                () => new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                    .With(new YadOperationStatusPostModel(operationOid), out itemInfo)
+                    .MakeRequestAsync()
+                    .Result,
+                resp =>
+                {
+                    var doAgain = null == itemInfo.Data.Error && itemInfo.Data.State != "COMPLETED";
+                    //if (doAgain)
+                    //    Logger.Debug("Move op still not finished, let's try again");
+                    return doAgain;
+                }, 
+                TimeSpan.FromMilliseconds(OperationStatusCheckIntervalMs), OperationStatusCheckRetryCount);
         }
 
         public async Task<PublishResult> Publish(string fullPath)
@@ -341,7 +363,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var res = itemInfo.ToRenameResult();
 
             if (res.IsSuccess)
-                _lastRemoveOperation = res.ToItemOperation();
+                WaitForOperation(itemInfo.Data.Oid);
+
+            //if (res.IsSuccess)
+            //    _lastRemoveOperation = res.ToItemOperation();
 
 
             return res;
