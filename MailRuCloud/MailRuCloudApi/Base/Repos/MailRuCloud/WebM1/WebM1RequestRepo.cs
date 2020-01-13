@@ -361,6 +361,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
                     yield return link;
         }
 
+        public void CleanTrash()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
             //return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())

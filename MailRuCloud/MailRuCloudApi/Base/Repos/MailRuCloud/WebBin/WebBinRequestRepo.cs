@@ -426,6 +426,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                     yield return link;
         }
 
+        public void CleanTrash()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
             //return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())

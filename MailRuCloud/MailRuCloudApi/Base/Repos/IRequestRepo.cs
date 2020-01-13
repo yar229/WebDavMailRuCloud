@@ -82,6 +82,8 @@ namespace YaR.Clouds.Base.Repos
         IEnumerable<PublicLinkInfo> GetShareLinks(string path);
 
 
+        void CleanTrash();
+
 
         //TODO: bad quick patch
         string ConvertToVideoLink(Uri publicLink, SharedVideoResolution videoResolution);
@@ -94,7 +96,6 @@ namespace YaR.Clouds.Base.Repos
         bool SupportsAddSmallFileByHash { get; }
 
 
-        IEnumerable<string> PublicBaseUrls { get; set; }
         string PublicBaseUrlDefault { get; }
     }
 }

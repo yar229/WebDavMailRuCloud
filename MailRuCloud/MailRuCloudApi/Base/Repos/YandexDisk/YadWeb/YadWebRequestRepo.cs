@@ -385,6 +385,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     yield return link;
         }
 
+        
+        public async void CleanTrash()
+        {
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadCleanTrashPostModel(), 
+                    out YadResponseModel<YadCleanTrashData, YadCleanTrashParams> itemInfo)
+                .MakeRequestAsync();
+        }
 
 
         public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }

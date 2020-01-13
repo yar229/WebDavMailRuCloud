@@ -1061,5 +1061,10 @@ namespace YaR.Clouds
             var res = UploadFileJson(filepath, content);
             return res;
         }
+
+        public void CleanTrash()
+        {
+            Repo.CleanTrash();
+        }
     }
 }
