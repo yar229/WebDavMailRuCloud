@@ -270,6 +270,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync();
 
             var res = itemInfo.ToMoveResult();
+
+            if (res.IsSuccess)
+                _lastRemoveOperation = res.ToItemOperation();
+
             return res;
         }
 
