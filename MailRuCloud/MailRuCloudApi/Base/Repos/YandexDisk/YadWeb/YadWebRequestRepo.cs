@@ -105,7 +105,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public ICloudHasher GetHasher()
         {
-            return null;
+            return new YadHasher();
         }
 
         public bool SupportsAddSmallFileByHash => false;
