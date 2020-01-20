@@ -30,7 +30,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
-            Authent = new YadWebAuth(HttpSettings, creds);
+            _cachedAuth = new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, creds),
+                auth => TimeSpan.FromHours(23)); //Authent = new YadWebAuth(HttpSettings, creds);
 
             CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
                 {
@@ -56,7 +57,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public IAuth Authent { get; }
+        public IAuth Authent => _cachedAuth.Value;
+        private Cached<YadWebAuth> _cachedAuth;
 
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
@@ -105,7 +107,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public ICloudHasher GetHasher()
         {
-            return null;
+            return new YadHasher();
         }
 
         public bool SupportsAddSmallFileByHash => false;
@@ -385,6 +387,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     yield return link;
         }
 
+        
+        public async void CleanTrash()
+        {
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadCleanTrashPostModel(), 
+                    out YadResponseModel<YadCleanTrashData, YadCleanTrashParams> itemInfo)
+                .MakeRequestAsync();
+        }
 
 
         public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }

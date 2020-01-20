@@ -85,6 +85,12 @@ namespace YaR.Clouds.SpecialCommands
             },
             new SpecialCommandContainer
             {
+                Commands = new [] {"clean", "trash"},
+                CreateFunc = (cloud, path, param) => new CleanTrashCommand(cloud, path, param)
+            },
+
+            new SpecialCommandContainer
+            {
                 Commands = new [] {"test"},
                 CreateFunc = (cloud, path, param) => new TestCommand(cloud, path, param)
             }

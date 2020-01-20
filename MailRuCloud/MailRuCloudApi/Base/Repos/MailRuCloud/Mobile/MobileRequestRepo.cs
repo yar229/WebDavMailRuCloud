@@ -227,6 +227,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             throw new NotImplementedException("Mobile GetShareLink not implemented");
         }
 
+        public void CleanTrash()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
             return (await new CreateFolderRequest(HttpSettings, Authent, _metaServer.Value.Url, path).MakeRequestAsync())

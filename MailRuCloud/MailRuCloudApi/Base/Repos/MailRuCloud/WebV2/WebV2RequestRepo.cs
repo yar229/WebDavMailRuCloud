@@ -268,6 +268,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             throw new NotImplementedException("WebV2 GetShareLink not implemented");
         }
 
+        public void CleanTrash()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CreateFolderResult> CreateFolder(string path)
         {
             return (await new CreateFolderRequest(HttpSettings, Authent, path).MakeRequestAsync())
