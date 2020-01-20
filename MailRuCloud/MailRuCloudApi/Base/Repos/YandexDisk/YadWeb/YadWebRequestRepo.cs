@@ -30,7 +30,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
-            Authent = new YadWebAuth(HttpSettings, creds);
+            _cachedAuth = new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, creds),
+                auth => TimeSpan.FromHours(23)); //Authent = new YadWebAuth(HttpSettings, creds);
 
             CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
                 {
@@ -56,7 +57,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public IAuth Authent { get; }
+        public IAuth Authent => _cachedAuth.Value;
+        private Cached<YadWebAuth> _cachedAuth;
 
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
