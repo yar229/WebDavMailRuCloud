@@ -29,7 +29,9 @@ namespace YaR.Clouds.Base
         {
             var res = new FilenameServiceInfo();
 
-            var m = Regex.Match(filename, @"\A(?<cleanname>.*?)(\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?)?\Z", RegexOptions.Compiled);
+            //var malign = Regex.Match(filename, @"\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?\Z", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
+
+            var m = Regex.Match(filename, @"\A(?<cleanname>.*?)(\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?)?\Z", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
             if (!m.Success)
                 throw new InvalidOperationException("Cannot parse filename");
 

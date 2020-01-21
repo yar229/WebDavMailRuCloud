@@ -18,6 +18,7 @@ namespace NWebDav.Server.Props
         /// </summary>
         IList<PropertyInfo> Properties { get; }
 
+        bool HasProperty(XName name);
         /// <summary>
         /// Get the value of the specified property for the given item.
         /// </summary>

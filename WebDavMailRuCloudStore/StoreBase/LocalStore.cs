@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -9,6 +11,47 @@ using YaR.Clouds.Base;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
+    //public class EmptyLockingManager : ILockingManager
+    //{
+    //    public LockResult Lock(IStoreItem item, LockType lockType, LockScope lockScope, XElement owner, WebDavUri lockRootUri,
+    //        bool recursiveLock, IEnumerable<int> timeouts)
+    //    {
+    //        return LR;
+    //    }
+    //    static LockResult LR = new LockResult(DavStatusCode.Ok);
+
+    //    public DavStatusCode Unlock(IStoreItem item, WebDavUri token)
+    //    {
+    //        return DavStatusCode.Ok;
+    //    }
+
+    //    public LockResult RefreshLock(IStoreItem item, bool recursiveLock, IEnumerable<int> timeouts, WebDavUri lockTokenUri)
+    //    {
+    //        return LR;
+    //    }
+
+    //    public IEnumerable<ActiveLock> GetActiveLockInfo(IStoreItem item)
+    //    {
+    //        yield break;
+    //    }
+
+    //    public IEnumerable<LockEntry> GetSupportedLocks(IStoreItem item)
+    //    {
+    //        yield break;
+    //    }
+
+    //    public bool IsLocked(IStoreItem item)
+    //    {
+    //        return false;
+    //    }
+
+    //    public bool HasLock(IStoreItem item, WebDavUri lockToken)
+    //    {
+    //        return false;
+    //    }
+    //}
+
+
     public sealed class LocalStore : IStore
     {
         public LocalStore(bool isWritable = true, ILockingManager lockingManager = null)
@@ -20,19 +63,19 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         private bool IsWritable { get; }
         private ILockingManager LockingManager { get; }
 
-        public Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
+        public async Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
         {
             var identity = (HttpListenerBasicIdentity)httpContext.Session.Principal.Identity;
             var path = uri.Path;
             
             try
             {
-                var item = CloudManager.Instance(identity).GetItem(path);
+                var item = await CloudManager.Instance(identity).GetItemAsync(path);
                 if (item != null)
                 {
                     return item.IsFile
-                        ? Task.FromResult<IStoreItem>(new LocalStoreItem(LockingManager, (File)item, IsWritable))
-                        : Task.FromResult<IStoreItem>(new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
+                        ? new LocalStoreItem(LockingManager, (File)item, IsWritable)
+                        : new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable) as IStoreItem;
                 }
             }
             // ReSharper disable once RedundantCatchClause
@@ -43,17 +86,17 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 throw;
             }
 
-            return Task.FromResult<IStoreItem>(null);
+            return null;
         }
 
-        public Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext)
+        public async Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext)
         {
             var path = uri.Path;
 
-            var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
-                .GetItem(path, Cloud.ItemType.Folder);
+            var item = await CloudManager.Instance(httpContext.Session.Principal.Identity)
+                .GetItemAsync(path, Cloud.ItemType.Folder);
 
-            return Task.FromResult<IStoreCollection>(new LocalStoreCollection(httpContext, LockingManager, folder, IsWritable));
+            return new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable);
         }
     }
 }

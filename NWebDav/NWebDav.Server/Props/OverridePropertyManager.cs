@@ -29,6 +29,11 @@ namespace NWebDav.Server.Props
 
         public IList<PropertyInfo> Properties { get; }
 
+        public bool HasProperty(XName name)
+        {
+            return _properties.ContainsKey(name);
+        }
+
         public Task<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
         {
             // Find the property
