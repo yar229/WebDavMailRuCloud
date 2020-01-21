@@ -20,19 +20,19 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         private bool IsWritable { get; }
         private ILockingManager LockingManager { get; }
 
-        public Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
+        public async Task<IStoreItem> GetItemAsync(WebDavUri uri, IHttpContext httpContext)
         {
             var identity = (HttpListenerBasicIdentity)httpContext.Session.Principal.Identity;
             var path = uri.Path;
             
             try
             {
-                var item = CloudManager.Instance(identity).GetItem(path);
+                var item = await CloudManager.Instance(identity).GetItemAsync(path);
                 if (item != null)
                 {
                     return item.IsFile
-                        ? Task.FromResult<IStoreItem>(new LocalStoreItem(LockingManager, (File)item, IsWritable))
-                        : Task.FromResult<IStoreItem>(new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable));
+                        ? new LocalStoreItem(LockingManager, (File)item, IsWritable)
+                        : new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable) as IStoreItem;
                 }
             }
             // ReSharper disable once RedundantCatchClause
@@ -43,17 +43,17 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 throw;
             }
 
-            return Task.FromResult<IStoreItem>(null);
+            return null;
         }
 
-        public Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext)
+        public async Task<IStoreCollection> GetCollectionAsync(WebDavUri uri, IHttpContext httpContext)
         {
             var path = uri.Path;
 
-            var folder = (Folder)CloudManager.Instance(httpContext.Session.Principal.Identity)
-                .GetItem(path, Cloud.ItemType.Folder);
+            var item = await CloudManager.Instance(httpContext.Session.Principal.Identity)
+                .GetItemAsync(path, Cloud.ItemType.Folder);
 
-            return Task.FromResult<IStoreCollection>(new LocalStoreCollection(httpContext, LockingManager, folder, IsWritable));
+            return new LocalStoreCollection(httpContext, LockingManager, (Folder)item, IsWritable);
         }
     }
 }
