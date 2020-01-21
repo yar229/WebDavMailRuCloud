@@ -49,6 +49,12 @@ namespace NWebDav.Server.Props
         /// </summary>
         public IList<PropertyInfo> Properties { get; }
 
+
+        public bool HasProperty(XName name)
+        {
+            return _properties.ContainsKey(name);
+        }
+
         /// <summary>
         /// Get the value of the specified property for the given item.
         /// </summary>
