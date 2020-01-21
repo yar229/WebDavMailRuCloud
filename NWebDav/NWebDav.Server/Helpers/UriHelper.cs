@@ -8,7 +8,7 @@ namespace NWebDav.Server.Helpers
         public static WebDavUri Combine(WebDavUri baseUri, string path)
         {
             var uriText = baseUri.OriginalString;
-            if (uriText.EndsWith("/"))
+            if (uriText.EndsWith("/", StringComparison.OrdinalIgnoreCase))
                 uriText = uriText.Substring(0, uriText.Length - 1);
             return new WebDavUri($"{uriText}/{Uri.EscapeDataString(path)}");
         }

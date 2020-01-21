@@ -1,6 +1,6 @@
 ﻿namespace YaR.Clouds.Base.Requests
 {
-    public class RequestResponse<T>
+    public struct RequestResponse<T>
     {
         public bool Ok { get; set; }
 
