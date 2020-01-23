@@ -60,7 +60,7 @@ namespace YaR.Clouds.Base.Streams
                         }
                         catch (Exception e)
                         {
-                            Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e.Message}");
+                            Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e}");
                             throw;
                         }
                     });
@@ -70,7 +70,7 @@ namespace YaR.Clouds.Base.Streams
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Uploading to {_file.FullPath} failed with {e.Message}"); //TODO remove duplicate exception catch?
+                    Logger.Error($"Uploading to {_file.FullPath} failed with {e}"); //TODO remove duplicate exception catch?
                     throw;
                 }
             });
