@@ -46,7 +46,7 @@ namespace YaR.Clouds.Base.Requests.Types
             public class FolderInfoProps
             {
                 [JsonProperty("mtime")]
-                public long Mtime;
+                public ulong Mtime;
                 [JsonProperty("count")]
                 public FolderInfoCount Count { get; set; }
                 [JsonProperty("tree")]

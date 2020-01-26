@@ -48,7 +48,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         public Meta Meta { get; set; }
 
         [JsonProperty("mtime")]
-        public long Mtime { get; set; }
+        public ulong Mtime { get; set; }
 
         [JsonProperty("path")]
         public string Path { get; set; }
