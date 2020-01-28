@@ -8,9 +8,9 @@
 
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - .NET Framework 4.6.1 / [.NET Core 2.2](https://www.microsoft.com/net/core#windowscmd)
-* [Linux](#linux) - Mono 4.8 / [.NET Core 2.2](https://www.microsoft.com/net/core#linuxredhat)
-* [OS X](#mac-os-x) - Mono 4.8 / [.NET Core 2.2](https://www.microsoft.com/net/core#macos)
+* [Windows](#windows)  - .NET Framework 4.6.1 / [.NET Core 3.1](https://www.microsoft.com/net/core#windowscmd)
+* [Linux](#linux) - Mono 5.2 / [.NET Core 3.1](https://www.microsoft.com/net/core#linuxredhat)
+* [OS X](#mac-os-x) - Mono 5.2 / [.NET Core 3.1](https://www.microsoft.com/net/core#macos)
 
 `WebDAVCloudMailRu-*-dotNet461.zip` / `WebDAVCloudMailRu-*-dotNetCore22.zip` respectively
 
@@ -42,7 +42,7 @@
 
 ***Yandex.Disk !beta!***
 
-(download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/))
+(download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/), use `--protocol YadWeb` command line key)
 
 Yandex.Disk WebDAV issues
 
@@ -260,3 +260,8 @@ Use any client supports webdav.
 *  Official client [Disk-O:](https://disk-o.cloud/)
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
+
+
+
+
+<a href="https://www.donationalerts.com/r/yar229"><img src="https://hangoverbarandgrill.com/files/2019/12/002-beer.png" height="20"></a> [Buy me a beer](https://www.donationalerts.com/r/yar229)
