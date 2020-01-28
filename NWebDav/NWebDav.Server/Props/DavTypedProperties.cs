@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+//using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
@@ -169,7 +170,7 @@ namespace NWebDav.Server.Props
     {
         private class Rfc1123DateConverter : IConverter
         {
-            public object ToXml(IHttpContext httpContext, DateTime value) => value.ToString("R");
+            public object ToXml(IHttpContext httpContext, DateTime value) => value.ToString("R", CultureInfo.InvariantCulture);
             public DateTime FromXml(IHttpContext httpContext, object value)
             {
                 bool parsed = DateTime.TryParse((string) value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date);

@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Threading;
@@ -14,155 +14,34 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.Clouds.Base;
-using YaR.Clouds.WebDavStore.CustomProperties;
 using File = YaR.Clouds.Base.File;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
     [DebuggerDisplay("{_fileInfo.FullPath}")]
-    public sealed class LocalStoreItem : ILocalStoreItem
+    public class LocalStoreItem : ILocalStoreItem
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreItem));
 
 
         private readonly File _fileInfo;
+        private readonly LocalStore _store;
 
         public File FileInfo => _fileInfo;
         public IEntry EntryInfo => FileInfo;
         public long Length => _fileInfo.Size;
         public bool IsReadable => true;
 
-        public LocalStoreItem(ILockingManager lockingManager, File fileInfo, bool isWritable)
+        public LocalStoreItem(File fileInfo, bool isWritable, LocalStore store)
         {
-            LockingManager = lockingManager;
+            _store = store;
+
             _fileInfo = fileInfo;
+
             IsWritable = isWritable;
         }
 
-        public static PropertyManager<LocalStoreItem> DefaultPropertyManager { get; } = new PropertyManager<LocalStoreItem>(new DavProperty<LocalStoreItem>[]
-        {
-            new DavIsreadonly<LocalStoreItem>
-            {
-                Getter = (context, item) => !item.IsWritable
-            },
-
-            // RFC-2518 properties
-            new DavCreationDate<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.CreationTimeUtc,
-                Setter = (context, item, value) =>
-                {
-                    item._fileInfo.CreationTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new DavDisplayName<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.Name
-            },
-            new DavGetContentLength<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.Size
-            },
-            new DavGetContentType<LocalStoreItem>
-            {
-                Getter = (context, item) => item.DetermineContentType()
-            },
-            new DavGetEtag<LocalStoreItem>
-            {
-                // Calculating the Etag is an expensive operation,
-                // because we need to scan the entire file.
-                IsExpensive = true,
-                Getter = (context, item) => item.CalculateEtag()
-            },
-            new DavGetLastModified<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
-                Setter = (context, item, value) =>
-                {
-                    //item._fileInfo.LastWriteTimeUtc = value;
-
-                    var cloud = CloudManager.Instance((HttpListenerBasicIdentity)context.Session.Principal.Identity);
-                    bool res = cloud.SetFileDateTime(item._fileInfo, value).Result;
-                    return res
-                        ? DavStatusCode.Ok
-                        : DavStatusCode.InternalServerError;
-                }
-            },
-
-            new DavLastAccessed<LocalStoreItem>
-            {
-                Getter = (context, collection) => collection._fileInfo.LastWriteTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection._fileInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-
-            new DavGetResourceType<LocalStoreItem>
-            {
-                Getter = (context, item) => null
-            },
-
-            // Default locking property handling via the LockingManager
-            new DavLockDiscoveryDefault<LocalStoreItem>(),
-            new DavSupportedLockDefault<LocalStoreItem>(),
-
-            // Hopmann/Lippert collection properties
-            // (although not a collection, the IsHidden property might be valuable)
-            new DavExtCollectionIsHidden<LocalStoreItem>
-            {
-                Getter = (context, item) => false //(item._fileInfo.Attributes & FileAttributes.Hidden) != 0
-            },
-
-            // Win32 extensions
-            new Win32CreationTime<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.CreationTimeUtc,
-                Setter = (context, item, value) =>
-                {
-                    //item._fileInfo.CreationTimeUtc = value;
-
-                    var cloud = CloudManager.Instance((HttpListenerBasicIdentity)context.Session.Principal.Identity);
-                    bool res = cloud.SetFileDateTime(item._fileInfo, value).Result;
-                    return res
-                        ? DavStatusCode.Ok
-                        : DavStatusCode.InternalServerError;
-                }
-            },
-            new Win32LastAccessTime<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.LastAccessTimeUtc,
-                Setter = (context, item, value) =>
-                {
-                    item._fileInfo.LastAccessTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new Win32LastModifiedTime<LocalStoreItem>
-            {
-                Getter = (context, item) => item._fileInfo.LastWriteTimeUtc,
-                Setter = (context, item, value) =>
-                {
-                    item._fileInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new Win32FileAttributes<LocalStoreItem>
-            {
-                Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
-                Setter = (context, item, value) => DavStatusCode.Ok
-            },
-            new DavSharedLink<LocalStoreItem>
-            {
-                Getter = (context, item) => !item._fileInfo.PublicLinks.Any() 
-                                                    ? string.Empty
-                                                    : item._fileInfo.PublicLinks.First().Uri.OriginalString,
-                Setter = (context, item, value) => DavStatusCode.Ok
-            }
-        });
-
+        //public readonly PropertyManager<LocalStoreItem> DefaultPropertyManager;
 
 
 
@@ -171,8 +50,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         public string Name => _fileInfo.Name;
         public string UniqueKey => _fileInfo.FullPath;
         public string FullPath => _fileInfo.FullPath;
-        public IPropertyManager PropertyManager => DefaultPropertyManager;
-        public ILockingManager LockingManager { get; }
+
+        public IPropertyManager PropertyManager => _store.ItemPropertyManager;
+        public ILockingManager LockingManager => _store.LockingManager;
 
 
         private Stream OpenReadStream(Cloud cloud, long? start, long? end)
@@ -323,12 +203,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return storeItem._fileInfo.FullPath.Equals(_fileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
 
-        private string DetermineContentType()
+        public string DetermineContentType()
         {
             return MimeTypeHelper.GetMimeType(_fileInfo.Name);
         }
 
-        private string CalculateEtag()
+        public string CalculateEtag()
         {
             string h = _fileInfo.FullPath + _fileInfo.Size;
             var hash = SHA256.Create().ComputeHash(GetBytes(h));

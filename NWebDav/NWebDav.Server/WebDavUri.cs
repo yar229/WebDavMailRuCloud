@@ -70,7 +70,7 @@ namespace NWebDav.Server
         {
             get
             {
-                var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
+                var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty, RegexOptions.CultureInvariant | RegexOptions.Compiled);
                 requestedPath = "/" + requestedPath.TrimEnd('/');
 
                 //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";

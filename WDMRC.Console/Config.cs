@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
@@ -97,6 +98,44 @@ namespace YaR.Clouds.Console
                     return SharedVideoResolution.All;
                 }
             }
+        }
+
+        public static Dictionary<string, bool> WebDAVProps
+        {
+            get
+            {
+                if (null == _webDAVProps)
+                {
+                    try
+                    {
+                        _webDAVProps = new Dictionary<string, bool>();
+
+                        var node = Document.SelectSingleNode("/config/WebDAVProps");
+                        var parames = new List<KeyValuePair<string, bool>>();
+                        foreach (XmlNode childNode in node.ChildNodes)
+                        {
+                            string pname = childNode.Attributes["name"].InnerText;
+                            bool enabled = bool.Parse(childNode.Attributes["enabled"].InnerText);
+                            _webDAVProps[pname] = enabled;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
+
+                return _webDAVProps;
+            }
+        }
+
+        private static Dictionary<string, bool> _webDAVProps;
+
+        public static bool IsEnabledWebDAVProperty(string propName)
+        {
+            if (WebDAVProps.TryGetValue(propName, out bool enabled))
+                return enabled;
+
+            return true;
         }
     }
 }
