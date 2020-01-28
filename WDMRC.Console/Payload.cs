@@ -101,7 +101,7 @@ namespace YaR.Clouds.Console
             var requestHandlerFactory = new RequestHandlerFactory();
 
             // Create WebDAV dispatcher
-            var homeFolder = new LocalStore();
+            var homeFolder = new LocalStore(isEnabledPropFunc: Config.IsEnabledWebDAVProperty);
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
             try

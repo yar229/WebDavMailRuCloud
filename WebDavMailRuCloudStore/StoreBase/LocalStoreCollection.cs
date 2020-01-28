@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.Locking;
@@ -13,32 +12,33 @@ using NWebDav.Server.Logging;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.Clouds.Base;
-using YaR.Clouds.WebDavStore.CustomProperties;
 using File = YaR.Clouds.Base.File;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
     [DebuggerDisplay("{_directoryInfo.FullPath}")]
-    public sealed class LocalStoreCollection : ILocalStoreCollection
+    public class LocalStoreCollection : ILocalStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreCollection));
-        private static readonly XElement SxDavCollection = new XElement(WebDavNamespaces.DavNs + "collection");
         private readonly IHttpContext _context;
-        private readonly Folder _directoryInfo;
+        internal readonly Folder _directoryInfo;
+        private readonly LocalStore _store;
         public Folder DirectoryInfo => _directoryInfo;
         public IEntry EntryInfo => DirectoryInfo;
         public long Length => _directoryInfo.Size;
         public bool IsReadable => false;
 
-        public LocalStoreCollection(IHttpContext context, ILockingManager lockingManager, Folder directoryInfo, bool isWritable)
+        public LocalStoreCollection(IHttpContext context, Folder directoryInfo, bool isWritable, 
+            LocalStore store)
         {
-            LockingManager = lockingManager;
             _context = context;
             _directoryInfo = directoryInfo;
+            _store = store;
+
             IsWritable = isWritable;
         }
 
-        private string CalculateEtag()
+        public string CalculateEtag()
         {
             string h = _directoryInfo.FullPath;
             var hash = SHA256.Create().ComputeHash(GetBytes(h));
@@ -52,218 +52,15 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return bytes;
         }
 
-        public static PropertyManager<LocalStoreCollection> DefaultPropertyManager { get; } = new PropertyManager<LocalStoreCollection>(new DavProperty<LocalStoreCollection>[]
-        {
-            //// was added to to make WebDrive work, but no success
-            //new DavHref<LocalStoreCollection>
-            //{
-            //    Getter = (context, collection) => collection._directoryInfo.Name
-            //},
-
-            //new DavLoctoken<LocalStoreCollection>
-            //{
-            //    Getter = (context, collection) => ""
-            //},
-
-            // collection property required for WebDrive
-            new DavCollection<LocalStoreCollection>
-            {
-                Getter = (context, collection) => string.Empty
-            },
-
-            new DavGetEtag<LocalStoreCollection>
-            {
-                Getter = (context, item) => item.CalculateEtag()
-            },
-
-            //new DavBsiisreadonly<LocalStoreCollection>
-            //{
-            //    Getter = (context, item) => false
-            //},
-
-            //new DavSrtfileattributes<LocalStoreCollection>
-            //{
-            //    Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
-            //    Setter = (context, collection, value) =>
-            //    {
-            //        collection.DirectoryInfo.Attributes = value;
-            //        return DavStatusCode.Ok;
-            //    }
-            //},
-            ////====================================================================================================
-            
-
-            new DavIsreadonly<LocalStoreCollection>
-            {
-                Getter = (context, item) => !item.IsWritable
-            },
-
-            new DavQuotaAvailableBytes<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.FullPath == "/" ? CloudManager.Instance(context.Session.Principal.Identity).GetDiskUsage().Free.DefaultValue : long.MaxValue,
-                IsExpensive = true  //folder listing performance
-            },
-
-            new DavQuotaUsedBytes<LocalStoreCollection>
-            {
-                Getter = (context, collection) => 
-                    collection.DirectoryInfo.Size
-                //IsExpensive = true  //folder listing performance
-            },
-
-            // RFC-2518 properties
-            new DavCreationDate<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection._directoryInfo.CreationTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection._directoryInfo.CreationTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new DavDisplayName<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection._directoryInfo.Name
-            },
-            new DavGetLastModified<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection._directoryInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-
-            new DavLastAccessed<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection._directoryInfo.LastWriteTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection._directoryInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-
-
-            //new DavGetResourceType<LocalStoreCollection>
-            //{
-            //    Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
-            //},
-            new DavGetResourceType<LocalStoreCollection>
-            {
-                Getter = (context, collection) => new []{SxDavCollection}
-            },
-
-
-            // Default locking property handling via the LockingManager
-            new DavLockDiscoveryDefault<LocalStoreCollection>(),
-            new DavSupportedLockDefault<LocalStoreCollection>(),
-
-            //Hopmann/Lippert collection properties
-            new DavExtCollectionChildCount<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders + collection.DirectoryInfo.NumberOfFiles
-            },
-            new DavExtCollectionIsFolder<LocalStoreCollection>
-            {
-                Getter = (context, collection) => true
-            },
-            new DavExtCollectionIsHidden<LocalStoreCollection>
-            {
-                Getter = (context, collection) => false
-            },
-            new DavExtCollectionIsStructuredDocument<LocalStoreCollection>
-            {
-                Getter = (context, collection) => false
-            },
-
-            new DavExtCollectionHasSubs<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFolders > 0 
-            },
-
-            new DavExtCollectionNoSubs<LocalStoreCollection>
-            {
-                Getter = (context, collection) => false
-            },
-
-            new DavExtCollectionObjectCount<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles
-            },
-
-            new DavExtCollectionReserved<LocalStoreCollection>
-            {
-                Getter = (context, collection) => !collection.IsWritable
-            },
-
-            new DavExtCollectionVisibleCount<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.NumberOfFiles + collection.DirectoryInfo.NumberOfFolders
-            },
-
-            // Win32 extensions
-            new Win32CreationTime<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection._directoryInfo.CreationTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection.DirectoryInfo.CreationTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new Win32LastAccessTime<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection._directoryInfo.LastAccessTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new Win32LastModifiedTime<LocalStoreCollection>
-            {
-                Getter = (context, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
-                Setter = (context, collection, value) =>
-                {
-                    collection.DirectoryInfo.LastWriteTimeUtc = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new Win32FileAttributes<LocalStoreCollection>
-            {
-                Getter = (context, collection) =>  collection.DirectoryInfo.Attributes,
-                Setter = (context, collection, value) =>
-                {
-                    collection.DirectoryInfo.Attributes = value;
-                    return DavStatusCode.Ok;
-                }
-            },
-            new DavGetContentLength<LocalStoreCollection>
-            {
-                Getter = (context, item) => item.DirectoryInfo.Size
-            },
-            new DavGetContentType<LocalStoreCollection>
-            {
-                Getter = (context, item) => "httpd/unix-directory" //"application/octet-stream"
-            },
-            new DavSharedLink<LocalStoreCollection>
-            {
-                Getter = (context, item) => !item.DirectoryInfo.PublicLinks.Any()
-                    ? string.Empty
-                    : item.DirectoryInfo.PublicLinks.First().Uri.OriginalString,
-                Setter = (context, item, value) => DavStatusCode.Ok
-            }
-        });
+        //public PropertyManager<LocalStoreCollection> DefaultPropertyManager { get; }
 
         public bool IsWritable { get; }
         public string Name => DirectoryInfo.Name;
         public string UniqueKey => DirectoryInfo.FullPath;
         public string FullPath => DirectoryInfo.FullPath;
 
-        public IPropertyManager PropertyManager => DefaultPropertyManager;
-        public ILockingManager LockingManager { get; }
+        public IPropertyManager PropertyManager => _store.CollectionPropertyManager;
+        public ILockingManager LockingManager => _store.LockingManager;
 
 
         public IList<IStoreItem> Items
@@ -304,8 +101,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             var list = _directoryInfo.Entries
                 .Select(entry => entry.IsFile
-                    ? (IStoreItem) new LocalStoreItem(LockingManager, (File) entry, IsWritable)
-                    : new LocalStoreCollection(httpContext, LockingManager, (Folder) entry, IsWritable))
+                    ? (IStoreItem) new LocalStoreItem((File) entry, IsWritable, _store)
+                    : new LocalStoreCollection(httpContext, (Folder) entry, IsWritable, _store))
                 .ToList();
 
             return Task.FromResult<IList<IStoreItem>>(list);
@@ -324,7 +121,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
             var f = new File(destinationPath, size, null);
 
-            return Task.FromResult(new StoreItemResult(result, new LocalStoreItem(LockingManager, f, IsWritable)));
+            return Task.FromResult(new StoreItemResult(result, new LocalStoreItem(f, IsWritable, _store)));
         }
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)
@@ -369,7 +166,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new LocalStoreCollection(httpContext, LockingManager, new Folder(destinationPath), IsWritable)));
+            return Task.FromResult(new StoreCollectionResult(result, new LocalStoreCollection(httpContext, new Folder(destinationPath), IsWritable, _store)));
         }
 
         public bool SupportsFastMove(IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext)
@@ -451,7 +248,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     }
                 }
 
-                return new StoreItemResult(result, new LocalStoreItem(LockingManager, null, IsWritable));
+                return new StoreItemResult(result, new LocalStoreItem(null, IsWritable, _store));
             }
             else
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Numerics;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Extensions;
 using YaR.Clouds.Links;
@@ -315,7 +316,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         }
 
 
-        private static DateTime UnixTimeStampToDateTime(double unixTimeStamp, DateTime defaultvalue)
+        private static DateTime UnixTimeStampToDateTime(ulong unixTimeStamp, DateTime defaultvalue)
         {
             try
             {
