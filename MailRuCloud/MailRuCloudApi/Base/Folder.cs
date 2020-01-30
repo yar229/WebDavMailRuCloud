@@ -115,7 +115,11 @@ namespace YaR.Clouds.Base
 
 		public bool IsChildsLoaded { get; internal set; }
 
-		public PublishInfo ToPublishInfo()
+
+        public int? ServerFoldersCount { get; set; }
+        public int? ServerFilesCount { get; set; }
+
+        public PublishInfo ToPublishInfo()
         {
             var info = new PublishInfo();
             if (PublicLinks.Any())

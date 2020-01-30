@@ -175,7 +175,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
         private static Folder ToFolder(this FolderInfoResult.FolderInfoBody.FolderInfoProps item, string publicBaseUrl)
         {
-            var folder = new Folder(item.Size, item.Home ?? item.Name, item.Weblink.ToPublicLinkInfos(publicBaseUrl));
+            var folder = new Folder(item.Size, item.Home ?? item.Name, item.Weblink.ToPublicLinkInfos(publicBaseUrl))
+            {
+                ServerFoldersCount = item.Count?.Folders,
+                ServerFilesCount = item.Count?.Files,
+            };
             return folder;
         }
 
@@ -216,6 +220,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
             var folder = new Folder(data.Body.Size, data.Body.Home ?? data.Body.Name, data.Body.Weblink.ToPublicLinkInfos(publicBaseUrl))
             {
+                ServerFoldersCount = data.Body.Count?.Folders,
+                ServerFilesCount = data.Body.Count?.Files,
+
                 Folders = data.Body.List?
                     .Where(it => FolderKinds.Contains(it.Kind))
                     .Select(item => item.ToFolder(publicBaseUrl))

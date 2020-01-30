@@ -8,8 +8,8 @@ namespace YaR.Clouds.Base.Requests.Types
     {
         public class FolderInfoBody
         {
-            //[JsonProperty("count")]
-            //public FolderInfoCount Count { get; set; }
+            [JsonProperty("count")]
+            public FolderInfoCount Count { get; set; }
 
             //[JsonProperty("tree")]
             //public string Tree { get; set; }
@@ -49,8 +49,8 @@ namespace YaR.Clouds.Base.Requests.Types
                 [JsonProperty("mtime")]
                 public ulong Mtime;
 
-                //[JsonProperty("count")]
-                //public FolderInfoCount Count { get; set; }
+                [JsonProperty("count")]
+                public FolderInfoCount Count { get; set; }
 
                 //[JsonProperty("tree")]
                 //public string Tree { get; set; }
