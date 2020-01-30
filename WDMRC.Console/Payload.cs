@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NWebDav.Server;
 using NWebDav.Server.Http;
 using NWebDav.Server.HttpListener;
+using NWebDav.Server.Locking;
 using NWebDav.Server.Logging;
 using YaR.Clouds.WebDavStore;
 using YaR.Clouds.WebDavStore.StoreBase;
@@ -46,6 +47,7 @@ namespace YaR.Clouds.Console
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
                 DefaultSharedVideoResolution = Config.DefaultSharedVideoResolution,
+                UseLocks = options.UseLocks,
 
                 Proxy = new ProxyFabric().Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
             };
@@ -101,7 +103,9 @@ namespace YaR.Clouds.Console
             var requestHandlerFactory = new RequestHandlerFactory();
 
             // Create WebDAV dispatcher
-            var homeFolder = new LocalStore(isEnabledPropFunc: Config.IsEnabledWebDAVProperty);
+            var homeFolder = new LocalStore(
+                isEnabledPropFunc: Config.IsEnabledWebDAVProperty, 
+                lockingManager: CloudManager.Settings.UseLocks ? (ILockingManager)new InMemoryLockingManager() : new EmptyLockingManager());
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
             try

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using NWebDav.Server;
@@ -8,7 +7,6 @@ using NWebDav.Server.Locking;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 using YaR.Clouds.Base;
-using YaR.Clouds.WebDavStore.CustomProperties;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {

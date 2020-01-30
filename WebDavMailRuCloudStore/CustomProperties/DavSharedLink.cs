@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using NWebDav.Server;
 using NWebDav.Server.Props;
 using NWebDav.Server.Stores;
 
