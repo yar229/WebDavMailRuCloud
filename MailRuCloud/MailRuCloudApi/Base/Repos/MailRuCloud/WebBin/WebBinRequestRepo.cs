@@ -297,7 +297,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 return await AnonymousRepo.FolderInfo(path, offset, limit);
 
             if (!path.IsLink && depth > 1)
-                return await FolderInfo(path, depth);
+                return await FolderInfo(path.Path, depth);
 
             FolderInfoResult datares;
             try

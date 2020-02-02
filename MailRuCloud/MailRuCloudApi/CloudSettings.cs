@@ -25,5 +25,6 @@ namespace YaR.Clouds
 
         public SharedVideoResolution DefaultSharedVideoResolution { get; set; } = SharedVideoResolution.All;
         public IWebProxy Proxy { get; set; }
+        public bool UseLocks { get; set; }
     }
 }

@@ -54,5 +54,8 @@ namespace YaR.Clouds.Console
         public string ProxyUser { get; set; }
         [Option("proxy-password", Default = "", HelpText = "Proxy password")]
         public string ProxyPassword { get; set; }
+
+        [Option("use-locks", Required = false, Default = false, HelpText = "locking feature")]
+        public bool UseLocks { get; set; }
     }
 }
