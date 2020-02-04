@@ -34,7 +34,7 @@ namespace NWebDav.Server.Props
             return _properties.ContainsKey(name);
         }
 
-        public Task<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
+        public ValueTask<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
         {
             // Find the property
             if (!_properties.TryGetValue(propertyName, out var property))
@@ -46,7 +46,7 @@ namespace NWebDav.Server.Props
 
             // Skip expensive properties
             if (skipExpensive && property.IsExpensive)
-                return Task.FromResult((object)null);
+                return new ValueTask<object>((object)null);//Task.FromResult((object)null);
 
             // Obtain the value
             return property.GetterAsync(httpContext, (TEntry)item);

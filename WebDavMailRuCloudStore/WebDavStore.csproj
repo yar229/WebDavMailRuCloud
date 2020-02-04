@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
     <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
   </PropertyGroup>

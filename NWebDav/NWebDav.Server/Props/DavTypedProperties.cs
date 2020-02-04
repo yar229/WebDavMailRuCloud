@@ -102,7 +102,9 @@ namespace NWebDav.Server.Props
                 base.GetterAsync = (c, s) =>
                 {
                     var v = _getter(c, s);
-                    return Task.FromResult(Converter != null ? Converter.ToXml(c, v) : v);
+                     
+                    //return Task.FromResult(Converter != null ? Converter.ToXml(c, v) : v);
+                    return  new ValueTask<object>(Converter != null ? Converter.ToXml(c, v) : v);
                 };
             }
         }

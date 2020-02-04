@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-#if NET461
+#if NET48
 using System.Configuration.Install;
 using System.ServiceProcess;
 

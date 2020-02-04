@@ -38,7 +38,7 @@ namespace NWebDav.Server.Props
         /// to deal with compatibility of certain WebDAV clients (can be
         /// determined using the user agent).
         /// </remarks>
-        public Func<IHttpContext, TEntry, Task<object>> GetterAsync { get; set; }
+        public Func<IHttpContext, TEntry, ValueTask<object>> GetterAsync { get; set; }
 
         /// <summary>
         /// Gets or sets the delegate that is responsible to set the property

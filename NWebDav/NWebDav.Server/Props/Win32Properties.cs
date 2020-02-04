@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Xml.Linq;
 
@@ -126,7 +127,7 @@ namespace NWebDav.Server.Props
     {
         private class FileAttributesConverter : IConverter
         {
-            public object ToXml(IHttpContext httpContext, FileAttributes value) => ((int)value).ToString("X8");
+            public object ToXml(IHttpContext httpContext, FileAttributes value) => ((int)value).ToString("X8", CultureInfo.InvariantCulture );
             public FileAttributes FromXml(IHttpContext httpContext, object value) => (FileAttributes)Convert.ToInt32((string)value, 16);
         }
 

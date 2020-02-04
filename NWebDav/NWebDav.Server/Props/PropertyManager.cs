@@ -77,19 +77,19 @@ namespace NWebDav.Server.Props
         /// <paramref name="skipExpensive"/> is set to <see langword="true"/>
         /// and the parameter is expensive to compute.
         /// </returns>
-        public Task<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
+        public ValueTask<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
         {
             // Find the property
             if (!_properties.TryGetValue(propertyName, out var property))
-                return Task.FromResult((object)null);
+                return new ValueTask<object>((object)null);  //Task.FromResult((object)null);
 
             // Check if the property has a getter
             if (property.GetterAsync == null)
-                return Task.FromResult((object)null);
+                return new ValueTask<object>((object)null); //Task.FromResult((object)null);
 
             // Skip expensive properties
             if (skipExpensive && property.IsExpensive)
-                return Task.FromResult((object)null);
+                return new ValueTask<object>((object)null); //Task.FromResult((object)null);
 
             // Obtain the value
             return property.GetterAsync(httpContext, (TEntry)item);

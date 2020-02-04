@@ -3,7 +3,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <AssemblyName>mrclient</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Client.Console</RootNamespace>
   </PropertyGroup>

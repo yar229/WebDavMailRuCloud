@@ -1,4 +1,4 @@
-﻿#if NET461
+﻿#if NET48
 using System;
 using System.ServiceProcess;
 using System.Threading.Tasks;
