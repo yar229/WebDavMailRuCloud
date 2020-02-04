@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -116,66 +117,78 @@ namespace NWebDav.Server.Handlers
             var xMultiStatus = new XElement(WebDavNamespaces.DavNs + "multistatus");
             var xDocument = new XDocument(xMultiStatus);
 
+            object locker = new object();
+            var degree = Environment.ProcessorCount > 1 && entries.Count > 5_000 ? Environment.ProcessorCount - 1 : 1;
+
             // Add all the properties
-            foreach (var entry in entries)
-            {
-                // we need encoded path as it is in original url (Far does not show items with spaces)
-                string href = entry.Uri.PathEncoded;
-
-                // fusedav 0.2 differs files from folders using ending '/'
-                bool isCollection = entry.Entry is IStoreCollection;
-                href = isCollection
-                    ? href.EndsWith("/") ? href : href + "/"
-                    : href.TrimEnd('/');
-
-                // Create the property
-                var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
-                    new XElement(WebDavNamespaces.DavNs + "href", href));
-
-                // Create tags for property values
-                var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
-
-                // Check if the entry supports properties
-                var propertyManager = entry.Entry.PropertyManager;
-                if (propertyManager != null)
+            //foreach (var entry in entries)
+            entries
+                .AsParallel()
+                .WithDegreeOfParallelism(degree)
+                .ForAll(async entry =>
                 {
-                    // Handle based on the property mode
-                    if (propertyMode == PropertyMode.PropertyNames)
+                    // we need encoded path as it is in original url (Far does not show items with spaces)
+                    string href = entry.Uri.PathEncoded;
+
+                    // fusedav 0.2 differs files from folders using ending '/'
+                    bool isCollection = entry.Entry is IStoreCollection;
+                    href = isCollection
+                        ? href.EndsWith("/") ? href : href + "/"
+                        : href.TrimEnd('/');
+
+                    // Create the property
+                    var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
+                        new XElement(WebDavNamespaces.DavNs + "href", href));
+
+                    // Create tags for property values
+                    var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
+
+                    // Check if the entry supports properties
+                    var propertyManager = entry.Entry.PropertyManager;
+                    if (propertyManager != null)
                     {
-                        // Add all properties
-                        foreach (var property in propertyManager.Properties)
-                            xPropStatValues.Add(new XElement(property.Name));
-
-                        // Add the values
-                        xResponse.Add(xPropStatValues);
-                    }
-                    else
-                    {
-                        var addedProperties = new List<XName>();
-                        if ((propertyMode & PropertyMode.AllProperties) != 0)
+                        // Handle based on the property mode
+                        if (propertyMode == PropertyMode.PropertyNames)
                         {
-                            foreach (var propertyName in propertyManager.Properties.Where(p => !p.IsExpensive).Select(p => p.Name))
-                                await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
-                        }
+                            // Add all properties
+                            foreach (var property in propertyManager.Properties)
+                                xPropStatValues.Add(new XElement(property.Name));
 
-                        if ((propertyMode & PropertyMode.SelectedProperties) != 0)
-                        {
-                            foreach (var propertyName in propertyList)
-                                await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
-                        }
-
-                        // Add the values (if any)
-                        if (xPropStatValues.HasElements)
+                            // Add the values
                             xResponse.Add(xPropStatValues);
+                        }
+                        else
+                        {
+                            //var addedProperties = new List<XName>();
+                            var addedProperties = new HashSet<XName>(); //SortedSet<XName>((z) => { return true;} );  //ListDictionary(); //<string, XName>();
+                            if ((propertyMode & PropertyMode.AllProperties) != 0)
+                            {
+                                foreach (var propertyName in propertyManager.Properties.Where(p => !p.IsExpensive).Select(p => p.Name))
+                                    await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                            }
+
+                            if ((propertyMode & PropertyMode.SelectedProperties) != 0)
+                            {
+                                foreach (var propertyName in propertyList)
+                                    await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                            }
+
+                            // Add the values (if any)
+                            if (xPropStatValues.HasElements)
+                                xResponse.Add(xPropStatValues);
+                        }
                     }
-                }
 
-                // Add the status
-                xPropStatValues.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 200 OK"));
+                    // Add the status
+                    xPropStatValues.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 200 OK"));
 
-                // Add the property
-                xMultiStatus.Add(xResponse);
-            }
+                    lock (locker)
+                    {
+                        // Add the property
+                        xMultiStatus.Add(xResponse);
+                    }
+
+                });
 
             // Stream the document
             await response.SendResponseAsync(DavStatusCode.MultiStatus, xDocument).ConfigureAwait(false);
@@ -184,7 +197,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xPropStatValues, IPropertyManager propertyManager, IStoreItem item, XName propertyName, IList<XName> addedProperties)
+        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xPropStatValues, IPropertyManager propertyManager, IStoreItem item, XName propertyName, ICollection<XName> addedProperties)
         {
             if (!addedProperties.Contains(propertyName))
             {
