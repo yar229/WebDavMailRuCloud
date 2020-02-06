@@ -9,8 +9,8 @@
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - .NET Framework 4.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#windowscmd)
-* [Linux](#linux) - Mono 6.4 / [.NET Core 3.1](https://www.microsoft.com/net/core#linuxredhat)
-* [OS X](#mac-os-x) - Mono 6.4 / [.NET Core 3.1](https://www.microsoft.com/net/core#macos)
+* [Linux](#linux) - Mono 6.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#linuxredhat)
+* [OS X](#mac-os-x) - Mono 6.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#macos)
 
 `WebDAVCloudMailRu-*-dotNet48.zip` / `WebDAVCloudMailRu-*-dotNetCore30.zip` respectively
 
