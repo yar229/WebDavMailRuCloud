@@ -1013,7 +1013,9 @@ namespace NWebDav.Server.Helpers
             if (!string.IsNullOrEmpty(extension))
             {
                 string mimeType;
-                if (s_typeMap.TryGetValue(extension.Substring(1).ToLowerInvariant(), out mimeType))
+                //if (s_typeMap.TryGetValue(extension.Substring(1).ToLowerInvariant(), out mimeType))
+                // YaR: no need for ToLowerInvariant(), cause of s_typeMap uses StringComparer.OrdinalIgnoreCase 
+                if (s_typeMap.TryGetValue(extension.Substring(1), out mimeType))
                     return mimeType;
             }
 

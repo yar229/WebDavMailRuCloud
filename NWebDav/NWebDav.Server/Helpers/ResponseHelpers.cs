@@ -79,6 +79,7 @@ namespace NWebDav.Server.Helpers
                 using (var xmlWriter = XmlWriter.Create(ms, new XmlWriterSettings
                 {
                     OmitXmlDeclaration = false,
+                    CheckCharacters = false,
 #if DEBUG
                     Indent = true,
 #else

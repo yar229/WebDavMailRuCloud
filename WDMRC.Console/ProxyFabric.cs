@@ -11,7 +11,7 @@ namespace YaR.Clouds.Console
         public IWebProxy Get(string proxyAddress, string proxyUser, string proxyPassword)
         {
             if (string.IsNullOrEmpty(proxyAddress))
-#if NET461
+#if NET48
                 return WebRequest.DefaultWebProxy;
 #else
                 return HttpClient.DefaultProxy; 
