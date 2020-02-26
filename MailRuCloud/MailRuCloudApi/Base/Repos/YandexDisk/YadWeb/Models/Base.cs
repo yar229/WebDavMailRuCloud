@@ -71,7 +71,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
 
     public class YadResponseModel<TData, TParams> : YadResponseModel
-        where TData : YadModelDataBase
+        //where TData : YadModelDataBase
     {
         [JsonProperty("params")]
         public TParams Params { get; set; }
