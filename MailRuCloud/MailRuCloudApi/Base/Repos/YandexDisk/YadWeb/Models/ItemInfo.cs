@@ -17,8 +17,17 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         {
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
-            
+
             yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk/", Path));
+
+            //if (Path == "/Camera")
+            //{
+            //    yield return new KeyValuePair<string, string>($"id.{index}", "/photounlim/");
+            //}
+            //else
+            //{
+            //    yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk/", Path));
+            //}
         }
     }
 

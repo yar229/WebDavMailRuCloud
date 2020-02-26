@@ -26,6 +26,16 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
                 yield return pair;
             
             yield return new KeyValuePair<string, string>($"idContext.{index}", WebDavPath.Combine(_pathPrefix, Path));
+            
+            //if (Path == "/Camera")
+            //{
+            //    yield return new KeyValuePair<string, string>($"idContext.{index}", "/photounlim/");
+            //}
+            //else
+            //{
+            //    yield return new KeyValuePair<string, string>($"idContext.{index}", WebDavPath.Combine(_pathPrefix, Path));
+            //}
+
             yield return new KeyValuePair<string, string>($"order.{index}", Order.ToString());
             yield return new KeyValuePair<string, string>($"sort.{index}", SortBy);
             yield return new KeyValuePair<string, string>($"offset.{index}", Offset.ToString());
