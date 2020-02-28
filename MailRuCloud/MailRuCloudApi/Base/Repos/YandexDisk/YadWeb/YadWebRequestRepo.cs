@@ -156,8 +156,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
 
-            if (path.Path == YadMediaPath)
-                return await MediaFolderInfo();
+            if (path.Path.StartsWith(YadMediaPath))
+                return await MediaFolderRootInfo();
 
             // YaD perform async deletion
             YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
@@ -205,32 +205,31 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        private async Task<IEntry> MediaFolderInfo()
+        private async Task<IEntry> MediaFolderRootInfo()
         {
             var res = new Folder(YadMediaPath);
 
-            var rslices = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadGetAlbumsSlicesPostModel(), out YadResponseModel<YadGetAlbumsSlicesRequestData, YadGetAlbumsSlicesRequestParams> slices)
-                .MakeRequestAsync()
-                .ContinueWith(task =>
-                {
-                    if (slices.Data.Albums.Camera != null)
-                        res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Camera.Id}"){ServerFilesCount = (int)slices.Data.Albums.Camera.Count});
-                    if (slices.Data.Albums.Photounlim != null)
-                        res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Photounlim.Id}"){ServerFilesCount = (int)slices.Data.Albums.Photounlim.Count});
-                    if (slices.Data.Albums.Videos != null)
-                        res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Videos.Id}"){ServerFilesCount = (int)slices.Data.Albums.Videos.Count});
-                });
-
-
-            var ralbums = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+            _ = await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
+                .With(new YadGetAlbumsSlicesPostModel(),
+                    out YadResponseModel<YadGetAlbumsSlicesRequestData, YadGetAlbumsSlicesRequestParams> slices)
                 .With(new YadAlbumsPostModel(),
                     out YadResponseModel<YadAlbumsRequestData[], YadAlbumsRequestParams> albums)
-                .MakeRequestAsync()
-                .ContinueWith(task =>
-                    res.Folders.AddRange(albums.Data.Select(al => new Folder($"{YadMediaPath}/{al.Title}"))));
-                
-            await Task.WhenAll(rslices, ralbums);
+                .MakeRequestAsync();
+
+            if (slices.Data.Albums.Camera != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Camera.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Camera.Count });
+            if (slices.Data.Albums.Photounlim != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Photounlim.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Photounlim.Count });
+            if (slices.Data.Albums.Videos != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Videos.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Videos.Count });
+
+            res.Folders.AddRange(albums.Data.Select(al => new Folder($"{YadMediaPath}/{al.Title}")
+            {
+                PublicLinks = { new PublicLinkInfo(al.Public.PublicUrl) {Key = al.Public.PublicKey} }
+            }));
 
             return res;
         }

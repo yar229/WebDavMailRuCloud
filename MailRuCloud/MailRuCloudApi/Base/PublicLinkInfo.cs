@@ -56,6 +56,9 @@ namespace YaR.Clouds.Base
                 _uri = value;
             }
         }
+
+        public string Key { get; set; }
+
         private Uri _uri;
 
 
