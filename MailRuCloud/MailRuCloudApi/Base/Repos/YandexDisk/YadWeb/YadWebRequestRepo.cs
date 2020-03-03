@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models.Media;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests;
 using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
@@ -148,12 +149,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return ures;
         }
 
-
+        private const string YadMediaPath = "/Media.wdyad";
 
         public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
         {
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
+
+            if (path.Path.StartsWith(YadMediaPath))
+                return await MediaFolderRootInfo();
 
             // YaD perform async deletion
             YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
@@ -199,6 +203,37 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             return entry;
         }
+
+
+        private async Task<IEntry> MediaFolderRootInfo()
+        {
+            var res = new Folder(YadMediaPath);
+
+            _ = await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
+                .With(new YadGetAlbumsSlicesPostModel(),
+                    out YadResponseModel<YadGetAlbumsSlicesRequestData, YadGetAlbumsSlicesRequestParams> slices)
+                .With(new YadAlbumsPostModel(),
+                    out YadResponseModel<YadAlbumsRequestData[], YadAlbumsRequestParams> albums)
+                .MakeRequestAsync();
+
+            if (slices.Data.Albums.Camera != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Camera.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Camera.Count });
+            if (slices.Data.Albums.Photounlim != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Photounlim.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Photounlim.Count });
+            if (slices.Data.Albums.Videos != null)
+                res.Folders.Add(new Folder($"{YadMediaPath}/.{slices.Data.Albums.Videos.Id}")
+                { ServerFilesCount = (int)slices.Data.Albums.Videos.Count });
+
+            res.Folders.AddRange(albums.Data.Select(al => new Folder($"{YadMediaPath}/{al.Title}")
+            {
+                PublicLinks = { new PublicLinkInfo(al.Public.PublicUrl) {Key = al.Public.PublicKey} }
+            }));
+
+            return res;
+        }
+
 
         public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Web;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Requests;
 
@@ -30,7 +31,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&track_id={_trackId}&password={_auth.Password}");
+            var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&track_id={_trackId}&password={WebUtility.UrlEncode(_auth.Password)}");
             return data;
         }
     }
