@@ -5,8 +5,8 @@
     <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
-    <AssemblyVersion>1.11.0.15</AssemblyVersion>
-    <FileVersion>1.11.0.15</FileVersion>
+    <AssemblyVersion>1.11.0.16</AssemblyVersion>
+    <FileVersion>1.11.0.16</FileVersion>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
