@@ -33,8 +33,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             var fi = data.Resources;
 
-            var res = new Folder(itemInfo.Meta.Size, path) { IsChildsLoaded = true };
-            if (!string.IsNullOrEmpty(itemInfo.Meta.UrlShort))
+            var res = new Folder(itemInfo?.Meta?.Size ?? 0, path) { IsChildsLoaded = true };
+            if (!string.IsNullOrEmpty(itemInfo?.Meta?.UrlShort))
                 res.PublicLinks.Add(new PublicLinkInfo("short", itemInfo.Meta.UrlShort));
 
             res.Files.AddRange(fi
