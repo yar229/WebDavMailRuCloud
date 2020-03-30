@@ -49,15 +49,15 @@ steps:
     script: |
       New-Item $(Build.ArtifactStagingDirectory)\release.info.json
       $content = @"
-        x
+        {
           ""version"" z ""$(Build.SourceBranchName)"", 
-          ""filenames"" z x
+          ""filenames"" z 
+          {
              ""netcore"" z ""$(artifactNetCoreName)"",
              ""netframework"" z ""$(artifactNetFrameworkName)"",
              ""mono"" z ""$(artifactMonoName)""
-           x
-          x
-        x
+          }
+        }
       "@
       Set-Content -Path $(Build.ArtifactStagingDirectory)\release.info.json -Value $content
 
