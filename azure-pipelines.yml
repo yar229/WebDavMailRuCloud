@@ -43,8 +43,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      New-Item '$(Build.ArtifactStagingDirectory)\release.info.json'
-      Set-Content '$(Build.ArtifactStagingDirectory)\release.info.json' '{"version":"$(Build.BuildNumber)"'
+      New-Item "$(Build.ArtifactStagingDirectory)\release.info.json"
+      Set-Content "$(Build.ArtifactStagingDirectory)\release.info.json" -Value "{""version"":""$(Build.BuildNumber)""}"
 
 # - task: ArchiveFiles@2
 #   displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip
