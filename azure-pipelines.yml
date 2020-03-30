@@ -16,6 +16,10 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
+  artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+  artifactMonoName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+
 
 steps:
 - task: NuGetToolInstaller@0
@@ -44,8 +48,15 @@ steps:
     targetType: 'inline'
     script: |
       New-Item '$(Build.ArtifactStagingDirectory)\release.info.json'
-      $content = '{"version":"$(Build.ArtifactStagingDirectory)"}'
-      Write-Host $content
+      $content = @"{
+        ""version"":""$(Build.ArtifactStagingDirectory)"", 
+        ""filenames"": {
+            ""netcore"" : ""$(artifactNetCoreName)"",
+            ""netframework"" : ""$(artifactNetFrameworkName)"",
+            ""mono"" : ""$(artifactMonoName)""
+          }
+        }
+      }"@
       Set-Content -Path '$(Build.ArtifactStagingDirectory)\release.info.json' -Value $content
 
 # - task: ArchiveFiles@2
@@ -54,7 +65,7 @@ steps:
 #     rootFolderOrFile: 'WDMRC.Console/bin/Release/net48/'
 #     includeRootFolder: false
 #     archiveType: 'zip'
-#     archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+#     archiveFile: '$(Build.ArtifactStagingDirectory)/$(artifactNetFrameworkName)'
 #     replaceExistingArchive: true
 
 #=============================================================================================================
@@ -71,7 +82,7 @@ steps:
 #   displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
 #   inputs:
 #     targetType: 'inline'
-#     script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
+#     script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
 
 
 
