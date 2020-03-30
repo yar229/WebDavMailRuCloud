@@ -77,15 +77,31 @@ steps:
     script: |
       New-Item $(Build.ArtifactStagingDirectory)\release.info.json
       $content = @"
+      {
+        "version" : "$(Build.SourceBranchName)", 
+        "info" : 
         {
-          "version" : "$(Build.SourceBranchName)", 
-          "filenames" : 
+          "netcore" : {
+            "distrib" : "$(artifactNetCoreName)",
+            "runner" : "dotnet",
+            "file" : "wdmrc.dll",
+            "defaultkeys" : ""
+          },
+          "netframework" :
           {
-             "netcore" : "$(artifactNetCoreName)",
-             "netframework" : "$(artifactNetFrameworkName)",
-             "mono" : "$(artifactMonoName)"
+            "distrib" : "$(artifactNetFrameworkName)",
+            "runner" : "",
+            "file" : "wdmrc.exe",
+            "defaultkeys" : ""
+          },
+          "mono" : {
+            "distrib" : "$(artifactMonoName)",
+            "runner" : "mono",
+            "file" : "wdmrc.exe",
+            "defaultkeys" : ""
           }
         }
+      }
       "@
       Set-Content -Path $(Build.ArtifactStagingDirectory)\release.info.json -Value $content
 
