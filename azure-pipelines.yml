@@ -26,24 +26,52 @@ steps:
 
 #=============================================================================================================
 
-# - task: VSBuild@1
-#   displayName: .NET Build
-#   inputs:
-#     solution: '$(solution)'
-#     platform: '$(buildPlatform)'
-#     configuration: '$(buildConfiguration)'
-#     vsVersion: '16.0'
-#     msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
+- task: VSBuild@1
+  displayName: .NET Build
+  inputs:
+    solution: '$(solution)'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    vsVersion: '16.0'
+    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
 
-# - task: Bash@3
-#   displayName: .NET artifacts clean
-#   inputs:
-#     targetType: 'inline'
-#     script: 'rm WDMRC.Console/bin/Release/net48/*.pdb
-#     && rm -f WDMRC.Console/bin/Release/net48/Microsoft.*.dll
-#     && rm -f WDMRC.Console/bin/Release/net48/netstandard.dll'
+- task: Bash@3
+  displayName: .NET artifacts clean
+  inputs:
+    targetType: 'inline'
+    script: 'rm WDMRC.Console/bin/Release/net48/*.pdb
+    && rm -f WDMRC.Console/bin/Release/net48/Microsoft.*.dll
+    && rm -f WDMRC.Console/bin/Release/net48/netstandard.dll'
+
+- task: ArchiveFiles@2
+  displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip
+  inputs:
+    rootFolderOrFile: 'WDMRC.Console/bin/Release/net48/'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(artifactNetFrameworkName)'
+    replaceExistingArchive: true
+
+#=============================================================================================================
+
+- task: DotNetCoreCLI@2
+  displayName: .NETCore publish to zip
+  inputs:
+    command: 'publish' 
+    projects: 'WDMRC.Console/WDMRC.Console.csproj'
+    publishWebProjects: false # Required when command == Publish
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.0'
+
+- task: Bash@3
+  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
+  inputs:
+    targetType: 'inline'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
+
+#=============================================================================================================
 
 - task: PowerShell@2
+  displayName: Making release.info.json artifact
   inputs:
     targetType: 'inline'
     script: |
@@ -61,43 +89,16 @@ steps:
       "@
       Set-Content -Path $(Build.ArtifactStagingDirectory)\release.info.json -Value $content
 
-# - task: ArchiveFiles@2
-#   displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip
-#   inputs:
-#     rootFolderOrFile: 'WDMRC.Console/bin/Release/net48/'
-#     includeRootFolder: false
-#     archiveType: 'zip'
-#     archiveFile: '$(Build.ArtifactStagingDirectory)/$(artifactNetFrameworkName)'
-#     replaceExistingArchive: true
-
 #=============================================================================================================
 
-# - task: DotNetCoreCLI@2
-#   displayName: .NETCore publish to zip
-#   inputs:
-#     command: 'publish' 
-#     projects: 'WDMRC.Console/WDMRC.Console.csproj'
-#     publishWebProjects: false # Required when command == Publish
-#     arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.0'
-
-# - task: Bash@3
-#   displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
-#   inputs:
-#     targetType: 'inline'
-#     script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
-
-
-
-#=============================================================================================================
-
-# - task: GitHubRelease@0
-#   displayName: Publish artifacts to github
-#   inputs:
-#     gitHubConnection: YaRGithubAzure
-#     repositoryName: '$(Build.Repository.Name)' 
-#     action: 'create' # Options: create, edit, delete
-#     target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
-#     tagSource: 'auto' # Required when action == Create# Options: auto, manual
+- task: GitHubRelease@0
+  displayName: Publish artifacts to github
+  inputs:
+    gitHubConnection: YaRGithubAzure
+    repositoryName: '$(Build.Repository.Name)' 
+    action: 'create' # Options: create, edit, delete
+    target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
+    tagSource: 'auto' # Required when action == Create# Options: auto, manual
 
 
 #=============================================================================================================
