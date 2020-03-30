@@ -16,21 +16,13 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
+  artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+  artifactMonoName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+
 
 steps:
 - task: NuGetToolInstaller@0
-
-#- task: UseDotNet@2
-#  displayName: 'Use .NET Core sdk'
-#  inputs:
-#    packageType: sdk
-#    version: 3.x
-#    includePreviewVersions: true
-#    installationPath: $(Agent.ToolsDirectory)/dotnet
-
-#- task: NuGetCommand@2
-#  inputs:
-#    restoreSolution: '$(solution)'
 
 #=============================================================================================================
 
@@ -49,7 +41,6 @@ steps:
     targetType: 'inline'
     script: 'rm WDMRC.Console/bin/Release/net48/*.pdb
     && rm -f WDMRC.Console/bin/Release/net48/Microsoft.*.dll
-    && rm -f WDMRC.Console/bin/Release/net48/System.*.dll
     && rm -f WDMRC.Console/bin/Release/net48/netstandard.dll'
 
 - task: ArchiveFiles@2
@@ -58,7 +49,7 @@ steps:
     rootFolderOrFile: 'WDMRC.Console/bin/Release/net48/'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(artifactNetFrameworkName)'
     replaceExistingArchive: true
 
 #=============================================================================================================
@@ -75,36 +66,44 @@ steps:
   displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
   inputs:
     targetType: 'inline'
-    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
-
-#- task: CopyFiles@2
-#  displayName: .NETCore copy artifact
-#  inputs:
-#    SourceFolder: 'WDMRC.Console/bin/Release/netcoreapp3.0/'
-#    Contents: 'publish.zip'
-#    TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-#- task: Bash@3
-#  displayName: .NETCore artifacts clean
-#  inputs:
-#    targetType: 'inline'
-#    script: 'rm WDMRC.Console/bin/Release/netcoreapp3.0/*.pdb'
-
-#- task: ArchiveFiles@2
-#  displayName: .NETCore artifacts archive
-#  inputs:
-#    rootFolderOrFile: 'WDMRC.Console/bin/Release/netcoreapp3.0/'
-#    includeRootFolder: false
-#    archiveType: 'zip'
-#    archiveFile: '$(Build.ArtifactStagingDirectory)/WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
-#    replaceExistingArchive: true
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
 
 #=============================================================================================================
 
-#- task: VSTest@2
-#  inputs:
-#    platform: '$(buildPlatform)'
-#    configuration: '$(buildConfiguration)'
+- task: PowerShell@2
+  displayName: Making release.info.json artifact
+  inputs:
+    targetType: 'inline'
+    script: |
+      New-Item $(Build.ArtifactStagingDirectory)\release.info.json
+      $content = @"
+      {
+        "version" : "$(Build.SourceBranchName)", 
+        "info" : 
+        {
+          "netcore" : {
+            "distrib" : "$(artifactNetCoreName)",
+            "runner" : "dotnet",
+            "file" : "wdmrc.dll",
+            "defaultkeys" : ""
+          },
+          "netframework" :
+          {
+            "distrib" : "$(artifactNetFrameworkName)",
+            "runner" : "",
+            "file" : "wdmrc.exe",
+            "defaultkeys" : ""
+          },
+          "mono" : {
+            "distrib" : "$(artifactMonoName)",
+            "runner" : "mono",
+            "file" : "wdmrc.exe",
+            "defaultkeys" : ""
+          }
+        }
+      }
+      "@
+      Set-Content -Path $(Build.ArtifactStagingDirectory)\release.info.json -Value $content
 
 #=============================================================================================================
 
@@ -116,16 +115,7 @@ steps:
     action: 'create' # Options: create, edit, delete
     target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
     tagSource: 'auto' # Required when action == Create# Options: auto, manual
-    #tag: # Required when action == Edit || Action == Delete || TagSource == Manual
-    #title: # Optional
-    #releaseNotesSource: 'file' # Optional. Options: file, input
-    #releaseNotesFile: # Optional
-    #releaseNotes: # Optional
-    #assets: '$(Build.ArtifactStagingDirectory)/*' # Optional
-    #assetUploadMode: 'delete' # Optional. Options: delete, replace
-    #isDraft: false # Optional
-    #isPreRelease: false # Optional
-    #addChangeLog: true # Optional
+
 
 #=============================================================================================================
 
@@ -133,9 +123,11 @@ steps:
 #  inputs:
 #    script: 'tree $(Build.SourcesDirectory) /F'
 
-#- task: CmdLine@2
-#  inputs:
-#    script: 'tree $(Build.ArtifactStagingDirectory) /F'
+- task: CmdLine@2
+  inputs:
+    script: 'tree $(Build.ArtifactStagingDirectory) /F'
 
-
+- task: CmdLine@2
+  inputs:
+    script: 'type $(Build.ArtifactStagingDirectory)\release.info.json'
 
