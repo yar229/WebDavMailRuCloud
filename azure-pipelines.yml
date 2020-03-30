@@ -49,11 +49,11 @@ steps:
     script: |
       New-Item '$(Build.ArtifactStagingDirectory)\release.info.json'
       $content = @'{
-        ""version"" `: ""$(Build.ArtifactStagingDirectory)"", 
-        ""filenames"" `: {
-            ""netcore"" `: ""$(artifactNetCoreName)"",
-            ""netframework"" `: ""$(artifactNetFrameworkName)"",
-            ""mono"" `: ""$(artifactMonoName)""
+        ""version"" z ""$(Build.ArtifactStagingDirectory)"", 
+        ""filenames"" z {
+            ""netcore"" z ""$(artifactNetCoreName)"",
+            ""netframework"" z ""$(artifactNetFrameworkName)"",
+            ""mono"" z ""$(artifactMonoName)""
           }
         }
       } '
