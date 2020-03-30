@@ -48,15 +48,15 @@ steps:
     targetType: 'inline'
     script: |
       New-Item '$(Build.ArtifactStagingDirectory)\release.info.json'
-      $content = @'{
+      $content = @'x
         ""version"" z ""$(Build.ArtifactStagingDirectory)"", 
         ""filenames"" z {
             ""netcore"" z ""$(artifactNetCoreName)"",
             ""netframework"" z ""$(artifactNetFrameworkName)"",
             ""mono"" z ""$(artifactMonoName)""
-          }
-        }
-      } '
+          x
+        x
+      x '
       Set-Content -Path '$(Build.ArtifactStagingDirectory)\release.info.json' -Value $content
 
 # - task: ArchiveFiles@2
