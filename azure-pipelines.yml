@@ -96,7 +96,7 @@ steps:
   inputs:
     script: 'tree $(Build.ArtifactStagingDirectory) /F'
 
-- task: CmdLine@3
+- task: CmdLine@2
   inputs:
     script: 'copy $(Build.ArtifactStagingDirectory)\release.info.json con'
 
