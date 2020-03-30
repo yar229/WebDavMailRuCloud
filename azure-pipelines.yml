@@ -56,7 +56,7 @@ steps:
              ""mono"" z ""$(artifactMonoName)""
            x
           x
-        x"@
+      x"@
 
 # - task: ArchiveFiles@2
 #   displayName: .NET artifacts archive to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip
