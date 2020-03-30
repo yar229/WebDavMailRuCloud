@@ -50,12 +50,12 @@ steps:
       New-Item $(Build.ArtifactStagingDirectory)\release.info.json
       $content = @"
         {
-          ""version"" : ""$(Build.SourceBranchName)"", 
-          ""filenames"" : 
+          "version" : "$(Build.SourceBranchName)", 
+          "filenames" : 
           {
-             ""netcore"" : ""$(artifactNetCoreName)"",
-             ""netframework"" : ""$(artifactNetFrameworkName)"",
-             ""mono"" : ""$(artifactMonoName)""
+             "netcore" : "$(artifactNetCoreName)",
+             "netframework" : "$(artifactNetFrameworkName)",
+             "mono" : "$(artifactMonoName)"
           }
         }
       "@
