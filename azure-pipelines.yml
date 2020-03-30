@@ -49,7 +49,7 @@ steps:
     script: |
       $content = @"
         x
-          ""version"" z ""$(Build.ArtifactStagingDirectory)"", 
+          ""version"" z ""$(Build.SourceBranchName)"", 
           ""filenames"" z x
              ""netcore"" z ""$(artifactNetCoreName)"",
              ""netframework"" z ""$(artifactNetFrameworkName)"",
