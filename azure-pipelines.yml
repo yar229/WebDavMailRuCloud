@@ -49,14 +49,14 @@ steps:
     script: |
       New-Item '$(Build.ArtifactStagingDirectory)\release.info.json'
       $content = @"{
-        ""version"":""$(Build.ArtifactStagingDirectory)"", 
-        ""filenames"": {
-            ""netcore"" : ""$(artifactNetCoreName)"",
-            ""netframework"" : ""$(artifactNetFrameworkName)"",
-            ""mono"" : ""$(artifactMonoName)""
+        ""version"" `: ""$(Build.ArtifactStagingDirectory)"", 
+        ""filenames"" `: {
+            ""netcore"" `: ""$(artifactNetCoreName)"",
+            ""netframework"" `: ""$(artifactNetFrameworkName)"",
+            ""mono"" `: ""$(artifactMonoName)""
           }
         }
-      }"@
+      }"
       Set-Content -Path '$(Build.ArtifactStagingDirectory)\release.info.json' -Value $content
 
 # - task: ArchiveFiles@2
