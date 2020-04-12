@@ -27,7 +27,6 @@ namespace YaR.Clouds.Base
         }
 
 
-        private string _fullPath;
         private string _hash;
 
         /// <summary>
@@ -52,12 +51,22 @@ namespace YaR.Clouds.Base
         /// Gets file name.
         /// </summary>
         /// <value>File name.</value>
-        public virtual string Name => WebDavPath.Name(FullPath);
+        public string Name
+        {
+            get => _name;
+            private set
+            {
+                _name = value;
+
+                Extension = System.IO.Path.GetExtension(_name)?.TrimStart('.') ?? string.Empty;
+            }
+        } //WebDavPath.Name(FullPath)
+        private string _name;
 
         /// <summary>
-        /// Gets file extension
+        /// Gets file extension (without ".")
         /// </summary>
-        public string Extension => System.IO.Path.GetExtension(Name);
+        public string Extension { get; private set; }
 
         /// <summary>
         /// Gets file hash value.
@@ -91,8 +100,14 @@ namespace YaR.Clouds.Base
         public string FullPath
         {
             get => _fullPath;
-            protected set => _fullPath = WebDavPath.Clean(value);
+            protected set
+            {
+                _fullPath = WebDavPath.Clean(value);
+                Name = WebDavPath.Name(_fullPath);
+            }
         }
+
+        private string _fullPath;
 
         /// <summary>
         /// Path to file (without filename)

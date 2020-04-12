@@ -12,6 +12,12 @@ namespace NWebDav.Server
         /// Main DAV namespace (<c>DAV:</c>).
         /// </summary>
         public static readonly XNamespace DavNs = "DAV:";
+        public static readonly XName DavNsResponse = DavNs + "response";
+        public static readonly XName DavNsHref = DavNs + "href";
+        public static readonly XName DavNsPropstat = DavNs + "propstat";
+        public static readonly XName DavNsStatus = DavNs + "status";
+        
+        
 
         /// <summary>
         /// Main DAV namespace prefix (<c>D</c>).

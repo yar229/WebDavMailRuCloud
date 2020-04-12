@@ -997,9 +997,9 @@ namespace NWebDav.Server.Helpers
         };
 
         /// <summary>
-        /// The fallback MIME-type (efaults to <c>application/octet-stream</c>).
+        /// The fallback MIME-type (defaults to <c>application/octet-stream</c>).
         /// </summary>
-        public static string FallbackMimeType { get; } = "application/octet-stream";
+        public const string FallbackMimeType = "application/octet-stream";
 
         /// <summary>
         /// Gets the MIME-type for the given file name,
@@ -1009,13 +1009,23 @@ namespace NWebDav.Server.Helpers
         /// <returns>The MIME-type for the given file name.</returns>
         public static string GetMimeType(string fileName)
         {
-            var extension = Path.GetExtension(fileName);
+            var extension = Path.GetExtension(fileName)?.TrimStart('.');
+            return GetMimeTypeByExtension(extension);
+        }
+
+        /// <summary>
+        /// The fallback MIME-type by file extension (without ".")
+        /// (defaults to <c>application/octet-stream</c>).
+        /// </summary>
+        /// <param name="extension">File extension (without ".")</param>
+        /// <returns></returns>
+        public static string GetMimeTypeByExtension(string extension)
+        {
             if (!string.IsNullOrEmpty(extension))
             {
-                string mimeType;
                 //if (s_typeMap.TryGetValue(extension.Substring(1).ToLowerInvariant(), out mimeType))
                 // YaR: no need for ToLowerInvariant(), cause of s_typeMap uses StringComparer.OrdinalIgnoreCase 
-                if (s_typeMap.TryGetValue(extension.Substring(1), out mimeType))
+                if (s_typeMap.TryGetValue(extension, out var mimeType))
                     return mimeType;
             }
 

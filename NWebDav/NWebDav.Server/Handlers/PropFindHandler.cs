@@ -131,17 +131,17 @@ namespace NWebDav.Server.Handlers
                     string href = entry.Uri.PathEncoded;
 
                     // fusedav 0.2 differs files from folders using ending '/'
-                    bool isCollection = entry.Entry is IStoreCollection;
-                    href = isCollection
-                        ? href.EndsWith("/") ? href : href + "/"
-                        : href.TrimEnd('/');
+                    //bool isCollection = entry.Entry is IStoreCollection;
+                    //href = isCollection
+                    //    ? href.EndsWith("/") ? href : href + "/"
+                    //    : href.TrimEnd('/');
 
                     // Create the property
-                    var xResponse = new XElement(WebDavNamespaces.DavNs + "response",
-                        new XElement(WebDavNamespaces.DavNs + "href", href));
+                    var xResponse = new XElement(WebDavNamespaces.DavNsResponse,
+                        new XElement(WebDavNamespaces.DavNsHref, href));
 
                     // Create tags for property values
-                    var xPropStatValues = new XElement(WebDavNamespaces.DavNs + "propstat");
+                    var xPropStatValues = new XElement(WebDavNamespaces.DavNsPropstat);
 
                     // Check if the entry supports properties
                     var propertyManager = entry.Entry.PropertyManager;
@@ -180,7 +180,7 @@ namespace NWebDav.Server.Handlers
                     }
 
                     // Add the status
-                    xPropStatValues.Add(new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 200 OK"));
+                    xPropStatValues.Add(new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 200 OK"));
 
                     lock (locker)
                     {

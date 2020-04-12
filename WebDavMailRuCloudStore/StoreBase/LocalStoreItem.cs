@@ -205,7 +205,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public string DetermineContentType()
         {
-            return MimeTypeHelper.GetMimeType(_fileInfo.Name);
+            return MimeTypeHelper.GetMimeTypeByExtension(_fileInfo.Extension);
         }
 
         public string CalculateEtag()
