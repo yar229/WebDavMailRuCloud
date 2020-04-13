@@ -114,7 +114,7 @@ namespace NWebDav.Server.Handlers
             }
 
             // Obtain the status document
-            var xMultiStatus = new XElement(WebDavNamespaces.DavNs + "multistatus");
+            var xMultiStatus = new XElement(WebDavNamespaces.DavNsMultiStatus);
             var xDocument = new XDocument(xMultiStatus);
 
             object locker = new object();
@@ -141,7 +141,7 @@ namespace NWebDav.Server.Handlers
                         new XElement(WebDavNamespaces.DavNsHref, href));
 
                     // Create tags for property values
-                    var xPropStatValues = new XElement(WebDavNamespaces.DavNsPropstat);
+                    var xPropStatValues = new XElement(WebDavNamespaces.DavNsPropStat);
 
                     // Check if the entry supports properties
                     var propertyManager = entry.Entry.PropertyManager;
@@ -213,10 +213,10 @@ namespace NWebDav.Server.Handlers
                             value = ((IEnumerable<XElement>) value).Cast<object>().ToArray();
 
                         // Make sure we use the same 'prop' tag to add all properties
-                        var xProp = xPropStatValues.Element(WebDavNamespaces.DavNs + "prop");
+                        var xProp = xPropStatValues.Element(WebDavNamespaces.DavNsProp);
                         if (xProp == null)
                         {
-                            xProp = new XElement(WebDavNamespaces.DavNs + "prop");
+                            xProp = new XElement(WebDavNamespaces.DavNsProp);
                             xPropStatValues.Add(xProp);
                         }
 
@@ -227,19 +227,19 @@ namespace NWebDav.Server.Handlers
                         //spam on each file...
                         //s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
 
-                        xResponse.Add(new XElement(WebDavNamespaces.DavNs + "propstat",
-                            new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, null)),
-                            new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 404 Not Found"),
-                            new XElement(WebDavNamespaces.DavNs + "responsedescription", $"Property {propertyName} is not supported.")));
+                        xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
+                            new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
+                            new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 404 Not Found"),
+                            new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} is not supported.")));
                     }
                 }
                 catch (Exception exc)
                 {
                     s_log.Log(LogLevel.Error, () => $"Property {propertyName} on item {item.Name} raised an exception.", exc);
-                    xResponse.Add(new XElement(WebDavNamespaces.DavNs + "propstat",
-                        new XElement(WebDavNamespaces.DavNs + "prop", new XElement(propertyName, null)),
-                        new XElement(WebDavNamespaces.DavNs + "status", "HTTP/1.1 500 Internal server error"),
-                        new XElement(WebDavNamespaces.DavNs + "responsedescription", $"Property {propertyName} on item {item.Name} raised an exception.")));
+                    xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
+                        new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
+                        new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 500 Internal server error"),
+                        new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} on item {item.Name} raised an exception.")));
                 }
             }
         }
@@ -248,7 +248,7 @@ namespace NWebDav.Server.Handlers
         {
             // Create an XML document from the stream
             var xDocument = request.LoadXmlDocument();
-            if (xDocument?.Root == null || xDocument.Root.Name != WebDavNamespaces.DavNs + "propfind")
+            if (xDocument?.Root == null || xDocument.Root.Name != WebDavNamespaces.DavNsPropFind)
                 return PropertyMode.AllProperties;
 
             // Obtain the propfind node
@@ -264,15 +264,15 @@ namespace NWebDav.Server.Handlers
             foreach (var xProp in xPropFind.Elements())
             {
                 // Check if we should fetch all property names
-                if (xProp.Name == WebDavNamespaces.DavNs + "propname")
+                if (xProp.Name == WebDavNamespaces.DavNsPropName)
                 {
                     propertyMode = PropertyMode.PropertyNames;
                 }
-                else if (xProp.Name == WebDavNamespaces.DavNs + "allprop")
+                else if (xProp.Name == WebDavNamespaces.DavNsAllProp)
                 {
                     propertyMode = PropertyMode.AllProperties;
                 }
-                else if (xProp.Name == WebDavNamespaces.DavNs + "include")
+                else if (xProp.Name == WebDavNamespaces.DavNsInclude)
                 {
                     // Include properties
                     propertyMode = PropertyMode.AllProperties | PropertyMode.SelectedProperties;

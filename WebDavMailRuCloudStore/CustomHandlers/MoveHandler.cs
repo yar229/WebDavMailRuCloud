@@ -147,9 +147,9 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
             {
                 var href = Uri.AbsoluteUri;
                 var statusText = $"HTTP/1.1 {(int)Result} {Result.GetStatusDescription()}";
-                return new XElement(WebDavNamespaces.DavNs + "response",
-                    new XElement(WebDavNamespaces.DavNs + "href", href),
-                    new XElement(WebDavNamespaces.DavNs + "status", statusText));
+                return new XElement(WebDavNamespaces.DavNsResponse,
+                    new XElement(WebDavNamespaces.DavNsHref, href),
+                    new XElement(WebDavNamespaces.DavNsStatus, statusText));
             }
         }
 
@@ -164,7 +164,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
 
         public XElement GetXmlMultiStatus()
         {
-            var xMultiStatus = new XElement(WebDavNamespaces.DavNs + "multistatus");
+            var xMultiStatus = new XElement(WebDavNamespaces.DavNsMultiStatus);
             foreach (var result in _results)
                 xMultiStatus.Add(result.GetXmlResponse());
             return xMultiStatus;
