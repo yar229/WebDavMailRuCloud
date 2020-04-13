@@ -29,14 +29,14 @@ namespace NWebDav.Server.Locking
 
         public XElement ToXml()
         {
-            return new XElement(WebDavNamespaces.DavNs + "activelock",
-                new XElement(WebDavNamespaces.DavNs + "locktype", new XElement(WebDavNamespaces.DavNs + XmlHelper.GetXmlValue(Type))),
-                new XElement(WebDavNamespaces.DavNs + "lockscope", new XElement(WebDavNamespaces.DavNs + XmlHelper.GetXmlValue(Scope))),
-                new XElement(WebDavNamespaces.DavNs + "depth", Depth == int.MaxValue ? "infinity" : Depth.ToString(CultureInfo.InvariantCulture)),
-                new XElement(WebDavNamespaces.DavNs + "owner", Owner),
-                new XElement(WebDavNamespaces.DavNs + "timeout", Timeout == -1 ? "Infinite" : "Second-" + Timeout.ToString(CultureInfo.InvariantCulture)),
-                new XElement(WebDavNamespaces.DavNs + "locktoken", new XElement(WebDavNamespaces.DavNs + "href", LockToken.AbsoluteUri)),
-                new XElement(WebDavNamespaces.DavNs + "lockroot", new XElement(WebDavNamespaces.DavNs + "href", LockRoot.AbsoluteUri)));
+            return new XElement(WebDavNamespaces.DavNsActiveLock,
+                new XElement(WebDavNamespaces.DavNsLockType, new XElement(WebDavNamespaces.DavNs + XmlHelper.GetXmlValue(Type))),
+                new XElement(WebDavNamespaces.DavNsLockScope, new XElement(WebDavNamespaces.DavNs + XmlHelper.GetXmlValue(Scope))),
+                new XElement(WebDavNamespaces.DavNsDepth, Depth == int.MaxValue ? "infinity" : Depth.ToString(CultureInfo.InvariantCulture)),
+                new XElement(WebDavNamespaces.DavNsOwner, Owner),
+                new XElement(WebDavNamespaces.DavNsTimeout, Timeout == -1 ? "Infinite" : "Second-" + Timeout.ToString(CultureInfo.InvariantCulture)),
+                new XElement(WebDavNamespaces.DavNsLockToken, new XElement(WebDavNamespaces.DavNsHref, LockToken.AbsoluteUri)),
+                new XElement(WebDavNamespaces.DavNsLockRoot, new XElement(WebDavNamespaces.DavNsHref, LockRoot.AbsoluteUri)));
         }
     }
 }

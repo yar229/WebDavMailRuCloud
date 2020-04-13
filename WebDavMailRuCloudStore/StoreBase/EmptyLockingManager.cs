@@ -27,13 +27,15 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public IEnumerable<ActiveLock> GetActiveLockInfo(IStoreItem item)
         {
-            yield break;
+            return EmptyActiveLockInfo;
         }
+        private static readonly ActiveLock[] EmptyActiveLockInfo = new ActiveLock[0];
 
         public IEnumerable<LockEntry> GetSupportedLocks(IStoreItem item)
         {
-            yield break;
+            return EmptyLockEntry;
         }
+        private static readonly LockEntry[] EmptyLockEntry = new LockEntry[0];
 
         public bool IsLocked(IStoreItem item)
         {

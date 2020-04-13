@@ -38,9 +38,9 @@ namespace NWebDav.Server.Handlers
                 public XElement GetXmlResponse()
                 {
                     var statusText = $"HTTP/1.1 {(int)Result} {Result.GetStatusDescription()}";
-                    return new XElement(WebDavNamespaces.DavNs + "propstat",
-                        new XElement(WebDavNamespaces.DavNs + "prop", new XElement(Name)),
-                        new XElement(WebDavNamespaces.DavNs + "status", statusText));
+                    return new XElement(WebDavNamespaces.DavNsPropStat,
+                        new XElement(WebDavNamespaces.DavNsProp, new XElement(Name)),
+                        new XElement(WebDavNamespaces.DavNsStatus, statusText));
                 }
             }
 
@@ -55,18 +55,18 @@ namespace NWebDav.Server.Handlers
                 var xRoot = xDoc.Root;
                 if (xRoot == null)
                     throw new Exception("No root element (expected 'propertyupdate')");
-                if (xRoot.Name != WebDavNamespaces.DavNs + "propertyupdate")
+                if (xRoot.Name != WebDavNamespaces.DavNsPropertyUpdate)
                     throw new Exception("Invalid root element (expected 'propertyupdate')");
 
                 // Check all descendants
                 foreach (var xElement in xRoot.Elements())
                 {
                     // The descendant should be a 'set' or 'remove' entry
-                    if (xElement.Name != WebDavNamespaces.DavNs + "set" && xElement.Name != WebDavNamespaces.DavNs + "remove")
+                    if (xElement.Name != WebDavNamespaces.DavNsSet && xElement.Name != WebDavNamespaces.DavNsRemove)
                         throw new Exception("Expected 'set' or 'remove' entry");
 
                     // Obtain the properties
-                    foreach (var xProperty in xElement.Descendants(WebDavNamespaces.DavNs + "prop"))
+                    foreach (var xProperty in xElement.Descendants(WebDavNamespaces.DavNsProp))
                     {
                         // Determine the actual property element
                         var xActualProperty = xProperty.Elements().FirstOrDefault();
@@ -74,7 +74,7 @@ namespace NWebDav.Server.Handlers
                         {
                             // Determine the new property value
                             object newValue;
-                            if (xElement.Name == WebDavNamespaces.DavNs + "set")
+                            if (xElement.Name == WebDavNamespaces.DavNsSet)
                             {
                                 // If the descendant is XML, then use the XElement, otherwise use the string
                                 newValue = xActualProperty.HasElements ? (object)xActualProperty.Elements().FirstOrDefault() : xActualProperty.Value;
@@ -93,8 +93,8 @@ namespace NWebDav.Server.Handlers
 
             public XElement GetXmlMultiStatus(WebDavUri uri)
             {
-                var xResponse = new XElement(WebDavNamespaces.DavNs + "response", new XElement(WebDavNamespaces.DavNs + "href", uri));
-                var xMultiStatus = new XElement(WebDavNamespaces.DavNs + "multistatus", xResponse);
+                var xResponse = new XElement(WebDavNamespaces.DavNsResponse, new XElement(WebDavNamespaces.DavNsHref, uri));
+                var xMultiStatus = new XElement(WebDavNamespaces.DavNsMultiStatus, xResponse);
                 foreach (var result in _propertySetters.Where(ps => ps.Result != DavStatusCode.Ok))
                     xResponse.Add(result.GetXmlResponse());
                 return xMultiStatus;

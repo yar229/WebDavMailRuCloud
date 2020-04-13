@@ -91,29 +91,29 @@ namespace NWebDav.Server.Handlers
                         throw new Exception("No root element (expected 'lockinfo')");
 
                     // The document should contain a 'lockinfo' element
-                    if (xRoot.Name != WebDavNamespaces.DavNs + "lockinfo")
+                    if (xRoot.Name != WebDavNamespaces.DavNsLockInfo)
                         throw new Exception("Invalid root element (expected 'lockinfo')");
 
                     // Check all descendants
-                    var xLockScope = xRoot.Elements(WebDavNamespaces.DavNs + "lockscope").Single();
+                    var xLockScope = xRoot.Elements(WebDavNamespaces.DavNsLockScope).Single();
                     var xLockScopeValue = xLockScope.Elements().Single();
-                    if (xLockScopeValue.Name == WebDavNamespaces.DavNs + "exclusive")
+                    if (xLockScopeValue.Name == WebDavNamespaces.DavNsExclusive)
                         lockScope = LockScope.Exclusive;
-                    else if (xLockScopeValue.Name == WebDavNamespaces.DavNs + "shared")
+                    else if (xLockScopeValue.Name == WebDavNamespaces.DavNsShared)
                         lockScope = LockScope.Shared;
                     else
                         throw new Exception("Invalid lockscope (expected 'exclusive' or 'shared')");
 
                     // Determine the lock-type
-                    var xLockType = xRoot.Elements(WebDavNamespaces.DavNs + "locktype").Single();
+                    var xLockType = xRoot.Elements(WebDavNamespaces.DavNsLockType).Single();
                     var xLockTypeValue = xLockType.Elements().Single();
-                    if (xLockTypeValue.Name == WebDavNamespaces.DavNs + "write")
+                    if (xLockTypeValue.Name == WebDavNamespaces.DavNsWrite)
                         lockType = LockType.Write;
                     else
                         throw new Exception("Invalid locktype (expected 'write')");
 
                     // Determine the owner
-                    var xOwner = xRoot.Elements(WebDavNamespaces.DavNs + "owner").Single();
+                    var xOwner = xRoot.Elements(WebDavNamespaces.DavNsOwner).Single();
                     owner = xOwner.Elements().Single();
                 }
                 catch (Exception)
@@ -139,8 +139,8 @@ namespace NWebDav.Server.Handlers
 
             // Return the information about the lock
             var xDocument = new XDocument(
-                new XElement(WebDavNamespaces.DavNs + "prop",
-                    new XElement(WebDavNamespaces.DavNs + "lockdiscovery",
+                new XElement(WebDavNamespaces.DavNsProp,
+                    new XElement(WebDavNamespaces.DavNsLockDiscovery,
                         lockResult.Lock.Value.ToXml())));
 
             // Add the Lock-Token in the response

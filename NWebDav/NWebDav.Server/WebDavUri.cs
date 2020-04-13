@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace NWebDav.Server
 {
     public class WebDavUri
     {
-        private readonly string _url;
         private readonly Uri _fakeurl;
 
 
         public WebDavUri(string url)
         {
-            _url = url;
-            _fakeurl = new Uri(_url);
+            AbsoluteUri = url;
+            _fakeurl = new Uri(AbsoluteUri);
         }
 
         /// <summary>
@@ -24,19 +20,19 @@ namespace NWebDav.Server
         /// <param name="relaUrl">encoded webdav path</param>
         public WebDavUri(string baseUrl, string relaUrl)
         {
-            _url = baseUrl + relaUrl;
-            _fakeurl = new Uri(_url);
+            AbsoluteUri = baseUrl + relaUrl;
+            _fakeurl = new Uri(AbsoluteUri);
         }
 
         public WebDavUri(WebDavUri url, string relaUrl)
         {
-            _url = url.AbsoluteUri + relaUrl;
-            _fakeurl = new Uri(_url);
+            AbsoluteUri = url.AbsoluteUri + relaUrl;
+            _fakeurl = new Uri(AbsoluteUri);
         }
 
-        public string AbsoluteUri => _url;
+        public string AbsoluteUri { get; }
 
-        public string OriginalString => _url;
+        public string OriginalString => AbsoluteUri;
 
         public string Scheme => _fakeurl.Scheme;
 
@@ -52,11 +48,14 @@ namespace NWebDav.Server
         {
             get
             {
-                var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
+                //var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
+                int pos = IndexOfNth(AbsoluteUri, '/', 3);
+                string requestedPath = pos > -1
+                    ? AbsoluteUri.Substring(pos + 1)
+                    : AbsoluteUri;
+
                 requestedPath = "/" + requestedPath.TrimEnd('/');
-
-                //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
-
+                
                 requestedPath = Uri.UnescapeDataString(requestedPath);
 
                 return requestedPath;
@@ -70,14 +69,21 @@ namespace NWebDav.Server
         {
             get
             {
-                var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty, RegexOptions.CultureInvariant | RegexOptions.Compiled);
-                requestedPath = "/" + requestedPath.TrimEnd('/');
+                if (string.IsNullOrEmpty(_pathEncoded))
+                {
+                    //var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty, RegexOptions.CultureInvariant | RegexOptions.Compiled);
+                    int pos = IndexOfNth(AbsoluteUri, '/', 3);
+                    _pathEncoded = pos > -1
+                        ? AbsoluteUri.Substring(pos + 1)
+                        : AbsoluteUri;
 
-                //if (string.IsNullOrWhiteSpace(requestedPath)) requestedPath = "/";
+                    _pathEncoded = "/" + _pathEncoded.TrimEnd('/');
+                }
 
-                return requestedPath;
+                return _pathEncoded;
             }
         }
+        private string _pathEncoded;
 
         public string BaseUrl
         {
@@ -118,7 +124,21 @@ namespace NWebDav.Server
 
         public override string ToString()
         {
-            return _url;
+            return AbsoluteUri;
+        }
+
+
+
+
+        private static int IndexOfNth(string str, char c, int nth, int startPosition = 0)
+        {
+            int index = str.IndexOf(c, startPosition);
+            if (index >= 0 && nth > 1)
+            {
+                return  IndexOfNth(str, c, nth - 1, index + 1);
+            }
+
+            return index;
         }
     }
 

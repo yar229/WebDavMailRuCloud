@@ -55,13 +55,13 @@ namespace YaR.Clouds.Base
         /// Gets number of folders in folder.
         /// </summary>
         /// <value>Number of folders.</value>
-        public int NumberOfFolders => Entries.OfType<Folder>().Count();
+        public int NumberOfFolders => Files.Count;
 
         /// <summary>
         /// Gets number of files in folder.
         /// </summary>
         /// <value>Number of files.</value>
-        public int NumberOfFiles => Entries.OfType<File>().Count();
+        public int NumberOfFiles => Folders.Count;
 
         /// <summary>
         /// Gets folder name.

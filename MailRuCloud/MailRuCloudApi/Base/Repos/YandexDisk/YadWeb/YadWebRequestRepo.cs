@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models;
@@ -157,7 +156,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 throw new NotImplementedException(nameof(FolderInfo));
 
             if (path.Path.StartsWith(YadMediaPath))
-                return await MediaFolderRootInfo();
+                return await MediaFolderInfo(path.Path);
 
             // YaD perform async deletion
             YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
@@ -204,6 +203,31 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return entry;
         }
 
+
+        private async Task<IEntry> MediaFolderInfo(string path)
+        {
+            var root = await MediaFolderRootInfo() as Folder;
+            if (null == root)
+                return null;
+            
+            if (WebDavPath.PathEquals(path, YadMediaPath))
+                return root;
+
+            string albumName = WebDavPath.Name(path);
+            var album = root.Folders.FirstOrDefault(f => f.Name == albumName);
+            if (null == album)
+                return null;
+
+            _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadFolderInfoPostModel(album.PublicLinks.First().Key, "/album"),
+                    out YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo)
+                .MakeRequestAsync()
+                .Result;
+
+            var entry = folderInfo.Data.ToFolder(null, path, PublicBaseUrlDefault);
+
+            return entry;
+        }
 
         private async Task<IEntry> MediaFolderRootInfo()
         {

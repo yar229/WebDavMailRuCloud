@@ -5,8 +5,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class YadItemInfoPostModel : YadPostModel
     {
-        public YadItemInfoPostModel(string path)
+        private readonly string _prefix;
+
+        public YadItemInfoPostModel(string path, string prefix = "/disk")
         {
+            _prefix = prefix;
             Name = "resource";
             Path = path;
         }
@@ -18,7 +21,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
 
-            yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk/", Path));
+            yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine(_prefix, Path));
 
             //if (Path == "/Camera")
             //{
