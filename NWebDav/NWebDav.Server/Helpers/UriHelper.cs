@@ -9,7 +9,8 @@ namespace NWebDav.Server.Helpers
         {
             var uriText = baseUri.OriginalString;
             if (uriText.EndsWith("/", StringComparison.OrdinalIgnoreCase))
-                uriText = uriText.Substring(0, uriText.Length - 1);
+                return new WebDavUri($"{uriText}{Uri.EscapeDataString(path)}");
+
             return new WebDavUri($"{uriText}/{Uri.EscapeDataString(path)}");
         }
 
