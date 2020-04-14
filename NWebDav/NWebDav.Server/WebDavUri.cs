@@ -4,13 +4,13 @@ namespace NWebDav.Server
 {
     public class WebDavUri
     {
-        private readonly Uri _fakeurl;
+        //private readonly Uri _fakeurl;
 
 
         public WebDavUri(string url)
         {
             AbsoluteUri = url;
-            _fakeurl = new Uri(AbsoluteUri);
+            //_fakeurl = new Uri(AbsoluteUri);
         }
 
         /// <summary>
@@ -21,25 +21,35 @@ namespace NWebDav.Server
         public WebDavUri(string baseUrl, string relaUrl)
         {
             AbsoluteUri = baseUrl + relaUrl;
-            _fakeurl = new Uri(AbsoluteUri);
+            //_fakeurl = new Uri(AbsoluteUri);
         }
 
-        public WebDavUri(WebDavUri url, string relaUrl)
-        {
-            AbsoluteUri = url.AbsoluteUri + relaUrl;
-            _fakeurl = new Uri(AbsoluteUri);
-        }
+        //public WebDavUri(WebDavUri url, string relaUrl)
+        //{
+        //    AbsoluteUri = url.AbsoluteUri + relaUrl;
+        //    _fakeurl = new Uri(AbsoluteUri);
+        //}
 
         public string AbsoluteUri { get; }
 
         public string OriginalString => AbsoluteUri;
 
-        public string Scheme => _fakeurl.Scheme;
+        public string Scheme 
+        {
+            get
+            {
+                int pos = AbsoluteUri.IndexOf("://", StringComparison.OrdinalIgnoreCase);
+                if (pos < 0)
+                    return "http";
+
+                return AbsoluteUri.Substring(0, pos);
+            }
+        }  //_fakeurl.Scheme;
 
         /// <summary>
         /// Decoded path (standart decode, may fail)
         /// </summary>
-        public string LocalPath =>  _fakeurl.LocalPath;
+        public string LocalPath => Path; //_fakeurl.LocalPath;
 
         /// <summary>
         /// decoded path
@@ -89,10 +99,22 @@ namespace NWebDav.Server
         {
             get
             {
-                string res = $"{_fakeurl.Scheme}://{_fakeurl.Authority}";
-                return res;
+                //string res = $"{Scheme}://{_fakeurl.Authority}";
+                //return res;
+
+                if (string.IsNullOrEmpty(_baseUrl))
+                {
+                    int pos = IndexOfNth(AbsoluteUri, '/', 3);
+                    _baseUrl = pos > -1
+                        ? AbsoluteUri.Substring(0, pos + 1)
+                        : AbsoluteUri;
+                }
+
+                return _baseUrl;
             }
         }
+
+        private string _baseUrl;
 
         public UriAndName Parent
         {

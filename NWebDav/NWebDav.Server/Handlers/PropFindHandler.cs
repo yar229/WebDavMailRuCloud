@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -142,6 +141,9 @@ namespace NWebDav.Server.Handlers
 
                     // Create tags for property values
                     var xPropStatValues = new XElement(WebDavNamespaces.DavNsPropStat);
+                    //YaR: add xProp once and do not check later
+                    var xProp = new XElement(WebDavNamespaces.DavNsProp);
+                    xPropStatValues.Add(xProp);
 
                     // Check if the entry supports properties
                     var propertyManager = entry.Entry.PropertyManager;
@@ -159,18 +161,17 @@ namespace NWebDav.Server.Handlers
                         }
                         else
                         {
-                            //var addedProperties = new List<XName>();
-                            var addedProperties = new HashSet<XName>(); //SortedSet<XName>((z) => { return true;} );  //ListDictionary(); //<string, XName>();
+                            //var addedProperties = new HashSet<XName>(); //SortedSet<XName>((z) => { return true;} );  //ListDictionary(); //<string, XName>();
                             if ((propertyMode & PropertyMode.AllProperties) != 0)
                             {
                                 foreach (var propertyName in propertyManager.Properties.Where(p => !p.IsExpensive).Select(p => p.Name))
-                                    await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                                    await AddPropertyAsync(httpContext, xResponse, xProp, propertyManager, entry.Entry, propertyName, null).ConfigureAwait(false);
                             }
 
                             if ((propertyMode & PropertyMode.SelectedProperties) != 0)
                             {
                                 foreach (var propertyName in propertyList)
-                                    await AddPropertyAsync(httpContext, xResponse, xPropStatValues, propertyManager, entry.Entry, propertyName, addedProperties).ConfigureAwait(false);
+                                    await AddPropertyAsync(httpContext, xResponse, xProp, propertyManager, entry.Entry, propertyName, null).ConfigureAwait(false);
                             }
 
                             // Add the values (if any)
@@ -197,11 +198,10 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xPropStatValues, IPropertyManager propertyManager, IStoreItem item, XName propertyName, ICollection<XName> addedProperties)
+        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xProp, IPropertyManager propertyManager, IStoreItem item, XName propertyName, HashSet<XName> addedProperties)
         {
-            if (!addedProperties.Contains(propertyName))
+            if (addedProperties == null || addedProperties.Add(propertyName)) //YaR: do not check if added if we don't want this
             {
-                addedProperties.Add(propertyName);
                 try
                 {
                     // Check if the property is supported
@@ -209,16 +209,19 @@ namespace NWebDav.Server.Handlers
                     if (propertyManager.HasProperty(propertyName))
                     {
                         var value = await propertyManager.GetPropertyAsync(httpContext, item, propertyName).ConfigureAwait(false);
-                        if (value is IEnumerable<XElement>)
-                            value = ((IEnumerable<XElement>) value).Cast<object>().ToArray();
 
-                        // Make sure we use the same 'prop' tag to add all properties
-                        var xProp = xPropStatValues.Element(WebDavNamespaces.DavNsProp);
-                        if (xProp == null)
-                        {
-                            xProp = new XElement(WebDavNamespaces.DavNsProp);
-                            xPropStatValues.Add(xProp);
-                        }
+                        //YaR: can't catch what that mean
+                        //if (value is IEnumerable<XElement>)
+                        //    value = ((IEnumerable<XElement>) value).Cast<object>().ToArray();
+
+                        //YaR: xProp already added
+                        //// Make sure we use the same 'prop' tag to add all properties
+                        //var xProp = xPropStatValues.Element(WebDavNamespaces.DavNsProp);
+                        //if (xProp == null)
+                        //{
+                        //    xProp = new XElement(WebDavNamespaces.DavNsProp);
+                        //    xPropStatValues.Add(xProp);
+                        //}
 
                         xProp.Add(new XElement(propertyName, value));
                     }
