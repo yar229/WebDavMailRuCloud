@@ -58,19 +58,19 @@ namespace NWebDav.Server
         {
             get
             {
-                //var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty);
-                int pos = IndexOfNth(AbsoluteUri, '/', 3);
-                string requestedPath = pos > -1
-                    ? AbsoluteUri.Substring(pos + 1)
-                    : AbsoluteUri;
+                if (string.IsNullOrEmpty(_path))
+                { 
+                    var z = PathEncoded;
+                    if (string.IsNullOrEmpty(z) || z == "/")
+                        _path = z;
+                    else
+                        _path = Uri.UnescapeDataString(z);
+                }
 
-                requestedPath = "/" + requestedPath.TrimEnd('/');
-                
-                requestedPath = Uri.UnescapeDataString(requestedPath);
-
-                return requestedPath;
+                return _path;
             }
         }
+        private string _path;
 
         /// <summary>
         /// Encoded path
@@ -83,11 +83,14 @@ namespace NWebDav.Server
                 {
                     //var requestedPath = Regex.Replace(_url, @"^http?://.*?(/|\Z)", string.Empty, RegexOptions.CultureInvariant | RegexOptions.Compiled);
                     int pos = IndexOfNth(AbsoluteUri, '/', 3);
-                    _pathEncoded = pos > -1
-                        ? AbsoluteUri.Substring(pos + 1)
-                        : AbsoluteUri;
 
-                    _pathEncoded = "/" + _pathEncoded.TrimEnd('/');
+                    if (pos > -1 && pos < AbsoluteUri.Length -1 )
+                    {
+                        string requestedPath = AbsoluteUri.Substring(pos).TrimEnd('/');
+                        _pathEncoded = Uri.UnescapeDataString(requestedPath);;
+                    }
+                    else
+                        _pathEncoded = "/";
                 }
 
                 return _pathEncoded;
