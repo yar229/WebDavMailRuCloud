@@ -18,12 +18,13 @@ namespace YaR.Clouds.SpecialCommands
 
         public override async Task<SpecialCommandResult> Execute()
         {
-            //var m = Regex.Match(Parames[0], @"(?snx-)\s* (https://?cloud.mail.ru/public)?(?<url>.*)/? \s*");
             var m = Regex.Match(Parames[0], @"(?snx-)\s* (?<url>(https://?cloud.mail.ru/public)?.*)/? \s*");
 
             if (!m.Success) return SpecialCommandResult.Fail;
 
-            var url = new Uri(m.Groups["url"].Value);
+            var url = new Uri(m.Groups["url"].Value, UriKind.RelativeOrAbsolute);
+            if (!url.IsAbsoluteUri)
+                url = new Uri(Cloud.Repo.PublicBaseUrlDefault + m.Groups["url"].Value, UriKind.Absolute);
 
             //TODO: make method in MailRuCloud to get entry by url
             //var item = await new ItemInfoRequest(Cloud.CloudApi, m.Groups["url"].Value, true).MakeRequestAsync();
@@ -36,7 +37,8 @@ namespace YaR.Clouds.SpecialCommands
                     ? Parames[1]
                     : entry.Name;
 
-            var res = await Cloud.LinkItem(new Uri(Cloud.Repo.PublicBaseUrlDefault + m.Groups["url"].Value, UriKind.Absolute),  //m.Groups["url"].Value, 
+            var res = await Cloud.LinkItem(
+                url,
                 Path, name, entry.IsFile, entry.Size, entry.CreationTimeUtc);
 
             return new SpecialCommandResult(res);
