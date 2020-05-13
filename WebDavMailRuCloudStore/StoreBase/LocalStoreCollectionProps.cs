@@ -16,12 +16,6 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             var props = new DavProperty<T>[]
             {
-                //// was added to to make WebDrive work, but no success
-                //new DavHref<LocalStoreCollection>
-                //{
-                //    Getter = (context, collection) => collection._directoryInfo.Name
-                //},
-
                 //new DavLoctoken<LocalStoreCollection>
                 //{
                 //    Getter = (context, collection) => ""
@@ -129,7 +123,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     {
                         int files = collection.DirectoryInfo.NumberOfFiles;
                         int folders = collection.DirectoryInfo.NumberOfFolders;
-                        return folders > 0 ? folders : collection.DirectoryInfo.ServerFoldersCount +
+                        return (folders > 0 ? folders : collection.DirectoryInfo.ServerFoldersCount) +
                                files > 0 ? files : collection.DirectoryInfo.ServerFilesCount ?? 0;
                     }
                 },

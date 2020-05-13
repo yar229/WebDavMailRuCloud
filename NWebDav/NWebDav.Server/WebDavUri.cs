@@ -85,10 +85,7 @@ namespace NWebDav.Server
                     int pos = IndexOfNth(AbsoluteUri, '/', 3);
 
                     if (pos > -1 && pos < AbsoluteUri.Length -1 )
-                    {
-                        string requestedPath = AbsoluteUri.Substring(pos).TrimEnd('/');
-                        _pathEncoded = Uri.UnescapeDataString(requestedPath);;
-                    }
+                        _pathEncoded = AbsoluteUri.Substring(pos).TrimEnd('/');
                     else
                         _pathEncoded = "/";
                 }
