@@ -274,15 +274,36 @@ namespace NWebDav.Server.Locking
         private static Guid? GetTokenFromLockToken(WebDavUri lockTokenUri)
         {
             // We should always use opaquetokens
-            if (lockTokenUri.Scheme != TokenScheme)
+            if (LockTokenUri.Scheme(lockTokenUri) != TokenScheme)
                 return null;
 
             // Parse the token
-            if (!Guid.TryParse(lockTokenUri.LocalPath, out var lockToken))
+            if (!Guid.TryParse(LockTokenUri.LocalPath(lockTokenUri), out var lockToken))
                 return null;
 
             // Return the token
             return lockToken;
+        }
+
+        private static class LockTokenUri
+        {
+            public static string Scheme(WebDavUri lockTokenUri)
+            {
+                // LockTokenUri does not contains "//" ?
+                ///<see cref="ImMemoryLockingManager.GetTokenFromLockToken"/>
+                int pos = lockTokenUri.AbsoluteUri.IndexOf(":", StringComparison.OrdinalIgnoreCase);
+                
+                return lockTokenUri.AbsoluteUri.Substring(0, pos);
+            }
+
+            public static string LocalPath(WebDavUri lockTokenUri)
+            {
+                // LockTokenUri does not contains "//" ?
+                ///<see cref="ImMemoryLockingManager.GetTokenFromLockToken"/>
+                int pos = lockTokenUri.AbsoluteUri.IndexOf(":", StringComparison.OrdinalIgnoreCase);
+                
+                return lockTokenUri.AbsoluteUri.Substring(pos + 1);
+            }
         }
     }
 }
