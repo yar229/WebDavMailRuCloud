@@ -175,6 +175,8 @@ namespace YaR.Clouds.Console
             Logger.Info($"Cloud protocol: {options.Protocol}");
             Logger.Info($"Cache listings, sec: {options.CacheListingSec}");
             Logger.Info($"List query folder depth: {options.CacheListingDepth}");
+            Logger.Info($"Use locks: {options.UseLocks}");
+            Logger.Info($"Start as service: {options.ServiceRun}");
         }
 
         private static string GetAssemblyAttribute<T>(Func<T, string> value) where T : Attribute
