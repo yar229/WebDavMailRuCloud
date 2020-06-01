@@ -118,10 +118,7 @@ namespace YaR.Clouds.Base
         /// Gets public file link.
         /// </summary>
         /// <value>Public link.</value>
-        public List<PublicLinkInfo> PublicLinks
-        {
-            get => _publicLinks ??= new List<PublicLinkInfo>();
-        }
+        public List<PublicLinkInfo> PublicLinks => _publicLinks ??= new List<PublicLinkInfo>();
 
         private List<PublicLinkInfo> _publicLinks;
 

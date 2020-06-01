@@ -37,7 +37,7 @@ namespace YaR.Clouds.SpecialCommands
 
     }
 
-    public struct MinMax<T> where T : IComparable<T>
+    public readonly struct MinMax<T> where T : IComparable<T>
     {
         public MinMax(T min, T max)
         {

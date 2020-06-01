@@ -101,7 +101,7 @@ namespace YaR.Clouds.Links
                 }
             }
 
-            if (null == _itemList) _itemList = new ItemList();
+            _itemList ??= new ItemList();
 
             foreach (var f in _itemList.Items)
             {
@@ -269,9 +269,9 @@ namespace YaR.Clouds.Links
         {
             try
             {
-                var relahref = link.Href.IsAbsoluteUri
-                    ? link.Href.OriginalString.Remove(0, _cloud.Repo.PublicBaseUrlDefault.Length + 1)
-                    : link.Href.OriginalString;
+                //var relahref = link.Href.IsAbsoluteUri
+                //    ? link.Href.OriginalString.Remove(0, _cloud.Repo.PublicBaseUrlDefault.Length + 1)
+                //    : link.Href.OriginalString;
 
                 //var infores = await new ItemInfoRequest(_cloud.CloudApi, link.Href, true).MakeRequestAsync();
                 var infores = await _cloud.Account.RequestRepo.ItemInfo(RemotePath.Get(link));

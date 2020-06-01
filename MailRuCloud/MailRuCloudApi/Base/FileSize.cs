@@ -7,7 +7,7 @@ namespace YaR.Clouds.Base
     /// File size definition.
     /// </summary>
     [DebuggerDisplay("{" + nameof(DefaultValue) + "}")]
-    public struct FileSize : IEquatable<FileSize>
+    public readonly struct FileSize : IEquatable<FileSize>
     {
         public FileSize(long defaultValue) : this()
         {

@@ -19,7 +19,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
             if (path.IsLink)
             {
                 string ustr = path.Link.Href.OriginalString;
-                _path = "/" + ustr.Remove(0, ustr.IndexOf("/public/") + "/public/".Length);
+                _path = "/" + ustr.Remove(0, ustr.IndexOf("/public/", StringComparison.Ordinal) + "/public/".Length);
             }
             else
                 _path = path.Path;

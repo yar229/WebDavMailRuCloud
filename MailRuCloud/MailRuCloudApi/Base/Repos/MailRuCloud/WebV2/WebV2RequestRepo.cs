@@ -10,7 +10,6 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
-using YaR.Clouds.Links;
 
 namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 {
@@ -18,7 +17,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
-        public override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = String.Empty,
             UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
@@ -62,7 +61,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 
             CustomDisposable<HttpWebResponse> ResponseGenerator(long instart, long inend, File file)
             {
-                HttpWebRequest request = new DownloadRequest(this, file, instart, inend, Authent, HttpSettings, _cachedShards);
+                HttpWebRequest request = new DownloadRequest(file, instart, inend, Authent, HttpSettings, _cachedShards);
                 var response = (HttpWebResponse)request.GetResponse();
 
                 return new CustomDisposable<HttpWebResponse>
@@ -174,7 +173,6 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 		/// 
 		/// </summary>
 		/// <param name="path"></param>
-		/// <param name="ulink"></param>
 		/// <param name="offset"></param>
 		/// <param name="limit"></param>
 		/// <param name="depth">Not applicable here, always = 1</param>

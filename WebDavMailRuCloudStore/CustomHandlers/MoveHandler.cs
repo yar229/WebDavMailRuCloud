@@ -132,7 +132,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
 
     internal class UriResultCollection
     {
-        private struct UriResult
+        private readonly struct UriResult
         {
             private WebDavUri Uri { get; }
             private DavStatusCode Result { get; }

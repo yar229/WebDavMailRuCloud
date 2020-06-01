@@ -14,7 +14,6 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
-using YaR.Clouds.Links;
 using AnonymousRepo = YaR.Clouds.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
 using AccountInfoRequest = YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
 using CreateFolderRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
@@ -31,16 +30,15 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
-        protected ShardManager ShardManager => _shardManager ?? (_shardManager = new ShardManager(this));
+        protected ShardManager ShardManager => _shardManager ??= new ShardManager(this);
         private ShardManager _shardManager;
 
-        protected IRequestRepo AnonymousRepo => _anonymousRepo ??
-                                                (_anonymousRepo = new AnonymousRepo(HttpSettings.Proxy, Credentials,
-                                                    _onAuthCodeRequired));
+        protected IRequestRepo AnonymousRepo => _anonymousRepo ??= new AnonymousRepo(HttpSettings.Proxy, Credentials,
+            _onAuthCodeRequired);
         private IRequestRepo _anonymousRepo;
 
 
-        public override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"

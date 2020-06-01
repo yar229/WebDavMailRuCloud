@@ -5,6 +5,7 @@ using YaR.Clouds.Base;
 
 namespace YaR.Clouds.Console
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     class CommandLineOptions
     {
         [Option('p', "port", Separator = ',', Required = false, Default = new[]{801}, HelpText = "WebDAV server port")]

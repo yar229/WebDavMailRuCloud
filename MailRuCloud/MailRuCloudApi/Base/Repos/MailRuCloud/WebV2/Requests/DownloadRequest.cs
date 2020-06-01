@@ -11,11 +11,8 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 {
     class DownloadRequest
     {
-        private readonly IRequestRepo _repo;
-
-        public DownloadRequest(IRequestRepo repo, File file, long instart, long inend, IAuth authent, HttpCommonSettings settings, Cached<Dictionary<ShardType, ShardInfo>> shards)
+        public DownloadRequest(File file, long instart, long inend, IAuth authent, HttpCommonSettings settings, Cached<Dictionary<ShardType, ShardInfo>> shards)
         {
-            _repo = repo;
             Request = CreateRequest(authent, settings.Proxy, file, instart, inend, settings.UserAgent, shards);
         }
 

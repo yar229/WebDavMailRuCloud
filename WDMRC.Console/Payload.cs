@@ -16,7 +16,7 @@ using RequestHandlerFactory = YaR.Clouds.WebDavStore.RequestHandlerFactory;
 
 namespace YaR.Clouds.Console
 {
-    class Payload
+    static class Payload
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 

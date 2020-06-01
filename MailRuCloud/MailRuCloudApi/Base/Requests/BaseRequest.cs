@@ -61,7 +61,7 @@ namespace YaR.Clouds.Base.Requests
             {
                 httprequest.Method = "POST";
                 var stream = httprequest.GetRequestStream();
-                stream.Write(content, 0, content.Length);
+                await stream.WriteAsync(content, 0, content.Length);
             }
             try
             {
