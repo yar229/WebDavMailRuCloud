@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using CommandLine;
 using YaR.Clouds.Base;
 
 namespace YaR.Clouds.Console
 {
     // ReSharper disable once ClassNeverInstantiated.Global
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     class CommandLineOptions
     {
         [Option('p', "port", Separator = ',', Required = false, Default = new[]{801}, HelpText = "WebDAV server port")]
@@ -16,10 +18,12 @@ namespace YaR.Clouds.Console
 
         [Obsolete]
         [Option('l', "login", Required = false, HelpText = "Login to Mail.ru Cloud", Hidden = true)]
+        // ReSharper disable once UnusedMember.Global
         public string Login { get; set; }
 
         [Obsolete]
         [Option('s', "password", Required = false, HelpText = "Password to Mail.ru Cloud", Hidden = true)]
+        // ReSharper disable once UnusedMember.Global
         public string Password { get; set; }
 
         [Option("maxthreads", Default = 5, HelpText = "Maximum concurrent connections to cloud")]
@@ -56,7 +60,7 @@ namespace YaR.Clouds.Console
         [Option("proxy-password", Default = "", HelpText = "Proxy password")]
         public string ProxyPassword { get; set; }
 
-        [Option("use-locks", Required = false, Default = true, HelpText = "locking feature")]
+        [Option("use-locks", Required = false, Default = false, HelpText = "locking feature")]
         public bool UseLocks { get; set; }
     }
 }
