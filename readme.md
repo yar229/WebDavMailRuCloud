@@ -19,7 +19,7 @@
 	-p, --port         	  (Default: 801) WebDAV server port or several ports separated by `,`
 	-h, --host	   	  (Default: "http://127.0.0.1") WebDAV server host with protocol (http://* for http://0.0.0.0)
 	--maxthreads       	  (Default: 5) Maximum concurrent connections to cloud.mail.ru
-	--use-locks           (Default: true) locking feature
+	--use-locks           use locking feature
 	--cache-listing    	  (Default: 30) Cache folders listing, sec
 	--cache-listing-depth  	  (Default: 1) Cache folders listing depth. 
   					If large folder browsing is extremely slow, set to 2	
