@@ -2,7 +2,7 @@
 
 namespace YaR.Clouds.Base
 {
-    public struct ConflictResolver : IEquatable<ConflictResolver>
+    public readonly struct ConflictResolver : IEquatable<ConflictResolver>
     {
         private readonly string _value;
 

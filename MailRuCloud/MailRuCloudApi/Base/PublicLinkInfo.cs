@@ -1,8 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Security.Policy;
-
 
 namespace YaR.Clouds.Base
 {
@@ -43,24 +39,14 @@ namespace YaR.Clouds.Base
                 throw new ArgumentException("Absolute uri required");
 
             Type = type;
-            _uri = url;
+            Uri = url;
         }
         
         public string Type { get; set; }
 
-        public Uri Uri
-        {
-            get => _uri;
-            private set
-            {
-                _uri = value;
-            }
-        }
+        public Uri Uri { get; private set; }
 
         public string Key { get; set; }
-
-        private Uri _uri;
-
 
         private static Uri UrlPathCombine(string path1, string path2)
         {

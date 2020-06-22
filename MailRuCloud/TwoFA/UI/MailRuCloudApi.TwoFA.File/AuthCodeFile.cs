@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 {
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     public class AuthCodeFile : ITwoFaHandler
     {
         private readonly string _dirPath;

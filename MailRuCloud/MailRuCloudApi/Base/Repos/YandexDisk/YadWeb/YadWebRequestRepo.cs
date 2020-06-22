@@ -58,7 +58,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
         public IAuth Authent => _cachedAuth.Value;
-        private Cached<YadWebAuth> _cachedAuth;
+        private readonly Cached<YadWebAuth> _cachedAuth;
 
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
@@ -451,7 +451,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
                 .With(new YadCleanTrashPostModel(), 
-                    out YadResponseModel<YadCleanTrashData, YadCleanTrashParams> itemInfo)
+                    out YadResponseModel<YadCleanTrashData, YadCleanTrashParams> _)
                 .MakeRequestAsync();
         }
 

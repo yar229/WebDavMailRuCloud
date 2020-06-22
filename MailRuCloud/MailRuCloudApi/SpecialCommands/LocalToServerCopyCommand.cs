@@ -29,7 +29,7 @@ namespace YaR.Clouds.SpecialCommands
                 using (var source = System.IO.File.Open(Parames[0], FileMode.Open, FileAccess.Read, FileShare.Read))
                 using (var target = await Cloud.GetFileUploadStream(targetPath, sourceFileInfo.Length, null, null).ConfigureAwait(false))
                 {
-                    source.CopyTo(target);
+                    await source.CopyToAsync(target);
                 }
 
                 return SpecialCommandResult.Success;

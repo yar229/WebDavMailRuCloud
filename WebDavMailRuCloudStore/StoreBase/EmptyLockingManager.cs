@@ -21,7 +21,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             public XElement Owner { get; }
             public int Timeout { get; }
             public DateTime? Expires { get; private set; }
-            public bool IsExpired => !Expires.HasValue || Expires < DateTime.UtcNow;
+            //public bool IsExpired => !Expires.HasValue || Expires < DateTime.UtcNow;
 
             public ItemLockInfo(IStoreItem item, LockType lockType, LockScope lockScope, WebDavUri lockRootUri, bool recursive, XElement owner, int timeout)
             {

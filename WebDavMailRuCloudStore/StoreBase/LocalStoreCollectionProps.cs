@@ -70,33 +70,33 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // RFC-2518 properties
                 new DavCreationDate<T>
                 {
-                    Getter = (cntext, collection) => collection._directoryInfo.CreationTimeUtc,
+                    Getter = (cntext, collection) => collection.DirectoryInfo.CreationTimeUtc,
                     Setter = (cntext, collection, value) =>
                     {
-                        collection._directoryInfo.CreationTimeUtc = value;
+                        collection.DirectoryInfo.CreationTimeUtc = value;
                         return DavStatusCode.Ok;
                     }
                 },
                 new DavDisplayName<T>
                 {
-                    Getter = (cntext, collection) => collection._directoryInfo.Name
+                    Getter = (cntext, collection) => collection.DirectoryInfo.Name
                 },
                 new DavGetLastModified<T>
                 {
-                    Getter = (cntext, collection) => collection._directoryInfo.LastWriteTimeUtc,
+                    Getter = (cntext, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
                     Setter = (cntext, collection, value) =>
                     {
-                        collection._directoryInfo.LastWriteTimeUtc = value;
+                        collection.DirectoryInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
                     }
                 },
 
                 new DavLastAccessed<T>
                 {
-                    Getter = (cntext, collection) => collection._directoryInfo.LastWriteTimeUtc,
+                    Getter = (cntext, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
                     Setter = (cntext, collection, value) =>
                     {
-                        collection._directoryInfo.LastWriteTimeUtc = value;
+                        collection.DirectoryInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
                     }
                 },
@@ -174,7 +174,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // Win32 extensions
                 new Win32CreationTime<T>
                 {
-                    Getter = (cntext, collection) => collection._directoryInfo.CreationTimeUtc,
+                    Getter = (cntext, collection) => collection.DirectoryInfo.CreationTimeUtc,
                     Setter = (cntext, collection, value) =>
                     {
                         collection.DirectoryInfo.CreationTimeUtc = value;
@@ -186,7 +186,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     Getter = (cntext, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
                     Setter = (cntext, collection, value) =>
                     {
-                        collection._directoryInfo.LastAccessTimeUtc = value;
+                        collection.DirectoryInfo.LastAccessTimeUtc = value;
                         return DavStatusCode.Ok;
                     }
                 },

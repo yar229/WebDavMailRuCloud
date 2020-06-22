@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
@@ -64,7 +63,7 @@ namespace YaR.Clouds.Console
         }
 
 
-        public static string SpecialCommandPrefix => ">>";
+        //public static string SpecialCommandPrefix => ">>";
 
         public static string AdditionalSpecialCommandPrefix
         {
@@ -111,7 +110,6 @@ namespace YaR.Clouds.Console
                         _webDAVProps = new Dictionary<string, bool>();
 
                         var node = Document.SelectSingleNode("/config/WebDAVProps");
-                        var parames = new List<KeyValuePair<string, bool>>();
                         foreach (XmlNode childNode in node.ChildNodes)
                         {
                             string pname = childNode.Attributes["name"].InnerText;
@@ -121,6 +119,7 @@ namespace YaR.Clouds.Console
                     }
                     catch (Exception)
                     {
+                        // ignored
                     }
                 }
 

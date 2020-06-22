@@ -106,8 +106,7 @@ namespace YaR.Clouds.XTSSharp
 			//get the current sector
 			var currentSector = CurrentSector;
 
-			if (_encryptor == null)
-				_encryptor = _xts.CreateEncryptor();
+			_encryptor ??= _xts.CreateEncryptor();
 
 			//encrypt the sector
 			int transformedCount = _encryptor.TransformBlock(buffer, offset, count, _tempBuffer, 0, currentSector);
@@ -138,8 +137,7 @@ namespace YaR.Clouds.XTSSharp
 			if (ret == 0)
 				return 0;
 
-			if (_decryptor == null)
-				_decryptor = _xts.CreateDecryptor();
+			_decryptor ??= _xts.CreateDecryptor();
 
 			//decrypt the sector
 			var retV = _decryptor.TransformBlock(_tempBuffer, 0, ret, buffer, offset, currentSector);

@@ -12,7 +12,6 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
-using YaR.Clouds.Links;
 using CreateFolderRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
 using MoveRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.MoveRequest;
 
@@ -33,7 +32,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         protected IRequestRepo AnonymousRepo => throw new NotImplementedException();
 
-        public override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
@@ -223,11 +222,6 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             var res = req.ToCopyResult(WebDavPath.Name(destinationPath));
             return res;
 
-        }
-
-        private async Task<IEntry> FolderInfo(string path, int depth = 1)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)

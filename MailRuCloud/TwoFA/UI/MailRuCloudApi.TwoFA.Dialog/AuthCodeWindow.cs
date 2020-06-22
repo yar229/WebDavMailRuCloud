@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 {
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     public class AuthCodeWindow : ITwoFaHandler
     {
         private readonly IEnumerable<KeyValuePair<string, string>> _parames;

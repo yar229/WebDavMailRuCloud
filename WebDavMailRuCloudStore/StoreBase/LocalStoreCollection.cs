@@ -21,18 +21,17 @@ namespace YaR.Clouds.WebDavStore.StoreBase
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreCollection));
         private readonly IHttpContext _context;
-        internal readonly Folder _directoryInfo;
         private readonly LocalStore _store;
-        public Folder DirectoryInfo => _directoryInfo;
+        public Folder DirectoryInfo { get; }
         public IEntry EntryInfo => DirectoryInfo;
-        public long Length => _directoryInfo.Size;
+        public long Length => DirectoryInfo.Size;
         public bool IsReadable => false;
 
         public LocalStoreCollection(IHttpContext context, Folder directoryInfo, bool isWritable, 
             LocalStore store)
         {
             _context = context;
-            _directoryInfo = directoryInfo;
+            DirectoryInfo = directoryInfo;
             _store = store;
 
             IsWritable = isWritable;
@@ -40,7 +39,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public string CalculateEtag()
         {
-            string h = _directoryInfo.FullPath;
+            string h = DirectoryInfo.FullPath;
             var hash = SHA256.Create().ComputeHash(GetBytes(h));
             return BitConverter.ToString(hash).Replace("-", string.Empty);
         }
@@ -71,10 +70,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 {
                     lock (_itemsLocker)
                     {
-                        if (null == _items)
-                        {
-                            _items = GetItemsAsync(_context).Result;
-                        }
+                        _items ??= GetItemsAsync(_context).Result;
                     }
                 }
                 return _items;
@@ -84,8 +80,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         private IList<IStoreItem> _items;
         private readonly object _itemsLocker = new object();
 
-        public IEnumerable<LocalStoreCollection> Folders => Items.Where(it => it is LocalStoreCollection).Cast<LocalStoreCollection>();
-        public IEnumerable<LocalStoreItem> Files => Items.Where(it => it is LocalStoreItem).Cast<LocalStoreItem>();
+        //public IEnumerable<LocalStoreCollection> Folders => Items.Where(it => it is LocalStoreCollection).Cast<LocalStoreCollection>();
+        //public IEnumerable<LocalStoreItem> Files => Items.Where(it => it is LocalStoreItem).Cast<LocalStoreItem>();
 
 
         public Task<IStoreItem> GetItemAsync(string name, IHttpContext httpContext)
@@ -99,7 +95,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
-            var list = _directoryInfo.Entries
+            var list = DirectoryInfo.Entries
                 .Select(entry => entry.IsFile
                     ? (IStoreItem) new LocalStoreItem((File) entry, IsWritable, _store)
                     : new LocalStoreCollection(httpContext, (Folder) entry, IsWritable, _store))
@@ -184,7 +180,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         public async Task<StoreItemResult> CopyAsync(IStoreCollection destinationCollection, string name, bool overwrite, IHttpContext httpContext)
         {
             var instance = CloudManager.Instance(httpContext.Session.Principal.Identity);
-            var res = await instance.Copy(_directoryInfo, destinationCollection.GetFullPath());
+            var res = await instance.Copy(DirectoryInfo, destinationCollection.GetFullPath());
 
             return new StoreItemResult( res ? DavStatusCode.Created : DavStatusCode.InternalServerError);
         }
@@ -272,7 +268,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 return DavStatusCode.PreconditionFailed;
 
             // Determine the full path
-            var fullPath = WebDavPath.Combine(_directoryInfo.FullPath, name);
+            var fullPath = WebDavPath.Combine(DirectoryInfo.FullPath, name);
             try
             {
                 var item = FindSubItem(name);
@@ -304,7 +300,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             if (!(obj is LocalStoreCollection storeCollection))
                 return false;
-            return storeCollection._directoryInfo.FullPath.Equals(_directoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
+            return storeCollection.DirectoryInfo.FullPath.Equals(DirectoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }
