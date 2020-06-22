@@ -9,10 +9,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests
     {
         private readonly string _publicLink;
 
-        public UnpublishRequest(HttpCommonSettings settings, IAuth auth, string publicLink) 
+        public UnpublishRequest(IRequestRepo repo, HttpCommonSettings settings, IAuth auth, string publicLink) 
             : base(settings, auth)
         {
             _publicLink = publicLink;
+
+            if (repo.PublicBaseUrlDefault.Length > 0 && 
+                _publicLink.StartsWith(repo.PublicBaseUrlDefault, StringComparison.InvariantCultureIgnoreCase))
+                _publicLink = _publicLink.Remove(0, repo.PublicBaseUrlDefault.Length);
         }
 
         protected override string RelationalUri => $"/api/m1/file/unpublish?access_token={Auth.AccessToken}";

@@ -371,7 +371,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 CachedSharedList.Value.Remove(item.Key);
             }
 
-            var req = await new UnpublishRequest(HttpSettings, Authent, publicLink.OriginalString).MakeRequestAsync();
+            var req = await new UnpublishRequest(this, HttpSettings, Authent, publicLink.OriginalString).MakeRequestAsync();
             var res = req.ToUnpublishResult();
             return res;
         }
