@@ -250,7 +250,11 @@ namespace YaR.Clouds
             var res = (await Account.RequestRepo.Publish(fullPath))
                 .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
                 
-            return new Uri(res.Url, UriKind.Absolute);
+            var uri = new Uri(res.Url, UriKind.RelativeOrAbsolute);
+            if (!uri.IsAbsoluteUri)
+                uri = new Uri($"{Account.RequestRepo.PublicBaseUrlDefault.TrimEnd('/')}/{res.Url.TrimStart('/')}", UriKind.Absolute);
+
+            return uri;
         }
 
         public async Task<PublishInfo> Publish(File file, bool makeShareFile = true, 
