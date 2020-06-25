@@ -29,11 +29,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public static IEntry ToFolder(this YadFolderInfoRequestData data, YadItemInfoRequestData itemInfo, string path, string publicBaseUrl)
+        public static IEntry ToFolder(this YadFolderInfoRequestData data, YadItemInfoRequestData itemInfo, YadResourceStatsRequestData resStats, string path, string publicBaseUrl)
         {
             var fi = data.Resources;
 
-            var res = new Folder(itemInfo?.Meta?.Size ?? 0, path) { IsChildsLoaded = true };
+            var res = new Folder(resStats?.Size ?? itemInfo?.Meta?.Size ?? 0, path) { IsChildsLoaded = true };
             if (!string.IsNullOrEmpty(itemInfo?.Meta?.UrlShort))
                 res.PublicLinks.Add(new PublicLinkInfo("short", itemInfo.Meta.UrlShort));
 
