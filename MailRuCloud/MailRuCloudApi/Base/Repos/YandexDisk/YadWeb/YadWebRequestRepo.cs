@@ -161,6 +161,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             // YaD perform async deletion
             YadResponseModel<YadItemInfoRequestData, YadItemInfoRequestParams> itemInfo = null;
             YadResponseModel<YadFolderInfoRequestData, YadFolderInfoRequestParams> folderInfo = null;
+            YadResponseModel<YadResourceStatsRequestData, YadResourceStatsRequestParams> resourceStats = null;
+
             bool hasRemoveOp = _lastRemoveOperation != null &&
                                WebDavPath.IsParentOrSame(path.Path, _lastRemoveOperation.Path) &&
                                (DateTime.Now - _lastRemoveOperation.DateTime).TotalMilliseconds < 1_000;
@@ -173,10 +175,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     return doPreSleep;
                 },
                 () => new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                    .With(new YadItemInfoPostModel(path.Path),
-                        out itemInfo)
-                    .With(new YadFolderInfoPostModel(path.Path),
-                        out folderInfo)
+                    .With(new YadItemInfoPostModel(path.Path), out itemInfo)
+                    .With(new YadFolderInfoPostModel(path.Path), out folderInfo)
+                    .With(new YadResourceStatsPostModel(path.Path), out resourceStats)
                     .MakeRequestAsync()
                     .Result,
                 resp =>
@@ -198,7 +199,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             if (itdata.Type == "file")
                 return itdata.ToFile(PublicBaseUrlDefault);
 
-            var entry = folderInfo.Data.ToFolder(itemInfo.Data, path.Path, PublicBaseUrlDefault);
+            var entry = folderInfo.Data.ToFolder(itemInfo.Data, resourceStats.Data, path.Path, PublicBaseUrlDefault);
 
             return entry;
         }
@@ -224,7 +225,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 .MakeRequestAsync()
                 .Result;
 
-            var entry = folderInfo.Data.ToFolder(null, path, PublicBaseUrlDefault);
+            var entry = folderInfo.Data.ToFolder(null, null, path, PublicBaseUrlDefault);
 
             return entry;
         }
