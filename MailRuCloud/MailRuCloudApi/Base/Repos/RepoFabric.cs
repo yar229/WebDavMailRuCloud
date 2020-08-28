@@ -5,7 +5,7 @@ using YaR.Clouds.Base.Repos.YandexDisk.YadWeb;
 
 namespace YaR.Clouds.Base.Repos
 {
-    class RepoFabric
+    public class RepoFabric
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(RepoFabric));
 

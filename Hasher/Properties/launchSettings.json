@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Hasher": {
+      "commandName": "Project",
+      "commandLineArgs": "c:\\Tools\\wdmrc\\System.Runtime.CompilerServices.Unsafe.dll c:\\Tools\\DefSound\\DefSound.exe \"d:\\Media\\Video\\Сорвиголова (Россия).avi\" --protocol WebM1Bin"
+    }
+  }
+}

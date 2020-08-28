@@ -53,19 +53,6 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
-
-            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
-                {
-                    var z = GetShareListInner().Result;
-
-                    var res = z.Body.List
-                        .ToDictionary(
-                            fik => fik.Home, 
-                            fiv => Enumerable.Repeat(new PublicLinkInfo(PublicBaseUrlDefault + fiv.Weblink), 1) );
-
-                    return res;
-                }, 
-                value => TimeSpan.FromSeconds(30));
         }
 
         
@@ -407,7 +394,26 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
         }
 
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList
+        {
+            get
+            {
+                return _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+                    {
+                        var z = GetShareListInner().Result;
+
+                        var res = z.Body.List
+                            .ToDictionary(
+                                fik => fik.Home,
+                                fiv => Enumerable.Repeat(new PublicLinkInfo(PublicBaseUrlDefault + fiv.Weblink),
+                                    1));
+
+                        return res;
+                    },
+                    value => TimeSpan.FromSeconds(30));
+            }
+        }
+        private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
         private async Task<FolderInfoResult> GetShareListInner()
         {

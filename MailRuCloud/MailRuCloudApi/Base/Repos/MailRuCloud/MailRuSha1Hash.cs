@@ -13,6 +13,8 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             AppendInitBuffer();
         }
 
+        public string Name => "mrcsha1";
+
         public void Append(byte[] buffer, int offset, int length)
         {
             if (_isClosed)
