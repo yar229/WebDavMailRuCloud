@@ -26,6 +26,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             var preAuthResult = await new YadPreAuthRequest(_settings, this)
                 .MakeRequestAsync();
+            if (string.IsNullOrWhiteSpace(preAuthResult.Csrf))
+                throw new AuthenticationException($"{nameof(YadPreAuthRequest)} error parsing csrf");
+            if (string.IsNullOrWhiteSpace(preAuthResult.ProcessUUID))
+                throw new AuthenticationException($"{nameof(YadPreAuthRequest)} error parsing ProcessUUID");
+
             Uuid = preAuthResult.ProcessUUID;
 
             var loginAuth = await new YadAuthLoginRequest(_settings, this, preAuthResult.Csrf, preAuthResult.ProcessUUID)
