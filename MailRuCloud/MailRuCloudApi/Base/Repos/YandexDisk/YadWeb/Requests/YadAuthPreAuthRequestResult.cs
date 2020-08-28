@@ -28,12 +28,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         protected override RequestResponse<YadAuthPreAuthRequestResult> DeserializeMessage(string responseText)
         {
-            var matchCsrf = Regex.Match(responseText, @"data-csrf=""(?<csrf>.*?)""");
-            var matchUuid = Regex.Match(responseText, @"process_uuid=(?<uuid>\S+?)&quot;");
+            var matchCsrf = Regex.Match(responseText, @"""csrf"":""(?<csrf>.*?)""");
+            var matchUuid = Regex.Match(responseText, @"""process_uuid"":""(?<uuid>.*?)""");  //var matchUuid = Regex.Match(responseText, @"process_uuid(?<uuid>\S+?)&quot;");
 
             var msg = new RequestResponse<YadAuthPreAuthRequestResult>
             {
-                Ok = true,
+                Ok = matchCsrf.Success && matchUuid.Success,
                 Result = new YadAuthPreAuthRequestResult
                 {
                     Csrf = matchCsrf.Success ? matchCsrf.Groups["csrf"].Value : string.Empty,
