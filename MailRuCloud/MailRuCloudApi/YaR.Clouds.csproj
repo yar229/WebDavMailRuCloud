@@ -7,6 +7,7 @@
     <AssemblyName>YaR.Clouds</AssemblyName>
     <AssemblyVersion>1.11.0.29</AssemblyVersion>
     <FileVersion>1.11.0.29</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
