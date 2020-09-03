@@ -12,10 +12,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             AppendInitBuffer();
         }
 
+        public string Name => "yadsha256";
+
         public void Append(byte[] buffer, int offset, int length)
         {
             if (_isClosed)
-                throw new Exception("Cannot append because MRSHA1 already calculated.");
+                throw new Exception("Cannot append because hash already calculated.");
 
             _sha256.TransformBlock(buffer, offset, length, null, 0);
         }
