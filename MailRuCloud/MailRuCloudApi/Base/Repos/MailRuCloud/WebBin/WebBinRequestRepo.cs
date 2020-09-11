@@ -185,6 +185,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
         /// <returns>Shard info.</returns>
         public override async Task<ShardInfo> GetShardInfo(ShardType shardType)
         {
+            //TODO: rewrite ShardManager
+            if (shardType == ShardType.Upload) return ShardManager.UploadServer.Value;
+
             bool refreshed = false;
             for (int i = 0; i < 10; i++)
             {

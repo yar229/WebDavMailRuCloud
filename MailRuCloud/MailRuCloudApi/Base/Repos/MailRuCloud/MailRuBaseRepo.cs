@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
@@ -56,17 +57,33 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)
         {
             var shard = GetShardInfo(ShardType.Upload).Result;
-            var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");
+            var url = new Uri($"{shard.Url}?token={Authent.AccessToken}");  //cloud_domain=2&x-email={Authent.Login.Replace("@", "%40")}&
 
             var request = new HttpRequestMessage
             {
                 RequestUri = url,
                 Method = HttpMethod.Put
             };
-
-            request.Headers.Add("Accept", "*/*");
             request.Headers.TryAddWithoutValidation("User-Agent", HttpSettings.UserAgent);
 
+            //request.Headers.Add("Host", url.Host);
+            //request.Headers.Add("Connection", "keep-alive"); 
+            //request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            //request.Headers.Add("Accept", "*/*");
+            //request.Headers.Add("Origin", "https://cloud.mail.ru");
+            //request.Headers.Add("Sec-Fetch-Site", "same-site");
+            //request.Headers.Add("Sec-Fetch-Mode", "cors");
+            //request.Headers.Add("Sec-Fetch-Dest", "empty");
+            //string path = file.Path.Replace("\\", "/");
+            //request.Headers.Add("Referer", $"https://cloud.mail.ru/home{path}");
+            //request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            //request.Headers.Add("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7");
+            //request.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Safari/537.36");
+            //request.Headers.Add("X-CSRF-Token", Authent.AccessToken);
+            //request.Headers.Add("Token", Authent.AccessToken);
+            //request.Headers.Add("Access-token", Authent.AccessToken);
+            //content.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+            
             request.Content = content;
             request.Content.Headers.ContentLength = file.OriginalSize;
 
