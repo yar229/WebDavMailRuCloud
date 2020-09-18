@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Hasher\Hasher.csproj" />
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj" />
