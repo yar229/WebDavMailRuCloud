@@ -41,6 +41,26 @@
 	--version         Display version information.
 ```
 
+#### Hasher.exe usage
+
+Calculating hashes for local files
+
+```
+  --files            (Group: sources) Filename(s)/wildcard(s) separated by space
+
+  --lists            (Group: sources) Text files with wildcards/filenames separated by space
+
+  --protocol         (Default: WebM1Bin) Cloud protocol to determine hasher
+
+  -r, --recursive    (Default: false) Perform recursive directories scan
+
+  --help             Display this help screen.
+
+  --version          Display version information.
+```
+
+
+
 ***Yandex.Disk !beta!***
 
 (download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/), use `--protocol YadWeb` command line key)
