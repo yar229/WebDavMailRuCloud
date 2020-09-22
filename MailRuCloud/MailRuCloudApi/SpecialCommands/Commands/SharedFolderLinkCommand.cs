@@ -6,7 +6,7 @@ using YaR.Clouds.Base.Repos;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Links;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class SharedFolderLinkCommand : SpecialCommand
     {

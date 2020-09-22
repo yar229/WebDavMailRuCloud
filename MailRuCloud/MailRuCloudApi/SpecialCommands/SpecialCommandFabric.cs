@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using YaR.Clouds.Base;
+using YaR.Clouds.SpecialCommands.Commands;
 
 namespace YaR.Clouds.SpecialCommands
 {

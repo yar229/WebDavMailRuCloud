@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using YaR.Clouds.Base;
 using YaR.Clouds.Base.Repos;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class ListCommand : SpecialCommand
     {
@@ -20,12 +20,14 @@ namespace YaR.Clouds.SpecialCommands
 
         public override async Task<SpecialCommandResult> Execute()
         {
-            string name = Parames.Count > 0 && !string.IsNullOrWhiteSpace(Parames[0])
-                ? Parames[0]
-                : ".wdmrc.list.lst";
-            string target = WebDavPath.Combine(Path, name);
+            
 
-            var data = await Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(Path));
+            string target = Parames.Count > 0 && !string.IsNullOrWhiteSpace(Parames[0])
+                ? (Parames[0].StartsWith(WebDavPath.Separator) ? Parames[0] : WebDavPath.Combine(Path, Parames[0]))
+                : Path;
+
+            var data = await Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(target));
+            string resFilepath = WebDavPath.Combine(Path, data.Name + ".wdmrc.list.lst");
 
             var sb = new StringBuilder();
             foreach (var e in Flat(data))
@@ -36,7 +38,7 @@ namespace YaR.Clouds.SpecialCommands
                     $"{e.FullPath}\t{e.Size.DefaultValue}\t{e.CreationTimeUtc:yyyy.MM.dd HH:mm:ss}\t{hash}\t{link}");
             }
 
-            Cloud.UploadFile(target, sb.ToString());
+            Cloud.UploadFile(resFilepath, sb.ToString());
 
             return SpecialCommandResult.Success;
         }

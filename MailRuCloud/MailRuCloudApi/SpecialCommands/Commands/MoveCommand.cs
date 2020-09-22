@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
-    public class CopyCommand : SpecialCommand
+    public class MoveCommand : SpecialCommand
     {
-        public CopyCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
+        public MoveCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 
@@ -17,9 +17,12 @@ namespace YaR.Clouds.SpecialCommands
             string source = WebDavPath.Clean(Parames.Count == 1 ? Path : Parames[0]);
             string target = WebDavPath.Clean(Parames.Count == 1 ? Parames[0] : Parames[1]);
 
-            var res = await Cloud.Copy(source, target);
-            return new SpecialCommandResult(res);
+            var sourceEntry = await Cloud.GetItemAsync(source);
+            if (null == sourceEntry)
+                return SpecialCommandResult.Fail;
 
+            var res = await Cloud.MoveAsync(sourceEntry, target);
+            return new SpecialCommandResult(res);
         }
     }
 }

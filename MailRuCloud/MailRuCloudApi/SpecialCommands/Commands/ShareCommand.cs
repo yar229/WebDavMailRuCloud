@@ -5,7 +5,7 @@ using YaR.Clouds.Base;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class ShareCommand : SpecialCommand
     {

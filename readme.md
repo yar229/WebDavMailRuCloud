@@ -98,6 +98,7 @@ Parameters with spaces must be screened by quotes.
 * `>>move` `/full/path/from /full/path/to` Fast move (if your client moves inner items recursively)
 * `>>copy` `/full/path/from /full/path/to` Fast copy (if your client copies inner items recursively)
 * `>>lcopy` `x:/local/path/from /full/server/path/to` If file already in cloud, add it by hash without uploading
+* `>>rlist` [[/]path] [list_filename]	list [path] to [list_filename]
 * `>>del [[/]path]` Fast delete (if your client makes recursive deletions of inner items)
 * `>>share [[/]path]` Make file/folder public <br/>
   - and create `.share.wdmrc` file with links
