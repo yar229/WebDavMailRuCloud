@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class JoinCommand: SpecialCommand
     {

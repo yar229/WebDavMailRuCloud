@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     /// <summary>
     /// Пароль для (де)шифрования

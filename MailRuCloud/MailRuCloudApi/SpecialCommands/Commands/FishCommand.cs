@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     /// <summary>
     /// Join random file from cloud. If you got it - you are biggest f@kn lucker of Universe!

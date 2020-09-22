@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using YaR.Clouds.Base;
 using YaR.Clouds.Base.Repos;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class ListCommand : SpecialCommand
     {

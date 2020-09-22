@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
     public class LocalToServerCopyCommand : SpecialCommand
     {

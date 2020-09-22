@@ -2,11 +2,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
-namespace YaR.Clouds.SpecialCommands
+namespace YaR.Clouds.SpecialCommands.Commands
 {
-    public class DeleteCommand : SpecialCommand
+    /// <summary>
+    /// Создает для каталога признак, что файлы в нём будут шифроваться
+    /// </summary>
+    public class CryptInitCommand : SpecialCommand
     {
-        public DeleteCommand(Cloud cloud, string path, IList<string> parames): base(cloud, path, parames)
+        public CryptInitCommand(Cloud cloud, string path, IList<string> parames) : base(cloud, path, parames)
         {
         }
 
@@ -25,13 +28,11 @@ namespace YaR.Clouds.SpecialCommands
                 path = WebDavPath.Combine(Path, param);
 
             var entry = await Cloud.GetItemAsync(path);
-            if (null == entry)
+            if (null == entry || entry.IsFile)
                 return SpecialCommandResult.Fail;
 
-            var res = await Cloud.Remove(entry);
+            var res = await Cloud.CryptInit((Folder)entry);
             return new SpecialCommandResult(res);
         }
     }
-
-
 }
