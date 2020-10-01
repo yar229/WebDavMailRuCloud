@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
 using YaR.Clouds.Base.Repos;
+using YaR.Clouds.Links;
 
 namespace YaR.Clouds.SpecialCommands.Commands
 {
@@ -30,7 +31,8 @@ namespace YaR.Clouds.SpecialCommands.Commands
             string resFilepath = WebDavPath.Combine(Path, data.Name + ".wdmrc.list.lst");
 
             var sb = new StringBuilder();
-            foreach (var e in Flat(data))
+
+            foreach (var e in Flat(data, Cloud.LinkManager))
             {
                 string hash = (e as File)?.Hash ?? "-";
                 string link = e.PublicLinks.Any() ? e.PublicLinks.First().Uri.OriginalString : "-";
@@ -43,7 +45,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
             return SpecialCommandResult.Success;
         }
 
-        public IEnumerable<IEntry> Flat(IEntry entry)
+        public IEnumerable<IEntry> Flat(IEntry entry, LinkManager lm)
         {
             yield return entry;
 
@@ -57,11 +59,11 @@ namespace YaR.Clouds.SpecialCommands.Commands
                         : it is Folder ifolder
                             ? ifolder.IsChildsLoaded
                                 ? ifolder
-                                : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath), depth: 3).Result
+                                : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath, lm).Result, depth: 3).Result
                             : throw new NotImplementedException("Unknown item type"))
                     .OrderBy(it => it.Name);
                     
-                foreach (var item in ifolders.SelectMany(Flat))
+                foreach (var item in ifolders.SelectMany(f => Flat(f, lm)))
                     yield return item;
             }
         }
