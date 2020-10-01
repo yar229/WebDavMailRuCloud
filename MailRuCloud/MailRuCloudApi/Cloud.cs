@@ -30,6 +30,7 @@ namespace YaR.Clouds
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
         private readonly LinkManager _linkManager;
+        public LinkManager LinkManager => _linkManager;
 
         /// <summary>
         /// Async tasks cancelation token.

@@ -18,6 +18,19 @@ namespace YaR.Clouds.Base.Repos
 
         public static RemotePath Get(string path) => new RemotePath{Path = path};
         public static RemotePath Get(Link link) => new RemotePath{Link = link};
+
+        public static async Task<RemotePath> Get(string path, LinkManager lm)
+        {
+            var z = new RemotePath {Path = path};
+            if (lm != null)
+            {
+                var lnk = await lm.GetItemLink(path);
+                z.Link = lnk;
+            }
+
+            return z;
+        }
+
         //public static RemotePath Get(string path, Link link)
         //{
         //    if (string.IsNullOrEmpty(path) && null == link)
