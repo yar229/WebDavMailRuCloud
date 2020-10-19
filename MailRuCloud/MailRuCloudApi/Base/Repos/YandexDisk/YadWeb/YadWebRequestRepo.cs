@@ -25,20 +25,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private const int OperationStatusCheckIntervalMs = 300;
         private const int OperationStatusCheckRetryCount = 8;
 
+        private readonly IBasicCredentials _creds;
+
         public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
         {
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
             HttpSettings.Proxy = proxy;
-            _cachedAuth = new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, creds),
-                auth => TimeSpan.FromHours(23)); //Authent = new YadWebAuth(HttpSettings, creds);
-
-            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
-                {
-                    var res = GetShareListInner().Result;
-                    return res;
-                }, 
-                value => TimeSpan.FromSeconds(30));
+            _creds = creds;
         }
 
         private async Task<Dictionary<string, IEnumerable<PublicLinkInfo>>> GetShareListInner()
@@ -57,8 +51,19 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public IAuth Authent => _cachedAuth.Value;
-        private readonly Cached<YadWebAuth> _cachedAuth;
+        public IAuth Authent => CachedAuth.Value;
+
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, _creds), auth => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> _cachedAuth;
+
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+                    {
+                        var res = GetShareListInner().Result;
+                        return res;
+                    }, 
+                    value => TimeSpan.FromSeconds(30));
+        private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
+
 
         public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
         {
@@ -457,7 +462,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList { get; }
+        
 
         public IEnumerable<string> PublicBaseUrls { get; set; } = new[]
         {
