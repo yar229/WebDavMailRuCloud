@@ -120,7 +120,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
                             {
                                 long start = range.Start ?? 0;
                                 long end = range.End ?? start + length - 1;
-                                length = end - start + 1;   //var end = Math.Min(range.End ?? long.MaxValue, length - 1);
+                                //length = end - start + 1;   //var end = Math.Min(range.End ?? long.MaxValue, length - 1);
 
                                 // Write the range
                                 response.SetHeaderValue("Content-Range", $"bytes {start}-{end} / {stream.Length}");
