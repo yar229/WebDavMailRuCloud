@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Common;
 
@@ -78,7 +79,10 @@ namespace YaR.Clouds.Base.Streams
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                await Download(clostart, cloend, clofile).ConfigureAwait(false);
+                await Download(clostart, cloend, clofile, _cancellationTokenSource.Token).ConfigureAwait(false);
+
+                //_currentDownload = Download(clostart, cloend, clofile).;
+                //await _currentDownload.ConfigureAwait(false);
 
                 fileStart += file.OriginalSize;
             }
@@ -88,12 +92,14 @@ namespace YaR.Clouds.Base.Streams
             return _innerStream;
         }
 
-        private async Task Download(long start, long end, File file)
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        private async Task Download(long start, long end, File file, CancellationToken cancellationToken)
         {
             using (var httpweb = _responseGenerator(start, end, file))
             using (var responseStream = httpweb.Value.GetResponseStream())
             {
-                await responseStream.CopyToAsync(_innerStream).ConfigureAwait(false);
+                await responseStream.CopyToAsync(_innerStream, 81920, cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -102,8 +108,10 @@ namespace YaR.Clouds.Base.Streams
             base.Dispose(disposing);
             if (!disposing) return;
 
+            _cancellationTokenSource.Cancel();
+
             _innerStream?.Flush();
-            _copyTask?.Wait();
+            //_copyTask?.Wait();
 
             _innerStream?.Close();
         }

@@ -45,8 +45,8 @@ namespace YaR.Clouds.Extensions
         public static string ToHexString(this byte[] ba)
         {
             string hex = BitConverter.ToString(ba);
-            return hex;
-            //return hex.Replace("-", "");
+            //return hex;
+            return hex.Replace("-", "");
         }
 
         public static string ReadAsText(this WebResponse resp, CancellationTokenSource cancelToken)
