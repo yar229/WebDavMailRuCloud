@@ -118,9 +118,9 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
                             // Check if a range was specified
                             if (range != null)
                             {
-                                var start = range.Start ?? 0;
-                                var end = Math.Min(range.End ?? long.MaxValue, length - 1);
-                                length = end - start + 1;
+                                long start = range.Start ?? 0;
+                                long end = range.End ?? start + length - 1;
+                                length = end - start + 1;   //var end = Math.Min(range.End ?? long.MaxValue, length - 1);
 
                                 // Write the range
                                 response.SetHeaderValue("Content-Range", $"bytes {start}-{end} / {stream.Length}");
