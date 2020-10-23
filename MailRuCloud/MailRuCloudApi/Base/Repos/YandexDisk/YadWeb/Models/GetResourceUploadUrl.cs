@@ -34,6 +34,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
     internal class ResourceUploadUrlData : YadModelDataBase
     {
+        // upload params
         [JsonProperty("at_version")]
         public long AtVersion { get; set; }
 
@@ -45,6 +46,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 
         [JsonProperty("oid")]
         public string Oid { get; set; }
+
+        /// <summary>
+        /// or file exists in cloud, generally = "hardlinked"
+        /// </summary>
+        [JsonProperty("status")]
+        public string Status { get; set; }
     }
 
     internal class ResourceUploadUrlParams

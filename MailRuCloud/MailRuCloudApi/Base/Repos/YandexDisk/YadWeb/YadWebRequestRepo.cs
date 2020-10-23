@@ -116,6 +116,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
         public bool SupportsAddSmallFileByHash => false;
+        public bool SupportsDeduplicate => true;
 
         private HttpRequestMessage CreateUploadClientRequest(PushStreamContent content, File file)
         {

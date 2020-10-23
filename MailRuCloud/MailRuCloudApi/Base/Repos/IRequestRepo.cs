@@ -107,6 +107,7 @@ namespace YaR.Clouds.Base.Repos
 
 
         bool SupportsAddSmallFileByHash { get; }
+        bool SupportsDeduplicate { get; }
 
 
         string PublicBaseUrlDefault { get; }

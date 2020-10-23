@@ -35,45 +35,88 @@ namespace YaR.Clouds.Base.Streams
 
         private void Initialize()
         {
-            _requestTask = Task.Run(() =>
+            _requestTask = Task.Run(Function);
+        }
+
+        private void Function()
+        {
+            try
+            {
+                if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
+                {
+                        _ringBuffer.CopyTo(Stream.Null);
+                        _file.Hash = _cloudFileHasher?.HashString;
+
+                        _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                            .Result
+                            .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+                }
+                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted)
+                {
+                    var h = new DedupDecision(_file, _ringBuffer);
+                    h.TryDedup();
+
+                    if (h.TryDedup)
+                    {
+                        _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                            .Result
+                            .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+                    }
+                    else
+                    {
+                        
+                    }
+
+                }
+                else
+                {
+                    FullUpload(_ringBuffer);
+
+                    _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                        .Result
+                        .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Uploading to {_file.FullPath} failed with {e}"); //TODO remove duplicate exception catch?
+                throw;
+            }
+        }
+
+        private void FullUpload(Stream sourceStream)
+        {
+            _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
             {
                 try
                 {
-
-                    if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            _ringBuffer.CopyTo(ms);
-                        }
-                        return;
-                    }
-
-                    _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
-                    {
-                        try
-                        {
-                            _ringBuffer.CopyTo(stream);
-                            stream.Flush();
-                            stream.Close();
-                            OnFileStreamSent();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e}");
-                            throw;
-                        }
-                    });
-
-                    _client = HttpClientFabric.Instance[_cloud.Account];
-                    _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
+                    sourceStream.CopyTo(stream);
+                    stream.Flush();
+                    stream.Close();
+                    OnFileStreamSent();
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Uploading to {_file.FullPath} failed with {e}"); //TODO remove duplicate exception catch?
+                    Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e}");
                     throw;
                 }
             });
+
+            _client = HttpClientFabric.Instance[_cloud.Account];
+            _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
+
+
+            if (_uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
+                _uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
+                throw new Exception("Cannot upload file, status " + _uploadFileResult.HttpStatusCode);
+
+            if (_uploadFileResult.Size > 0 && _file.OriginalSize != _uploadFileResult.Size)
+                throw new Exception("Local and remote file size does not match");
+            _file.Hash = _uploadFileResult.Hash;
+
+            if (CheckHashes && !string.IsNullOrEmpty(_uploadFileResult.Hash) &&
+                _cloudFileHasher != null && _cloudFileHasher.HashString != _uploadFileResult.Hash)
+                throw new HashMatchException(_cloudFileHasher.HashString, _uploadFileResult.Hash);
         }
 
         private PushStreamContent _pushContent;
@@ -103,29 +146,7 @@ namespace YaR.Clouds.Base.Streams
                 _requestTask.GetAwaiter().GetResult();
                 OnServerFileProcessed();
 
-                if (null != _uploadFileResult) // file length > hash length
-                {
-                    if (_uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
-                        _uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
-                        throw new Exception("Cannot upload file, status " + _uploadFileResult.HttpStatusCode);
 
-                    if (_uploadFileResult.Size > 0 && _file.OriginalSize != _uploadFileResult.Size)
-                        throw new Exception("Local and remote file size does not match");
-                    _file.Hash = _uploadFileResult.Hash;
-
-                    if (CheckHashes && !string.IsNullOrEmpty(_uploadFileResult.Hash) && 
-                        _cloudFileHasher != null && _cloudFileHasher.HashString != _uploadFileResult.Hash)
-                        throw new HashMatchException(_cloudFileHasher.HashString, _uploadFileResult.Hash);
-                }
-                else
-                {
-                    _file.Hash = _cloudFileHasher?.HashString;
-                }
-
-
-                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                    .Result
-                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
             }
             finally 
             {

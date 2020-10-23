@@ -876,6 +876,7 @@ namespace YaR.Clouds
         {
             var file = new File(fullFilePath, size, string.Empty);
 
+
             var f = new UploadStreamFabric(this)
             {
                 FileStreamSent = fileStreamSent, 

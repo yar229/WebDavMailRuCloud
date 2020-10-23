@@ -51,7 +51,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         }
 
         public bool SupportsAddSmallFileByHash => true;
-
+        public bool SupportsDeduplicate => true;
 
 
         private HttpRequestMessage UploadClientRequest(PushStreamContent content, File file)

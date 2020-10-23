@@ -48,6 +48,7 @@ namespace YaR.Clouds.Console
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
                 DefaultSharedVideoResolution = Config.DefaultSharedVideoResolution,
                 UseLocks = options.UseLocks,
+                UseDeduplicate = options.UseDeduplicate,
 
                 Proxy = new ProxyFabric().Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
             };
