@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 
 namespace YaR.Clouds.Base.Streams
 {
-    internal class CacheStream
+    internal class CacheStream : IDisposable
     {
         private readonly File _file;
         private readonly Stream _sourceStream;
@@ -27,7 +26,7 @@ namespace YaR.Clouds.Base.Streams
             return true;
         }
 
-        private DataCache _cache { get; set; }
+        private DataCache _cache;
 
         public Stream Stream => _cache?.OutStream ?? _sourceStream;
 
@@ -36,13 +35,20 @@ namespace YaR.Clouds.Base.Streams
         {
             return new MemoryDataCache();
         }
+
+        public void Dispose()
+        {
+            _cache?.Dispose();
+        }
     }
 
-    internal abstract class DataCache
+    internal abstract class DataCache : IDisposable
     {
         public abstract Stream OutStream { get; }
 
         public abstract void FillFrom(Stream sourceStream);
+
+        public abstract void Dispose();
     }
 
     internal class MemoryDataCache : DataCache
@@ -56,6 +62,11 @@ namespace YaR.Clouds.Base.Streams
         {
             sourceStream.CopyTo(_ms);
             _ms.Seek(0, SeekOrigin.Begin);
+        }
+
+        public override void Dispose()
+        {
+            _ms?.Dispose();
         }
     }
 

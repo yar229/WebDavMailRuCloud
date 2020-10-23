@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos;
-using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Streams
@@ -35,38 +33,19 @@ namespace YaR.Clouds.Base.Streams
 
         private void Initialize()
         {
-            _requestTask = Task.Run(Function);
+            _uploadTask = Task.Run(Upload);
         }
 
-        private void Function()
+        private void Upload()
         {
             try
             {
                 if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
-                {
-                        _ringBuffer.CopyTo(Stream.Null);
-                        _file.Hash = _cloudFileHasher?.HashString;
-                }
+                    UploadSmall(_ringBuffer);
                 else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted)
-                {
-                    var cache = new CacheStream(_file, _ringBuffer, null);
-                    if (cache.Process())
-                    {
-                        _file.Hash = _cloudFileHasher.HashString;
-                        bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                            .Result.Success;
-
-                        if (!added)
-                        {
-                            FullUpload(cache.Stream);
-                        }
-
-                    }
-                }
+                    UploadCache(_ringBuffer);
                 else
-                {
-                    FullUpload(_ringBuffer);
-                }
+                    UploadFull(_ringBuffer);
 
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
@@ -79,9 +58,31 @@ namespace YaR.Clouds.Base.Streams
             }
         }
 
-        private void FullUpload(Stream sourceStream)
+        private void UploadSmall(Stream sourceStream)
         {
-            _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
+            sourceStream.CopyTo(Null);
+            _file.Hash = _cloudFileHasher?.HashString;
+        }
+
+        private void UploadCache(Stream sourceStream)
+        {
+            using var cache = new CacheStream(_file, sourceStream, null);
+
+            if (!cache.Process()) 
+                return;
+
+            _file.Hash = _cloudFileHasher.HashString;
+            bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                .Result
+                .Success;
+
+            if (!added)
+                UploadFull(cache.Stream);
+        }
+
+        private void UploadFull(Stream sourceStream)
+        {
+            var pushContent = new PushStreamContent((stream, httpContent, arg3) =>
             {
                 try
                 {
@@ -97,26 +98,22 @@ namespace YaR.Clouds.Base.Streams
                 }
             });
 
-            _client = HttpClientFabric.Instance[_cloud.Account];
-            _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
+            var client = HttpClientFabric.Instance[_cloud.Account];
+            var uploadFileResult = Repo.DoUpload(client, pushContent, _file).Result;
 
 
-            if (_uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
-                _uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
-                throw new Exception("Cannot upload file, status " + _uploadFileResult.HttpStatusCode);
+            if (uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
+                uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
+                throw new Exception("Cannot upload file, status " + uploadFileResult.HttpStatusCode);
 
-            if (_uploadFileResult.Size > 0 && _file.OriginalSize != _uploadFileResult.Size)
+            if (uploadFileResult.Size > 0 && _file.OriginalSize != uploadFileResult.Size)
                 throw new Exception("Local and remote file size does not match");
-            _file.Hash = _uploadFileResult.Hash;
+            _file.Hash = uploadFileResult.Hash;
 
-            if (CheckHashes && !string.IsNullOrEmpty(_uploadFileResult.Hash) &&
-                _cloudFileHasher != null && _cloudFileHasher.HashString != _uploadFileResult.Hash)
-                throw new HashMatchException(_cloudFileHasher.HashString, _uploadFileResult.Hash);
+            if (CheckHashes && !string.IsNullOrEmpty(uploadFileResult.Hash) &&
+                _cloudFileHasher != null && _cloudFileHasher.HashString != uploadFileResult.Hash)
+                throw new HashMatchException(_cloudFileHasher.HashString, uploadFileResult.Hash);
         }
-
-        private PushStreamContent _pushContent;
-        private HttpClient _client;
-        private UploadFileResult _uploadFileResult;
 
         public bool CheckHashes { get; set; } = true;
 
@@ -138,7 +135,7 @@ namespace YaR.Clouds.Base.Streams
             {
                 _ringBuffer.Flush();
 
-                _requestTask.GetAwaiter().GetResult();
+                _uploadTask.GetAwaiter().GetResult();
                 OnServerFileProcessed();
 
 
@@ -155,7 +152,7 @@ namespace YaR.Clouds.Base.Streams
 
         private IRequestRepo Repo => _cloud.Account.RequestRepo;
         private readonly ICloudHasher _cloudFileHasher;
-        private Task _requestTask;
+        private Task _uploadTask;
         private readonly RingBufferedStream _ringBuffer = new RingBufferedStream(65536);
 
         //===========================================================================================================================
