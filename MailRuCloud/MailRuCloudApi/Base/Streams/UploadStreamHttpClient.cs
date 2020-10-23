@@ -46,36 +46,31 @@ namespace YaR.Clouds.Base.Streams
                 {
                         _ringBuffer.CopyTo(Stream.Null);
                         _file.Hash = _cloudFileHasher?.HashString;
-
-                        _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                            .Result
-                            .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
                 }
                 else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted)
                 {
-                    var h = new DedupDecision(_file, _ringBuffer);
-                    h.TryDedup();
-
-                    if (h.TryDedup)
+                    var cache = new CacheStream(_file, _ringBuffer, null);
+                    if (cache.Process())
                     {
-                        _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                            .Result
-                            .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
-                    }
-                    else
-                    {
-                        
-                    }
+                        _file.Hash = _cloudFileHasher.HashString;
+                        bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                            .Result.Success;
 
+                        if (!added)
+                        {
+                            FullUpload(cache.Stream);
+                        }
+
+                    }
                 }
                 else
                 {
                     FullUpload(_ringBuffer);
-
-                    _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                        .Result
-                        .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
                 }
+
+                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                    .Result
+                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
             }
             catch (Exception e)
             {

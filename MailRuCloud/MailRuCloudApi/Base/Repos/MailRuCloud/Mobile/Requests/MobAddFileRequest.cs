@@ -65,15 +65,17 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
         {
             var opres = (OpResult)(int)data.OperationResult;
 
-            if (!SuccessCodes.Contains(opres))
-                throw new Exception($"{nameof(MobAddFileRequest)} failed with operation result code {opres} ({(int)opres})");
+            //if (!SuccessCodes.Contains(opres))
+            //    throw new Exception($"{nameof(MobAddFileRequest)} failed with operation result code {opres} ({(int)opres})");
+
+            bool isSuccess = SuccessCodes.Contains(opres);
 
             var res = new RequestResponse<Result>
             {
                 Ok = true,
                 Result = new Result
                 {
-                    IsSuccess = true,
+                    IsSuccess = isSuccess,
                     OperationResult = data.OperationResult,
                     Path = _fullPath
                 }
