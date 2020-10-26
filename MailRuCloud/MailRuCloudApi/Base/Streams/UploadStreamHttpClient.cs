@@ -43,7 +43,7 @@ namespace YaR.Clouds.Base.Streams
             {
                 if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
                     UploadSmall(_ringBuffer);
-                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted)
+                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted) // && !_file.ServiceInfo.SplitInfo.IsPart)
                     UploadCache(_ringBuffer);
                 else
                     UploadFull(_ringBuffer);
@@ -77,14 +77,15 @@ namespace YaR.Clouds.Base.Streams
             {
                 Logger.Debug($"Uploading [{cache.DataCacheName}] {_file.FullPath}");
 
+                OnFileStreamSent();
+
                 _file.Hash = _cloudFileHasher.Hash;
                 bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
                     .Success;
-                if (added)
-                    OnFileStreamSent();
-                else
-                    UploadFull(cache.Stream);
+
+                if (!added)
+                    UploadFull(cache.Stream, false);
             }
             else
             {
@@ -92,7 +93,7 @@ namespace YaR.Clouds.Base.Streams
             }
         }
 
-        private void UploadFull(Stream sourceStream)
+        private void UploadFull(Stream sourceStream, bool doInvokeFileStreamSent = true)
         {
             Logger.Debug($"Uploading [direct] {_file.FullPath}");
 
@@ -103,7 +104,8 @@ namespace YaR.Clouds.Base.Streams
                     sourceStream.CopyTo(stream);
                     stream.Flush();
                     stream.Close();
-                    OnFileStreamSent();
+                    if (doInvokeFileStreamSent)
+                        OnFileStreamSent();
                 }
                 catch (Exception e)
                 {
@@ -120,8 +122,9 @@ namespace YaR.Clouds.Base.Streams
                 uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
                 throw new Exception("Cannot upload file, status " + uploadFileResult.HttpStatusCode);
 
-            if (uploadFileResult.HasReturnedData && _file.OriginalSize != uploadFileResult.Size)
-                throw new Exception("Local and remote file size does not match");
+            // 2020-10-26 mairu does not return file size now
+            //if (uploadFileResult.HasReturnedData && _file.OriginalSize != uploadFileResult.Size)
+            //    throw new Exception("Local and remote file size does not match");
 
             if (uploadFileResult.HasReturnedData && CheckHashes && null != uploadFileResult.Hash &&
                 _cloudFileHasher != null && _cloudFileHasher.Hash.Hash.Value != uploadFileResult.Hash.Hash.Value)
