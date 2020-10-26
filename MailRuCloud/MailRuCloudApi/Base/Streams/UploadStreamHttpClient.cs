@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos;
+using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Streams
@@ -70,12 +71,12 @@ namespace YaR.Clouds.Base.Streams
 
         private void UploadCache(Stream sourceStream)
         {
-            Logger.Debug($"Uploading [with deduplication] {_file.FullPath}");
-
-            using var cache = new CacheStream(_file, sourceStream, null);
+            using var cache = new CacheStream(_file, sourceStream, _cloud.Settings.DeduplicateRules);
 
             if (cache.Process())
             {
+                Logger.Debug($"Uploading [{cache.DataCacheName}] {_file.FullPath}");
+
                 _file.Hash = _cloudFileHasher.Hash;
                 bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
@@ -93,7 +94,7 @@ namespace YaR.Clouds.Base.Streams
 
         private void UploadFull(Stream sourceStream)
         {
-            Logger.Debug($"Uploading [full upload] {_file.FullPath}");
+            Logger.Debug($"Uploading [direct] {_file.FullPath}");
 
             var pushContent = new PushStreamContent((stream, httpContent, arg3) =>
             {

@@ -1,5 +1,8 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Common;
 
 namespace YaR.Clouds
@@ -26,6 +29,13 @@ namespace YaR.Clouds
         public SharedVideoResolution DefaultSharedVideoResolution { get; set; } = SharedVideoResolution.All;
         public IWebProxy Proxy { get; set; }
         public bool UseLocks { get; set; }
+        
         public bool UseDeduplicate { get; set; }
+
+        public DeduplicateRulesBag DeduplicateRules { get; set; }
+
     }
+
+
+
 }

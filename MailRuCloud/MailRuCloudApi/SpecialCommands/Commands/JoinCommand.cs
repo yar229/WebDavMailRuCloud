@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 
 namespace YaR.Clouds.SpecialCommands.Commands
 {
