@@ -46,7 +46,7 @@ namespace YaR.Clouds.Base.Streams.Cache
                     {
                         case CacheType.Memory : return new MemoryDataCache();
                         case CacheType.Disk : return new DiskDataCache(_deduplicateRules.DiskPath);
-                        default: throw new NotImplementedException($"DataCache not implmented for {rule.CacheType}");
+                        default: throw new NotImplementedException($"DataCache not implemented for {rule.CacheType}");
                     }
                 }
             }
