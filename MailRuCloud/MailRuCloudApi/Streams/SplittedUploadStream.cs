@@ -105,15 +105,18 @@ namespace YaR.Clouds.Streams
             {
                 CheckHashes = _checkHash,
 
-                FileStreamSent = FileStreamSent,
-                ServerFileProcessed = ServerFileProcessed
+                //FileStreamSent = FileStreamSent,
+                //ServerFileProcessed = ServerFileProcessed
             };
         }
 
         private Task _uploadPendingTask = Task.CompletedTask;
 
         public Action FileStreamSent;
+        private void OnFileStreamSent() => FileStreamSent?.Invoke();
+
         public Action ServerFileProcessed;
+        private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
 
         public override void Flush()
         {
@@ -177,9 +180,12 @@ namespace YaR.Clouds.Streams
             base.Dispose(disposing);
             if (!disposing) return;
 
+            OnFileStreamSent();
+
+            var clostream = _uploadStream;
             _uploadPendingTask.ContinueWith(task =>
             {
-                _uploadStream?.Dispose();
+                clostream?.Dispose();
             }).Wait();
 
             if (_performAsSplitted)
@@ -194,6 +200,7 @@ namespace YaR.Clouds.Streams
                 _cloud.UploadFileJson(_origfile.FullPath, header, true);
             }
 
+            OnServerFileProcessed();
             OnFileUploaded(_files);
         }
 
