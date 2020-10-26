@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.Clouds.Base.Requests.Types;
@@ -31,7 +32,7 @@ namespace YaR.Clouds.Base.Repos
 
         internal static File ToFile(this FsFile data)
 		{
-		    var res = new File(data.FullPath, (long) data.Size, data.Sha1.ToHexString())
+		    var res = new File(data.FullPath, (long) data.Size, new FileHashMrc(data.Sha1.ToHexString()))
 		    {
                 CreationTimeUtc = data.ModifDate,
                 LastAccessTimeUtc = data.ModifDate,

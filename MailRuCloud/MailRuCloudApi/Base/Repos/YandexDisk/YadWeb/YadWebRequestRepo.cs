@@ -116,12 +116,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
         public bool SupportsAddSmallFileByHash => false;
+        public bool SupportsDeduplicate => true;
 
         private HttpRequestMessage CreateUploadClientRequest(PushStreamContent content, File file)
         {
-
+            var hash = (FileHashYad)file.Hash;
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize),
+                .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize, hash.HashSha256.Value, hash.HashMd5.Value),
                     out YadResponseModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
                 .MakeRequestAsync().Result;
             var url = itemInfo.Data.UploadUrl;
@@ -148,6 +149,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var responseMessage = await client.SendAsync(request);
             var ures = responseMessage.ToUploadPathResult();
 
+            ures.NeedToAddFile = false;
             //Thread.Sleep(1_000);
 
             return ures;
@@ -298,13 +300,20 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime,
+        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime,
             ConflictResolver? conflictResolver)
         {
+            var hash = (FileHashYad)fileHash;
+
+            var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                .With(new YadGetResourceUploadUrlPostModel(fileFullPath, fileSize, hash.HashSha256.Value, hash.HashMd5.Value),
+                    out YadResponseModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
+                .MakeRequestAsync().Result;
+
             var res = new AddFileResult
             {
                 Path = fileFullPath,
-                Success = true
+                Success = itemInfo.Data.Status == "hardlinked"
             };
 
             return await Task.FromResult(res);

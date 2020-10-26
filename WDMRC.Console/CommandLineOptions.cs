@@ -62,5 +62,8 @@ namespace YaR.Clouds.Console
 
         [Option("use-locks", Required = false, Default = false, HelpText = "locking feature")]
         public bool UseLocks { get; set; }
+
+        [Option("use-deduplicate", Required = false, Default = false, HelpText = "Use cloud deduplicate feature to minimize traffic")]
+        public bool UseDeduplicate { get; set; }
     }
 }

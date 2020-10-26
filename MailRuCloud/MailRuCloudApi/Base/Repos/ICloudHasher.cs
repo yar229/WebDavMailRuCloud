@@ -10,7 +10,7 @@ namespace YaR.Clouds.Base.Repos
         void Append(byte[] buffer, int offset, int count);
         void Append(Stream stream);
 
-        string HashString { get; }
+        IFileHash Hash { get; }
         long Length { get; }
     }
 }

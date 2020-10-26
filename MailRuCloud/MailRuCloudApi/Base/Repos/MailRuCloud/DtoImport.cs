@@ -86,15 +86,20 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         //TODO: move to repo 
         public static UploadFileResult ToUploadPathResult(this HttpResponseMessage response)
         {
-            var res = new UploadFileResult { HttpStatusCode = response.StatusCode };
+            var res = new UploadFileResult { HttpStatusCode = response.StatusCode, HasReturnedData = false };
 
             if (response.IsSuccessStatusCode)
             {
                 var strres = response.Content.ReadAsStringAsync().Result;
 
+                if (string.IsNullOrEmpty(strres))
+                    return res;
+                
+                res.HasReturnedData = true;
+
                 var resp = strres.Split(';');
 
-                res.Hash = resp[0];
+                res.Hash = new FileHashMrc(resp[0]);
                 res.Size = resp.Length > 1
                     ? long.Parse(resp[1].Trim('\r', '\n', ' '))
                     : 0;
@@ -303,7 +308,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                     : WebDavPath.Combine(WebDavPath.Parent(item.Home), nameReplacement);
 
 
-                var file = new File(path ?? item.Name, item.Size, item.Hash);
+                var file = new File(path ?? item.Name, item.Size, new FileHashMrc(item.Hash));
                 file.PublicLinks.AddRange(item.Weblink.ToPublicLinkInfos(publicBaseUrl));
 
                 var dt = UnixTimeStampToDateTime(item.Mtime, file.CreationTimeUtc);

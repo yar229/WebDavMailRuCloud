@@ -369,7 +369,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
                 .ToCreateFolderResult();
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
+        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
             throw new NotImplementedException();
         }

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos;
-using YaR.Clouds.Base.Requests.Types;
+using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Streams
@@ -35,50 +34,110 @@ namespace YaR.Clouds.Base.Streams
 
         private void Initialize()
         {
-            _requestTask = Task.Run(() =>
+            _uploadTask = Task.Run(Upload);
+        }
+
+        private void Upload()
+        {
+            try
+            {
+                if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
+                    UploadSmall(_ringBuffer);
+                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted) // && !_file.ServiceInfo.SplitInfo.IsPart)
+                    UploadCache(_ringBuffer);
+                else
+                    UploadFull(_ringBuffer);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Uploading to {_file.FullPath} failed with {e}"); //TODO remove duplicate exception catch?
+                throw;
+            }
+        }
+
+        private void UploadSmall(Stream sourceStream)
+        {
+            Logger.Debug($"Uploading [small file] {_file.FullPath}");
+
+            sourceStream.CopyTo(Null);
+            OnFileStreamSent();
+
+            _file.Hash = _cloudFileHasher?.Hash;
+
+            _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                .Result
+                .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+        }
+
+        private void UploadCache(Stream sourceStream)
+        {
+            using var cache = new CacheStream(_file, sourceStream, _cloud.Settings.DeduplicateRules);
+
+            if (cache.Process())
+            {
+                Logger.Debug($"Uploading [{cache.DataCacheName}] {_file.FullPath}");
+
+                OnFileStreamSent();
+
+                _file.Hash = _cloudFileHasher.Hash;
+                bool added = _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                    .Result
+                    .Success;
+
+                if (!added)
+                    UploadFull(cache.Stream, false);
+            }
+            else
+            {
+                UploadFull(sourceStream);
+            }
+        }
+
+        private void UploadFull(Stream sourceStream, bool doInvokeFileStreamSent = true)
+        {
+            Logger.Debug($"Uploading [direct] {_file.FullPath}");
+
+            var pushContent = new PushStreamContent((stream, httpContent, arg3) =>
             {
                 try
                 {
-
-                    if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            _ringBuffer.CopyTo(ms);
-                        }
-                        return;
-                    }
-
-                    _pushContent = new PushStreamContent((stream, httpContent, arg3) =>
-                    {
-                        try
-                        {
-                            _ringBuffer.CopyTo(stream);
-                            stream.Flush();
-                            stream.Close();
-                            OnFileStreamSent();
-                        }
-                        catch (Exception e)
-                        {
-                            Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e}");
-                            throw;
-                        }
-                    });
-
-                    _client = HttpClientFabric.Instance[_cloud.Account];
-                    _uploadFileResult = Repo.DoUpload(_client, _pushContent, _file).Result;
+                    sourceStream.CopyTo(stream);
+                    stream.Flush();
+                    stream.Close();
+                    if (doInvokeFileStreamSent)
+                        OnFileStreamSent();
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"Uploading to {_file.FullPath} failed with {e}"); //TODO remove duplicate exception catch?
+                    Logger.Error($"(inner) Uploading to {_file.FullPath} failed with {e}");
                     throw;
                 }
             });
-        }
 
-        private PushStreamContent _pushContent;
-        private HttpClient _client;
-        private UploadFileResult _uploadFileResult;
+            var client = HttpClientFabric.Instance[_cloud.Account];
+            var uploadFileResult = Repo.DoUpload(client, pushContent, _file).Result;
+
+
+            if (uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
+                uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
+                throw new Exception("Cannot upload file, status " + uploadFileResult.HttpStatusCode);
+
+            // 2020-10-26 mairu does not return file size now
+            //if (uploadFileResult.HasReturnedData && _file.OriginalSize != uploadFileResult.Size)
+            //    throw new Exception("Local and remote file size does not match");
+
+            if (uploadFileResult.HasReturnedData && CheckHashes && null != uploadFileResult.Hash &&
+                _cloudFileHasher != null && _cloudFileHasher.Hash.Hash.Value != uploadFileResult.Hash.Hash.Value)
+                throw new HashMatchException(_cloudFileHasher.Hash.ToString(), uploadFileResult.Hash.ToString());
+
+            if (uploadFileResult.HasReturnedData)
+                _file.Hash = uploadFileResult.Hash;
+
+            if (uploadFileResult.NeedToAddFile)
+                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
+                    .Result
+                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+        }
 
         public bool CheckHashes { get; set; } = true;
 
@@ -100,32 +159,10 @@ namespace YaR.Clouds.Base.Streams
             {
                 _ringBuffer.Flush();
 
-                _requestTask.GetAwaiter().GetResult();
+                _uploadTask.GetAwaiter().GetResult();
                 OnServerFileProcessed();
 
-                if (null != _uploadFileResult) // file length > hash length
-                {
-                    if (_uploadFileResult.HttpStatusCode != HttpStatusCode.Created &&
-                        _uploadFileResult.HttpStatusCode != HttpStatusCode.OK)
-                        throw new Exception("Cannot upload file, status " + _uploadFileResult.HttpStatusCode);
 
-                    if (_uploadFileResult.Size > 0 && _file.OriginalSize != _uploadFileResult.Size)
-                        throw new Exception("Local and remote file size does not match");
-                    _file.Hash = _uploadFileResult.Hash;
-
-                    if (CheckHashes && !string.IsNullOrEmpty(_uploadFileResult.Hash) && 
-                        _cloudFileHasher != null && _cloudFileHasher.HashString != _uploadFileResult.Hash)
-                        throw new HashMatchException(_cloudFileHasher.HashString, _uploadFileResult.Hash);
-                }
-                else
-                {
-                    _file.Hash = _cloudFileHasher?.HashString;
-                }
-
-
-                _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
-                    .Result
-                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
             }
             finally 
             {
@@ -139,7 +176,7 @@ namespace YaR.Clouds.Base.Streams
 
         private IRequestRepo Repo => _cloud.Account.RequestRepo;
         private readonly ICloudHasher _cloudFileHasher;
-        private Task _requestTask;
+        private Task _uploadTask;
         private readonly RingBufferedStream _ringBuffer = new RingBufferedStream(65536);
 
         //===========================================================================================================================

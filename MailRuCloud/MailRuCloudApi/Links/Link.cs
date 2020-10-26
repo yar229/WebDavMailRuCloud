@@ -62,7 +62,7 @@ namespace YaR.Clouds.Links
         public IEntry ToBadEntry()
         {
             var res = ItemType == Cloud.ItemType.File
-                ? (IEntry)new File(FullPath, Size, string.Empty)
+                ? (IEntry)new File(FullPath, Size, null)
                 : new Folder(Size, FullPath);
 
             return res;

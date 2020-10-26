@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using YaR.Clouds.Base;
 using YaR.Clouds.Base.Streams;
 using File = YaR.Clouds.Base.File;
@@ -86,7 +87,13 @@ namespace YaR.Clouds.Streams
         private void NextFile()
         {
             if (_currFileId >= 0)
-                _uploadStream.Dispose();
+            {
+                var clostream = _uploadStream;
+                _uploadPendingTask = _uploadPendingTask.ContinueWith(task =>
+                {
+                    clostream.Dispose();
+                });
+            }
 
             _currFileId++;
             if (_currFileId >= _files.Count)
@@ -102,6 +109,8 @@ namespace YaR.Clouds.Streams
                 ServerFileProcessed = ServerFileProcessed
             };
         }
+
+        private Task _uploadPendingTask = Task.CompletedTask;
 
         public Action FileStreamSent;
         public Action ServerFileProcessed;
@@ -168,7 +177,10 @@ namespace YaR.Clouds.Streams
             base.Dispose(disposing);
             if (!disposing) return;
 
-            _uploadStream?.Dispose();
+            _uploadPendingTask.ContinueWith(task =>
+            {
+                _uploadStream?.Dispose();
+            }).Wait();
 
             if (_performAsSplitted)
             {

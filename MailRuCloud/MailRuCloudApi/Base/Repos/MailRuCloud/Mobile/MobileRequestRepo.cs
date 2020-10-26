@@ -146,7 +146,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
                 {
                     if (fsi is FsFile fsfi)
                     {
-                        var fi = new File(fsfi.FullPath, (long)fsfi.Size, fsfi.Sha1.ToHexString())
+                        var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
                         {
                             CreationTimeUtc = fsfi.ModifDate,
                             LastWriteTimeUtc = fsfi.ModifDate,
@@ -165,7 +165,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 
             if (res.Item is FsFile fsfi1)
             {
-                var fi = new File(fsfi1.FullPath, (long)fsfi1.Size, fsfi1.Sha1.ToHexString())
+                var fi = new File(fsfi1.FullPath, (long)fsfi1.Size, new FileHashMrc(fsfi1.Sha1))
                 {
                     CreationTimeUtc = fsfi1.ModifDate,
                     LastWriteTimeUtc = fsfi1.ModifDate,
@@ -237,10 +237,10 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
                 .ToCreateFolderResult();
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
+        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
             var res = await new MobAddFileRequest(HttpSettings, Authent, _metaServer.Value.Url,
-                    fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
+                    fileFullPath, fileHash.Hash.Value, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

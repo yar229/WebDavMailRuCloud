@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml;
+using YaR.Clouds.Base.Streams;
+using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
 using YaR.Clouds.WebDavStore;
@@ -126,8 +129,57 @@ namespace YaR.Clouds.Console
                 return _webDAVProps;
             }
         }
-
         private static Dictionary<string, bool> _webDAVProps;
+
+        public static DeduplicateRulesBag DeduplicateRules
+        {
+            get
+            {
+                if (null == _deduplicateRulesBag)
+                {
+                    try
+                    {
+                        _deduplicateRulesBag = new DeduplicateRulesBag
+                        {
+                            Rules = new List<DeduplicateRule>(),
+                            DiskPath = Document
+                                .SelectSingleNode("/config/Deduplicate/Disk")
+                                .Attributes["Path"]
+                                .InnerText
+                        };
+
+                        if (!Directory.Exists(_deduplicateRulesBag.DiskPath))
+                            Directory.CreateDirectory(_deduplicateRulesBag.DiskPath);
+
+                        var nodes = Document.SelectNodes("/config/Deduplicate/Rules/Rule");
+                        foreach (XmlNode node in nodes)
+                        {
+                            var rule = new DeduplicateRule
+                            {
+                                CacheType = (CacheType)Enum.Parse(typeof(CacheType), node.Attributes["Cache"].InnerText),
+                                Target = node.Attributes["Target"].InnerText,
+                                MinSize = ulong.Parse(node.Attributes["MinSize"].InnerText),
+                                MaxSize = ulong.Parse(node.Attributes["MaxSize"].InnerText)
+                            };
+                            if (!string.IsNullOrEmpty(rule.Target) && !VerifyRegex(rule.Target))
+                                throw new Exception("Invalid regex expression in config/Deduplicate/Rule/Target");
+                            if (rule.MaxSize > 0 && rule.MaxSize < rule.MinSize)
+                                throw new Exception("Invalid MinSize/MaxSize config/Deduplicate/Rule/");
+
+                            _deduplicateRulesBag.Rules.Add(rule);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // ignored
+                    }
+                }
+
+                return _deduplicateRulesBag;
+            }
+        }
+        private static DeduplicateRulesBag _deduplicateRulesBag;
+
 
         public static bool IsEnabledWebDAVProperty(string propName)
         {
@@ -135,6 +187,30 @@ namespace YaR.Clouds.Console
                 return enabled;
 
             return true;
+        }
+
+
+        private static bool VerifyRegex(string testPattern)
+        {
+            bool isValid = true;
+
+            if ((testPattern != null) && (testPattern.Trim( ).Length > 0))
+            {
+                try
+                {
+                    Regex.Match("", testPattern);
+                }
+                catch (ArgumentException)
+                {
+                    isValid = false; // BAD PATTERN: Syntax error
+                }
+            }
+            else
+            {
+                isValid = false; //BAD PATTERN: Pattern is null or blank
+            }
+
+            return isValid;
         }
     }
 }

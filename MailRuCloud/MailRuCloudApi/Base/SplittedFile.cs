@@ -35,7 +35,7 @@ namespace YaR.Clouds.Base
 
         public override FileSize OriginalSize => Parts.Sum(f => f.OriginalSize);
 
-        public override string Hash => FileHeader.Hash;
+        public override IFileHash Hash => FileHeader.Hash;
 
         public override DateTime CreationTimeUtc => FileHeader.CreationTimeUtc;
         public override DateTime LastWriteTimeUtc => FileHeader.LastWriteTimeUtc;

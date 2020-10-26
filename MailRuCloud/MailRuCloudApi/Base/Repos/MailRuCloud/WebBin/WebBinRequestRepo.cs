@@ -14,6 +14,7 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
 using AnonymousRepo = YaR.Clouds.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
 using AccountInfoRequest = YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
 using CreateFolderRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
@@ -447,7 +448,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 .ToCreateFolderResult();
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
+        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
             //var res = await new CreateFileRequest(Proxy, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
             //    .MakeRequestAsync();
@@ -456,7 +457,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             //using Mobile request because of supporting file modified time
 
             //TODO: refact, make mixed repo
-            var req = await new MobAddFileRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, fileFullPath, fileHash, fileSize, dateTime, conflictResolver)
+            var req = await new MobAddFileRequest(HttpSettings, Authent, ShardManager.MetaServer.Url, fileFullPath, fileHash.Hash.Value, fileSize, dateTime, conflictResolver)
                 .MakeRequestAsync();
 
             var res = req.ToAddFileResult();

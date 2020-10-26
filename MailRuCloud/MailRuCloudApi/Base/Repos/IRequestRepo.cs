@@ -73,7 +73,7 @@ namespace YaR.Clouds.Base.Repos
 
         Task<CreateFolderResult> CreateFolder(string path);
 
-        Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver);
+        Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver);
 
         Task<CloneItemResult> CloneItem(string fromUrl, string toPath);
 
@@ -107,6 +107,7 @@ namespace YaR.Clouds.Base.Repos
 
 
         bool SupportsAddSmallFileByHash { get; }
+        bool SupportsDeduplicate { get; }
 
 
         string PublicBaseUrlDefault { get; }

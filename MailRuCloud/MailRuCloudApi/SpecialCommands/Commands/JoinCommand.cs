@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 
 namespace YaR.Clouds.SpecialCommands.Commands
 {
@@ -49,7 +50,8 @@ namespace YaR.Clouds.SpecialCommands.Commands
                 ? paramPath
                 : WebDavPath.Combine(path, paramPath);
 
-            var k = await Cloud.AddFile(hash, fpath, size, ConflictResolver.Rename);
+            //TODO: now mail.ru only
+            var k = await Cloud.AddFile(new FileHashMrc(hash), fpath, size, ConflictResolver.Rename);
             return new SpecialCommandResult(k.Success);
         }
     }

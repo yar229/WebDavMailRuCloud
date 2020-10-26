@@ -34,7 +34,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
 
             foreach (var e in Flat(data, Cloud.LinkManager))
             {
-                string hash = (e as File)?.Hash ?? "-";
+                string hash = (e as File)?.Hash.ToString() ?? "-";
                 string link = e.PublicLinks.Any() ? e.PublicLinks.First().Uri.OriginalString : "-";
                 sb.AppendLine(
                     $"{e.FullPath}\t{e.Size.DefaultValue}\t{e.CreationTimeUtc:yyyy.MM.dd HH:mm:ss}\t{hash}\t{link}");

@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 
 namespace YaR.Clouds.SpecialCommands.Commands
 {
@@ -36,7 +37,8 @@ namespace YaR.Clouds.SpecialCommands.Commands
             try
             {
                 //var res = await new CreateFileRequest(Cloud.CloudApi, target, strRandomHash, randomSize, ConflictResolver.Rename).MakeRequestAsync();
-                var res = await Cloud.Account.RequestRepo.AddFile(target, strRandomHash, randomSize, DateTime.Now,  ConflictResolver.Rename);
+                var hash = new FileHashMrc(randomHash);
+                var res = await Cloud.Account.RequestRepo.AddFile(target, hash, randomSize, DateTime.Now,  ConflictResolver.Rename);
                 if (res.Success)
                 {
                     Logger.Warn("╔╗╔╗╔╦══╦╗╔╗╔╗╔╦╦╗");
