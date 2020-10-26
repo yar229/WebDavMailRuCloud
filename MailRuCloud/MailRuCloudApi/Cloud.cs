@@ -874,7 +874,7 @@ namespace YaR.Clouds
 
         public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, Action fileStreamSent, Action serverFileProcessed, bool discardEncryption = false)
         {
-            var file = new File(fullFilePath, size, string.Empty);
+            var file = new File(fullFilePath, size, null);
 
 
             var f = new UploadStreamFabric(this)
@@ -1009,7 +1009,7 @@ namespace YaR.Clouds
             if (count > 0) _itemCache.Invalidate();
         }
 
-        public async Task<AddFileResult> AddFile(string hash, string fullFilePath, long size, ConflictResolver? conflict = null)
+        public async Task<AddFileResult> AddFile(IFileHash hash, string fullFilePath, long size, ConflictResolver? conflict = null)
         {
             var res = await Account.RequestRepo.AddFile(fullFilePath, hash, size, DateTime.Now, conflict);
             

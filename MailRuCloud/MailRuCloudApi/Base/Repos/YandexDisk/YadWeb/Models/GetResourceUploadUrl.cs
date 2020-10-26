@@ -1,16 +1,19 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
 {
     class YadGetResourceUploadUrlPostModel : YadPostModel
     {
-        public YadGetResourceUploadUrlPostModel(string path, long size, bool force = true)
+        public YadGetResourceUploadUrlPostModel(string path, long size, string hashSha256, string hashMd5, bool force = true)
         {
             Name = "do-resource-upload-url";
             Destination = path;
             Size = size;
             Force = force;
+            Sha256 = hashSha256;
+            Md5 = hashMd5;
         }
 
         public string Destination { get; set; }

@@ -36,7 +36,8 @@ namespace YaR.Clouds.SpecialCommands.Commands
             try
             {
                 //var res = await new CreateFileRequest(Cloud.CloudApi, target, strRandomHash, randomSize, ConflictResolver.Rename).MakeRequestAsync();
-                var res = await Cloud.Account.RequestRepo.AddFile(target, strRandomHash, randomSize, DateTime.Now,  ConflictResolver.Rename);
+                var hash = new FileHashMrc(randomHash);
+                var res = await Cloud.Account.RequestRepo.AddFile(target, hash, randomSize, DateTime.Now,  ConflictResolver.Rename);
                 if (res.Success)
                 {
                     Logger.Warn("╔╗╔╗╔╦══╦╗╔╗╔╗╔╦╦╗");

@@ -31,7 +31,7 @@ namespace YaR.Clouds.Base.Repos
 
         internal static File ToFile(this FsFile data)
 		{
-		    var res = new File(data.FullPath, (long) data.Size, data.Sha1.ToHexString())
+		    var res = new File(data.FullPath, (long) data.Size, new FileHashMrc(data.Sha1.ToHexString()))
 		    {
                 CreationTimeUtc = data.ModifDate,
                 LastAccessTimeUtc = data.ModifDate,

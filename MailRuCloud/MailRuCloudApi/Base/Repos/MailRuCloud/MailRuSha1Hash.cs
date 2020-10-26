@@ -45,9 +45,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             }
         }
 
-        public string HashString => BitConverter.ToString(Hash).Replace("-", string.Empty);
+        public string HashString => Hash.Hash.Value; //BitConverter.ToString(Hash).Replace("-", string.Empty);
 
-        public byte[] Hash
+        public IFileHash Hash
         {
             get
             {
@@ -64,7 +64,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                     }
                     _isClosed = true;
                 }
-                return _hash;
+                return new FileHashMrc(_hash);
             }
         }
 

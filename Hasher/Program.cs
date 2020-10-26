@@ -68,7 +68,7 @@ namespace Hasher
                                     size = fs.Length;
                                 }
 
-                                string hashString = hasher.HashString;
+                                string hashString = hasher.Hash.ToString();
                                 Console.WriteLine($"{hashString}\t{hasher.Name}\t{size}\t{filename}");
 
                                 //Console.WriteLine($"{filename}" );

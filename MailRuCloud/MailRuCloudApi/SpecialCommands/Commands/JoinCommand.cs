@@ -49,7 +49,8 @@ namespace YaR.Clouds.SpecialCommands.Commands
                 ? paramPath
                 : WebDavPath.Combine(path, paramPath);
 
-            var k = await Cloud.AddFile(hash, fpath, size, ConflictResolver.Rename);
+            //TODO: now mail.ru only
+            var k = await Cloud.AddFile(new FileHashMrc(hash), fpath, size, ConflictResolver.Rename);
             return new SpecialCommandResult(k.Success);
         }
     }

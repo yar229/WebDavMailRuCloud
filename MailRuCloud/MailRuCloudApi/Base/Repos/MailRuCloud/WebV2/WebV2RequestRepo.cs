@@ -10,6 +10,7 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
+using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 {
@@ -277,9 +278,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
                 .ToCreateFolderResult();
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, string fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
+        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
-            var res = await new CreateFileRequest(HttpSettings, Authent, fileFullPath, fileHash, fileSize, conflictResolver)
+            var hash = fileHash.Hash.Value;
+
+            var res = await new CreateFileRequest(HttpSettings, Authent, fileFullPath, hash, fileSize, conflictResolver)
                 .MakeRequestAsync();
 
             return res.ToAddFileResult();

@@ -17,7 +17,7 @@ namespace YaR.Clouds.Base
         {
         }
 
-        public File(string fullPath, long size, string hash = "")
+        public File(string fullPath, long size, IFileHash hash = null)
         {
             FullPath = fullPath;
             ServiceInfo = FilenameServiceInfo.Parse(WebDavPath.Name(fullPath));
@@ -27,7 +27,7 @@ namespace YaR.Clouds.Base
         }
 
 
-        private string _hash;
+        private IFileHash _hash;
 
         /// <summary>
         /// makes copy of this file with new path
@@ -72,7 +72,7 @@ namespace YaR.Clouds.Base
         /// Gets file hash value.
         /// </summary>
         /// <value>File hash.</value>
-        public virtual string Hash
+        public virtual IFileHash Hash
         {
             get => _hash;
             internal set => _hash = value;
