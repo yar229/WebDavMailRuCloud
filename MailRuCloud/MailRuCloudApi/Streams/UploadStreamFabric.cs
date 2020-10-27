@@ -72,10 +72,14 @@ namespace YaR.Clouds.Streams
                 ? file.OriginalSize.DefaultValue
                 : (file.OriginalSize / XTSWriteOnlyStream.BlockSize + 1) * XTSWriteOnlyStream.BlockSize;
 
-            var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, FileStreamSent, ServerFileProcessed, false, file.ServiceInfo.CryptInfo);
+            var ustream = new SplittedUploadStream(file.FullPath, _cloud, size, null, null, false, file.ServiceInfo.CryptInfo);
             if (onUploaded != null) ustream.FileUploaded += onUploaded;
             // ReSharper disable once RedundantArgumentDefaultValue
-            var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize);
+            var encustream = new XTSWriteOnlyStream(ustream, xts, XTSWriteOnlyStream.DefaultSectorSize)
+            {
+                FileStreamSent = FileStreamSent,
+                ServerFileProcessed = ServerFileProcessed
+            };
 
             return encustream;
         }
