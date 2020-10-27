@@ -33,6 +33,12 @@ namespace YaR.Clouds.XTSSharp
             _sectorBuffer = new byte[sectorSize];
         }
 
+        public Action FileStreamSent;
+        private void OnFileStreamSent() => FileStreamSent?.Invoke();
+
+        public Action ServerFileProcessed;
+        private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
+
 
         private int _sectorBufferCount;
 
@@ -74,10 +80,15 @@ namespace YaR.Clouds.XTSSharp
 
                 int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, towrite, _encriptedBuffer, 0, _currentSector);
                 _baseStream.Write(_encriptedBuffer, 0, towrite);
+                
             }
+
+            OnFileStreamSent();
 
             _baseStream.Dispose();
             _encryptor.Dispose();
+
+            OnServerFileProcessed();
         }
 
 

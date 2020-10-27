@@ -37,16 +37,16 @@ namespace YaR.Clouds.Base.Streams.Cache
         {
             foreach (var rule in _deduplicateRules.Rules)
             {
-                if ( 
-                    (string.IsNullOrEmpty(rule.Target) || Regex.Match(_file.FullPath, rule.Target).Success) && 
+                if (
                     (rule.MaxSize == 0 || rule.MaxSize > _file.Size) && 
-                    _file.Size >= rule.MinSize  )
+                    _file.Size >= rule.MinSize &&
+                    (string.IsNullOrEmpty(rule.Target) || Regex.Match(_file.FullPath, rule.Target).Success) )
                 {
                     switch (rule.CacheType)
                     {
                         case CacheType.Memory : return new MemoryDataCache();
                         case CacheType.Disk : return new DiskDataCache(_deduplicateRules.DiskPath);
-                        default: throw new NotImplementedException($"DataCache not implmented for {rule.CacheType}");
+                        default: throw new NotImplementedException($"DataCache not implemented for {rule.CacheType}");
                     }
                 }
             }

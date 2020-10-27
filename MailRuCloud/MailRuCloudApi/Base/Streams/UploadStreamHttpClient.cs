@@ -43,7 +43,7 @@ namespace YaR.Clouds.Base.Streams
             {
                 if (Repo.SupportsAddSmallFileByHash && _file.OriginalSize <= _cloudFileHasher.Length) // do not send upload request if file content fits to hash
                     UploadSmall(_ringBuffer);
-                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate && !_file.ServiceInfo.IsCrypted) // && !_file.ServiceInfo.SplitInfo.IsPart)
+                else if (Repo.SupportsDeduplicate && _cloud.Settings.UseDeduplicate) // && !_file.ServiceInfo.IsCrypted) // && !_file.ServiceInfo.SplitInfo.IsPart)
                     UploadCache(_ringBuffer);
                 else
                     UploadFull(_ringBuffer);
@@ -76,7 +76,7 @@ namespace YaR.Clouds.Base.Streams
             if (cache.Process())
             {
                 Logger.Debug($"Uploading [{cache.DataCacheName}] {_file.FullPath}");
-
+                
                 OnFileStreamSent();
 
                 _file.Hash = _cloudFileHasher.Hash;
