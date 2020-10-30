@@ -26,7 +26,7 @@
 	
 	--protocol         	  (Default: WebM1Bin) Cloud protocol
 				 	  * WebM1Bin	- (Cloud.Mail.Ru) mix of mobile and DiskO protocols
-				 	  * WebV2	- (Cloud.Mail.Ru) desktop browser protocol
+				 	  * WebV2	- (Cloud.Mail.Ru) [deprecated] desktop browser protocol
 				 	  * YadWeb	- (Yandex.Disk) desktop browser protocol, see Yandex.Disk readme section
 
 	--use-deduplicate		Enable deduplication (upload speedup, put by hash), see Using deduplication readme section
