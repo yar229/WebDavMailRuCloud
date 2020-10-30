@@ -26,8 +26,10 @@
 	
 	--protocol         	  (Default: WebM1Bin) Cloud protocol
 				 	  * WebM1Bin	- (Cloud.Mail.Ru) mix of mobile and DiskO protocols
-				 	  * WebV2	- (Cloud.Mail.Ru) desktop browser protocol
-				 	  * YadWeb	- (Yandex.Disk) desktop browser protocol
+				 	  * WebV2	- (Cloud.Mail.Ru) [deprecated] desktop browser protocol
+				 	  * YadWeb	- (Yandex.Disk) desktop browser protocol, see Yandex.Disk readme section
+
+	--use-deduplicate		Enable deduplication (upload speedup, put by hash), see Using deduplication readme section
 
 	--install <servicename>		Install as windows service (Windows/.Net only)
  	--install-display <displayname>	Display name for Windows service (Windows/.Net only)
@@ -59,9 +61,38 @@ Calculating hashes for local files
   --version          Display version information.
 ```
 
+### Using deduplication (upload speedup, put by hash)
+
+Edit `<Deduplicate>` section in `wdmrc.config`:
+
+```
+  <Deduplicate>
+    <!-- Path for disk file cache -->
+    <Disk Path = "d:\Temp\WDMRC_Cache" />
+
+    <!--
+      Cache: on disk or inmemory file caching
+      Target: path with filename in cloud, .NET regular expression, see https://docs.microsoft.com/ru-ru/dotnet/standard/base-types/regular-expressions
+      MinSize: minimum file size
+      MaxSize: maximum file size
+      -->
+    <Rules>
+      <!-- cache any path/file contains "EUREKA" in disk cache-->
+      <Rule Cache="Disk" Target = "EUREKA" MinSize = "0" MaxSize = "0" />
+
+      <!-- small files less than 15000000 bytes will be cached in memory -->
+      <Rule Cache="Memory" Target = "" MinSize = "0" MaxSize = "15000000" />
+
+      <!-- files larger than 15000000 bytes will be cached on disk -->
+      <Rule Cache="Disk" Target = "" MinSize = "15000000" MaxSize = "0" />
+    </Rules>
+  </Deduplicate>
+```
+Then run with `--use-deduplicate` command line key.
 
 
-***Yandex.Disk !beta!***
+
+### Yandex.Disk
 
 (download [latest 1.11.\*.\*](https://github.com/yar229/WebDavMailRuCloud/releases/), use `--protocol YadWeb` command line key)
 
