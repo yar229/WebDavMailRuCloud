@@ -76,7 +76,7 @@ steps:
     
 #=============================================================================================================
 
-- task: DotNetCoreCLI@3
+- task: DotNetCoreCLI@2
   displayName: .NET5 publish to zip
   inputs:
     command: 'publish' 
@@ -84,7 +84,7 @@ steps:
     publishWebProjects: false # Required when command == Publish
     arguments: '--configuration $(BuildConfiguration) --framework net5.0'
 
-- task: Bash@4
+- task: Bash@3
   displayName: .NET5 copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet50.zip
   inputs:
     targetType: 'inline'
