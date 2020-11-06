@@ -3,7 +3,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48;net5.0</TargetFrameworks>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
@@ -11,8 +11,8 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.13.0.2</AssemblyVersion>
-    <FileVersion>1.13.0.2</FileVersion>
+    <AssemblyVersion>1.13.0.3</AssemblyVersion>
+    <FileVersion>1.13.0.3</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.Clouds.Console</RootNamespace>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
     <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" /> 
   </ItemGroup>
 
