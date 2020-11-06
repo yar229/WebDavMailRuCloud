@@ -29,7 +29,7 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '5.0.x'
-    vsVersion: 'latest'
+    vsVersion: '16.8.30626.31'
     includePreviewVersions: true
 
 #=============================================================================================================
@@ -40,7 +40,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    vsVersion: 'latest'
+    vsVersion: '16.8.30626.31'
     includePreviewVersions: true    
     msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
 
