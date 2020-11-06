@@ -27,7 +27,9 @@ steps:
 
 - task: UseDotNet@2
   inputs:
+    packageType: 'sdk'
     version: '5.0.x'
+    vsVersion: '16.8.x'
     includePreviewVersions: true # Required for preview versions
 
 #=============================================================================================================
