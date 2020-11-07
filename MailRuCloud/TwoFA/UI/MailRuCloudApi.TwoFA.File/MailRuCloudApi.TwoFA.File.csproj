@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="$(SolutionDir)\Common.targets" />
+
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>$(MyTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48;net5.0</TargetFrameworks>
     <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.File</AssemblyName>
   </PropertyGroup>
