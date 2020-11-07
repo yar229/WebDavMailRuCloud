@@ -45,7 +45,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     includePreviewVersions: true    
-    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false /p:TargetFrameworkMoniker=".NETFramework,Version=v4.8"'
+    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
 
 - task: Bash@3
   displayName: .NET artifacts clean
@@ -88,7 +88,7 @@ steps:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
-    arguments: '--configuration $(BuildConfiguration) --framework net5.0'
+    arguments: '--configuration $(BuildConfiguration) --framework net5.0 '
 
 - task: Bash@3
   displayName: .NET5 copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet50.zip
