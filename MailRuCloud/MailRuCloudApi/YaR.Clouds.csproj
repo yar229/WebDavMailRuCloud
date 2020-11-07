@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="$(SolutionDir)\Common.targets" />
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp3.0;net48;net5.0</TargetFrameworks>
+    <TargetFrameworks>$(MyTargetFrameworks)</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
     <AssemblyVersion>1.13.0.3</AssemblyVersion>

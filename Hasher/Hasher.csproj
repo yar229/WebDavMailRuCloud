@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="$(SolutionDir)\Common.targets" />
+  
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net48;net5.0</TargetFrameworks>
+    <TargetFrameworks>$(MyTargetFrameworks)</TargetFrameworks>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
