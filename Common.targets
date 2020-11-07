@@ -2,7 +2,7 @@
 	<Choose>
 		<When Condition="'$(UseNet50)'=='1'">
 		  <PropertyGroup>
-				<MyTargetFrameworks>net5.0</MyTargetFrameworks>
+				<MyTargetFrameworks>netcoreapp3.0;net48;net5.0</MyTargetFrameworks>
 		  </PropertyGroup>
 		</When>
 		<Otherwise>
