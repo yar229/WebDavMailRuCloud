@@ -14,7 +14,7 @@ pool:
 
 variables:
   solution: '**/*.sln'
-  buildPlatform: 'x64'
+  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
   artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
