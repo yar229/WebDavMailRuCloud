@@ -3,7 +3,7 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net48;net5.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
