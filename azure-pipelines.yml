@@ -45,7 +45,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     includePreviewVersions: true    
-    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false /p:TargetFrameworkVersion=v4.8'
+    msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false /p:TargetFrameworkMoniker=".NETFramework,Version=v4.0"'
 
 - task: Bash@3
   displayName: .NET artifacts clean
