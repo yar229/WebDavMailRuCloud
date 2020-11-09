@@ -30,7 +30,6 @@ namespace YaR.Clouds.SpecialCommands.Commands
 
             var randomHash = new byte[20];
             Random.NextBytes(randomHash);
-            string strRandomHash = BitConverter.ToString(randomHash).Replace("-", string.Empty);
 
             long randomSize = Random.Next(21, int.MaxValue);
 

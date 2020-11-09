@@ -61,7 +61,7 @@ namespace YaR.Clouds.XTSSharp
             while (offset < count && _position < Length)
             {
                 int read = ReadExactly(_baseStream, _tempBuffer, SectorSize);
-                int transformed = _decryptor.TransformBlock(_tempBuffer, 0, SectorSize, _tempBuffer, 0, _currentSector);
+                _decryptor.TransformBlock(_tempBuffer, 0, SectorSize, _tempBuffer, 0, _currentSector);
 
                 _currentSector++;
                 _tempBufferCount = read;

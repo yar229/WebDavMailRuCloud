@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using YaR.Clouds.Base;
-using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Common;
 

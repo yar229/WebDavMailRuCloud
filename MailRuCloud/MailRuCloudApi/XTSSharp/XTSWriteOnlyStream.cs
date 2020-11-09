@@ -58,7 +58,7 @@ namespace YaR.Clouds.XTSSharp
                 if (_sectorBufferCount == _sectorSize)
                 {
                     //sector filled
-                    int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
+                    _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
                     _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
 
                     _currentSector++;
@@ -78,7 +78,7 @@ namespace YaR.Clouds.XTSSharp
                     ? _sectorBufferCount
                     : (_sectorBufferCount / BlockSize + 1) * BlockSize;
 
-                int transformedCount = _encryptor.TransformBlock(_sectorBuffer, 0, towrite, _encriptedBuffer, 0, _currentSector);
+                _encryptor.TransformBlock(_sectorBuffer, 0, towrite, _encriptedBuffer, 0, _currentSector);
                 _baseStream.Write(_encriptedBuffer, 0, towrite);
                 
             }
