@@ -37,7 +37,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             if (_isClosed)
                 throw new Exception("Cannot append because MRSHA1 already calculated.");
 
-            byte[] buffer = new byte[8192];
+            var buffer = new byte[8192];
             int read;
             while ((read = stream.Read(buffer, 0, buffer.Length)) > 0)
             {

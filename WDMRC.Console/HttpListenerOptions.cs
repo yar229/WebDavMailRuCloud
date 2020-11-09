@@ -9,8 +9,8 @@ namespace YaR.Clouds.Console
         {
             foreach (int port in options.Port)
             {
-                var webdavProtocol = "http";
-                var webdavIp = "127.0.0.1";
+                const string webdavProtocol = "http";
+                const string webdavIp = "127.0.0.1";
                 var webdavHost = string.IsNullOrWhiteSpace(options.Host)
                     ? $"{webdavProtocol}://{webdavIp}"
                     : options.Host.TrimEnd('/');

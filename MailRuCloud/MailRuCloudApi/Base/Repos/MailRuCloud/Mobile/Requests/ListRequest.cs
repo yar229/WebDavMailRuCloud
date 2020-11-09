@@ -116,7 +116,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 	        fullPath = WebDavPath.Clean(fullPath);
 
 			var fakeRoot = new FsFolder(WebDavPath.Parent(fullPath), null, CloudFolderType.Generic, null, null);
-            FsFolder currentFolder = fakeRoot;
+            var currentFolder = fakeRoot;
             FsFolder lastFolder = null;
 	        int lvl = 0;
 
@@ -193,7 +193,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
             int head = data.ReadIntSpl();
             if ((head & 4096) != 0)
             {
-                byte[] nodeId = data.ReadNBytes(16);
+                data.ReadNBytes(16); // var nodeId = 
             }
             string name = data.ReadNBytesAsString(data.ReadShort());
 
@@ -226,7 +226,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                 case 1:
                     var modifDate = data.ReadDate();
                     ulong size = data.ReadULong();
-                    byte[] sha1 = data.ReadNBytes(20);
+                    var sha1 = data.ReadNBytes(20);
 
 					//item = new FsFile(WebDavPath.Combine(folder.FullPath == string.Empty ? _fullPath : folder.FullPath, name), modifDate, sha1, size);
 	                item = new FsFile(WebDavPath.Combine(folder.FullPath, name), modifDate, sha1, size);

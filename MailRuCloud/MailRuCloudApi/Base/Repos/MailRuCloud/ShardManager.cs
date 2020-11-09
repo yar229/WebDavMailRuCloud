@@ -47,7 +47,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                 {
                     var server = new GetUploadServerRequest(httpsettings).MakeRequestAsync().Result;
                     Logger.Debug($"Upload server changed to {server.Url}");
-                    return new ShardInfo(){Count = 0, Type = ShardType.Upload, Url = server.Url};
+                    return new ShardInfo { Count = 0, Type = ShardType.Upload, Url = server.Url };
                 },
                 value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
