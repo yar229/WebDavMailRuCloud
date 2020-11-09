@@ -179,6 +179,7 @@ namespace YaR.Clouds.Console
             Logger.Info($"Cache listings, sec: {options.CacheListingSec}");
             Logger.Info($"List query folder depth: {options.CacheListingDepth}");
             Logger.Info($"Use locks: {options.UseLocks}");
+            Logger.Info($"Use deduplicate: {options.UseDeduplicate}");
             Logger.Info($"Start as service: {options.ServiceRun}");
         }
 
