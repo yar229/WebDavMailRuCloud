@@ -16,7 +16,7 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
+  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore31.zip'
   artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
   artifactMonoName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
 
@@ -60,13 +60,13 @@ steps:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
-    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.0'
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.1'
 
 - task: Bash@3
-  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
+  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore31.zip
   inputs:
     targetType: 'inline'
-    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.1/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
 
 #=============================================================================================================
 
