@@ -1,58 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
-    <Authors>YaR</Authors>
-    <Company />
-    <Product>WebDAVCloudMailRu</Product>
-    <Copyright>yar229@yandex.ru</Copyright>
-    <Description>WebDAV emulator for Cloud.mail.ru</Description>
-    <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.13.0.2</AssemblyVersion>
-    <FileVersion>1.13.0.2</FileVersion>
-    <Version>$(AssemblyVersion)</Version>
-    <AssemblyName>wdmrc</AssemblyName>
-    <RootNamespace>YaR.Clouds.Console</RootNamespace>
-    <StartupObject></StartupObject>
-    <ApplicationIcon>cloud.ico</ApplicationIcon>
-  </PropertyGroup>
+	<Import Project="$(SolutionDir)\Solution.props" />
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1605</NoWarn>
+		<OutputType>Exe</OutputType>
+		<DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+		<Authors>YaR</Authors>
+		<Company />
+		<Product>WebDAVCloudMailRu</Product>
+		<Copyright>yar229@yandex.ru</Copyright>
+		<Description>WebDAV emulator for Cloud.mail.ru</Description>
+		<PackageId>WebDAVCloudMailRu</PackageId>
+		<AssemblyVersion>1.13.0.2</AssemblyVersion>
+		<FileVersion>1.13.0.2</FileVersion>
+		<Version>$(AssemblyVersion)</Version>
+		<AssemblyName>wdmrc</AssemblyName>
+		<RootNamespace>YaR.Clouds.Console</RootNamespace>
+		<StartupObject></StartupObject>
+		<ApplicationIcon>cloud.ico</ApplicationIcon>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
 
 
-  <ItemGroup>
-    <Content Include="cloud.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="cloud.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-    <PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" /> 
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.8.0" />
+		<PackageReference Include="HttpToSocks5Proxy" Version="1.4.0" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Hasher\Hasher.csproj" />
-    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
-    <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
-    <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj" />
-    <ProjectReference Condition="'$(TargetFramework)' == 'NET48'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
-    <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
-    <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
-    <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
-    <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavStore.csproj" />
-    <ProjectReference Include="..\WinServiceInstaller\WinServiceInstaller.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Hasher\Hasher.csproj" />
+		<ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
+		<ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
+		<ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj" />
+		<ProjectReference Condition="'$(TargetFramework)' == 'NET48'"
+		                  Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
+		<ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
+		<ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
+		<ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
+		<ProjectReference Include="..\WebDavMailRuCloudStore\WebDavStore.csproj" />
+		<ProjectReference Include="..\WinServiceInstaller\WinServiceInstaller.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="wdmrc.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="wdmrc.config">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 </Project>

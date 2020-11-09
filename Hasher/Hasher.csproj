@@ -1,24 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
-    <Authors>YaR</Authors>
-    <Company />
-    <Product>WebDAVCloudMailRu</Product>
-    <Copyright>yar229@yandex.ru</Copyright>
-    <Description>Hash calculator</Description>
-  </PropertyGroup>
+	<Import Project="$(SolutionDir)\Solution.props" />
 
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
-  </ItemGroup>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1605</NoWarn>
+		<OutputType>Exe</OutputType>
+		<DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+		<Authors>YaR</Authors>
+		<Company />
+		<Product>WebDAVCloudMailRu</Product>
+		<Copyright>yar229@yandex.ru</Copyright>
+		<Description>Hash calculator</Description>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
-    <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavStore.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="CommandLineParser" Version="2.8.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
+		<ProjectReference Include="..\WebDavMailRuCloudStore\WebDavStore.csproj" />
+	</ItemGroup>
 
 </Project>

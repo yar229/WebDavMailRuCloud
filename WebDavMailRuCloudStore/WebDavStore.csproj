@@ -1,41 +1,41 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
-    <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
-    <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
-    <LangVersion>8.0</LangVersion>	
-  </PropertyGroup>
+	<Import Project="$(SolutionDir)\Solution.props" />
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-  </PropertyGroup>
+	<PropertyGroup>
+		<NoWarn>$(NoWarn);NU1605</NoWarn>
+		<RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
+		<AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
-    <DebugType>none</DebugType>
-    <DebugSymbols>false</DebugSymbols>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<WarningsAsErrors />
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Mailru\**" />
-    <EmbeddedResource Remove="Mailru\**" />
-    <None Remove="Mailru\**" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
+		<DebugType>none</DebugType>
+		<DebugSymbols>false</DebugSymbols>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="log4net" Version="2.0.8" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Mailru\**" />
+		<EmbeddedResource Remove="Mailru\**" />
+		<None Remove="Mailru\**" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
-    <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="log4net" Version="2.0.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
+		<ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
+	</ItemGroup>
 
 </Project>
