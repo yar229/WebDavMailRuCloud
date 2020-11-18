@@ -6,8 +6,8 @@
 		<NoWarn>$(NoWarn);NU1605</NoWarn>
 		<RootNamespace>YaR.Clouds</RootNamespace>
 		<AssemblyName>YaR.Clouds</AssemblyName>
-		<AssemblyVersion>1.13.0.2</AssemblyVersion>
-		<FileVersion>1.13.0.2</FileVersion>
+		<AssemblyVersion>1.13.0.3</AssemblyVersion>
+		<FileVersion>1.13.0.3</FileVersion>
 		<Version>$(AssemblyVersion)</Version>
 	</PropertyGroup>
 
