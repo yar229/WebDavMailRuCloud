@@ -1,38 +1,37 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="$(SolutionDir)\Solution.props" /> 
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+    <OutputType>library</OutputType>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+    <PackageId></PackageId>
+    <AssemblyVersion>1.10.0.5</AssemblyVersion>
+    <FileVersion>1.10.0.5</FileVersion>
+    <AssemblyName>WinServiceInstaller</AssemblyName>
+    <RootNamespace>WinServiceInstaller</RootNamespace>
+    <StartupObject></StartupObject>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<NoWarn>$(NoWarn);NU1605</NoWarn>
-		<OutputType>library</OutputType>
-		<DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
-		<PackageId></PackageId>
-		<AssemblyVersion>1.10.0.5</AssemblyVersion>
-		<FileVersion>1.10.0.5</FileVersion>
-		<AssemblyName>WinServiceInstaller</AssemblyName>
-		<RootNamespace>WinServiceInstaller</RootNamespace>
-		<StartupObject></StartupObject>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-		<WarningsAsErrors />
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
-		<DebugType>none</DebugType>
-		<DebugSymbols>false</DebugSymbols>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Configuration.Install" />
-		<Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.ServiceProcess" />
-		<Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Xml.Linq" />
-		<Reference Condition="'$(TargetFramework)' == 'NET48'" Include="Microsoft.CSharp" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Properties\" />
-	</ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Configuration.Install" />
+    <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.ServiceProcess" />
+    <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Xml.Linq" />
+    <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="Microsoft.CSharp" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>  
 
 </Project>

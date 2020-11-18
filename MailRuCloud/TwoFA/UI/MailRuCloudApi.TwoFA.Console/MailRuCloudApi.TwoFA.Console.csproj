@@ -1,20 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="$(SolutionDir)\Solution.props" /> 
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1605</NoWarn>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+    <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
+    <AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<NoWarn>$(NoWarn);NU1605</NoWarn>
-		<RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
-		<AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
-		<DebugType>none</DebugType>
-		<DebugSymbols>false</DebugSymbols>
-	</PropertyGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\..\..\MailRuCloudApi\YaR.Clouds.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\MailRuCloudApi\YaR.Clouds.csproj" />
+  </ItemGroup>
 
 </Project>
