@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="$(SolutionDir)\Solution.props" />
+	<Import Project="$(SolutionDir)\Solution.props" /> 
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
 		<DebugType>none</DebugType>

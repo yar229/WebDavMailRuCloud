@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<Import Project="$(SolutionDir)\Solution.props" />
+	<Import Project="$(SolutionDir)\Solution.props" /> 
 
 	<PropertyGroup>
 		<NoWarn>$(NoWarn);NU1605</NoWarn>
