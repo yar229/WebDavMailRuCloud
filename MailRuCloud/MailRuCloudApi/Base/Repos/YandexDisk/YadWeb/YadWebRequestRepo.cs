@@ -120,9 +120,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private HttpRequestMessage CreateUploadClientRequest(PushStreamContent content, File file)
         {
-            var hash = (FileHashYad)file.Hash;
+            var hash = (FileHashYad?) file.Hash;
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize, hash.HashSha256.Value, hash.HashMd5.Value),
+                .With(new YadGetResourceUploadUrlPostModel(file.FullPath, file.OriginalSize, 
+                        hash?.HashSha256.Value ?? string.Empty, 
+                        hash?.HashMd5.Value ?? string.Empty),
                     out YadResponseModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
                 .MakeRequestAsync().Result;
             var url = itemInfo.Data.UploadUrl;
@@ -303,10 +305,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime,
             ConflictResolver? conflictResolver)
         {
-            var hash = (FileHashYad)fileHash;
+            var hash = (FileHashYad?)fileHash;
 
             var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadGetResourceUploadUrlPostModel(fileFullPath, fileSize, hash.HashSha256.Value, hash.HashMd5.Value),
+                .With(new YadGetResourceUploadUrlPostModel(fileFullPath, fileSize, hash?.HashSha256.Value, hash?.HashMd5.Value),
                     out YadResponseModel<ResourceUploadUrlData, ResourceUploadUrlParams> itemInfo)
                 .MakeRequestAsync().Result;
 
