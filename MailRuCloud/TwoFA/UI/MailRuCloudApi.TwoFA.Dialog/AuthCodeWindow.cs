@@ -18,8 +18,8 @@ namespace YaR.Clouds.MailRuCloud.TwoFA.UI
         {
             Application.EnableVisualStyles();
 
-            using (NotifyIcon notify = new NotifyIcon())
-            using (AuthCodeForm prompt = new AuthCodeForm())
+            using (var notify = new NotifyIcon())
+            using (var prompt = new AuthCodeForm())
             {
                 var prompt1 = prompt;
 

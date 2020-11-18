@@ -8,7 +8,6 @@ using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Common;
-using YaR.Clouds.Extensions;
 
 namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 {
@@ -131,7 +130,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             throw new NotImplementedException();
         }
 
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
@@ -149,7 +148,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
                         var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
                         {
                             CreationTimeUtc = fsfi.ModifDate,
-                            LastWriteTimeUtc = fsfi.ModifDate,
+                            LastWriteTimeUtc = fsfi.ModifDate
                         };
                         f.Files.Add(fi);
                     }
@@ -168,7 +167,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
                 var fi = new File(fsfi1.FullPath, (long)fsfi1.Size, new FileHashMrc(fsfi1.Sha1))
                 {
                     CreationTimeUtc = fsfi1.ModifDate,
-                    LastWriteTimeUtc = fsfi1.ModifDate,
+                    LastWriteTimeUtc = fsfi1.ModifDate
                 };
 
                 return fi;
@@ -177,7 +176,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             return null;
         }
 
-        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             throw new NotImplementedException();
         }

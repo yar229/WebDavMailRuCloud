@@ -48,7 +48,7 @@ namespace YaR.Clouds.Streams
         {
             long allowedSize = _maxFileSize; //TODO: make it right //- BytesCount(_file.Name);
             _performAsSplitted = _size > allowedSize || _cryptInfo != null;
-            _origfile = new File(_destinationPath, _size, null);
+            _origfile = new File(_destinationPath, _size);
 
             if (!_performAsSplitted) // crypted are performed alike splitted file
             {
@@ -75,8 +75,7 @@ namespace YaR.Clouds.Streams
                     sinfo.CryptInfo = i != nfiles ? null : _cryptInfo;
 
                     var f = new File($"{_origfile.FullPath}{sinfo}",
-                        i != nfiles ? allowedSize : _size % allowedSize,
-                        null);
+                        i != nfiles ? allowedSize : _size % allowedSize);
                     _files.Add(f);
                 }
             }

@@ -203,7 +203,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models.Media
         public YadMediaFilter Filter { get; set; }
     }
 
-    internal enum YadMediaFilter { Camera, Photounlim, Videos };
+    internal enum YadMediaFilter { Camera, Photounlim, Videos }
 
     internal class FilterConverter : JsonConverter
     {

@@ -111,13 +111,11 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
             var destinationPath = FullPath + "/" + name;
 
-            DavStatusCode result = DavStatusCode.Created;
-
             var size = httpContext.Request.ContentLength();
 
-            var f = new File(destinationPath, size, null);
+            var f = new File(destinationPath, size);
 
-            return Task.FromResult(new StoreItemResult(result, new LocalStoreItem(f, IsWritable, _store)));
+            return Task.FromResult(new StoreItemResult(DavStatusCode.Created, new LocalStoreItem(f, IsWritable, _store)));
         }
 
         public Task<StoreCollectionResult> CreateCollectionAsync(string name, bool overwrite, IHttpContext httpContext)

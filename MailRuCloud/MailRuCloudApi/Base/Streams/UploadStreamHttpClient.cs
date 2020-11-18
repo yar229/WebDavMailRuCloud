@@ -19,7 +19,7 @@ namespace YaR.Clouds.Base.Streams
         protected UploadStreamHttpClient(string destinationPath, Cloud cloud, long size)
         {
             _cloud = cloud;
-            _file = new File(destinationPath, size, null);
+            _file = new File(destinationPath, size);
             _cloudFileHasher = Repo.GetHasher();
 
             Initialize();

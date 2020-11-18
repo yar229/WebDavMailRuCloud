@@ -874,7 +874,7 @@ namespace YaR.Clouds
 
         public async Task<Stream> GetFileUploadStream(string fullFilePath, long size, Action fileStreamSent, Action serverFileProcessed, bool discardEncryption = false)
         {
-            var file = new File(fullFilePath, size, null);
+            var file = new File(fullFilePath, size);
 
 
             var f = new UploadStreamFabric(this)

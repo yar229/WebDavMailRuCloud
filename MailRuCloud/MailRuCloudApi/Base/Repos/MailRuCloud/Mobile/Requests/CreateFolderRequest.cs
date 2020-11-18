@@ -29,7 +29,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
         {
-            OpResult opres = (OpResult)(int)data.OperationResult;
+            var opres = (OpResult)(int)data.OperationResult;
 
             if (opres == OpResult.Ok)
             {

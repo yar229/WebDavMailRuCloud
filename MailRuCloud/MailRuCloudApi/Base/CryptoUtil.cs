@@ -9,7 +9,7 @@ namespace YaR.Clouds.Base
         {
             using (var keygen = new Rfc2898DeriveBytes(password, salt, 4002))
             {
-                byte[] key = keygen.GetBytes(32);
+                var key = keygen.GetBytes(32);
                 return key;
             }
         }

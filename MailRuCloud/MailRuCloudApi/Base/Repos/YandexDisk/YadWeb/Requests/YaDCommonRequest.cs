@@ -10,7 +10,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YaDCommonRequest : BaseRequestJson<YadResponceResult>
     {
-        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
+        //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
 
         private readonly YadPostData _postData = new YadPostData();
 

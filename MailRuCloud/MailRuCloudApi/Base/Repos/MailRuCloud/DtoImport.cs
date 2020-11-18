@@ -182,7 +182,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             var folder = new Folder(item.Size, item.Home ?? item.Name, item.Weblink.ToPublicLinkInfos(publicBaseUrl))
             {
                 ServerFoldersCount = item.Count?.Folders,
-                ServerFilesCount = item.Count?.Files,
+                ServerFilesCount = item.Count?.Files
             };
             return folder;
         }

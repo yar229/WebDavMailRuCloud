@@ -25,12 +25,11 @@ namespace YaR.Clouds.SpecialCommands.Commands
 
         public override async Task<SpecialCommandResult> Execute()
         {
-            string name = "FISHA.YEA";
+            const string name = "FISHA.YEA";
             string target = WebDavPath.Combine(Path, name);
 
             var randomHash = new byte[20];
             Random.NextBytes(randomHash);
-            string strRandomHash = BitConverter.ToString(randomHash).Replace("-", string.Empty);
 
             long randomSize = Random.Next(21, int.MaxValue);
 

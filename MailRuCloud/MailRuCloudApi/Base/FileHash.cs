@@ -8,7 +8,7 @@
         YadMd5
     }
 
-    public struct Hash
+    public readonly struct Hash
     {
         public Hash(FileHashType htype, string hash)
         {

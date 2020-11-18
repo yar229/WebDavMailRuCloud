@@ -211,7 +211,7 @@ namespace YaR.Clouds.Base
             return info;
         }
 
-        private string ConvertToVideoLink(Cloud cloud, Uri publicLink, SharedVideoResolution videoResolution)
+        private static string ConvertToVideoLink(Cloud cloud, Uri publicLink, SharedVideoResolution videoResolution)
         {
             return cloud.Account.RequestRepo.ConvertToVideoLink(publicLink, videoResolution);
                        

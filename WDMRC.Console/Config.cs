@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
-using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Base.Streams.Cache;
 using YaR.Clouds.Common;
 using YaR.Clouds.Extensions;
