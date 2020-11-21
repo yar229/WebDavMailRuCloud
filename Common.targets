@@ -1,8 +1,8 @@
 <Project>
 	<PropertyGroup>
 		
-		<!--<CommonTargetFrameworks>netcoreapp3.0;net48;net5.0</CommonTargetFrameworks>-->
-    <CommonTargetFrameworks>netcoreapp3.0;net48</CommonTargetFrameworks>
+		<!--<CommonTargetFrameworks>netcoreapp3.1;net48;net5.0</CommonTargetFrameworks>-->
+    <CommonTargetFrameworks>netcoreapp3.1;net48</CommonTargetFrameworks>
 
 		<CommonLangVersion>latest</CommonLangVersion>
 	</PropertyGroup>
