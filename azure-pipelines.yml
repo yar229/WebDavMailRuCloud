@@ -16,9 +16,10 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip'
+  artifactNetCoreName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore31.zip'
   artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
   artifactMonoName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
+  artifactNet5Name: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet5.zip'
 
 
 steps:
@@ -34,7 +35,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    vsVersion: '16.0'
+    vsVersion: 'latest'
     msbuildArgs: '/t:"Restore;Build" /p:Configuration="Release" /p:Platform="Any CPU" /p:CopyOutputSymbolsToPublishDirectory=false'
 
 - task: Bash@3
@@ -57,18 +58,34 @@ steps:
 #=============================================================================================================
 
 - task: DotNetCoreCLI@2
-  displayName: .NETCore publish to zip
+  displayName: .NET Core 3.1 publish
   inputs:
     command: 'publish' 
     projects: 'WDMRC.Console/WDMRC.Console.csproj'
     publishWebProjects: false # Required when command == Publish
-    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.0'
+    arguments: '--configuration $(BuildConfiguration) --framework netcoreapp3.1'
 
 - task: Bash@3
-  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore30.zip
+  displayName: .NETCore copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNetCore31.zip
   inputs:
     targetType: 'inline'
-    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
+    script: 'cp WDMRC.Console/bin/Release/netcoreapp3.1/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNetCoreName)'
+
+#=============================================================================================================
+
+- task: DotNetCoreCLI@2
+  displayName: .NET 5 publish
+  inputs:
+    command: 'publish' 
+    projects: 'WDMRC.Console/WDMRC.Console.csproj'
+    publishWebProjects: false # Required when command == Publish
+    arguments: '--configuration $(BuildConfiguration) --framework net5.0'
+
+- task: Bash@3
+  displayName: .NET 5 copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet5.zip
+  inputs:
+    targetType: 'inline'
+    script: 'cp WDMRC.Console/bin/Release/net5.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNet5Name)'
 
 #=============================================================================================================
 
@@ -100,6 +117,12 @@ steps:
             "distrib" : "$(artifactMonoName)",
             "runner" : "mono",
             "file" : "wdmrc.exe",
+            "defaultkeys" : ""
+          },
+          "net5" : {
+            "distrib" : "$(artifactNet5Name)",
+            "runner" : "dotnet",
+            "file" : "wdmrc.dll",
             "defaultkeys" : ""
           }
         }

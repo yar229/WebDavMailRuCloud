@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\Common.targets" />
+
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
-    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
+    <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
     <AssemblyVersion>1.13.0.2</AssemblyVersion>
     <FileVersion>1.13.0.2</FileVersion>
     <Version>$(AssemblyVersion)</Version>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
