@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.28721.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8950FA45-4F13-42FE-B32D-736C1426E0EF}"
 	ProjectSection(SolutionItems) = preProject
+		Common.targets = Common.targets
 		readme.md = readme.md
 	EndProjectSection
 EndProject
@@ -36,7 +37,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinServiceInstaller", "WinS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailRuCloudApi.TwoFA.File", "MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj", "{7213BC64-B5C1-48BB-9F13-5A4A8623D467}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hasher", "Hasher\Hasher.csproj", "{CB339F56-A0D8-4133-B322-6894DC70FAE6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hasher", "Hasher\Hasher.csproj", "{CB339F56-A0D8-4133-B322-6894DC70FAE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
