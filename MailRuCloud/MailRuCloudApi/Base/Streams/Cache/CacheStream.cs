@@ -42,12 +42,12 @@ namespace YaR.Clouds.Base.Streams.Cache
                     _file.Size >= rule.MinSize &&
                     (string.IsNullOrEmpty(rule.Target) || Regex.Match(_file.FullPath, rule.Target).Success) )
                 {
-                    switch (rule.CacheType)
+                    return rule.CacheType switch
                     {
-                        case CacheType.Memory : return new MemoryDataCache();
-                        case CacheType.Disk : return new DiskDataCache(_deduplicateRules.DiskPath);
-                        default: throw new NotImplementedException($"DataCache not implemented for {rule.CacheType}");
-                    }
+                        CacheType.Memory => new MemoryDataCache(),
+                        CacheType.Disk => new DiskDataCache(_deduplicateRules.DiskPath),
+                        _ => throw new NotImplementedException($"DataCache not implemented for {rule.CacheType}")
+                    };
                 }
             }
             return null;

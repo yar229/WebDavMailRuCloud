@@ -10,14 +10,13 @@ namespace YaR.Clouds.WebDavStore
     {
         public static async Task<bool> Remove(this Cloud cloud, IStoreItem item)
         {
-            if (null == item) return await Task.FromResult(false);
-
-            if (item is LocalStoreItem storeItem)
-                return await cloud.Remove(storeItem.FileInfo);
-            if (item is LocalStoreCollection storeCollection)
-                return await cloud.Remove(storeCollection.DirectoryInfo);
-
-            throw new ArgumentException(string.Empty, nameof(item));
+            return item switch
+            {
+                null => await Task.FromResult(false),
+                LocalStoreItem storeItem => await cloud.Remove(storeItem.FileInfo),
+                LocalStoreCollection storeCollection => await cloud.Remove(storeCollection.DirectoryInfo),
+                _ => throw new ArgumentException(string.Empty, nameof(item))
+            };
         }
 
         public static Task<bool> Rename(this Cloud cloud, IStoreItem item, string destinationName)

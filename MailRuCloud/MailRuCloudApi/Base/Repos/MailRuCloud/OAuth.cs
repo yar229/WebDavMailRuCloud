@@ -34,12 +34,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
 
                     return token;
                 },
-                value =>
-                {
-                    if (null == value)
-                        return TimeSpan.MaxValue;
-                    return value.ExpiresIn.Add(-TimeSpan.FromMinutes(5));
-                });
+                value => value?.ExpiresIn.Add(-TimeSpan.FromMinutes(5)) ?? TimeSpan.MaxValue);
                 //value => TimeSpan.FromSeconds(20));
         }
 

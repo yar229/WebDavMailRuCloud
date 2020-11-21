@@ -93,10 +93,9 @@ namespace YaR.Clouds.Base
 
         public IEnumerable<PublicLinkInfo> GetPublicLinks(Cloud cloud)
         {
-            if (!PublicLinks.Any())
-                return cloud.GetSharedLinks(FullPath);
-
-            return PublicLinks;
+            return !PublicLinks.Any() 
+                ? cloud.GetSharedLinks(FullPath) 
+                : PublicLinks;
         }
 
 

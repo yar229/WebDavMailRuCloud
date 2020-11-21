@@ -54,13 +54,14 @@ namespace YaR.Clouds.SpecialCommands.Commands
                 var ifolders = folder.Entries
                     .AsParallel()
                     .WithDegreeOfParallelism(5)
-                    .Select(it => it is File
-                        ? it
-                        : it is Folder ifolder
-                            ? ifolder.IsChildsLoaded
-                                ? ifolder
-                                : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath, lm).Result, depth: 3).Result
-                            : throw new NotImplementedException("Unknown item type"))
+                    .Select(it => it switch
+                    {
+                        File _ => it,
+                        Folder ifolder => ifolder.IsChildsLoaded
+                            ? ifolder
+                            : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath, lm).Result, depth: 3).Result,
+                        _ => throw new NotImplementedException("Unknown item type")
+                    })
                     .OrderBy(it => it.Name);
                     
                 foreach (var item in ifolders.SelectMany(f => Flat(f, lm)))

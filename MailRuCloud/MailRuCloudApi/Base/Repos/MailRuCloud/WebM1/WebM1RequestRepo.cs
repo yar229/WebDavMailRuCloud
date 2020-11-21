@@ -330,11 +330,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         public Dictionary<ShardType, ShardInfo> GetShardInfo1()
         {
-            if (Authent.IsAnonymous)
-                return new Clouds.Base.Repos.MailRuCloud.WebV2.Requests.ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
-
-
-            return new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
+            return Authent.IsAnonymous 
+                ? new Clouds.Base.Repos.MailRuCloud.WebV2.Requests.ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo() 
+                : new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo();
         }
 
 

@@ -33,26 +33,18 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
         public static Revision FromStream(ResponseBodyStream stream)
         {
             short ver = stream.ReadShort();
-            switch (ver)
+            return ver switch
             {
-                case 0:
-                    return new Revision();
-                case 1:
-                    return new Revision(TreeId.FromStream(stream), stream.ReadULong());
-                case 2:
-                    return new Revision(TreeId.FromStream(stream), stream.ReadULong());
-                case 3:
-                    return new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream), stream.ReadULong());
-                case 4:
-                    return new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream), stream.ReadULong());
-                case 5:
-                    return new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream));
-
-                //more revisions?
-
-                default:
-                    throw new Exception("Unknown revision " + ver);
-            }
+                0 => new Revision(),
+                1 => new Revision(TreeId.FromStream(stream), stream.ReadULong()),
+                2 => new Revision(TreeId.FromStream(stream), stream.ReadULong()),
+                3 => new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream),
+                    stream.ReadULong()),
+                4 => new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream),
+                    stream.ReadULong()),
+                5 => new Revision(TreeId.FromStream(stream), stream.ReadULong(), TreeId.FromStream(stream)),
+                _ => throw new Exception("Unknown revision " + ver)
+            };
         }
     }
 }

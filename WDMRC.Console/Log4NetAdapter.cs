@@ -17,20 +17,15 @@ namespace YaR.Clouds.Console
 
             public bool IsLogEnabled(LogLevel logLevel)
             {
-                switch (logLevel)
+                return logLevel switch
                 {
-                    case LogLevel.Debug:
-                        return _log.IsDebugEnabled;
-                    case LogLevel.Info:
-                        return _log.IsInfoEnabled;
-                    case LogLevel.Warning:
-                        return _log.IsWarnEnabled;
-                    case LogLevel.Error:
-                        return _log.IsErrorEnabled;
-                    case LogLevel.Fatal:
-                        return _log.IsFatalEnabled;
-                }
-                throw new ArgumentException($"Log level '{logLevel}' is not supported.", nameof(logLevel));
+                    LogLevel.Debug => _log.IsDebugEnabled,
+                    LogLevel.Info => _log.IsInfoEnabled,
+                    LogLevel.Warning => _log.IsWarnEnabled,
+                    LogLevel.Error => _log.IsErrorEnabled,
+                    LogLevel.Fatal => _log.IsFatalEnabled,
+                    _ => throw new ArgumentException($"Log level '{logLevel}' is not supported.", nameof(logLevel))
+                };
             }
 
             public void Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)

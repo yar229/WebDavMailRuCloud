@@ -164,21 +164,14 @@ namespace YaR.Clouds.XTSSharp
 		/// <param name="origin">A value of type <see cref="T:System.IO.SeekOrigin"/> indicating the reference point used to obtain the new position.</param>
 		public override long Seek(long offset, SeekOrigin origin)
 		{
-			long newPosition;
-			switch (origin)
-			{
-				case SeekOrigin.Begin:
-					newPosition = offset;
-					break;
-				case SeekOrigin.End:
-					newPosition = Length - offset;
-					break;
-				default:
-					newPosition = Position + offset;
-					break;
-			}
+            long newPosition = origin switch
+            {
+                SeekOrigin.Begin => offset,
+                SeekOrigin.End => Length - offset,
+                _ => Position + offset
+            };
 
-			Position = newPosition;
+            Position = newPosition;
 
 			return newPosition;
 		}
