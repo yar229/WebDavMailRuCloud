@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 
 namespace YaR.Clouds.Base
 {
@@ -15,7 +14,7 @@ namespace YaR.Clouds.Base
 
         public override string ToString()
         {
-            return ".wdmrc." + (SplitInfo?.PartNumber.ToString("D3") ?? "000") + (CryptInfo?.AlignBytes.ToString("x") ?? string.Empty);
+            return WdmrcDots + (SplitInfo?.PartNumber.ToString("D3") ?? "000") + (CryptInfo?.AlignBytes.ToString("x") ?? string.Empty);
         }
 
         public string ToString(bool withName)
@@ -27,33 +26,60 @@ namespace YaR.Clouds.Base
 
         public static FilenameServiceInfo Parse(string filename)
         {
-            var res = new FilenameServiceInfo();
+            
 
-            //var malign = Regex.Match(filename, @"\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?\Z", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-
-            var m = Regex.Match(filename, @"\A(?<cleanname>.*?)(\.wdmrc\.(?<partnumber>\d\d\d)(?<align>[0-9a-f])?)?\Z", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-            if (!m.Success)
-                throw new InvalidOperationException("Cannot parse filename");
-
-            res.CleanName = m.Groups["cleanname"].Value;
-
-            string partnumber = m.Groups["partnumber"].Value;
-            res.SplitInfo = new FileSplitInfo
+            static int HexToInt(char h)
             {
-                IsHeader = string.IsNullOrEmpty(partnumber),
-                PartNumber = string.IsNullOrEmpty(partnumber) ? 0 : int.Parse(m.Groups["partnumber"].Value)
-            };
-
-            string align = m.Groups["align"].Value;
-            if (!string.IsNullOrEmpty(align))
-            {
-                res.CryptInfo = new CryptInfo
+                return h switch
                 {
-                    AlignBytes = Convert.ToUInt32(align, 16)
+                    >= '0' and <= '9' => h - '0',
+                    >= 'a' and <= 'f' => h - 'a' + 10,
+                    >= 'A' and <= 'F' => h - 'A' + 10,
+                    _ => -1
                 };
             }
 
+            static bool IsDigit(char c) => c >= '0' && c <= '9';
+            
+
+            var res = new FilenameServiceInfo { CleanName = filename, SplitInfo = new FileSplitInfo { IsHeader = true } };
+
+            if (filename.Length < 11)
+                return res;
+
+            var fns = filename.AsSpan();
+
+            int pos = fns.LastIndexOf(WdmrcDots.AsSpan());
+            if (pos < 0)
+                return res;
+
+            int startpos = pos;
+
+            pos += WdmrcDots.Length;
+            int parselen = fns.Length - pos;
+
+            int align = parselen == 4 ? HexToInt(fns[pos + 3]) : -1;
+            bool hasDigits = (parselen == 3 || (parselen == 4 && align > -1)) 
+                             && IsDigit(fns[pos]) && IsDigit(fns[pos + 1]) && IsDigit(fns[pos + 2]);
+
+            if (!hasDigits) 
+                return res;
+
+            res.CleanName = fns.Slice(0, startpos).ToString();
+            
+            res.SplitInfo.IsHeader = false;
+            #if NET48
+                res.SplitInfo.PartNumber = int.Parse(fns.Slice(pos, 3).ToString());
+            #else
+                res.SplitInfo.PartNumber = int.Parse(fns.Slice(pos, 3));
+            #endif
+
+            if (align > -1)
+                res.CryptInfo = new CryptInfo { AlignBytes = (uint)align };
+
             return res;
         }
+
+        private const string WdmrcDots = ".wdmrc.";
     }
 }
