@@ -268,6 +268,9 @@ Mount with davfs2
 * edit `/etc/davfs2/davfs2.conf` set `use_locks       0`
 * `sudo mount --rw -t davfs http://<address>:<port> /mnt/<folder>/ -o uid=<current_linux_user>`
 
+As a service (daemon)
+* https://github.com/yar229/WebDavMailRuCloud/issues/214
+
 
 CERTIFICATE_VERIFY_FAILED exception
 [Issue 56](https://github.com/yar229/WebDavMailRuCloud/issues/56)
