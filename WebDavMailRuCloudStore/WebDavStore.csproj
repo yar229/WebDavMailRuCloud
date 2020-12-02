@@ -7,7 +7,7 @@
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
     <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
-    <LangVersion>8.0</LangVersion>	
+    <LangVersion>preview</LangVersion>	
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

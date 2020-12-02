@@ -28,21 +28,13 @@ namespace YaR.Clouds.Base.Repos
                 return code;
             }
 
-            IRequestRepo repo;
-            switch (_settings.Protocol)
+            IRequestRepo repo = _settings.Protocol switch
             {
-                case Protocol.YadWeb:
-                    repo = new YadWebRequestRepo(_settings.Proxy, _credentials);
-                    break;
-                case Protocol.WebM1Bin:
-                    repo = new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
-                    break;
-                case Protocol.WebV2:
-                    repo = new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler);
-                    break;
-                default:
-                    throw new Exception("Unknown protocol");
-            }
+                Protocol.YadWeb => new YadWebRequestRepo(_settings.Proxy, _credentials),
+                Protocol.WebM1Bin => new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler),
+                Protocol.WebV2 => new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler),
+                _ => throw new Exception("Unknown protocol")
+            };
 
             if (!string.IsNullOrWhiteSpace(_settings.UserAgent))
                 repo.HttpSettings.UserAgent = _settings.UserAgent;

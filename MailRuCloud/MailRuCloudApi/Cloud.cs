@@ -29,18 +29,16 @@ namespace YaR.Clouds
     {
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Account));
 
-        private readonly LinkManager _linkManager;
-        public LinkManager LinkManager => _linkManager;
+        public LinkManager LinkManager { get; }
 
         /// <summary>
         /// Async tasks cancelation token.
         /// </summary>
         public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
 
-        public CloudSettings Settings => _settings;
-        private readonly CloudSettings _settings;
+        public CloudSettings Settings { get; }
 
-		/// <summary>
+        /// <summary>
 		/// Gets or sets account to connect with cloud.
 		/// </summary>
 		/// <value>Account info.</value>
@@ -57,7 +55,7 @@ namespace YaR.Clouds
         /// </summary>
         public Cloud(CloudSettings settings, Credentials credentials)
         {
-	        _settings = settings;
+	        Settings = settings;
             Account = new Account(settings, credentials);
             if (!Account.Login())
             {
@@ -66,7 +64,7 @@ namespace YaR.Clouds
 
             //TODO: wow very dummy linking, refact cache realization globally!
             _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(settings.CacheListingSec)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
-            _linkManager = new LinkManager(this);
+            LinkManager = new LinkManager(this);
         }
 
         public enum ItemType
@@ -102,7 +100,7 @@ namespace YaR.Clouds
 
             path = WebDavPath.Clean(path);
 
-	        if (_settings.CacheListingSec > 0)
+	        if (Settings.CacheListingSec > 0)
 	        {
 		        var cached = CacheGetEntry(path);
 		        if (cached != null)
@@ -110,7 +108,7 @@ namespace YaR.Clouds
 	        }
 
 	        //TODO: subject to refact!!!
-            var ulink = resolveLinks ? await _linkManager.GetItemLink(path) : null;
+            var ulink = resolveLinks ? await LinkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
             // cause client cannot, for example, delete it if we return NotFound for this item
@@ -145,7 +143,7 @@ namespace YaR.Clouds
             if (itemType == ItemType.Folder && entry is Folder folder) // fill folder with links if any
                 FillWithULinks(folder);
 
-            if (_settings.CacheListingSec > 0)
+            if (Settings.CacheListingSec > 0)
 		        CacheAddEntry(entry);
 
 	        return entry;
@@ -155,7 +153,7 @@ namespace YaR.Clouds
         {
             if (!folder.IsChildsLoaded) return;
 
-            var flinks = _linkManager.GetItems(folder.FullPath);
+            var flinks = LinkManager.GetItems(folder.FullPath);
             if (flinks.Any())
             {
                 foreach (var flink in flinks)
@@ -187,20 +185,23 @@ namespace YaR.Clouds
 
 
         private void CacheAddEntry(IEntry entry)
-	    {
-			if (entry is File cfile)
-			{
-				_itemCache.Add(cfile.FullPath, cfile);
-			}
-			else if (entry is Folder cfolder && cfolder.IsChildsLoaded)
-		    {
-				_itemCache.Add(cfolder.FullPath, cfolder);
-				_itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
+        {
+            switch (entry)
+            {
+                case File cfile:
+                    _itemCache.Add(cfile.FullPath, cfile);
+                    break;
+                case Folder cfolder when cfolder.IsChildsLoaded:
+                {
+                    _itemCache.Add(cfolder.FullPath, cfolder);
+                    _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
 
-				foreach (var childFolder in cfolder.Entries)
-				    CacheAddEntry(childFolder);
-			}
-		}
+                    foreach (var childFolder in cfolder.Entries)
+                        CacheAddEntry(childFolder);
+                    break;
+                }
+            }
+        }
 
 	    private IEntry CacheGetEntry(string path)
 	    {
@@ -319,14 +320,13 @@ namespace YaR.Clouds
         public async Task<PublishInfo> Publish(IEntry entry, bool makeShareFile = true, 
             bool generateDirectVideoLink = false, bool makeM3UFile = false, SharedVideoResolution videoResolution = SharedVideoResolution.All)
         {
-            if (null == entry) throw new ArgumentNullException(nameof(entry));
-
-            if (entry is File file)
-                return await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile, videoResolution);
-            if (entry is Folder folder)
-                return await Publish(folder, makeShareFile);
-
-            throw new Exception($"Unknow entry type, type = {entry.GetType()},path = {entry.FullPath}");
+            return entry switch
+            {
+                null => throw new ArgumentNullException(nameof(entry)),
+                File file => await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile, videoResolution),
+                Folder folder => await Publish(folder, makeShareFile),
+                _ => throw new Exception($"Unknow entry type, type = {entry.GetType()},path = {entry.FullPath}")
+            };
         }
         #endregion == Publish =======================================================================================================================
 
@@ -343,7 +343,7 @@ namespace YaR.Clouds
             destinationPath = WebDavPath.Clean(destinationPath);
 
             // if it linked - just clone
-            var link = await _linkManager.GetItemLink(folder.FullPath, false);
+            var link = await LinkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
             {
                 var cloneres = await CloneItem(destinationPath, link.Href.OriginalString);
@@ -360,7 +360,7 @@ namespace YaR.Clouds
             if (!copyRes.IsSuccess) return false;
 
             //clone all inner links
-            var links = _linkManager.GetChilds(folder.FullPath);
+            var links = LinkManager.GetChilds(folder.FullPath);
             foreach (var linka in links)
             {
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
@@ -406,13 +406,12 @@ namespace YaR.Clouds
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
 
-            if (source is File file)
-                return await Copy(file, destinationPath, string.IsNullOrEmpty(newname) ? file.Name : newname);
-
-            if (source is Folder folder)
-                return await Copy(folder, destinationPath);
-
-            throw new ArgumentException("Source is not a file or folder", nameof(source));
+            return source switch
+            {
+                File file => await Copy(file, destinationPath, string.IsNullOrEmpty(newname) ? file.Name : newname),
+                Folder folder => await Copy(folder, destinationPath),
+                _ => throw new ArgumentException("Source is not a file or folder", nameof(source))
+            };
         }
 
         /// <summary>
@@ -428,7 +427,7 @@ namespace YaR.Clouds
             newname = string.IsNullOrEmpty(newname) ? file.Name : newname;
             bool doRename = file.Name != newname;
 
-            var link = await _linkManager.GetItemLink(file.FullPath, false);
+            var link = await LinkManager.GetItemLink(file.FullPath, false);
             // копируем не саму ссылку, а её содержимое
             if (link != null)
             {
@@ -483,13 +482,12 @@ namespace YaR.Clouds
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (string.IsNullOrEmpty(newName)) throw new ArgumentNullException(nameof(newName));
 
-            if (source is File file)
-                return await Rename(file, newName);
-
-            if (source is Folder folder)
-                return await Rename(folder, newName);
-
-            throw new ArgumentException("Source item is not a file nor folder", nameof(source));
+            return source switch
+            {
+                File file => await Rename(file, newName),
+                Folder folder => await Rename(folder, newName),
+                _ => throw new ArgumentException("Source item is not a file nor folder", nameof(source))
+            };
         }
 
         /// <summary>
@@ -531,7 +529,7 @@ namespace YaR.Clouds
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Rename(string fullPath, string newName)
         {
-            var link = await _linkManager.GetItemLink(fullPath, false);
+            var link = await LinkManager.GetItemLink(fullPath, false);
 
             //rename item
             if (link == null)
@@ -540,7 +538,7 @@ namespace YaR.Clouds
 
                 if (data.IsSuccess)
                 {
-                    _linkManager.ProcessRename(fullPath, newName);
+                    LinkManager.ProcessRename(fullPath, newName);
                     _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
                 }
 
@@ -548,7 +546,7 @@ namespace YaR.Clouds
             }
 
             //rename link
-            var res = _linkManager.RenameLink(link, newName);
+            var res = LinkManager.RenameLink(link, newName);
             if (res) _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
 
             return res;
@@ -569,13 +567,12 @@ namespace YaR.Clouds
             if (source == null) throw new ArgumentNullException(nameof(source));
             if (string.IsNullOrEmpty(destinationPath)) throw new ArgumentNullException(nameof(destinationPath));
 
-            if (source is File file)
-                return await MoveAsync(file, destinationPath);
-
-            if (source is Folder folder)
-                return await MoveAsync(folder, destinationPath);
-
-            throw new ArgumentException("Source item is not a file nor folder", nameof(source));
+            return source switch
+            {
+                File file => await MoveAsync(file, destinationPath),
+                Folder folder => await MoveAsync(folder, destinationPath),
+                _ => throw new ArgumentException("Source item is not a file nor folder", nameof(source))
+            };
         }
 
         public async Task<bool> MoveAsync(string sourcePath, string destinationPath)
@@ -601,10 +598,10 @@ namespace YaR.Clouds
         /// <returns>True or false operation result.</returns>
         public async Task<bool> MoveAsync(Folder folder, string destinationPath)
         {
-            var link = await _linkManager.GetItemLink(folder.FullPath, false);
+            var link = await LinkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
             {
-                var remapped = await _linkManager.RemapLink(link, destinationPath);
+                var remapped = await LinkManager.RemapLink(link, destinationPath);
                 if (remapped)
                     _itemCache.Invalidate(WebDavPath.Parent(folder.FullPath), destinationPath);
                 return remapped;
@@ -615,7 +612,7 @@ namespace YaR.Clouds
             if (!res.IsSuccess) return false;
 
             //clone all inner links
-            var links = _linkManager.GetChilds(folder.FullPath).ToList();
+            var links = LinkManager.GetChilds(folder.FullPath).ToList();
             foreach (var linka in links)
             {
                 // некоторые клиенты сначала делают структуру каталогов, а потом по одному переносят файлы
@@ -634,7 +631,7 @@ namespace YaR.Clouds
                     }
                 }
             }
-            if (links.Any()) _linkManager.Save();
+            if (links.Any()) LinkManager.Save();
 
             return true;
         }
@@ -647,10 +644,10 @@ namespace YaR.Clouds
         /// <returns>True or false operation result.</returns>
         public async Task<bool> MoveAsync(File file, string destinationPath)
         {
-            var link = await _linkManager.GetItemLink(file.FullPath, false);
+            var link = await LinkManager.GetItemLink(file.FullPath, false);
             if (link != null)
             {
-                var remapped = await _linkManager.RemapLink(link, destinationPath);
+                var remapped = await LinkManager.RemapLink(link, destinationPath);
                 if (remapped)
                     _itemCache.Invalidate(file.Path, destinationPath);
                 return remapped;
@@ -686,12 +683,12 @@ namespace YaR.Clouds
         /// <returns>True or false operation result.</returns>
         public virtual async Task<bool> Remove(IEntry entry)
         {
-            if (entry is File file)
-                return await Remove(file);
-            if (entry is Folder folder)
-                return await Remove(folder);
-
-            return false;
+            return entry switch
+            {
+                File file => await Remove(file),
+                Folder folder => await Remove(folder),
+                _ => false
+            };
         }
 
         /// <summary>
@@ -731,10 +728,15 @@ namespace YaR.Clouds
                     var item = await GetItemAsync(mpath);
 
 
-                    if (item is Folder folder)
-                        await Unpublish(folder.GetPublicLinks(this).First().Uri, folder.FullPath);
-                    else if (item is File ifile)
-                        await Unpublish(ifile);
+                    switch (item)
+                    {
+                        case Folder folder:
+                            await Unpublish(folder.GetPublicLinks(this).First().Uri, folder.FullPath);
+                            break;
+                        case File ifile:
+                            await Unpublish(ifile);
+                            break;
+                    }
                 }
                 else
                 {
@@ -761,13 +763,13 @@ namespace YaR.Clouds
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            var link = await _linkManager.GetItemLink(fullPath, false);
+            var link = await LinkManager.GetItemLink(fullPath, false);
 
             if (link != null)
             {
                 //if folder is linked - do not delete inner files/folders if client deleting recursively
                 //just try to unlink folder
-                _linkManager.RemoveLink(fullPath);
+                LinkManager.RemoveLink(fullPath);
 
                 _itemCache.Invalidate(WebDavPath.Parent(fullPath));
                 return true;
@@ -777,8 +779,8 @@ namespace YaR.Clouds
             if (res.IsSuccess)
             {
                 //remove inner links
-                var innerLinks = _linkManager.GetChilds(fullPath);
-                _linkManager.RemoveLinks(innerLinks);
+                var innerLinks = LinkManager.GetChilds(fullPath);
+                LinkManager.RemoveLinks(innerLinks);
 
                 _itemCache.Forget(WebDavPath.Parent(fullPath), fullPath); //_itemCache.Invalidate(WebDavPath.Parent(fullPath));
             }
@@ -994,10 +996,10 @@ namespace YaR.Clouds
 
         public async Task<bool> LinkItem(Uri url, string path, string name, bool isFile, long size, DateTime? creationDate)
         {
-            var res = await _linkManager.Add(url, path, name, isFile, size, creationDate);
+            var res = await LinkManager.Add(url, path, name, isFile, size, creationDate);
             if (res)
             {
-                _linkManager.Save();
+                LinkManager.Save();
                 _itemCache.Invalidate(path);
             }
             return res;
@@ -1005,7 +1007,7 @@ namespace YaR.Clouds
 
         public async void RemoveDeadLinks()
         {
-            var count = await _linkManager.RemoveDeadLinks(true);
+            var count = await LinkManager.RemoveDeadLinks(true);
             if (count > 0) _itemCache.Invalidate();
         }
 

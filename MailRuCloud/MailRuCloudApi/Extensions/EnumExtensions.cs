@@ -36,9 +36,10 @@ namespace YaR.Clouds.Extensions
                 .GetCustomAttributes(false)
                 .OfType<EnumMemberAttribute>().
                 FirstOrDefault();
-            if (attr == null)
-                return @enum.ToString();
-            return attr.Value;
+
+            return attr == null 
+                ? @enum.ToString() 
+                : attr.Value;
         }
     }
 }

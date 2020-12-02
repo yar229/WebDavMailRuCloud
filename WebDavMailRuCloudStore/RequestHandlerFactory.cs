@@ -26,10 +26,9 @@ namespace YaR.Clouds.WebDavStore
 
         public IRequestHandler GetRequestHandler(IHttpContext httpContext)
         {
-            if (!RequestHandlers.TryGetValue(httpContext.Request.HttpMethod, out var requestHandler))
-                return null;
-
-            return requestHandler;
+            return !RequestHandlers.TryGetValue(httpContext.Request.HttpMethod, out var requestHandler) 
+                ? null 
+                : requestHandler;
         }
 
         public static IEnumerable<string> AllowedMethods => RequestHandlers.Keys;

@@ -202,22 +202,24 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 
 
             var itdata = itemInfo?.Data;
-            if (itdata?.Type == null)
-                return null;
-
-            if (itdata.Type == "file")
-                return itdata.ToFile(PublicBaseUrlDefault);
-
-            var entry = folderInfo.Data.ToFolder(itemInfo.Data, resourceStats.Data, path.Path, PublicBaseUrlDefault);
-
-            return entry;
+            switch (itdata?.Type)
+            {
+                case null:
+                    return null;
+                case "file":
+                    return itdata.ToFile(PublicBaseUrlDefault);
+                default:
+                {
+                    var entry = folderInfo.Data.ToFolder(itemInfo.Data, resourceStats.Data, path.Path, PublicBaseUrlDefault);
+                    return entry;
+                }
+            }
         }
 
 
         private async Task<IEntry> MediaFolderInfo(string path)
         {
-            var root = await MediaFolderRootInfo() as Folder;
-            if (null == root)
+            if (!(await MediaFolderRootInfo() is Folder root))
                 return null;
             
             if (WebDavPath.PathEquals(path, YadMediaPath))

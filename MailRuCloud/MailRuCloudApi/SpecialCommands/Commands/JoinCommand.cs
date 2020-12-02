@@ -32,10 +32,9 @@ namespace YaR.Clouds.SpecialCommands.Commands
 
         public override Task<SpecialCommandResult> Execute()
         {
-            if (_func != null)
-                return _func();
-
-            return Task.FromResult(new SpecialCommandResult(false, "Invalid parameters"));
+            return _func != null 
+                ? _func() 
+                : Task.FromResult(new SpecialCommandResult(false, "Invalid parameters"));
         }
 
         private async Task<SpecialCommandResult> ExecuteByLink(string path, string link)

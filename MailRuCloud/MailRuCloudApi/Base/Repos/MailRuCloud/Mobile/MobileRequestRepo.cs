@@ -138,42 +138,44 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
             var req = new ListRequest(HttpSettings, Authent, _metaServer.Value.Url, path.Path, _listDepth);
             var res = await req.MakeRequestAsync();
 
-            if (res.Item is FsFolder fsf)
+            switch (res.Item)
             {
-                var f = new Folder(fsf.Size == null ? 0 : (long)fsf.Size.Value, fsf.FullPath);
-                foreach (var fsi in fsf.Items)
+                case FsFolder fsFolder:
                 {
-                    if (fsi is FsFile fsfi)
+                    var f = new Folder(fsFolder.Size == null ? 0 : (long)fsFolder.Size.Value, fsFolder.FullPath);
+                    foreach (var fsi in fsFolder.Items)
                     {
-                        var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
+                        if (fsi is FsFile fsfi)
                         {
-                            CreationTimeUtc = fsfi.ModifDate,
-                            LastWriteTimeUtc = fsfi.ModifDate
-                        };
-                        f.Files.Add(fi);
+                            var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
+                            {
+                                CreationTimeUtc = fsfi.ModifDate,
+                                LastWriteTimeUtc = fsfi.ModifDate
+                            };
+                            f.Files.Add(fi);
+                        }
+                        else if (fsi is FsFolder fsfo)
+                        {
+                            var fo = new Folder(fsfo.Size == null ? 0 : (long) fsfo.Size.Value, fsfo.FullPath);
+                            f.Folders.Add(fo);
+                        }
+                        else throw new Exception($"Unknown item type {fsi.GetType()}");
                     }
-                    else if (fsi is FsFolder fsfo)
-                    {
-                        var fo = new Folder(fsfo.Size == null ? 0 : (long) fsfo.Size.Value, fsfo.FullPath);
-                        f.Folders.Add(fo);
-                    }
-                    else throw new Exception($"Unknown item type {fsi.GetType()}");
+                    return f;
                 }
-                return f;
-            }
-
-            if (res.Item is FsFile fsfi1)
-            {
-                var fi = new File(fsfi1.FullPath, (long)fsfi1.Size, new FileHashMrc(fsfi1.Sha1))
+                case FsFile fsFile:
                 {
-                    CreationTimeUtc = fsfi1.ModifDate,
-                    LastWriteTimeUtc = fsfi1.ModifDate
-                };
+                    var fi = new File(fsFile.FullPath, (long)fsFile.Size, new FileHashMrc(fsFile.Sha1))
+                    {
+                        CreationTimeUtc = fsFile.ModifDate,
+                        LastWriteTimeUtc = fsFile.ModifDate
+                    };
 
-                return fi;
+                    return fi;
+                }
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)

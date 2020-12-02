@@ -39,6 +39,15 @@ namespace YaR.Clouds.Base.Requests
             request.ContentType = ConstSettings.DefaultRequestType;
             request.Accept = "application/json";
             request.UserAgent = Settings.UserAgent;
+
+
+            #if NET48
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            #else
+            request.AutomaticDecompression = DecompressionMethods.All;
+            #endif
+
+            //request.AllowReadStreamBuffering = true;
             
             return request;
         }

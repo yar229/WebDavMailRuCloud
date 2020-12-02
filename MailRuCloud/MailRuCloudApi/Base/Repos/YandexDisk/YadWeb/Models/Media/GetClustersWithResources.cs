@@ -213,16 +213,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models.Media
         {
             if (reader.TokenType == JsonToken.Null) return null;
             var value = serializer.Deserialize<string>(reader);
-            switch (value)
+            
+            return value switch
             {
-                case "camera":
-                    return YadMediaFilter.Camera;
-                case "photounlim":
-                    return YadMediaFilter.Photounlim;
-                case "videos":
-                    return YadMediaFilter.Videos;
-            }
-            throw new Exception("Cannot unmarshal type Filter");
+                "camera" => YadMediaFilter.Camera,
+                "photounlim" => YadMediaFilter.Photounlim,
+                "videos" => YadMediaFilter.Videos,
+                _ => throw new Exception("Cannot unmarshal type Filter")
+            };
         }
 
         public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
