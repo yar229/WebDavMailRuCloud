@@ -31,9 +31,9 @@
 
 	--use-deduplicate		Enable deduplication (upload speedup, put by hash), see Using deduplication readme section
 
-	--install <servicename>		Install as windows service (Windows/.Net only)
- 	--install-display <displayname>	Display name for Windows service (Windows/.Net only)
-	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
+	--install <servicename>		Install as windows service (Windows/.Net48 version only)
+ 	--install-display <displayname>	Display name for Windows service (Windows/.Net48 version only)
+	--uninstall <servicename>       Uninstall windows service (Windows/.Net48 version only)
 
 	--proxy-address <socks|https|http>://<address>:<port>       Use proxy
 	--proxy-user <username>       Proxy user name
