@@ -305,6 +305,8 @@ Use any client supports webdav.
   - turn on `(connection properties) -> Send\Receive accents in URLs as UTF-8 Unicode`
 * [**WebDrive**](https://southrivertech.com/products/webdrive/): 
   - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`
+* [**CarotDAV**](http://rei.to/carotdav_en.html): 
+  - check `(connection properties) -> Advanced -> Don't update property.`
 * avoid using Unicode non-printing characters such as [right-to-left mark](https://en.wikipedia.org/wiki/Right-to-left_mark) in file/folder names
 
 
