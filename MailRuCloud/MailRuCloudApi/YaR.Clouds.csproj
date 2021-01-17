@@ -7,8 +7,8 @@
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
-    <AssemblyVersion>1.13.1.1</AssemblyVersion>
-    <FileVersion>1.13.1.1</FileVersion>
+    <AssemblyVersion>1.13.1.2</AssemblyVersion>
+    <FileVersion>1.13.1.2</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
