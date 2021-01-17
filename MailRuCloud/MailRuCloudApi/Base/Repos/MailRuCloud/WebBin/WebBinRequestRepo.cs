@@ -51,6 +51,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
 
+            // required for Windows 7 breaking connection
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
+
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
         }

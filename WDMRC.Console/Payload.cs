@@ -192,12 +192,18 @@ namespace YaR.Clouds.Console
 
         private static string GetFrameworkDescription()
         {
-            // detect .NET Core
+            // detect .NET Core & .NET 5
             var assembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
             var assemblyPath = assembly.CodeBase.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             int netCoreAppIndex = Array.IndexOf(assemblyPath, "Microsoft.NETCore.App");
             if (netCoreAppIndex > 0 && netCoreAppIndex < assemblyPath.Length - 2)
-                return ".NET Core " + assemblyPath[netCoreAppIndex + 1];
+            {
+                bool parsed = Version.TryParse(assemblyPath[netCoreAppIndex + 1], out var version);
+
+                return (parsed && version.Major >= 5
+                    ? ".NET "
+                    : ".NET Core ") + assemblyPath[netCoreAppIndex + 1];
+            }
 
             // detect .NET Mono
             Type type = Type.GetType("Mono.Runtime");
