@@ -4,16 +4,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Threading;
 using System.Threading.Tasks;
+
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
+using YaR.Clouds.Base.Repos.MailRuCloud.WebBin.Requests;
 using YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests;
 using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
+
 using AnonymousRepo = YaR.Clouds.Base.Repos.MailRuCloud.WebV2.WebV2RequestRepo;
 using AccountInfoRequest = YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests.AccountInfoRequest;
 using CreateFolderRequest = YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.CreateFolderRequest;
@@ -83,52 +85,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 {
                     downServer = pendingServers.Next(downServer);
 
-                    string url;
-
-                    if (isLinked)
-                    {
-                        var urii = file.PublicLinks.First().Uri;
-                        var uriistr = urii.OriginalString;
-                        var baseura = PublicBaseUrls.First(pbu => uriistr.StartsWith(pbu, StringComparison.InvariantCulture));
-                        if (string.IsNullOrEmpty(baseura))
-                            throw new ArgumentException("url does not starts with base url");
-
-                        url = $"{downServer.Value.Url}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
-                    }
-                    else
-                    {
-                        url = $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}";
-                    }
-
-                    url += $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
-
-                    //string url =(isLinked
-                    //        ? $"{downServer.Value.Url}{WebDavPath.EscapeDataString(file.PublicLinks.First().Uri.PathAndQuery)}"
-                    //        : $"{downServer.Value.Url}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}") +
-                    //    $"?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}";
-                    var uri = new Uri(url);
-
-                    request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
-
-                    request.AddRange(instart, inend);
-                    request.Proxy = HttpSettings.Proxy;
-                    request.CookieContainer = Authent.Cookies;
-                    request.Method = "GET";
-                    request.Accept = "*/*";
-                    request.UserAgent = HttpSettings.UserAgent;
-                    request.Host = uri.Host;
-                    request.AllowWriteStreamBuffering = false;
-
-                    if (isLinked)
-                    {
-                        request.Headers.Add("Accept-Ranges", "bytes");
-                        request.ContentType = MediaTypeNames.Application.Octet;
-                        request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-                        request.Headers.Add("Origin", ConstSettings.CloudDomain);
-                    }
-
-                    request.Timeout = 15 * 1000;
-                    request.ReadWriteTimeout = 15 * 1000;
+                    request = new DownloadRequest(HttpSettings, Authent, file, instart, inend, downServer.Value.Url, PublicBaseUrls);
 
                     watch.Start();
                     var response = (HttpWebResponse)request.GetResponse();
@@ -158,28 +115,6 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             var stream = new DownloadStream(ResponseGenerator, afile, start, end);
             return stream;
         }
-
-
-        //public HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary)
-        //{
-        //    var shard = GetShardInfo(ShardType.Upload).Result;
-        //    var url = new Uri($"{shard.Url}?client_id={HttpSettings.ClientId}&token={Authent.AccessToken}");
-
-        //    var request = (HttpWebRequest)WebRequest.Create(url);
-        //    request.Proxy = HttpSettings.Proxy;
-        //    request.CookieContainer = Authent.Cookies;
-        //    request.Method = "PUT";
-        //    request.ContentLength = file.OriginalSize;
-        //    request.Accept = "*/*";
-        //    request.UserAgent = HttpSettings.UserAgent;
-        //    request.AllowWriteStreamBuffering = false;
-
-        //    request.Timeout = 15 * 1000;
-        //    request.ReadWriteTimeout = 15 * 1000;
-        //    //request.ServicePoint.ConnectionLimit = int.MaxValue;
-
-        //    return request;
-        //}
         
         /// <summary>
         /// Get shard info that to do post get request. Can be use for anonymous user.
