@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 
 using NWebDav.Server.Http;
@@ -60,9 +61,9 @@ namespace NWebDav.Server.Helpers
         /// <summary>
         /// Split an URI into a collection and name part.
         /// </summary>
-        /// <param name="uri">URI that should be splitted.</param>
+        /// <param name="uri">URI that should be split.</param>
         /// <returns>
-        /// Splitted URI in a collection URI and a name string.
+        /// Split URI in a collection URI and a name string.
         /// </returns>
         public static SplitUri SplitUri(WebDavUri uri)
         {
@@ -284,7 +285,20 @@ namespace NWebDav.Server.Helpers
         /// XML document that represents the body content (or 
         /// <see langword="null"/> if no body content is specified).
         /// </returns>
-        public static XDocument LoadXmlDocument(this IHttpRequest request)
+
+        // The async version of XDocument.LoadAsync has become available with .NET Standard 2.1
+        // and is required for modern Kestrel versions that require all reads to be done async.
+        // Older versions use a synchronous version and have the additional penalty of using
+        // async, but if performance is an ultimate goal, then don't use WebDAV and you should
+        // be upgrading to .NET Core anyway :-) The other option is to put the burden on all
+        // the callers of this method, which I prefer to avoid.
+#if !USE_ASYNC_READ
+#pragma warning disable 1998
+#endif
+        public static async Task<XDocument> LoadXmlDocumentAsync(this IHttpRequest request)
+#if !USE_ASYNC_READ
+#pragma warning restore 1998
+#endif
         {
             // If there is no input stream, then there is no XML document
             if (request.Stream == null || request.Stream == Stream.Null)
@@ -303,7 +317,11 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Obtain an XML document from the stream
+#if USE_ASYNC_READ
+            var xDocument = await XDocument.LoadAsync(request.Stream, LoadOptions.None, cancellationToken: default);
+#else
             var xDocument = XDocument.Load(request.Stream);
+#endif
 #if DEBUG
             // Dump the XML document to the logging
             if (xDocument.Root != null && s_log.IsLogEnabled(NWebDav.Server.Logging.LogLevel.Debug))

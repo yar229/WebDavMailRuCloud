@@ -62,7 +62,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         public ILockingManager LockingManager => _store.LockingManager;
 
 
-        public IList<IStoreItem> Items
+        public IEnumerable<IStoreItem> Items
         {
             get
             {
@@ -77,7 +77,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             }
         }
 
-        private IList<IStoreItem> _items;
+        private IEnumerable<IStoreItem> _items;
         private readonly object _itemsLocker = new object();
 
         //public IEnumerable<LocalStoreCollection> Folders => Items.Where(it => it is LocalStoreCollection).Cast<LocalStoreCollection>();
@@ -93,7 +93,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return Task.FromResult(res);
         }
 
-        public Task<IList<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
+        public Task<IEnumerable<IStoreItem>> GetItemsAsync(IHttpContext httpContext)
         {
             var list = DirectoryInfo.Entries
                 .Select(entry => entry.IsFile
@@ -101,7 +101,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     : new LocalStoreCollection(httpContext, (Folder) entry, IsWritable, _store))
                 .ToList();
 
-            return Task.FromResult<IList<IStoreItem>>(list);
+            return Task.FromResult<IEnumerable<IStoreItem>>(list);
         }
 
         public Task<StoreItemResult> CreateItemAsync(string name, bool overwrite, IHttpContext httpContext)

@@ -46,20 +46,14 @@ namespace NWebDav.Server.Handlers
 
             private readonly IList<PropSet> _propertySetters = new List<PropSet>();
 
-            public PropSetCollection(IHttpRequest request)
+            public PropSetCollection(XElement xPropertyUpdate)
             {
-                // Create an XML document from the stream
-                var xDoc = request.LoadXmlDocument();
-
                 // The document should contain a 'propertyupdate' root element
-                var xRoot = xDoc.Root;
-                if (xRoot == null)
-                    throw new Exception("No root element (expected 'propertyupdate')");
-                if (xRoot.Name != WebDavNamespaces.DavNsPropertyUpdate)
+                if (xPropertyUpdate == null || xPropertyUpdate.Name != WebDavNamespaces.DavNsPropertyUpdate)
                     throw new Exception("Invalid root element (expected 'propertyupdate')");
 
                 // Check all descendants
-                foreach (var xElement in xRoot.Elements())
+                foreach (var xElement in xPropertyUpdate.Elements())
                 {
                     // The descendant should be a 'set' or 'remove' entry
                     if (xElement.Name != WebDavNamespaces.DavNsSet && xElement.Name != WebDavNamespaces.DavNsRemove)
@@ -133,7 +127,10 @@ namespace NWebDav.Server.Handlers
             try
             {
                 // Create an XML document from the stream
-                propSetCollection = new PropSetCollection(request);
+                var xDoc = await request.LoadXmlDocumentAsync().ConfigureAwait(false);
+
+                // Create an XML document from the stream
+                propSetCollection = new PropSetCollection(xDoc.Root);
             }
             catch (Exception)
             {

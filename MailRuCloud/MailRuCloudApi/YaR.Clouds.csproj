@@ -7,8 +7,8 @@
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
-    <AssemblyVersion>1.13.2.0</AssemblyVersion>
-    <FileVersion>1.13.2.0</FileVersion>
+    <AssemblyVersion>1.13.3.0</AssemblyVersion>
+    <FileVersion>1.13.3.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.12" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>

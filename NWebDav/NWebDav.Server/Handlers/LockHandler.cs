@@ -83,7 +83,9 @@ namespace NWebDav.Server.Handlers
                 try
                 {
                     // Create an XML document from the stream
-                    var xDoc = request.LoadXmlDocument();
+                    var xDoc = await request.LoadXmlDocumentAsync().ConfigureAwait(false);
+                    if (xDoc == null)
+                        throw new Exception("Request-content couldn't be read");
 
                     // Save the root document
                     var xRoot = xDoc.Root;

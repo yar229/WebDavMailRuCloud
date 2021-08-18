@@ -74,49 +74,39 @@ namespace NWebDav.Server.Helpers
             response.SetStatus(statusCode);
 
             // Obtain the result as an XML document
-            using (var ms = new MemoryStream())
+            using (var xmlWriter = XmlWriter.Create(response.Stream, new XmlWriterSettings
             {
-                using (var xmlWriter = XmlWriter.Create(ms, new XmlWriterSettings
-                {
-                    OmitXmlDeclaration = false,
-                    CheckCharacters = false,
+                OmitXmlDeclaration = false,
+                CheckCharacters = false,
+                Encoding = s_utf8Encoding,
+
 #if DEBUG
-                    Indent = true,
+                Indent = true,
 #else
-                    Indent = false,
+                Indent = false,
 #endif
-                    Encoding = s_utf8Encoding,
-                }))
-                {
-                    // Add the namespaces (Win7 WebDAV client requires them like this)
-                    xDocument.Root.SetAttributeValue(XNamespace.Xmlns + WebDavNamespaces.DavNsPrefix, WebDavNamespaces.DavNs);
-                    xDocument.Root.SetAttributeValue(XNamespace.Xmlns + WebDavNamespaces.Win32NsPrefix, WebDavNamespaces.Win32Ns);
 
-                    // Write the XML document to the stream
-                    xDocument.WriteTo(xmlWriter);
-                }
-
-                // Flush
-                ms.Flush();
-#if DEBUG
-                // Dump the XML document to the logging
-                if (s_log.IsLogEnabled(NWebDav.Server.Logging.LogLevel.Debug))
-                {
-                    // Reset stream and write the stream to the result
-                    ms.Seek(0, SeekOrigin.Begin);
-
-                    var reader = new StreamReader(ms);
-                    s_log.Log(NWebDav.Server.Logging.LogLevel.Debug, () => reader.ReadToEnd());
-                }
+#if USE_ASYNC_READ
+                Async = true
 #endif
-                // Set content type/length
-                response.SetHeaderValue("Content-Type", "text/xml; charset=\"utf-8\"");
-                response.SetHeaderValue("Content-Length", ms.Position.ToString(CultureInfo.InvariantCulture));
+            }))
+            {
+                // Add the namespaces (Win7 WebDAV client requires them like this)
+                xDocument.Root.SetAttributeValue(XNamespace.Xmlns + WebDavNamespaces.DavNsPrefix, WebDavNamespaces.DavNs);
+                xDocument.Root.SetAttributeValue(XNamespace.Xmlns + WebDavNamespaces.Win32NsPrefix, WebDavNamespaces.Win32Ns);
 
-                // Reset stream and write the stream to the result
-                ms.Seek(0, SeekOrigin.Begin);
-                await ms.CopyToAsync(response.Stream).ConfigureAwait(false);
+
+#if USE_ASYNC_READ
+                await xDocument.WriteToAsync(xmlWriter, cancellationToken: default);
+#else
+                xDocument.WriteTo(xmlWriter);
+#endif
             }
+
+            // Set content type/length
+            response.SetHeaderValue("Content-Type", "text/xml; charset=\"utf-8\"");
+            // Since we has no memory stream, can't get length... but still working
+            //response.SetHeaderValue("Content-Length", response.Stream.Length.ToString(CultureInfo.InvariantCulture)); // Position.ToString(CultureInfo.InvariantCulture));
         }
     }
 }
