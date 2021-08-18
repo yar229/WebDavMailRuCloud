@@ -137,7 +137,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 }
             };
 
-            _props = props.Where(p => isEnabledPropFunc?.Invoke(p.Name.LocalName) ?? true).ToArray();
+            _props = props.Where(p => isEnabledPropFunc?.Invoke(p.Name.ToString()) ?? true).ToArray();
         }
 
         public IEnumerable<DavProperty<T>> Props => _props;
