@@ -206,10 +206,10 @@ namespace NWebDav.Server.Handlers
                 {
                     // Check if the property is supported
                     // YaR: optimize //if (propertyManager.Properties.Any(p => p.Name == propertyName))
-                    if (propertyManager.HasProperty(propertyName))
-                    {
-                        var value = await propertyManager.GetPropertyAsync(httpContext, item, propertyName).ConfigureAwait(false);
 
+                    var value = await propertyManager.GetPropertyAsync(httpContext, item, propertyName).ConfigureAwait(false);
+                    if (value != null)   //propertyManager.HasProperty(propertyName))
+                    {
                         //YaR: can't catch what that mean
                         //if (value is IEnumerable<XElement>)
                         //    value = ((IEnumerable<XElement>) value).Cast<object>().ToArray();
