@@ -161,7 +161,7 @@ Parameters with spaces must be screened by quotes.
 	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
 * Enable/disable WebDAV properties <br/>
 	`<config><WebDAVProps>` <br/>
-	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
+	set `false` on properties you don't need to speedup listing on large catalogs / slow connections.
 * 2 Factor Authentification <br/>
 	At this time you can use
 	* `<TwoFactorAuthHandler Name = "AuthCodeConsole"/>` - asks for authcode in application console
