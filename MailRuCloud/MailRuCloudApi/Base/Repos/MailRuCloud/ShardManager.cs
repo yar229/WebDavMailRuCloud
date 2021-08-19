@@ -55,9 +55,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             WeblinkDownloadServersPending = new Pending<Cached<ServerRequestResult>>(8,
                 () => new Cached<ServerRequestResult>(old =>
                     {
-                        var server = new WeblinkGetServerRequest(httpsettings).MakeRequestAsync().Result;
-                        Logger.Debug($"weblink Download server changed to {server.Url}");
-                        return server;
+                        var data = new WeblinkGetServerRequest(httpsettings).MakeRequestAsync().Result;
+                        var serverUrl = data.Body.WeblinkGet[0].Url;
+                        Logger.Debug($"weblink Download server changed to {serverUrl}");
+                        var res = new ServerRequestResult { Url = serverUrl };
+                        return res;
                     },
                     value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
                 ));

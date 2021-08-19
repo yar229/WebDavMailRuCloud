@@ -31,35 +31,32 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin.Requests
                 if (string.IsNullOrEmpty(baseura))
                     throw new ArgumentException("url does not starts with base url");
 
-                url = $"{downServerUrl}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
+                //url = $"{downServerUrl}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
+                url = $"{downServerUrl}{uriistr.Remove(0, baseura.Length)}";
             }
             else
             {
                 url = $"{downServerUrl}{Uri.EscapeDataString(file.FullPath.TrimStart('/'))}";
+                url += $"?client_id={settings.ClientId}&token={authent.AccessToken}";
             }
-
-            url += $"?client_id={settings.ClientId}&token={authent.AccessToken}";
 
             var uri = new Uri(url);
 
             HttpWebRequest request = (HttpWebRequest) WebRequest.Create(uri.OriginalString);
 
+            request.AllowAutoRedirect = true;
+
             request.AddRange(instart, inend);
             request.Proxy = settings.Proxy;
-            request.CookieContainer = authent.Cookies;
+            //request.CookieContainer = authent.Cookies;
             request.Method = "GET";
-            request.Accept = "*/*";
-            request.UserAgent = settings.UserAgent;
-            request.Host = uri.Host;
+            //request.Accept = "*/*";
+            //request.UserAgent = settings.UserAgent;
+            //request.Host = uri.Host;
             request.AllowWriteStreamBuffering = false;
 
             if (isLinked)
-            {
                 request.Headers.Add("Accept-Ranges", "bytes");
-                request.ContentType = MediaTypeNames.Application.Octet;
-                request.Referer = $"{ConstSettings.CloudDomain}/home/{Uri.EscapeDataString(file.Path)}";
-                request.Headers.Add("Origin", ConstSettings.CloudDomain);
-            }
 
             request.Timeout = 15 * 1000;
             request.ReadWriteTimeout = 15 * 1000;
