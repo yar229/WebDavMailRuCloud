@@ -128,7 +128,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             bool refreshed = false;
             for (int i = 0; i < 10; i++)
             {
-                Thread.Sleep(80 * i);
+                await Task.Delay(80 * i);
                 var ishards = await Task.Run(() => _cachedShards.Value);
                 var ishard = ishards[shardType];
                 var banned = _bannedShards.Value;
