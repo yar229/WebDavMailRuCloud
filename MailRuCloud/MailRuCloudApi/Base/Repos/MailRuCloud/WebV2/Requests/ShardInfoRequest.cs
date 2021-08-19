@@ -24,8 +24,5 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
                 return uri;
            }
         }
-
-
-        
     }
 }
