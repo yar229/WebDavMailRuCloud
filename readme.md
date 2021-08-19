@@ -8,9 +8,9 @@
 
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - .NET Framework 4.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#windowscmd)
-* [Linux](#linux) - Mono 6.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#linuxredhat)
-* [OS X](#mac-os-x) - Mono 6.8 / [.NET Core 3.1](https://www.microsoft.com/net/core#macos)
+* [Windows](#windows)  - .NET Framework 4.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=windows) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=windows)
+* [Linux](#linux) - Mono 6.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=linux) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=linux)
+* [OS X](#mac-os-x) - Mono 6.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=macos) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=macos)
 
 `WebDAVCloudMailRu-*-dotNet48.zip` / `WebDAVCloudMailRu-*-dotNetCore30.zip` respectively
 
@@ -31,9 +31,9 @@
 
 	--use-deduplicate		Enable deduplication (upload speedup, put by hash), see Using deduplication readme section
 
-	--install <servicename>		Install as windows service (Windows/.Net only)
- 	--install-display <displayname>	Display name for Windows service (Windows/.Net only)
-	--uninstall <servicename>       Uninstall windows service (Windows/.Net only)
+	--install <servicename>		Install as windows service (Windows/.Net48 version only)
+ 	--install-display <displayname>	Display name for Windows service (Windows/.Net48 version only)
+	--uninstall <servicename>       Uninstall windows service (Windows/.Net48 version only)
 
 	--proxy-address <socks|https|http>://<address>:<port>       Use proxy
 	--proxy-user <username>       Proxy user name
@@ -161,7 +161,7 @@ Parameters with spaces must be screened by quotes.
 	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
 * Enable/disable WebDAV properties <br/>
 	`<config><WebDAVProps>` <br/>
-	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.
+	set `false` on properties you don't need to speedup listing on large catalogs / slow connections.
 * 2 Factor Authentification <br/>
 	At this time you can use
 	* `<TwoFactorAuthHandler Name = "AuthCodeConsole"/>` - asks for authcode in application console
@@ -305,6 +305,8 @@ Use any client supports webdav.
   - turn on `(connection properties) -> Send\Receive accents in URLs as UTF-8 Unicode`
 * [**WebDrive**](https://southrivertech.com/products/webdrive/): 
   - disable `(disk properties) -> HTTP Settings -> Do chunked upload for large files.`
+* [**CarotDAV**](http://rei.to/carotdav_en.html): 
+  - check `(connection properties) -> Advanced -> Don't update property.`
 * avoid using Unicode non-printing characters such as [right-to-left mark](https://en.wikipedia.org/wiki/Right-to-left_mark) in file/folder names
 
 
