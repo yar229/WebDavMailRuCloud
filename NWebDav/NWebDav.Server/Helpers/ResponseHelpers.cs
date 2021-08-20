@@ -86,7 +86,7 @@ namespace NWebDav.Server.Helpers
                 Indent = false,
 #endif
 
-#if USE_ASYNC_READ
+#if USE_XML_ASYNC_READWRITE
                 Async = true
 #endif
             }))
@@ -96,7 +96,7 @@ namespace NWebDav.Server.Helpers
                 xDocument.Root.SetAttributeValue(XNamespace.Xmlns + WebDavNamespaces.Win32NsPrefix, WebDavNamespaces.Win32Ns);
 
 
-#if USE_ASYNC_READ
+#if USE_XML_ASYNC_READWRITE
                 await xDocument.WriteToAsync(xmlWriter, cancellationToken: default);
 #else
                 xDocument.WriteTo(xmlWriter);

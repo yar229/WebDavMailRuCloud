@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos;
+using YaR.Clouds.Base.Repos.MailRuCloud;
 
 namespace YaR.Clouds.Base.Requests
 {

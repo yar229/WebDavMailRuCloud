@@ -292,11 +292,11 @@ namespace NWebDav.Server.Helpers
         // async, but if performance is an ultimate goal, then don't use WebDAV and you should
         // be upgrading to .NET Core anyway :-) The other option is to put the burden on all
         // the callers of this method, which I prefer to avoid.
-#if !USE_ASYNC_READ
+#if !USE_XML_ASYNC_READWRITE
 #pragma warning disable 1998
 #endif
         public static async Task<XDocument> LoadXmlDocumentAsync(this IHttpRequest request)
-#if !USE_ASYNC_READ
+#if !USE_XML_ASYNC_READWRITE
 #pragma warning restore 1998
 #endif
         {
@@ -317,7 +317,7 @@ namespace NWebDav.Server.Helpers
                 return null;
 
             // Obtain an XML document from the stream
-#if USE_ASYNC_READ
+#if USE_XML_ASYNC_READWRITE
             var xDocument = await XDocument.LoadAsync(request.Stream, LoadOptions.None, cancellationToken: default);
 #else
             var xDocument = XDocument.Load(request.Stream);

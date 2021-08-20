@@ -1,4 +1,4 @@
-﻿namespace YaR.Clouds.Base
+﻿namespace YaR.Clouds.Base.Repos.MailRuCloud
 {
     public static class ConstSettings
     {

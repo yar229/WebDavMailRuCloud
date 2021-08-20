@@ -43,6 +43,8 @@ namespace NWebDav.Server.Props
         /// </returns>
         ValueTask<object> GetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false);
 
+        ValueTask<(bool IsExists, object Value)> TryGetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false);
+
         /// <summary>
         /// Set the value of the specified property for the given item.
         /// </summary>

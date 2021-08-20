@@ -152,7 +152,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var ures = responseMessage.ToUploadPathResult();
 
             ures.NeedToAddFile = false;
-            //Thread.Sleep(1_000);
+            //await Task.Delay(1_000);;
 
             return ures;
         }
