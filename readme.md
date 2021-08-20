@@ -1,7 +1,7 @@
 ﻿## **WebDAV emulator for Cloud.mail.ru / Yandex.Disk**<br>
 
 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a>
-<a href="http://www.somsubhra.com/github-release-stats/?username=yar229&repository=WebDavMailRuCloud"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right" target="_blank"></a>
+<img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right" target="_blank">
 
 
 * UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
