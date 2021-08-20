@@ -95,6 +95,24 @@ namespace NWebDav.Server.Props
             return await property.GetterAsync(httpContext, (TEntry)item);
         }
 
+        public async ValueTask<(bool IsExists, object Value)> TryGetPropertyAsync(IHttpContext httpContext, IStoreItem item, XName propertyName, bool skipExpensive = false)
+        {
+            // Find the property
+            if (!_properties.TryGetValue(propertyName, out var property))
+                return (false, null);
+
+            // Check if the property has a getter
+            if (property.GetterAsync == null)
+                return (true, null);
+
+            // Skip expensive properties
+            if (skipExpensive && property.IsExpensive)
+                return (true, null);
+
+            // Obtain the value
+            return (true, await property.GetterAsync(httpContext, (TEntry)item));
+        }
+
         /// <summary>
         /// Set the value of the specified property for the given item.
         /// </summary>
