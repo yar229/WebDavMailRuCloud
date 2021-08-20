@@ -31,8 +31,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin.Requests
                 if (string.IsNullOrEmpty(baseura))
                     throw new ArgumentException("url does not starts with base url");
 
-                //url = $"{downServerUrl}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
-                url = $"{downServerUrl}{uriistr.Remove(0, baseura.Length)}";
+                url = $"{downServerUrl}{WebDavPath.EscapeDataString(uriistr.Remove(0, baseura.Length))}";
             }
             else
             {
