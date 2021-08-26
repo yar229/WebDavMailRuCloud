@@ -73,6 +73,12 @@ namespace NWebDav.Server.Helpers
             // Set the response
             response.SetStatus(statusCode);
 
+            // YaR: mono require headers be set before writing to response
+            // Set content type/length
+            response.SetHeaderValue("Content-Type", "text/xml; charset=\"utf-8\"");
+            // Since we has no memory stream, can't get length... but still working
+            //response.SetHeaderValue("Content-Length", response.Stream.Length.ToString(CultureInfo.InvariantCulture)); // Position.ToString(CultureInfo.InvariantCulture));
+
             // Obtain the result as an XML document
             using (var xmlWriter = XmlWriter.Create(response.Stream, new XmlWriterSettings
             {
@@ -102,11 +108,6 @@ namespace NWebDav.Server.Helpers
                 xDocument.WriteTo(xmlWriter);
 #endif
             }
-
-            // Set content type/length
-            response.SetHeaderValue("Content-Type", "text/xml; charset=\"utf-8\"");
-            // Since we has no memory stream, can't get length... but still working
-            //response.SetHeaderValue("Content-Length", response.Stream.Length.ToString(CultureInfo.InvariantCulture)); // Position.ToString(CultureInfo.InvariantCulture));
         }
     }
 }
