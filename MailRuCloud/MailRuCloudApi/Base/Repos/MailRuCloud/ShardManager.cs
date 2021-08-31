@@ -69,7 +69,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         public Pending<Cached<ServerRequestResult>> DownloadServersPending { get; }
         public Pending<Cached<ServerRequestResult>> WeblinkDownloadServersPending { get; }
 
-        public ShardInfo MetaServer => new ShardInfo {Url = _metaServer.Value.Url, Count = _metaServer.Value.Unknown};
+        public ShardInfo MetaServer => new() {Url = _metaServer.Value.Url, Count = _metaServer.Value.Unknown};
         private readonly Cached<ServerRequestResult> _metaServer;
 
         public Cached<Dictionary<ShardType, ShardInfo>> CachedShards { get; }

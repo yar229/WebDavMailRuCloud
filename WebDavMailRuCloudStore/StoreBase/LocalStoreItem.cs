@@ -133,7 +133,11 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                     ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size, StreamCopiedAction, ServerProcessFinishedAction).ConfigureAwait(false)
                     : null)
                 {
+#if NET48
                     await inputStream.CopyToAsync(outputStream).ConfigureAwait(false);
+#else
+                    await inputStream.CopyToAsync(outputStream, cts.Token).ConfigureAwait(false);
+#endif
                 }
                 return DavStatusCode.Ok;
             }
@@ -215,7 +219,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         }
 
 
-        static byte[] GetBytes(string str)
+        private static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length * sizeof(char)];
             Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);

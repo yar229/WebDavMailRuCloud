@@ -16,7 +16,7 @@ using File = YaR.Clouds.Base.File;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
-    [DebuggerDisplay("{_directoryInfo.FullPath}")]
+    [DebuggerDisplay("{DirectoryInfo.FullPath}")]
     public class LocalStoreCollection : ILocalStoreCollection
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreCollection));
@@ -44,7 +44,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             return BitConverter.ToString(hash).Replace("-", string.Empty);
         }
 
-        static byte[] GetBytes(string str)
+        private static byte[] GetBytes(string str)
         {
             byte[] bytes = new byte[str.Length * sizeof(char)];
             Buffer.BlockCopy(str.ToCharArray(), 0, bytes, 0, bytes.Length);
@@ -78,7 +78,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         }
 
         private IEnumerable<IStoreItem> _items;
-        private readonly object _itemsLocker = new object();
+        private readonly object _itemsLocker = new();
 
         //public IEnumerable<LocalStoreCollection> Folders => Items.Where(it => it is LocalStoreCollection).Cast<LocalStoreCollection>();
         //public IEnumerable<LocalStoreItem> Files => Items.Where(it => it is LocalStoreItem).Cast<LocalStoreItem>();

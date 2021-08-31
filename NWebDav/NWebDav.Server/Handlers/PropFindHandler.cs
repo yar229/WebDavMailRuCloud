@@ -74,42 +74,42 @@ namespace NWebDav.Server.Handlers
 
             // Obtain entry
             var topEntry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false);
-            if (topEntry == null)
+            switch (topEntry)
             {
-                response.SetStatus(DavStatusCode.NotFound);
-                return true;
-            }
-
-            // Check if the entry is a collection
-            if (topEntry is IStoreCollection topCollection)
-            {
-                // Determine depth
-                var depth = request.GetDepth();
-
-                // Check if the collection supports Infinite depth for properties
-                if (depth > 1)
+                case null:
+                    response.SetStatus(DavStatusCode.NotFound);
+                    return true;
+                // Check if the entry is a collection
+                case IStoreCollection topCollection:
                 {
-                    switch (topCollection.InfiniteDepthMode)
-                    {
-                        case InfiniteDepthMode.Rejected:
-                            response.SetStatus(DavStatusCode.Forbidden, "Not allowed to obtain properties with infinite depth.");
-                            return true;
-                        case InfiniteDepthMode.Assume0:
-                            depth = 0;
-                            break;
-                        case InfiniteDepthMode.Assume1:
-                            depth = 1;
-                            break;
-                    }
-                }
+                    // Determine depth
+                    var depth = request.GetDepth();
 
-                // Add all the entries
-                await AddEntriesAsync(topCollection, depth, httpContext, request.Url, entries).ConfigureAwait(false);
-            }
-            else
-            {
-                // It should be an item, so just use this item
-                entries.Add(new PropertyEntry(request.Url, topEntry));
+                    // Check if the collection supports Infinite depth for properties
+                    if (depth > 1)
+                    {
+                        switch (topCollection.InfiniteDepthMode)
+                        {
+                            case InfiniteDepthMode.Rejected:
+                                response.SetStatus(DavStatusCode.Forbidden, "Not allowed to obtain properties with infinite depth.");
+                                return true;
+                            case InfiniteDepthMode.Assume0:
+                                depth = 0;
+                                break;
+                            case InfiniteDepthMode.Assume1:
+                                depth = 1;
+                                break;
+                        }
+                    }
+
+                    // Add all the entries
+                    await AddEntriesAsync(topCollection, depth, httpContext, request.Url, entries).ConfigureAwait(false);
+                    break;
+                }
+                default:
+                    // It should be an item, so just use this item
+                    entries.Add(new PropertyEntry(request.Url, topEntry));
+                    break;
             }
 
             // Obtain the status document
@@ -198,7 +198,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xProp, IPropertyManager propertyManager, IStoreItem item, XName propertyName, HashSet<XName> addedProperties)
+        private static async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xProp, IPropertyManager propertyManager, IStoreItem item, XName propertyName, HashSet<XName> addedProperties)
         {
             if (addedProperties == null || addedProperties.Add(propertyName)) //YaR: do not check if added if we don't want this
             {
@@ -298,7 +298,7 @@ namespace NWebDav.Server.Handlers
             return propertyMode;
         }
 
-        private async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, WebDavUri uri, IList<PropertyEntry> entries)
+        private static async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, WebDavUri uri, IList<PropertyEntry> entries)
         {
             // Add the collection to the list
             entries.Add(new PropertyEntry(uri, collection));

@@ -11,7 +11,7 @@ namespace Hasher
 {
     static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var cmdArguments = Parser.Default.ParseArguments<CommandLineOptions>(args);
 

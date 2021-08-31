@@ -17,7 +17,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
         {
         }
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 1);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new(0, 1);
 
         public override async Task<SpecialCommandResult> Execute()
         {
@@ -45,7 +45,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
             return SpecialCommandResult.Success;
         }
 
-        public IEnumerable<IEntry> Flat(IEntry entry, LinkManager lm)
+        private IEnumerable<IEntry> Flat(IEntry entry, LinkManager lm)
         {
             yield return entry;
 
@@ -56,7 +56,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
                     .WithDegreeOfParallelism(5)
                     .Select(it => it switch
                     {
-                        File _ => it,
+                        File => it,
                         Folder ifolder => ifolder.IsChildsLoaded
                             ? ifolder
                             : Cloud.Account.RequestRepo.FolderInfo(RemotePath.Get(it.FullPath, lm).Result, depth: 3).Result,

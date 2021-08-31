@@ -65,7 +65,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
-        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public HttpCommonSettings HttpSettings { get; } = new()
         {
             UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
         };
@@ -159,7 +159,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private const string YadMediaPath = "/Media.wdyad";
 
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
@@ -271,7 +271,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             throw new NotImplementedException();
         }
@@ -388,7 +388,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var res = itemInfo.ToPublishResult();
 
             if (res.IsSuccess)
-                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new PublicLinkInfo(res.Url)};
+                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new(res.Url)};
 
             return res;
         }

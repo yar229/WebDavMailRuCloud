@@ -168,7 +168,7 @@ namespace YaR.Clouds.Console
                             _deduplicateRulesBag.Rules.Add(rule);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         // ignored
                     }
@@ -193,7 +193,7 @@ namespace YaR.Clouds.Console
         {
             bool isValid = true;
 
-            if ((testPattern != null) && (testPattern.Trim( ).Length > 0))
+            if (testPattern != null && testPattern.Trim().Length > 0)
             {
                 try
                 {

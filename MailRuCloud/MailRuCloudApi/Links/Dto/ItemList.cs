@@ -4,6 +4,6 @@ namespace YaR.Clouds.Links.Dto
 {
     public class ItemList
     {
-        public List<ItemLink> Items { get; } = new List<ItemLink>();
+        public List<ItemLink> Items { get; } = new();
     }
 }

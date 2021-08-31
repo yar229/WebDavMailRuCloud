@@ -14,14 +14,14 @@ namespace YaR.Clouds.Base.Streams
     {
         private readonly byte[] _store;
 
-        private readonly ManualResetEventAsync _writeAvailable = new ManualResetEventAsync(false);
+        private readonly ManualResetEventAsync _writeAvailable = new(false);
 
-        private readonly ManualResetEventAsync _readAvailable = new ManualResetEventAsync(false);
+        private readonly ManualResetEventAsync _readAvailable = new(false);
 
-        private readonly ManualResetEvent _flushed = new ManualResetEvent(false);
+        private readonly ManualResetEvent _flushed = new(false);
 
 
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         private int _readPos;
 
@@ -347,7 +347,7 @@ namespace YaR.Clouds.Base.Streams
         /// The task completion source.
         /// </summary>
         private volatile TaskCompletionSource<bool> _taskCompletionSource =
-            new TaskCompletionSource<bool>();
+            new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ManualResetEventAsync"/>

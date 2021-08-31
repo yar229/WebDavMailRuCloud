@@ -59,7 +59,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                     {
                         AppendFinalBuffer();
 
-                        _sha1.TransformFinalBlock(new byte[0], 0, 0);
+                        _sha1.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
                         _hash = _sha1.Hash;
                     }
                     _isClosed = true;

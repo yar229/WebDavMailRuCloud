@@ -60,11 +60,7 @@ namespace YaR.Clouds.WebDavStore
                     //As an alternative, you can use the UnsafeLoadFrom method to load a local assembly that the operating system has flagged as having been loaded from the web.
                     Assembly assembly = Assembly.UnsafeLoadFrom(file);
 
-                    foreach (var type in assembly.ExportedTypes)
-                    {
-                        if (type.GetInterfaces().Contains(typeof(ITwoFaHandler)))
-                            types.Add(type);
-                    }
+                    types.AddRange(assembly.ExportedTypes.Where(type => type.GetInterfaces().Contains(typeof(ITwoFaHandler))));
                 }
                 catch (Exception e)
                 {

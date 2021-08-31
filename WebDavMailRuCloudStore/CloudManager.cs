@@ -9,7 +9,7 @@ namespace YaR.Clouds.WebDavStore
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(CloudManager));
 
-        private static readonly ConcurrentDictionary<string, Cloud> CloudCache = new ConcurrentDictionary<string, Cloud>();
+        private static readonly ConcurrentDictionary<string, Cloud> CloudCache = new();
 
         public static CloudSettings Settings { get; set; }
 
@@ -35,7 +35,7 @@ namespace YaR.Clouds.WebDavStore
             return cloud;
         }
 
-        private static readonly object Locker = new object();
+        private static readonly object Locker = new();
 
         private static Cloud CreateCloud(HttpListenerBasicIdentity identity)
         {

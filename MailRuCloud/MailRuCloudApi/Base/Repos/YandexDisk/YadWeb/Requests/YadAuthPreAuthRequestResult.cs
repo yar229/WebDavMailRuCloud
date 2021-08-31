@@ -37,7 +37,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
                 Result = new YadAuthPreAuthRequestResult
                 {
                     Csrf = matchCsrf.Success ? matchCsrf.Groups["csrf"].Value : string.Empty,
-                    ProcessUUID = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty,
+                    ProcessUUID = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty
                 }
             };
 

@@ -66,7 +66,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
             {
                 val = ReadInt();
                 int high = val & 127;
-                int rem = 7 - (i / 8);
+                int rem = 7 - i / 8;
                 int div = i % 8;
                 bytes[rem] = (byte) (bytes[rem] | ((high << div) & 255));
                 high >>= 8 - div;

@@ -32,9 +32,9 @@ namespace NWebDav.Server.Stores
 
         public override bool Equals(object obj)
         {
-            if (!(obj is StoreItemResult))
+            if (!(obj is StoreItemResult result))
                 return false;
-            return this == (StoreItemResult)obj;
+            return this == result;
         }
 
         public override int GetHashCode() => Result.GetHashCode() ^ (Item?.GetHashCode() ?? 0);
@@ -63,9 +63,9 @@ namespace NWebDav.Server.Stores
 
         public override bool Equals(object obj)
         {
-            if (!(obj is StoreCollectionResult))
+            if (!(obj is StoreCollectionResult result))
                 return false;
-            return this == (StoreCollectionResult)obj;
+            return this == result;
         }
 
         public override int GetHashCode() => Result.GetHashCode() ^ (Collection?.GetHashCode() ?? 0);

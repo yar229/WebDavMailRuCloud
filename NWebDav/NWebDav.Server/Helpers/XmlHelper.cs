@@ -14,7 +14,7 @@ namespace NWebDav.Server.Helpers
         }
 
         //// YaR: optimize 
-        internal static class EnumNameCache<T> where T : struct, IComparable, IFormattable, IConvertible
+        private static class EnumNameCache<T> where T : struct, IComparable, IFormattable, IConvertible
         {
             private static readonly Dictionary<T, string> NameMap;
 

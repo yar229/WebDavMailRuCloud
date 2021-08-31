@@ -10,7 +10,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 {
     class LocalStoreCollectionProps<T> where T : LocalStoreCollection
     {
-        private static readonly XElement SxDavCollection = new XElement(WebDavNamespaces.DavNs + "collection");
+        private static readonly XElement SxDavCollection = new(WebDavNamespaces.DavNs + "collection");
 
         public LocalStoreCollectionProps(Func<string, bool> isEnabledPropFunc)
         {
@@ -24,12 +24,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // collection property required for WebDrive
                 new DavCollection<T>
                 {
-                    Getter = (cntext, collection) => string.Empty
+                    Getter = (_, _) => string.Empty
                 },
 
                 new DavGetEtag<T>
                 {
-                    Getter = (cntext, item) => item.CalculateEtag()
+                    Getter = (_, item) => item.CalculateEtag()
                 },
 
                 //new DavBsiisreadonly<LocalStoreCollection>
@@ -51,7 +51,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavIsreadonly<T>
                 {
-                    Getter = (cntext, item) => !item.IsWritable
+                    Getter = (_, item) => !item.IsWritable
                 },
 
                 new DavQuotaAvailableBytes<T>
@@ -62,7 +62,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavQuotaUsedBytes<T>
                 {
-                    Getter = (cntext, collection) => 
+                    Getter = (_, collection) => 
                         collection.DirectoryInfo.Size
                     //IsExpensive = true  //folder listing performance
                 },
@@ -70,8 +70,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // RFC-2518 properties
                 new DavCreationDate<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.CreationTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.CreationTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.CreationTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -79,12 +79,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new DavDisplayName<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.Name
+                    Getter = (_, collection) => collection.DirectoryInfo.Name
                 },
                 new DavGetLastModified<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -93,8 +93,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavLastAccessed<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -108,7 +108,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 //},
                 new DavGetResourceType<T>
                 {
-                    Getter = (cntext, collection) => new []{SxDavCollection}
+                    Getter = (_, _) => new []{SxDavCollection}
                 },
 
 
@@ -119,7 +119,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 //Hopmann/Lippert collection properties
                 new DavExtCollectionChildCount<T>
                 {
-                    Getter = (cntext, collection) =>
+                    Getter = (_, collection) =>
                     {
                         int files = collection.DirectoryInfo.NumberOfFiles;
                         int folders = collection.DirectoryInfo.NumberOfFolders;
@@ -129,30 +129,30 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new DavExtCollectionIsFolder<T>
                 {
-                    Getter = (cntext, collection) => true
+                    Getter = (_, _) => true
                 },
                 new DavExtCollectionIsHidden<T>
                 {
-                    Getter = (cntext, collection) => false
+                    Getter = (_, _) => false
                 },
                 new DavExtCollectionIsStructuredDocument<T>
                 {
-                    Getter = (cntext, collection) => false
+                    Getter = (_, _) => false
                 },
 
                 new DavExtCollectionHasSubs<T> //Identifies whether this collection contains any collections which are folders (see "isfolder").
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.NumberOfFolders > 0 || collection.DirectoryInfo.ServerFoldersCount > 0
+                    Getter = (_, collection) => collection.DirectoryInfo.NumberOfFolders > 0 || collection.DirectoryInfo.ServerFoldersCount > 0
                 },
 
                 new DavExtCollectionNoSubs<T> //Identifies whether this collection allows child collections to be created.
                 {
-                    Getter = (cntext, collection) => false
+                    Getter = (_, _) => false
                 },
 
                 new DavExtCollectionObjectCount<T> //To count the number of non-folder resources in the collection.
                 {
-                    Getter = (cntext, collection) => 
+                    Getter = (_, collection) => 
                         collection.DirectoryInfo.NumberOfFiles > 0
                             ? collection.DirectoryInfo.NumberOfFiles
                             : collection.DirectoryInfo.ServerFilesCount ?? 0
@@ -160,12 +160,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavExtCollectionReserved<T>
                 {
-                    Getter = (cntext, collection) => !collection.IsWritable
+                    Getter = (_, collection) => !collection.IsWritable
                 },
 
                 new DavExtCollectionVisibleCount<T>  //Counts the number of visible non-folder resources in the collection.
                 {
-                    Getter = (cntext, collection) => 
+                    Getter = (_, collection) => 
                         collection.DirectoryInfo.NumberOfFiles > 0
                             ? collection.DirectoryInfo.NumberOfFiles
                             : collection.DirectoryInfo.ServerFilesCount ?? 0
@@ -174,8 +174,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // Win32 extensions
                 new Win32CreationTime<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.CreationTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.CreationTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.CreationTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -183,8 +183,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32LastAccessTime<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.LastAccessTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.LastAccessTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -192,8 +192,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32LastModifiedTime<T>
                 {
-                    Getter = (cntext, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) => collection.DirectoryInfo.LastWriteTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -201,8 +201,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32FileAttributes<T>
                 {
-                    Getter = (cntext, collection) =>  collection.DirectoryInfo.Attributes,
-                    Setter = (cntext, collection, value) =>
+                    Getter = (_, collection) =>  collection.DirectoryInfo.Attributes,
+                    Setter = (_, collection, value) =>
                     {
                         collection.DirectoryInfo.Attributes = value;
                         return DavStatusCode.Ok;
@@ -210,18 +210,18 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new DavGetContentLength<T>
                 {
-                    Getter = (cntext, item) => item.DirectoryInfo.Size
+                    Getter = (_, item) => item.DirectoryInfo.Size
                 },
                 new DavGetContentType<T>
                 {
-                    Getter = (cntext, item) => "httpd/unix-directory" //"application/octet-stream"
+                    Getter = (_, _) => "httpd/unix-directory" //"application/octet-stream"
                 },
                 new DavSharedLink<T>
                 {
-                    Getter = (cntext, item) => !item.DirectoryInfo.PublicLinks.Any()
+                    Getter = (_, item) => !item.DirectoryInfo.PublicLinks.Any()
                         ? string.Empty
                         : item.DirectoryInfo.PublicLinks.First().Uri.OriginalString,
-                    Setter = (cntext, item, value) => DavStatusCode.Ok
+                    Setter = (_, _, _) => DavStatusCode.Ok
                 }
             };
 

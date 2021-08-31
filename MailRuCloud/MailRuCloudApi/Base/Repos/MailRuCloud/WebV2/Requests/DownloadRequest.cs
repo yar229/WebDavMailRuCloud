@@ -18,7 +18,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
         public HttpWebRequest Request { get; }
 
-        private HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, File file, long instart, long inend,  string userAgent, Cached<Dictionary<ShardType, ShardInfo>> shards)
+        private static HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, File file, long instart, long inend,  string userAgent, Cached<Dictionary<ShardType, ShardInfo>> shards)
         {
             bool isLinked = file.PublicLinks.Any();
 

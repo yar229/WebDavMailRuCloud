@@ -33,7 +33,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
                 Ok = true,
                 Result = new YadAuthDiskSkRequestResult
                 {
-                    DiskSk = matchSk.Success ? matchSk.Groups["sk"].Value : string.Empty,
+                    DiskSk = matchSk.Success ? matchSk.Groups["sk"].Value : string.Empty
                 }
             };
 

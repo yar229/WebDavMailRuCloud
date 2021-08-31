@@ -20,7 +20,7 @@ namespace YaR.Clouds.Console
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(Program));
 
-        public static readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
+        public static readonly CancellationTokenSource CancelToken = new();
 
         public static void Stop()
         {
@@ -52,7 +52,7 @@ namespace YaR.Clouds.Console
                 UseDeduplicate = options.UseDeduplicate,
                 DeduplicateRules = Config.DeduplicateRules,
 
-                Proxy = new ProxyFabric().Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
+                Proxy = ProxyFabric.Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
             };
 
             ShowInfo(options);
@@ -100,7 +100,7 @@ namespace YaR.Clouds.Console
             return twoFaHandler;
         }
 
-        private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, int maxThreadCount = Int32.MaxValue)
+        private static async Task DispatchHttpRequestsAsync(HttpListener httpListener, int maxThreadCount = int.MaxValue)
         {
             // Create a request handler factory that uses basic authentication
             var requestHandlerFactory = new RequestHandlerFactory();
@@ -108,7 +108,7 @@ namespace YaR.Clouds.Console
             // Create WebDAV dispatcher
             var homeFolder = new LocalStore(
                 isEnabledPropFunc: Config.IsEnabledWebDAVProperty, 
-                lockingManager: CloudManager.Settings.UseLocks ? (ILockingManager)new InMemoryLockingManager() : new EmptyLockingManager());
+                lockingManager: CloudManager.Settings.UseLocks ? new InMemoryLockingManager() : new EmptyLockingManager());
             var webDavDispatcher = new WebDavDispatcher(homeFolder, requestHandlerFactory);
 
             try

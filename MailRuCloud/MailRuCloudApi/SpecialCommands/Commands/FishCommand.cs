@@ -19,9 +19,9 @@ namespace YaR.Clouds.SpecialCommands.Commands
         {
         }
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new(0);
 
-        private static readonly Random Random = new Random();
+        private static readonly Random Random = new();
 
         public override async Task<SpecialCommandResult> Execute()
         {

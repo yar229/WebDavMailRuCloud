@@ -12,9 +12,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
     {
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
 
-        private readonly YadPostData _postData = new YadPostData();
+        private readonly YadPostData _postData = new();
 
-        private readonly List<object> _outData = new List<object>();
+        private readonly List<object> _outData = new();
 
         private YadWebAuth YadAuth { get; }
 

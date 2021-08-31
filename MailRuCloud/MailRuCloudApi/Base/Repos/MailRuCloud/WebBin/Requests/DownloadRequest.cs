@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Net.Mime;
 using System.Collections.Generic;
 
 using YaR.Clouds.Base.Requests;
@@ -17,7 +16,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin.Requests
 
         public HttpWebRequest Request { get; }
 
-        private HttpWebRequest CreateRequest(HttpCommonSettings settings, IAuth authent, File file, long instart, long inend, string downServerUrl, IEnumerable<string> publicBaseUrls) //(IAuth authent, IWebProxy proxy, string url, long instart, long inend,  string userAgent)
+        private static HttpWebRequest CreateRequest(HttpCommonSettings settings, IAuth authent, File file, long instart, long inend, string downServerUrl, IEnumerable<string> publicBaseUrls) //(IAuth authent, IWebProxy proxy, string url, long instart, long inend,  string userAgent)
         {
             bool isLinked = file.PublicLinks.Any();
 

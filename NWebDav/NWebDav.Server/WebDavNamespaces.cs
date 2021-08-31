@@ -41,9 +41,7 @@ namespace NWebDav.Server
         public static readonly XName DavNsStatus = DavNs + "status";
         public static readonly XName DavNsTimeout = DavNs + "timeout";
         public static readonly XName DavNsWrite = DavNs + "write";
-        
-        
-        
+
 
         /// <summary>
         /// Main DAV namespace prefix (<c>D</c>).
@@ -52,7 +50,7 @@ namespace NWebDav.Server
         /// perfectly legal to use a different namespace prefix, we do use it
         /// to maximize compatibility.
         /// </summary>
-        public static readonly string DavNsPrefix = "D";
+        public const string DavNsPrefix = "D";
 
         /// <summary>
         /// Win32 extension namespace (<c>urn:schemas-microsoft-com:</c>). 
@@ -68,7 +66,7 @@ namespace NWebDav.Server
         /// use the <c>Z</c> prefix. Although it is perfectly legal to use a
         /// different namespace prefix, we do use it to maximize compatibility.
         /// </summary>
-        public static readonly string Win32NsPrefix = "Z";
+        public const string Win32NsPrefix = "Z";
 
         /// <summary>
         /// WebDAV replication namespace (<c>http://schemas.microsoft.com/repl</c>).

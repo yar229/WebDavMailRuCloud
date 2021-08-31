@@ -26,7 +26,7 @@ namespace YaR.Clouds.Common
             RefreshValueIfNeeded();
         }
 
-        private readonly object _refreshLock = new object();
+        private readonly object _refreshLock = new();
 
         private void RefreshValueIfNeeded()
         {
@@ -36,7 +36,7 @@ namespace YaR.Clouds.Common
                 {
                     if (DateTime.Now >= _expiration)
                     {
-                        T oldValue =  null != _value && _value.IsValueCreated ? _value.Value : default;
+                        T oldValue =  _value is { IsValueCreated: true } ? _value.Value : default;
                         _value = new Lazy<T>(() => _valueFactory(oldValue));
 
                         var duration = _duration(_value.Value);

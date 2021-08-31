@@ -96,7 +96,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
             return true;
         }
 
-        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext)
+        private static async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext)
         {
             // Attempt to delete the item
             return await collection.DeleteItemAsync(name, httpContext).ConfigureAwait(false);

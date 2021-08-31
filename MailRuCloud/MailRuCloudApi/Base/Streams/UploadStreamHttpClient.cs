@@ -66,7 +66,7 @@ namespace YaR.Clouds.Base.Streams
 
             _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                 .Result
-                .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+                .ThrowIf(r => !r.Success, _ => new Exception($"Cannot add file {_file.FullPath}"));
         }
 
         private void UploadCache(Stream sourceStream)
@@ -97,7 +97,7 @@ namespace YaR.Clouds.Base.Streams
         {
             Logger.Debug($"Uploading [direct] {_file.FullPath}");
 
-            var pushContent = new PushStreamContent((stream, httpContent, arg3) =>
+            var pushContent = new PushStreamContent((stream, _, _) =>
             {
                 try
                 {
@@ -126,17 +126,19 @@ namespace YaR.Clouds.Base.Streams
             //if (uploadFileResult.HasReturnedData && _file.OriginalSize != uploadFileResult.Size)
             //    throw new Exception("Local and remote file size does not match");
 
-            if (uploadFileResult.HasReturnedData && CheckHashes && null != uploadFileResult.Hash &&
-                _cloudFileHasher != null && _cloudFileHasher.Hash.Hash.Value != uploadFileResult.Hash.Hash.Value)
-                throw new HashMatchException(_cloudFileHasher.Hash.ToString(), uploadFileResult.Hash.ToString());
-
-            if (uploadFileResult.HasReturnedData)
-                _file.Hash = uploadFileResult.Hash;
+            _file.Hash = uploadFileResult.HasReturnedData switch
+            {
+                true when CheckHashes && null != uploadFileResult.Hash && _cloudFileHasher != null &&
+                          _cloudFileHasher.Hash.Hash.Value != uploadFileResult.Hash.Hash.Value => throw
+                    new HashMatchException(_cloudFileHasher.Hash.ToString(), uploadFileResult.Hash.ToString()),
+                true => uploadFileResult.Hash,
+                _ => _file.Hash
+            };
 
             if (uploadFileResult.NeedToAddFile)
                 _cloud.AddFileInCloud(_file, ConflictResolver.Rewrite)
                     .Result
-                    .ThrowIf(r => !r.Success, r => new Exception($"Cannot add file {_file.FullPath}"));
+                    .ThrowIf(r => !r.Success, _ => new Exception($"Cannot add file {_file.FullPath}"));
         }
 
         public bool CheckHashes { get; set; } = true;
@@ -177,7 +179,7 @@ namespace YaR.Clouds.Base.Streams
         private IRequestRepo Repo => _cloud.Account.RequestRepo;
         private readonly ICloudHasher _cloudFileHasher;
         private Task _uploadTask;
-        private readonly RingBufferedStream _ringBuffer = new RingBufferedStream(65536);
+        private readonly RingBufferedStream _ringBuffer = new(65536);
 
         //===========================================================================================================================
 

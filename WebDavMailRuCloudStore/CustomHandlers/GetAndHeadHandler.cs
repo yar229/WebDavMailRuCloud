@@ -154,7 +154,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
                         {
                             await CopyToAsync(stream, response.Stream, 0, stream.Length - 1).ConfigureAwait(false);
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             // if error occurred when copying streams client will hang till timed out so we need to abort connection
                             response.Abort();
@@ -172,7 +172,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
             return true;
         }
 
-        private async Task CopyToAsync(Stream src, Stream dest, long start, long? end)
+        private static async Task CopyToAsync(Stream src, Stream dest, long start, long? end)
         {
             // Skip to the first offset
             if (start > 0)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests;
 using YaR.Clouds.Base.Requests;
@@ -17,9 +16,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebV2RequestRepo));
 
-        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
-            ClientId = String.Empty,
+            ClientId = string.Empty,
             UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
         };
 
@@ -177,7 +176,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 		/// <param name="limit"></param>
 		/// <param name="depth">Not applicable here, always = 1</param>
 		/// <returns></returns>
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
 
             FolderInfoResult datares;
@@ -213,7 +212,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             return entry;
         }
 
-        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             var res = req;

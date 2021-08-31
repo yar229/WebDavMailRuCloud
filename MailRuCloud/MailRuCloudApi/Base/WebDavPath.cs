@@ -104,13 +104,13 @@ namespace YaR.Clouds.Base
 
         public static IEnumerable<string> GetParents(string path, bool includeSelf = true)
         {
-            path = WebDavPath.Clean(path);
+            path = Clean(path);
             if (includeSelf)
                 yield return path;
 
-            while (path != WebDavPath.Root)
+            while (path != Root)
             {
-                path = WebDavPath.Parent(path);
+                path = Parent(path);
                 yield return path;
             } 
         }
@@ -130,7 +130,7 @@ namespace YaR.Clouds.Base
 
         public static bool PathEquals(string path1, string path2)
         {
-            return String.Compare(Clean(path1), Clean(path2), StringComparison.InvariantCultureIgnoreCase) == 0;
+            return string.Compare(Clean(path1), Clean(path2), StringComparison.InvariantCultureIgnoreCase) == 0;
         }
 
         public static string EscapeDataString(string path)

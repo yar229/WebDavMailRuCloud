@@ -37,12 +37,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
             
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("csrf_token", _csrf),
-                new KeyValuePair<string, string>("process_uuid", _uuid),
-                new KeyValuePair<string, string>("login", _auth.Login),
-                new KeyValuePair<string, string>("service", "cloud"),
-                new KeyValuePair<string, string>("retpath", "https://disk.yandex.ru?source=landing2_signin_ru"),
-                new KeyValuePair<string, string>("origin", "disk_landing2_signin_ru")
+                new("csrf_token", _csrf),
+                new("process_uuid", _uuid),
+                new("login", _auth.Login),
+                new("service", "cloud"),
+                new("retpath", "https://disk.yandex.ru?source=landing2_signin_ru"),
+                new("origin", "disk_landing2_signin_ru")
             };
             FormUrlEncodedContent z = new FormUrlEncodedContent(keyValues);
             var d = z.ReadAsByteArrayAsync().Result;

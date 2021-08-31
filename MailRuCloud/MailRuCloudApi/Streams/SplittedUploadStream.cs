@@ -23,7 +23,7 @@ namespace YaR.Clouds.Streams
         private UploadStream _uploadStream;
 
 
-        private readonly List<File> _files = new List<File>();
+        private readonly List<File> _files = new();
         private bool _performAsSplitted;
 
         public SplittedUploadStream(string destinationPath, Cloud cloud, long size, Action fileStreamSent, Action serverFileProcessed,  bool checkHash = true, CryptInfo cryptInfo = null)
@@ -88,7 +88,7 @@ namespace YaR.Clouds.Streams
             if (_currFileId >= 0)
             {
                 var clostream = _uploadStream;
-                _uploadPendingTask = _uploadPendingTask.ContinueWith(task =>
+                _uploadPendingTask = _uploadPendingTask.ContinueWith(_ =>
                 {
                     clostream.Dispose();
                 });
@@ -102,7 +102,7 @@ namespace YaR.Clouds.Streams
             var currFile = _files[_currFileId];
             _uploadStream = new UploadStream(currFile.FullPath, _cloud, currFile.OriginalSize)
             {
-                CheckHashes = _checkHash,
+                CheckHashes = _checkHash
 
                 //FileStreamSent = FileStreamSent,
                 //ServerFileProcessed = ServerFileProcessed
@@ -111,10 +111,10 @@ namespace YaR.Clouds.Streams
 
         private Task _uploadPendingTask = Task.CompletedTask;
 
-        public Action FileStreamSent;
+        public readonly Action FileStreamSent;
         private void OnFileStreamSent() => FileStreamSent?.Invoke();
 
-        public Action ServerFileProcessed;
+        public readonly Action ServerFileProcessed;
         private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
 
         public override void Flush()
@@ -182,7 +182,7 @@ namespace YaR.Clouds.Streams
             OnFileStreamSent();
 
             var clostream = _uploadStream;
-            _uploadPendingTask.ContinueWith(task =>
+            _uploadPendingTask.ContinueWith(_ =>
             {
                 clostream?.Dispose();
             }).Wait();

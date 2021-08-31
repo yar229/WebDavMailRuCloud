@@ -6,7 +6,7 @@ namespace YaR.Clouds.Common
 {
     class Pending<T> where T : class
     {
-        private readonly List<PendingItem<T>> _items = new List<PendingItem<T>>();
+        private readonly List<PendingItem<T>> _items = new();
         private readonly int _maxLocks;
         private readonly Func<T> _valueFactory;
 
@@ -16,7 +16,7 @@ namespace YaR.Clouds.Common
             _valueFactory = valueFactory;
         }
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
 
         public T Next(T current)
         {
@@ -45,10 +45,14 @@ namespace YaR.Clouds.Common
                 foreach (var item in _items)
                     if (item.Item.Equals(value))
                     {
-                        if (item.LockCount <= 0)
-                            throw new Exception("Pending item count <= 0");
-                        if (item.LockCount > 0)
-                            item.LockCount--;
+                        switch (item.LockCount)
+                        {
+                            case <= 0:
+                                throw new Exception("Pending item count <= 0");
+                            case > 0:
+                                item.LockCount--;
+                                break;
+                        }
                     }
             }
         }

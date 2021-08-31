@@ -9,7 +9,7 @@ namespace YaR.Clouds.Console
     {
         private static ServiceConfigurator _c;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var result = Parser.Default.ParseArguments<CommandLineOptions>(args);
             
@@ -53,7 +53,7 @@ namespace YaR.Clouds.Console
                             return 0;
                         }
 
-                        System.Console.CancelKeyPress += (sender, eventArgs) => Payload.Stop();
+                        System.Console.CancelKeyPress += (_, _) => Payload.Stop();
                         Payload.Run(options);
                         return 0;
                     },

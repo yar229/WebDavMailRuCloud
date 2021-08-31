@@ -9,14 +9,14 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
     {
         public string Sk { get; set; }
         public string IdClient { get; set; }
-        public List<YadPostModel> Models { get; set; } = new List<YadPostModel>();
+        public List<YadPostModel> Models { get; set; } = new();
 
         public byte[] CreateHttpContent()
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("sk", Sk),
-                new KeyValuePair<string, string>("idClient", IdClient)
+                new("sk", Sk),
+                new("idClient", IdClient)
             };
 
             keyValues.AddRange(Models.SelectMany((model, i) => model.ToKvp(i)));

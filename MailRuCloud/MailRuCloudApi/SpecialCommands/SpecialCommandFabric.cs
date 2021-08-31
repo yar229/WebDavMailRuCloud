@@ -12,85 +12,85 @@ namespace YaR.Clouds.SpecialCommands
     /// </summary>
     public class SpecialCommandFabric
     {
-        private static readonly List<SpecialCommandContainer> CommandContainers = new List<SpecialCommandContainer>
+        private static readonly List<SpecialCommandContainer> CommandContainers = new()
         {
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"del"},
                 CreateFunc = (cloud, path, param) => new DeleteCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"link"},
                 CreateFunc = (cloud, path, param) => new SharedFolderLinkCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"link", "check"},
                 CreateFunc = (cloud, path, param) => new RemoveBadLinksCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"join"},
                 CreateFunc = (cloud, path, param) => new JoinCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"copy"},
                 CreateFunc = (cloud, path, param) => new CopyCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"move"},
                 CreateFunc = (cloud, path, param) => new MoveCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"fish"},
                 CreateFunc = (cloud, path, param) => new FishCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"lcopy"},
                 CreateFunc = (cloud, path, param) => new LocalToServerCopyCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"crypt", "init"},
                 CreateFunc = (cloud, path, param) => new CryptInitCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"crypt", "passwd"},
                 CreateFunc = (cloud, path, param) => new CryptPasswdCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"share"},
                 CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, false, false, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"sharev"},
                 CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, true, false, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"pl"},
                 CreateFunc = (cloud, path, param) => new ShareCommand(cloud, path, true, true, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"rlist"},
                 CreateFunc = (cloud, path, param) => new ListCommand(cloud, path, param)
             },
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"clean", "trash"},
                 CreateFunc = (cloud, path, param) => new CleanTrashCommand(cloud, path, param)
             },
 
-            new SpecialCommandContainer
+            new()
             {
                 Commands = new [] {"test"},
                 CreateFunc = (cloud, path, param) => new TestCommand(cloud, path, param)
@@ -100,9 +100,9 @@ namespace YaR.Clouds.SpecialCommands
 
         public SpecialCommand Build(Cloud cloud, string param)
         {
-            var res = ParceLine(param, cloud.Settings.SpecialCommandPrefix);
+            var res = ParseLine(param, cloud.Settings.SpecialCommandPrefix);
             if (!res.IsValid && !string.IsNullOrEmpty(cloud.Settings.AdditionalSpecialCommandPrefix))
-                res = ParceLine(param, cloud.Settings.AdditionalSpecialCommandPrefix);
+                res = ParseLine(param, cloud.Settings.AdditionalSpecialCommandPrefix);
             if (!res.IsValid)
                 return null;
 
@@ -116,7 +116,7 @@ namespace YaR.Clouds.SpecialCommands
             return cmd;
         }
 
-        private ParamsData ParceLine(string param, string prefix)
+        private static ParamsData ParseLine(string param, string prefix)
         {
             if (string.IsNullOrEmpty(prefix)) return ParamsData.Invalid;
 
@@ -141,11 +141,11 @@ namespace YaR.Clouds.SpecialCommands
             public string Path { get; set; }
             public string Data { get; set; }
 
-            public static ParamsData Invalid => new ParamsData {IsValid = false};
+            public static ParamsData Invalid => new() {IsValid = false};
 
         }
 
-        private SpecialCommandContainer FindCommandContainer(IList<string> parames)
+        private static SpecialCommandContainer FindCommandContainer(ICollection<string> parames)
         {
             var commandContainer = CommandContainers
                 .Where(cm =>
@@ -156,7 +156,7 @@ namespace YaR.Clouds.SpecialCommands
             return commandContainer;
         }
 
-        private List<string> ParseParameters(string paramString)
+        private static List<string> ParseParameters(string paramString)
         {
             var list = Regex
                 .Matches(paramString, @"((""((?<token>.*?)(?<!\\)"")|(?<token>[\S]+))(\s)*)")

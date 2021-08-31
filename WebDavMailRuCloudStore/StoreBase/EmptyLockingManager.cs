@@ -39,7 +39,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
             public void RefreshExpiration(int timeout)
             {
-                Expires = timeout >= 0 ? (DateTime?)DateTime.UtcNow.AddSeconds(timeout) : null;
+                Expires = timeout >= 0 ? DateTime.UtcNow.AddSeconds(timeout) : null;
             }
         }
 
@@ -77,14 +77,14 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             return EmptyActiveLockEntry; 
         }
-        private static readonly ActiveLock[] EmptyActiveLockEntry = new ActiveLock[0];
+        private static readonly ActiveLock[] EmptyActiveLockEntry = Array.Empty<ActiveLock>();
         
 
         public IEnumerable<LockEntry> GetSupportedLocks(IStoreItem item)
         {
             return EmptyLockEntry;
         }
-        private static readonly LockEntry[] EmptyLockEntry = new LockEntry[0];
+        private static readonly LockEntry[] EmptyLockEntry = Array.Empty<LockEntry>();
 
         public bool IsLocked(IStoreItem item)
         {

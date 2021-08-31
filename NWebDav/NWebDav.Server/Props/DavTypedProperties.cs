@@ -236,7 +236,7 @@ namespace NWebDav.Server.Props
 
             public DateTime FromXml(IHttpContext httpContext, object value) => XmlConvert.ToDateTime((string)value, XmlDateTimeSerializationMode.Utc);
 
-            private bool HasIso8601FractionBug(IHttpContext httpContext)
+            private static bool HasIso8601FractionBug(IHttpContext httpContext)
             {
                 // TODO: Determine which WebDAV clients have this bug
                 return true;
