@@ -16,44 +16,44 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         {
             var httpsettings = repo.HttpSettings;
 
-            _metaServer = new Cached<ServerRequestResult>(old =>
+            _metaServer = new Cached<ServerRequestResult>(_ =>
                 {
                     Logger.Debug("Requesting new meta server");
                     var server =  new MobMetaServerRequest(httpsettings).MakeRequestAsync().Result;
                     return server;
                 },
-                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
+                _ => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
-            BannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
-                value => TimeSpan.FromMinutes(2));
+            BannedShards = new Cached<List<ShardInfo>>(_ => new List<ShardInfo>(),
+                _ => TimeSpan.FromMinutes(2));
 
             //CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(httpsettings, auth).MakeRequestAsync().Result.ToShardInfo(),
             //    value => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
-            CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => repo.GetShardInfo1(),
-                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
+            CachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(_ => repo.GetShardInfo1(),
+                _ => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
             DownloadServersPending = new Pending<Cached<ServerRequestResult>>(8,
-                () => new Cached<ServerRequestResult>(old =>
+                () => new Cached<ServerRequestResult>(_ =>
                     {
                         var server = new GetServerRequest(httpsettings).MakeRequestAsync().Result;
                         Logger.Debug($"Download server changed to {server.Url}");
                         return server;
                     },
-                    value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
+                    _ => TimeSpan.FromSeconds(DownloadServerExpiresSec)
                 ));
 
-            UploadServer = new Cached<ShardInfo>(old =>
+            UploadServer = new Cached<ShardInfo>(_ =>
                 {
                     var server = new GetUploadServerRequest(httpsettings).MakeRequestAsync().Result;
                     Logger.Debug($"Upload server changed to {server.Url}");
                     return new ShardInfo { Count = 0, Type = ShardType.Upload, Url = server.Url };
                 },
-                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
+                _ => TimeSpan.FromSeconds(ShardsExpiresInSec));
 
 
             WeblinkDownloadServersPending = new Pending<Cached<ServerRequestResult>>(8,
-                () => new Cached<ServerRequestResult>(old =>
+                () => new Cached<ServerRequestResult>(_ =>
                     {
                         var data = new WeblinkGetServerRequest(httpsettings).MakeRequestAsync().Result;
                         var serverUrl = data.Body.WeblinkGet[0].Url;
@@ -61,7 +61,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                         var res = new ServerRequestResult { Url = serverUrl };
                         return res;
                     },
-                    value => TimeSpan.FromSeconds(DownloadServerExpiresSec)
+                    _ => TimeSpan.FromSeconds(DownloadServerExpiresSec)
                 ));
         }
 

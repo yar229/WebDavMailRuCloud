@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -112,7 +113,9 @@ namespace NWebDav.Server.Handlers
                     break;
             }
 
-            // Obtain the status document
+            var sw = Stopwatch.StartNew();
+
+                // Obtain the status document
             var xMultiStatus = new XElement(WebDavNamespaces.DavNsMultiStatus);
             var xDocument = new XDocument(xMultiStatus);
 
@@ -122,9 +125,10 @@ namespace NWebDav.Server.Handlers
             // Add all the properties
             //foreach (var entry in entries)
             entries
-                .AsParallel()
-                .WithDegreeOfParallelism(degree)
-                .ForAll(async entry =>
+                //.AsParallel()
+                //.WithDegreeOfParallelism(degree)
+                //.ForAll(async entry =>
+                .ForEach(async entry =>
                 {
                     // we need encoded path as it is in original url (Far does not show items with spaces)
                     string href = entry.Uri.PathEncoded;
@@ -191,8 +195,15 @@ namespace NWebDav.Server.Handlers
 
                 });
 
+            var elapsed = sw.ElapsedMilliseconds;
+            s_log.Log(LogLevel.Debug, () => $"Response XML generation {elapsed} ms");
+
             // Stream the document
             await response.SendResponseAsync(DavStatusCode.MultiStatus, xDocument).ConfigureAwait(false);
+
+            sw.Stop();
+            s_log.Log(LogLevel.Debug, () => $"Response XML send total {sw.ElapsedMilliseconds} ms");
+
 
             // Finished writing
             return true;
@@ -224,7 +235,9 @@ namespace NWebDav.Server.Handlers
                         //    xPropStatValues.Add(xProp);
                         //}
 
-                        xProp.Add(new XElement(propertyName, value.Value));
+                        //xProp.Add (new XElement(propertyName, value.Value));
+                        //xProp.Add(new XStreamingElement(propertyName, value.Value));
+                        xProp.Add(GetPropertyXElement(propertyName, value.Value));
                     }
                     else
                     {
@@ -247,6 +260,45 @@ namespace NWebDav.Server.Handlers
                 }
             }
         }
+
+        private static XStreamingElement GetPropertyXElement(XName name, object value)
+        {
+            if (_propertyCache.TryGetValue(name, out var vals))
+            {
+                if (value == null)
+                {
+                    if (vals.NullElement == null)
+                        vals.NullElement = new XStreamingElement(name, value);
+                    return vals.NullElement;
+                }
+
+                if (vals.Dict.TryGetValue(value, out var xval))
+                {
+                    return xval;
+                }
+                else
+                {
+                    var xvala = new XStreamingElement(name, value);
+                    vals.Dict.Add(value, xvala);
+
+                    return xvala;
+                }
+            }
+            else
+            {
+                vals = new() {Dict = new Dictionary<object, XStreamingElement>() };
+                var xval = new XStreamingElement(name, value);
+                if (value == null)
+                    vals.NullElement = xval;
+                else
+                    vals.Dict.Add(value, xval);
+
+                _propertyCache.Add(name, vals);
+
+                return xval;
+            }
+        }
+        private static readonly Dictionary<XName, (Dictionary<object, XStreamingElement> Dict, XStreamingElement NullElement)> _propertyCache = new();
 
         private static async Task<PropertyMode> GetRequestedPropertiesAsync(IHttpRequest request, ICollection<XName> properties)
         {

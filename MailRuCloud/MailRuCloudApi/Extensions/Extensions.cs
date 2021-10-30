@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using YaR.Clouds.Base;
 
 namespace YaR.Clouds.Extensions

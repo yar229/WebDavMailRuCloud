@@ -34,13 +34,13 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 
             Authent = auth;
 
-            _metaServer = new Cached<ServerRequestResult>(old =>
+            _metaServer = new Cached<ServerRequestResult>(_ =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
                     var server = new MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
                     return server;
                 },
-                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
+                _ => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
             //_downloadServer = new Cached<ServerRequestResult>(old =>
             //    {

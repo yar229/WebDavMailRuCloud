@@ -29,11 +29,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 
             Authent = new WebAuth(HttpSettings, creds, onAuthCodeRequired);
 
-            _bannedShards = new Cached<List<ShardInfo>>(old => new List<ShardInfo>(),
-                value => TimeSpan.FromMinutes(2));
+            _bannedShards = new Cached<List<ShardInfo>>(_ => new List<ShardInfo>(),
+                _ => TimeSpan.FromMinutes(2));
 
-            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(old => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
-                value => TimeSpan.FromSeconds(ShardsExpiresInSec));
+            _cachedShards = new Cached<Dictionary<ShardType, ShardInfo>>(_ => new ShardInfoRequest(HttpSettings, Authent).MakeRequestAsync().Result.ToShardInfo(),
+                _ => TimeSpan.FromSeconds(ShardsExpiresInSec));
         }
 
         

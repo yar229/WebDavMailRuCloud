@@ -45,7 +45,7 @@ namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 
 
             var watcher = new FileSystemWatcher(_dirPath) { NotifyFilter = NotifyFilters.LastWrite };
-            watcher.Changed += (sender, args) =>
+            watcher.Changed += (_, args) =>
             {
                 if (string.Equals(Path.GetFullPath(args.FullPath), Path.GetFullPath(filepath), StringComparison.OrdinalIgnoreCase))
                 {

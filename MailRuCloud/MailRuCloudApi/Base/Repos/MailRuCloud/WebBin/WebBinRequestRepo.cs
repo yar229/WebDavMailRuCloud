@@ -336,7 +336,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
         {
             get
             {
-                return _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+                return _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                     {
                         var z = GetShareListInner().Result;
 
@@ -348,7 +348,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
                         return res;
                     },
-                    value => TimeSpan.FromSeconds(30));
+                    _ => TimeSpan.FromSeconds(30));
             }
         }
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;

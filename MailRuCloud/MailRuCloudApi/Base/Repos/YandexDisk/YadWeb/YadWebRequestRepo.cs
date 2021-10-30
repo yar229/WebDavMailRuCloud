@@ -53,15 +53,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public IAuth Authent => CachedAuth.Value;
 
-        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, _creds), auth => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                     {
                         var res = GetShareListInner().Result;
                         return res;
                     }, 
-                    value => TimeSpan.FromSeconds(30));
+                    _ => TimeSpan.FromSeconds(30));
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
@@ -189,7 +189,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     .With(new YadResourceStatsPostModel(path.Path), out resourceStats)
                     .MakeRequestAsync()
                     .Result,
-                resp =>
+                _ =>
                 {
                     var doAgain = hasRemoveOp &&
                            folderInfo.Data.Resources.Any(r =>
@@ -369,7 +369,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     .With(new YadOperationStatusPostModel(operationOid), out itemInfo)
                     .MakeRequestAsync()
                     .Result,
-                resp =>
+                _ =>
                 {
                     var doAgain = null == itemInfo.Data.Error && itemInfo.Data.State != "COMPLETED";
                     //if (doAgain)

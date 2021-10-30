@@ -47,7 +47,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
 
-            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                 {
                     var z = GetShareListInner().Result;
 
@@ -58,7 +58,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
                     return res;
                 }, 
-                value => TimeSpan.FromSeconds(30));
+                _ => TimeSpan.FromSeconds(30));
         }
 
         
