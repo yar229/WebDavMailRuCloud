@@ -245,8 +245,8 @@ namespace NWebDav.Server.Handlers
                         //s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
 
                         xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
-                            new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
-                            new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 404 Not Found"),
+                            new XElement(WebDavNamespaces.DavNsProp, GetPropertyXElement(propertyName, null)),
+                            DavNsStatus404XElement,
                             new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} is not supported.")));
                     }
                 }
@@ -254,35 +254,35 @@ namespace NWebDav.Server.Handlers
                 {
                     s_log.Log(LogLevel.Error, () => $"Property {propertyName} on item {item.Name} raised an exception.", exc);
                     xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
-                        new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
-                        new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 500 Internal server error"),
+                        new XElement(WebDavNamespaces.DavNsProp, GetPropertyXElement(propertyName, null)),
+                        DavNsStatus500XElement,
                         new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} on item {item.Name} raised an exception.")));
                 }
             }
         }
 
+        private static readonly XElement DavNsStatus404XElement = new(WebDavNamespaces.DavNsStatus, "HTTP/1.1 404 Not Found");
+        private static readonly XElement DavNsStatus500XElement = new (WebDavNamespaces.DavNsStatus, "HTTP/1.1 500 Internal server error");
+
         private static XStreamingElement GetPropertyXElement(XName name, object value)
         {
-            if (_propertyCache.TryGetValue(name, out var vals))
+            //return new XStreamingElement(name, value);
+
+            if (!Properties2Cache.Contains(name))
+                return new XStreamingElement(name, value);
+
+            if (PropertyCache.TryGetValue(name, out var vals))
             {
-                if (value == null)
-                {
-                    if (vals.NullElement == null)
-                        vals.NullElement = new XStreamingElement(name, value);
-                    return vals.NullElement;
-                }
+                if (null == value)
+                    return vals.NullElement ?? (vals.NullElement = new XStreamingElement(name, null));
 
                 if (vals.Dict.TryGetValue(value, out var xval))
-                {
                     return xval;
-                }
-                else
-                {
-                    var xvala = new XStreamingElement(name, value);
-                    vals.Dict.Add(value, xvala);
 
-                    return xvala;
-                }
+                var xvalnew = new XStreamingElement(name, value);
+                vals.Dict.Add(value, xvalnew);
+
+                return xvalnew;
             }
             else
             {
@@ -293,12 +293,29 @@ namespace NWebDav.Server.Handlers
                 else
                     vals.Dict.Add(value, xval);
 
-                _propertyCache.Add(name, vals);
+                PropertyCache.Add(name, vals);
 
                 return xval;
             }
         }
-        private static readonly Dictionary<XName, (Dictionary<object, XStreamingElement> Dict, XStreamingElement NullElement)> _propertyCache = new();
+        private static readonly Dictionary<XName, (Dictionary<object, XStreamingElement> Dict, XStreamingElement NullElement)> PropertyCache = new();
+
+        private static readonly HashSet<XName> Properties2Cache = new()
+        {
+            //"resourcetype", 
+            WebDavNamespaces.DavNsCollection,
+            WebDavNamespaces.DavNsIsReadonly,
+            WebDavNamespaces.DavNsLockDiscovery,
+            WebDavNamespaces.DavNsSupportedLock,
+            WebDavNamespaces.DavNsIsFolder,
+            WebDavNamespaces.DavNsIsHidden,
+            WebDavNamespaces.DavNsIsStructuredDocument,
+            WebDavNamespaces.DavNsHasSubs,
+            WebDavNamespaces.DavNsNoSubs,
+            WebDavNamespaces.DavNsReserved,
+            WebDavNamespaces.DavNsGetContentType,
+            WebDavNamespaces.Win32NsWin32FileAttributes
+        };
 
         private static async Task<PropertyMode> GetRequestedPropertiesAsync(IHttpRequest request, ICollection<XName> properties)
         {

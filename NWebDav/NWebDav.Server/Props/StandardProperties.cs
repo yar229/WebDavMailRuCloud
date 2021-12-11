@@ -128,7 +128,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "getcontenttype";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsGetContentType;
 
         /// <summary>
         /// Name of the property.
@@ -308,7 +308,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "supportedlock";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsSupportedLock;
 
         /// <summary>
         /// Name of the property.

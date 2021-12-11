@@ -137,7 +137,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.Win32Ns + "Win32FileAttributes";
+        public static readonly XName PropertyName = WebDavNamespaces.Win32NsWin32FileAttributes;
 
         /// <summary>
         /// Name of the property.

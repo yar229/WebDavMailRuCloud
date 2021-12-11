@@ -136,7 +136,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "isfolder";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsIsFolder;
 
         /// <summary>
         /// Name of the property.
@@ -179,7 +179,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "ishidden";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsIsHidden;
 
         /// <summary>
         /// Name of the property.
@@ -227,7 +227,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "isstructureddocument";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsIsStructuredDocument;
 
         /// <summary>
         /// Name of the property.
@@ -268,7 +268,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "hassubs";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsHasSubs;
 
         /// <summary>
         /// Name of the property.
@@ -324,7 +324,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "nosubs";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsNoSubs;
 
         /// <summary>
         /// Name of the property.
@@ -395,7 +395,7 @@ namespace NWebDav.Server.Props
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "reserved";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsReserved;
 
         /// <summary>
         /// Name of the property.

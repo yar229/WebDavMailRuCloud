@@ -41,7 +41,16 @@ namespace NWebDav.Server
         public static readonly XName DavNsStatus = DavNs + "status";
         public static readonly XName DavNsTimeout = DavNs + "timeout";
         public static readonly XName DavNsWrite = DavNs + "write";
-
+        public static readonly XName DavNsCollection = DavNs + "collection";
+        public static readonly XName DavNsIsReadonly = DavNs + "isreadonly";
+        public static readonly XName DavNsSupportedLock = DavNs + "supportedlock";
+        public static readonly XName DavNsIsFolder = DavNs + "isfolder";
+        public static readonly XName DavNsIsHidden = DavNs + "ishidden";
+        public static readonly XName DavNsIsStructuredDocument = DavNs + "isstructureddocument";
+        public static readonly XName DavNsHasSubs = DavNs + "hassubs";
+        public static readonly XName DavNsNoSubs = DavNs + "nosubs";
+        public static readonly XName DavNsReserved = DavNs + "reserved";
+        public static readonly XName DavNsGetContentType = DavNs + "getcontenttype";
 
         /// <summary>
         /// Main DAV namespace prefix (<c>D</c>).
@@ -59,6 +68,8 @@ namespace NWebDav.Server
         /// <see href="https://msdn.microsoft.com/en-us/library/jj557737(v=office.12).aspx"/>.
         /// </summary>
         public static readonly XNamespace Win32Ns = "urn:schemas-microsoft-com:";
+
+        public static readonly XName Win32NsWin32FileAttributes = Win32Ns + "Win32FileAttributes";
 
         /// <summary>
         /// Win32 namespace prefix (<c>Z</c>). Some WebDAV clients don't parse

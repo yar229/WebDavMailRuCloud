@@ -10,7 +10,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 {
     class LocalStoreCollectionProps<T> where T : LocalStoreCollection
     {
-        private static readonly XElement SxDavCollection = new(WebDavNamespaces.DavNs + "collection");
+        private static readonly XElement SxDavCollection = new(WebDavNamespaces.DavNsCollection);
 
         public LocalStoreCollectionProps(Func<string, bool> isEnabledPropFunc)
         {
@@ -104,7 +104,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 //new DavGetResourceType<LocalStoreCollection>
                 //{
-                //    Getter = (context, collection) => new XElement(WebDavNamespaces.DavNs + "collection")
+                //    Getter = (context, collection) => new XElement(WebDavNamespaces.DavNsCollection)
                 //},
                 new DavGetResourceType<T>
                 {
