@@ -19,17 +19,6 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
             return (short)(ReadInt() & 255);
         }
 
-        public int ReadInt()
-        {
-            int b = _stream.ReadByte();
-
-            //Debug.Write($"{b:X} ");
-
-            if (b == -1)
-                throw new Exception("End of stream");
-            return b;
-        }
-
         public OperationResult OperationResult { get; }
 
         public int ReadIntSpl()
@@ -44,15 +33,29 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 
         public byte[] ReadNBytes(long count)
         {
-            //Debug.Write($"{nameof(ReadNBytes)}({count}) = ");
-            byte[] bytes = new byte[count];
-            for (int i = 0; i < count; i++)
-            {
-                bytes[i] = (byte)ReadInt();
-            }
-            //Debug.WriteLine("");
+            int total = (int)count;
+            byte[] bytes = new byte[total];
+
+            int bytesRead = 0;
+            int read;
+            while ((read = _stream.Read(bytes, bytesRead, total - bytesRead)) > 0)
+                bytesRead += read;
+
+            if (bytesRead < total)
+                throw new Exception($"End of stream {nameof(ReadNBytes)}");
 
             return bytes;
+        }
+
+        public int ReadInt()
+        {
+            int b = _stream.ReadByte();
+
+            //Debug.Write($"{b:X} ");
+
+            if (b == -1)
+                throw new Exception("End of stream");
+            return b;
         }
 
         public ulong ReadULong()

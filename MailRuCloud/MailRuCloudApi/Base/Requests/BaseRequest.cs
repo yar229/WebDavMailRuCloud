@@ -75,17 +75,21 @@ namespace YaR.Clouds.Base.Requests
             }
             try
             {
-                using (var response = (HttpWebResponse) await Task.Factory.FromAsync(httprequest.BeginGetResponse,
-                    asyncResult => httprequest.EndGetResponse(asyncResult), null))
+                using (var response = (HttpWebResponse)await httprequest.GetResponseAsync())
                 {
                     if ((int) response.StatusCode >= 500)
                         throw new RequestException("Server fault")
                         {
                             StatusCode = response.StatusCode
-                        }; // Let's throw exception. It's server fault
+                        };
 
                     RequestResponse<T> result;
+#if NET48
                     using (var responseStream = response.GetResponseStream())
+#else
+                    await using (var responseStream = response.GetResponseStream())
+#endif
+
                     {
                         result = DeserializeMessage(Transport(responseStream));
                     }
