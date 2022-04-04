@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
 using System.Net;
-using System.Text;
+using System.Net.Http;
+using System.Security.Authentication;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Requests;
 
@@ -30,8 +33,28 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            var data = Encoding.UTF8.GetBytes($"csrf_token={_csrf}&track_id={_trackId}&password={WebUtility.UrlEncode(_auth.Password)}");
-            return data;
+            var keyValues = new List<KeyValuePair<string, string>>
+            {
+                new KeyValuePair<string, string>("csrf_token", _csrf),
+                new KeyValuePair<string, string>("track_id", _trackId),
+                new KeyValuePair<string, string>("password", _auth.Password),
+                new KeyValuePair<string, string>("retpath", "https://disk.yandex.ru/client/disk")
+            };
+            var content = new FormUrlEncodedContent(keyValues);
+            var d = content.ReadAsByteArrayAsync().Result;
+            return d;
+        }
+
+        protected override RequestResponse<YadAuthPasswordRequestResult> DeserializeMessage(NameValueCollection responseHeaders, Stream stream)
+        {
+            var res = base.DeserializeMessage(responseHeaders, stream);
+
+            var uid = responseHeaders["X-Default-UID"];
+            if (string.IsNullOrWhiteSpace(uid))
+                throw new AuthenticationException("Cannot get X-Default-UID");
+            res.Result.DefaultUid = uid;
+
+            return res;
         }
     }
 
@@ -41,6 +64,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         [JsonProperty("status")]
         public string Status { get; set; }
+
+        [JsonProperty("retpath")]
+        public string RetPath { get; set; }
+
+        [JsonIgnore]
+        public string DefaultUid { get; set; }
 
         [JsonProperty("errors")]
         public List<string> Errors { get; set; }

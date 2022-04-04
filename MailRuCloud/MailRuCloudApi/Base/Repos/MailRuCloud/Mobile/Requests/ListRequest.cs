@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Net;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.Clouds.Base.Requests;
@@ -67,7 +68,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
             }
         }
 
-        protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
+        protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)
         {
             switch (data.OperationResult)
             {

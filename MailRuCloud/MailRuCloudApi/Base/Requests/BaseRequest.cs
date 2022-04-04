@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -91,7 +92,7 @@ namespace YaR.Clouds.Base.Requests
 #endif
 
                     {
-                        result = DeserializeMessage(Transport(responseStream));
+                        result = DeserializeMessage(response.Headers, Transport(responseStream));
                     }
 
                     if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
@@ -129,6 +130,6 @@ namespace YaR.Clouds.Base.Requests
 
         protected abstract TConvert Transport(Stream stream);
 
-        protected abstract RequestResponse<T> DeserializeMessage(TConvert data);
+        protected abstract RequestResponse<T> DeserializeMessage(NameValueCollection responseHeaders, TConvert data);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Linq;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.Clouds.Base.Requests;
@@ -61,7 +62,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         private static readonly OpResult[] SuccessCodes = { OpResult.Ok, OpResult.NotModified, OpResult.Dunno04, OpResult.Dunno09};
 
-        protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
+        protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)
         {
             var opres = (OpResult)(int)data.OperationResult;
 

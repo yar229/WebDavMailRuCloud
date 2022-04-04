@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -52,7 +53,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
                                                        .Select(m => m.Name)
                                                        .Aggregate((current, next) => current + "," + next);
 
-        protected override RequestResponse<YadResponceResult> DeserializeMessage(System.IO.Stream stream)
+        protected override RequestResponse<YadResponceResult> DeserializeMessage(NameValueCollection responseHeaders, System.IO.Stream stream)
         {
             using var sr = new StreamReader(stream);
 
