@@ -39,7 +39,7 @@ namespace YaR.Clouds.Base
                 };
             }
 
-            static bool IsDigit(char c) => c >= '0' && c <= '9';
+            static bool IsDigit(char c) => c is >= '0' and <= '9';
             
 
             var res = new FilenameServiceInfo { CleanName = filename, SplitInfo = new FileSplitInfo { IsHeader = true } };

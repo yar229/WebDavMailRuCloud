@@ -96,7 +96,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext, WebDavUri baseUri)
+        private static async Task<DavStatusCode> DeleteItemAsync(IStoreCollection collection, string name, IHttpContext httpContext, WebDavUri baseUri)
         {
             // Obtain the actual item
             var deleteItem = await collection.GetItemAsync(name, httpContext).ConfigureAwait(false);

@@ -92,7 +92,7 @@ namespace YaR.Clouds.Base.Streams
             return _innerStream;
         }
 
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cancellationTokenSource = new();
 
         private async Task Download(long start, long end, File file, CancellationToken cancellationToken)
         {

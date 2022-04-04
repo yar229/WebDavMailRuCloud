@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -74,45 +75,47 @@ namespace NWebDav.Server.Handlers
 
             // Obtain entry
             var topEntry = await store.GetItemAsync(request.Url, httpContext).ConfigureAwait(false);
-            if (topEntry == null)
+            switch (topEntry)
             {
-                response.SetStatus(DavStatusCode.NotFound);
-                return true;
-            }
-
-            // Check if the entry is a collection
-            if (topEntry is IStoreCollection topCollection)
-            {
-                // Determine depth
-                var depth = request.GetDepth();
-
-                // Check if the collection supports Infinite depth for properties
-                if (depth > 1)
+                case null:
+                    response.SetStatus(DavStatusCode.NotFound);
+                    return true;
+                // Check if the entry is a collection
+                case IStoreCollection topCollection:
                 {
-                    switch (topCollection.InfiniteDepthMode)
+                    // Determine depth
+                    var depth = request.GetDepth();
+
+                    // Check if the collection supports Infinite depth for properties
+                    if (depth > 1)
                     {
-                        case InfiniteDepthMode.Rejected:
-                            response.SetStatus(DavStatusCode.Forbidden, "Not allowed to obtain properties with infinite depth.");
-                            return true;
-                        case InfiniteDepthMode.Assume0:
-                            depth = 0;
-                            break;
-                        case InfiniteDepthMode.Assume1:
-                            depth = 1;
-                            break;
+                        switch (topCollection.InfiniteDepthMode)
+                        {
+                            case InfiniteDepthMode.Rejected:
+                                response.SetStatus(DavStatusCode.Forbidden, "Not allowed to obtain properties with infinite depth.");
+                                return true;
+                            case InfiniteDepthMode.Assume0:
+                                depth = 0;
+                                break;
+                            case InfiniteDepthMode.Assume1:
+                                depth = 1;
+                                break;
+                        }
                     }
+
+                    // Add all the entries
+                    await AddEntriesAsync(topCollection, depth, httpContext, request.Url, entries).ConfigureAwait(false);
+                    break;
                 }
-
-                // Add all the entries
-                await AddEntriesAsync(topCollection, depth, httpContext, request.Url, entries).ConfigureAwait(false);
-            }
-            else
-            {
-                // It should be an item, so just use this item
-                entries.Add(new PropertyEntry(request.Url, topEntry));
+                default:
+                    // It should be an item, so just use this item
+                    entries.Add(new PropertyEntry(request.Url, topEntry));
+                    break;
             }
 
-            // Obtain the status document
+            var sw = Stopwatch.StartNew();
+
+                // Obtain the status document
             var xMultiStatus = new XElement(WebDavNamespaces.DavNsMultiStatus);
             var xDocument = new XDocument(xMultiStatus);
 
@@ -122,9 +125,10 @@ namespace NWebDav.Server.Handlers
             // Add all the properties
             //foreach (var entry in entries)
             entries
-                .AsParallel()
-                .WithDegreeOfParallelism(degree)
-                .ForAll(async entry =>
+                //.AsParallel()
+                //.WithDegreeOfParallelism(degree)
+                //.ForAll(async entry =>
+                .ForEach(async entry =>
                 {
                     // we need encoded path as it is in original url (Far does not show items with spaces)
                     string href = entry.Uri.PathEncoded;
@@ -191,14 +195,21 @@ namespace NWebDav.Server.Handlers
 
                 });
 
+            var elapsed = sw.ElapsedMilliseconds;
+            s_log.Log(LogLevel.Debug, () => $"Response XML generation {elapsed} ms");
+
             // Stream the document
             await response.SendResponseAsync(DavStatusCode.MultiStatus, xDocument).ConfigureAwait(false);
+
+            sw.Stop();
+            s_log.Log(LogLevel.Debug, () => $"Response XML send total {sw.ElapsedMilliseconds} ms");
+
 
             // Finished writing
             return true;
         }
 
-        private async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xProp, IPropertyManager propertyManager, IStoreItem item, XName propertyName, HashSet<XName> addedProperties)
+        private static async Task AddPropertyAsync(IHttpContext httpContext, XElement xResponse, XElement xProp, IPropertyManager propertyManager, IStoreItem item, XName propertyName, HashSet<XName> addedProperties)
         {
             if (addedProperties == null || addedProperties.Add(propertyName)) //YaR: do not check if added if we don't want this
             {
@@ -224,7 +235,9 @@ namespace NWebDav.Server.Handlers
                         //    xPropStatValues.Add(xProp);
                         //}
 
-                        xProp.Add(new XElement(propertyName, value.Value));
+                        //xProp.Add (new XElement(propertyName, value.Value));
+                        //xProp.Add(new XStreamingElement(propertyName, value.Value));
+                        xProp.Add(GetPropertyXElement(propertyName, value.Value));
                     }
                     else
                     {
@@ -232,8 +245,8 @@ namespace NWebDav.Server.Handlers
                         //s_log.Log(LogLevel.Warning, () => $"Property {propertyName} is not supported on item {item.Name}.");
 
                         xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
-                            new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
-                            new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 404 Not Found"),
+                            new XElement(WebDavNamespaces.DavNsProp, GetPropertyXElement(propertyName, null)),
+                            DavNsStatus404XElement,
                             new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} is not supported.")));
                     }
                 }
@@ -241,12 +254,68 @@ namespace NWebDav.Server.Handlers
                 {
                     s_log.Log(LogLevel.Error, () => $"Property {propertyName} on item {item.Name} raised an exception.", exc);
                     xResponse.Add(new XElement(WebDavNamespaces.DavNsPropStat,
-                        new XElement(WebDavNamespaces.DavNsProp, new XElement(propertyName, null)),
-                        new XElement(WebDavNamespaces.DavNsStatus, "HTTP/1.1 500 Internal server error"),
+                        new XElement(WebDavNamespaces.DavNsProp, GetPropertyXElement(propertyName, null)),
+                        DavNsStatus500XElement,
                         new XElement(WebDavNamespaces.DavNsResponseDescription, $"Property {propertyName} on item {item.Name} raised an exception.")));
                 }
             }
         }
+
+        private static readonly XElement DavNsStatus404XElement = new(WebDavNamespaces.DavNsStatus, "HTTP/1.1 404 Not Found");
+        private static readonly XElement DavNsStatus500XElement = new (WebDavNamespaces.DavNsStatus, "HTTP/1.1 500 Internal server error");
+
+        private static XStreamingElement GetPropertyXElement(XName name, object value)
+        {
+            //return new XStreamingElement(name, value);
+
+            if (!Properties2Cache.Contains(name))
+                return new XStreamingElement(name, value);
+
+            if (PropertyCache.TryGetValue(name, out var vals))
+            {
+                if (null == value)
+                    return vals.NullElement ?? (vals.NullElement = new XStreamingElement(name, null));
+
+                if (vals.Dict.TryGetValue(value, out var xval))
+                    return xval;
+
+                var xvalnew = new XStreamingElement(name, value);
+                vals.Dict.Add(value, xvalnew);
+
+                return xvalnew;
+            }
+            else
+            {
+                vals = new() {Dict = new Dictionary<object, XStreamingElement>() };
+                var xval = new XStreamingElement(name, value);
+                if (value == null)
+                    vals.NullElement = xval;
+                else
+                    vals.Dict.Add(value, xval);
+
+                PropertyCache.Add(name, vals);
+
+                return xval;
+            }
+        }
+        private static readonly Dictionary<XName, (Dictionary<object, XStreamingElement> Dict, XStreamingElement NullElement)> PropertyCache = new();
+
+        private static readonly HashSet<XName> Properties2Cache = new()
+        {
+            //"resourcetype", 
+            WebDavNamespaces.DavNsCollection,
+            WebDavNamespaces.DavNsIsReadonly,
+            WebDavNamespaces.DavNsLockDiscovery,
+            WebDavNamespaces.DavNsSupportedLock,
+            WebDavNamespaces.DavNsIsFolder,
+            WebDavNamespaces.DavNsIsHidden,
+            WebDavNamespaces.DavNsIsStructuredDocument,
+            WebDavNamespaces.DavNsHasSubs,
+            WebDavNamespaces.DavNsNoSubs,
+            WebDavNamespaces.DavNsReserved,
+            WebDavNamespaces.DavNsGetContentType,
+            WebDavNamespaces.Win32NsWin32FileAttributes
+        };
 
         private static async Task<PropertyMode> GetRequestedPropertiesAsync(IHttpRequest request, ICollection<XName> properties)
         {
@@ -298,7 +367,7 @@ namespace NWebDav.Server.Handlers
             return propertyMode;
         }
 
-        private async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, WebDavUri uri, IList<PropertyEntry> entries)
+        private static async Task AddEntriesAsync(IStoreCollection collection, int depth, IHttpContext httpContext, WebDavUri uri, IList<PropertyEntry> entries)
         {
             // Add the collection to the list
             entries.Add(new PropertyEntry(uri, collection));

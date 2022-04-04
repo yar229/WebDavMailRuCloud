@@ -20,8 +20,7 @@ namespace YaR.Clouds.Base.Streams
                         CookieContainer = account.RequestRepo.Authent.Cookies,
                         UseCookies = true,
                         AllowAutoRedirect = true,
-                        MaxConnectionsPerServer = int.MaxValue,
-                        
+                        MaxConnectionsPerServer = int.MaxValue
                     })
                     {Timeout = Timeout.InfiniteTimeSpan});
 
@@ -29,6 +28,6 @@ namespace YaR.Clouds.Base.Streams
             }
         }
 
-        private readonly ConcurrentDictionary<Account, HttpClient> _lockDict = new ConcurrentDictionary<Account, HttpClient>();
+        private readonly ConcurrentDictionary<Account, HttpClient> _lockDict = new();
     }
 }

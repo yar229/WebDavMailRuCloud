@@ -1,4 +1,5 @@
-﻿using YaR.Clouds.Base.Repos;
+﻿using System.Collections.Specialized;
+using YaR.Clouds.Base.Repos;
 
 namespace YaR.Clouds.Base.Requests
 {
@@ -9,7 +10,7 @@ namespace YaR.Clouds.Base.Requests
         {
         }
 
-        protected override RequestResponse<string> DeserializeMessage(string data)
+        protected override RequestResponse<string> DeserializeMessage(NameValueCollection responseHeaders, string data)
         {
             var msg = new RequestResponse<string>
             {

@@ -52,8 +52,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 {
                     AppendFinalBuffer();
 
-                    _sha256.TransformFinalBlock(new byte[0], 0, 0);
-                    _md5.TransformFinalBlock(new byte[0], 0, 0);
+                    _sha256.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                    _md5.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
                     _hashSha256 = _sha256.Hash;
                     _hashMd5 = _md5.Hash;
                     _isClosed = true;
@@ -71,11 +71,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private readonly MD5 _md5 = MD5.Create();
         private bool _isClosed;
 
-        private void AppendInitBuffer()
+        private static void AppendInitBuffer()
         {
         }
 
-        private void AppendFinalBuffer()
+        private static void AppendFinalBuffer()
         {
         }
 

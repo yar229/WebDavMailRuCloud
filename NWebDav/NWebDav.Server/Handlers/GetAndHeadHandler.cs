@@ -159,7 +159,7 @@ namespace NWebDav.Server.Handlers
             return true;
         }
 
-        private async Task CopyToAsync(Stream src, Stream dest, long start, long? end)
+        private static async Task CopyToAsync(Stream src, Stream dest, long start, long? end)
         {
             // Skip to the first offset
             if (start > 0)

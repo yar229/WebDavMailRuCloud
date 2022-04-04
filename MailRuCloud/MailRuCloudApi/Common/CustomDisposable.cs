@@ -10,7 +10,7 @@ namespace YaR.Clouds.Common
         public void Dispose()
         {
             var value = Value;
-            if (value != null && value is IDisposable disp)
+            if (value is IDisposable disp)
                 disp.Dispose();
 
             OnDispose?.Invoke();

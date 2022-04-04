@@ -53,19 +53,19 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public IAuth Authent => CachedAuth.Value;
 
-        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(auth => new YadWebAuth(HttpSettings, _creds), auth => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                     {
                         var res = GetShareListInner().Result;
                         return res;
                     }, 
-                    value => TimeSpan.FromSeconds(30));
+                    _ => TimeSpan.FromSeconds(30));
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
-        public HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public HttpCommonSettings HttpSettings { get; } = new()
         {
             UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
         };
@@ -159,7 +159,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private const string YadMediaPath = "/Media.wdyad";
 
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
             if (path.IsLink)
                 throw new NotImplementedException(nameof(FolderInfo));
@@ -189,7 +189,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     .With(new YadResourceStatsPostModel(path.Path), out resourceStats)
                     .MakeRequestAsync()
                     .Result,
-                resp =>
+                _ =>
                 {
                     var doAgain = hasRemoveOp &&
                            folderInfo.Data.Resources.Any(r =>
@@ -271,7 +271,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         }
 
 
-        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             throw new NotImplementedException();
         }
@@ -369,7 +369,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                     .With(new YadOperationStatusPostModel(operationOid), out itemInfo)
                     .MakeRequestAsync()
                     .Result,
-                resp =>
+                _ =>
                 {
                     var doAgain = null == itemInfo.Data.Error && itemInfo.Data.State != "COMPLETED";
                     //if (doAgain)
@@ -388,7 +388,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             var res = itemInfo.ToPublishResult();
 
             if (res.IsSuccess)
-                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new PublicLinkInfo(res.Url)};
+                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new(res.Url)};
 
             return res;
         }

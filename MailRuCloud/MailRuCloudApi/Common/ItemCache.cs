@@ -17,13 +17,13 @@ namespace YaR.Clouds.Common
 
             long cleanPeriod = (long)CleanUpPeriod.TotalMilliseconds;
 
-            _cleanTimer = new Timer(state => RemoveExpired(), null, cleanPeriod, cleanPeriod);
+            _cleanTimer = new Timer(_ => RemoveExpired(), null, cleanPeriod, cleanPeriod);
         }
 
         private readonly bool _noCache;
 
         private readonly Timer _cleanTimer;
-        private readonly ConcurrentDictionary<TKey, TimedItem<TValue>> _items = new ConcurrentDictionary<TKey, TimedItem<TValue>>();
+        private readonly ConcurrentDictionary<TKey, TimedItem<TValue>> _items = new();
         //private readonly object _locker = new object();
 
         public TimeSpan CleanUpPeriod
@@ -84,7 +84,7 @@ namespace YaR.Clouds.Common
                 Item = value
             };
 
-            _items.AddOrUpdate(key, item, (key1, oldValue) => item);
+            _items.AddOrUpdate(key, item, (_, _) => item);
         }
 
         public void Add(IEnumerable<KeyValuePair<TKey, TValue>> items)

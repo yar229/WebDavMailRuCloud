@@ -29,7 +29,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
                 throw new AuthenticationException($"Cannot log in {creds.Login}");
 
 
-            _authToken = new Cached<AuthTokenResult>(old =>
+            _authToken = new Cached<AuthTokenResult>(_ =>
                 {
                     Logger.Debug("AuthToken expired, refreshing.");
                     if (!creds.IsAnonymous)
@@ -39,10 +39,10 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
                     }
                     return null;
                 },
-                value => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
+                _ => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 
-            _cachedDownloadToken = new Cached<string>(old => new DownloadTokenRequest(_settings, this).MakeRequestAsync().Result.ToToken(),
-                value => TimeSpan.FromSeconds(DownloadTokenExpiresSec));
+            _cachedDownloadToken = new Cached<string>(_ => new DownloadTokenRequest(_settings, this).MakeRequestAsync().Result.ToToken(),
+                _ => TimeSpan.FromSeconds(DownloadTokenExpiresSec));
 
         }
 

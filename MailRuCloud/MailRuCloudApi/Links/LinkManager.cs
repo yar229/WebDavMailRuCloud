@@ -18,13 +18,13 @@ namespace YaR.Clouds.Links
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(LinkManager));
 
-        public static readonly string LinkContainerName = "item.links.wdmrc";
-        public static readonly string HistoryContainerName = "item.links.history.wdmrc";
+        private const string LinkContainerName = "item.links.wdmrc";
+        private const string HistoryContainerName = "item.links.history.wdmrc";
         private readonly Cloud _cloud;
-        private ItemList _itemList = new ItemList();
+        private ItemList _itemList = new();
         private readonly ItemCache<string, IEntry> _itemCache;
 
-        private readonly object _lockContainer = new object();
+        private readonly object _lockContainer = new();
 
 
         public LinkManager(Cloud cloud)

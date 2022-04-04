@@ -284,7 +284,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                 ? filename
                 : nameReplacement;
 
-            if (string.IsNullOrEmpty(cmpname) && data.Body.Weblink != "/" && ulink != null && !ulink.IsLinkedToFileSystem)
+            if (string.IsNullOrEmpty(cmpname) && data.Body.Weblink != "/" && ulink is { IsLinkedToFileSystem: false })
             {
                 cmpname = WebDavPath.Name(ulink.PublicLinks.First().Uri.OriginalString);
             }

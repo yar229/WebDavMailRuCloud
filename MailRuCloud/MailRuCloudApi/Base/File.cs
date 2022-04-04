@@ -40,7 +40,7 @@ namespace YaR.Clouds.Base
             {
                 CreationTimeUtc = CreationTimeUtc,
                 LastAccessTimeUtc = LastAccessTimeUtc,
-                LastWriteTimeUtc = LastWriteTimeUtc,
+                LastWriteTimeUtc = LastWriteTimeUtc
             };
             file.PublicLinks.AddRange(PublicLinks);
 
@@ -132,10 +132,10 @@ namespace YaR.Clouds.Base
         /// <summary>
         /// List of phisical files contains data
         /// </summary>
-        public virtual List<File> Parts => new List<File> {this};
+        public virtual List<File> Parts => new() {this};
         public virtual IList<File> Files => new List<File> { this };
 
-        private static readonly DateTime MinFileDate = new DateTime(1900, 1, 1);
+        private static readonly DateTime MinFileDate = new(1900, 1, 1);
         public virtual DateTime CreationTimeUtc { get; set; } = MinFileDate;
         public virtual DateTime LastWriteTimeUtc { get; set; } = MinFileDate;
         public virtual DateTime LastAccessTimeUtc { get; set; } = MinFileDate;

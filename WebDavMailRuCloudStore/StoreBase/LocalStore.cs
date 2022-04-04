@@ -39,7 +39,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 {
                     return item.IsFile
                         ? new LocalStoreItem((File)item, IsWritable, this)
-                        : new LocalStoreCollection(httpContext, (Folder)item, IsWritable, this) as IStoreItem;
+                        : new LocalStoreCollection(httpContext, (Folder)item, IsWritable, this);
                 }
             }
             // ReSharper disable once RedundantCatchClause

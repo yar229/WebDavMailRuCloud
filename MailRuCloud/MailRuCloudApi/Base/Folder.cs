@@ -45,9 +45,9 @@ namespace YaR.Clouds.Base
             }
         }
 
-        public List<File> Files { get; set; } = new List<File>();
+        public List<File> Files { get; set; } = new();
 
-        public List<Folder> Folders { get; set; } = new List<Folder>();
+        public List<Folder> Folders { get; set; } = new();
 
 
         /// <summary>

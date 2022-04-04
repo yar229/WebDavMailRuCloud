@@ -8,7 +8,7 @@ namespace YaR.Clouds.Console
 {
     class ProxyFabric
     {
-        public IWebProxy Get(string proxyAddress, string proxyUser, string proxyPassword)
+        public static IWebProxy Get(string proxyAddress, string proxyUser, string proxyPassword)
         {
             if (string.IsNullOrEmpty(proxyAddress))
 #if NET48

@@ -59,7 +59,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
-                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue),
+                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue)
             };
             if (!string.IsNullOrEmpty(data.Meta.UrlShort))
                 res.PublicLinks.Add(new PublicLinkInfo("short", data.Meta.UrlShort));
@@ -74,7 +74,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             {
                 CreationTimeUtc = UnixTimeStampToDateTime(data.Ctime, DateTime.MinValue),
                 LastAccessTimeUtc = UnixTimeStampToDateTime(data.Utime, DateTime.MinValue),
-                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue),
+                LastWriteTimeUtc = UnixTimeStampToDateTime(data.Mtime, DateTime.MinValue)
                 //PublicLink = data.Meta.UrlShort.StartsWith(publicBaseUrl) 
                 //    ? data.Meta.UrlShort.Remove(0, publicBaseUrl.Length)
                 //    : data.Meta.UrlShort
@@ -105,15 +105,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static ItemOperation ToItemOperation(this RenameResult data)
-        {
-            var res = new ItemOperation
-            {
-                DateTime = data.DateTime,
-                Path = data.Path
-            };
-            return res;
-        }
+        //public static ItemOperation ToItemOperation(this RenameResult data)
+        //{
+        //    var res = new ItemOperation
+        //    {
+        //        DateTime = data.DateTime,
+        //        Path = data.Path
+        //    };
+        //    return res;
+        //}
 
         public static RemoveResult ToRemoveResult(this YadResponseModel<YadDeleteRequestData, YadDeleteRequestParams> data)
         {
@@ -170,15 +170,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             return res;
         }
 
-        public static ItemOperation ToItemOperation(this CopyResult data)
-        {
-            var res = new ItemOperation
-            {
-                DateTime = data.DateTime,
-                Path = data.OldFullPath
-            };
-            return res;
-        }
+        //public static ItemOperation ToItemOperation(this CopyResult data)
+        //{
+        //    var res = new ItemOperation
+        //    {
+        //        DateTime = data.DateTime,
+        //        Path = data.OldFullPath
+        //    };
+        //    return res;
+        //}
 
         public static PublishResult ToPublishResult(this YadResponseModel<YadPublishRequestData, YadPublishRequestParams> data)
         {

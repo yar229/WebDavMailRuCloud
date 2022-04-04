@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,9 +13,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
     {
         //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
 
-        private readonly YadPostData _postData = new YadPostData();
+        private readonly YadPostData _postData = new();
 
-        private readonly List<object> _outData = new List<object>();
+        private readonly List<object> _outData = new();
 
         private YadWebAuth YadAuth { get; }
 
@@ -52,7 +53,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
                                                        .Select(m => m.Name)
                                                        .Aggregate((current, next) => current + "," + next);
 
-        protected override RequestResponse<YadResponceResult> DeserializeMessage(System.IO.Stream stream)
+        protected override RequestResponse<YadResponceResult> DeserializeMessage(NameValueCollection responseHeaders, System.IO.Stream stream)
         {
             using var sr = new StreamReader(stream);
 

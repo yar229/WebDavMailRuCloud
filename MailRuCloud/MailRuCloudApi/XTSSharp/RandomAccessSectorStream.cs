@@ -102,7 +102,7 @@ namespace YaR.Clouds.XTSSharp
 				if (value < 0L)
 					throw new ArgumentOutOfRangeException(nameof(value));
 
-				var sectorPosition = (value%_bufferSize);
+				var sectorPosition = value % _bufferSize;
 				var position = value - sectorPosition;
 
 				//see if its within the current sector
@@ -185,9 +185,7 @@ namespace YaR.Clouds.XTSSharp
 			var remainder = value%_s.SectorSize;
 
 			if (remainder > 0)
-			{
-				value = (value - remainder) + _bufferSize;
-			}
+				value = value - remainder + _bufferSize;
 
 			_s.SetLength(value);
 		}

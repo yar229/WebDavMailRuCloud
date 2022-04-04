@@ -5,7 +5,7 @@ namespace YaR.CloudMailRu.Client.Console
 {
     static class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             //System.Console.WriteLine($"{args[0]} {args[1]} {args[2]} {args[3]}");
 

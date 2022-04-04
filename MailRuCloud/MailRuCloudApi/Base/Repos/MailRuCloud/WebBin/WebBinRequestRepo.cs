@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests;
@@ -40,7 +39,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
         private IRequestRepo _anonymousRepo;
 
 
-        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
@@ -190,7 +189,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
                 // здесь (протокол Bin) приходит информация именно по указанному файлу
                 // поэтому вот такой костыль с двойным запросом
                 //TODO: переделать двойной запрос к файлу
-                if (datares.Item is FsFile fsfile && fsfile.Size < 2048)
+                if (datares.Item is FsFile { Size: < 2048 })
                 {
                     string name = WebDavPath.Name(path);
                     path = WebDavPath.Parent(path);
@@ -217,7 +216,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             return z;
         }
 
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
             if (Credentials.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, offset, limit);
@@ -264,7 +263,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
 
 
-        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             var res = req;
@@ -337,7 +336,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
         {
             get
             {
-                return _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+                return _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                     {
                         var z = GetShareListInner().Result;
 
@@ -349,7 +348,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
                         return res;
                     },
-                    value => TimeSpan.FromSeconds(30));
+                    _ => TimeSpan.FromSeconds(30));
             }
         }
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;

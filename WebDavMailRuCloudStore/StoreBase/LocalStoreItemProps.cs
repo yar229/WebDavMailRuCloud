@@ -17,14 +17,14 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             {
                 new DavIsreadonly<T>
                 {
-                    Getter = (context, item) => !item.IsWritable
+                    Getter = (_, item) => !item.IsWritable
                 },
 
                 // RFC-2518 properties
                 new DavCreationDate<T>
                 {
-                    Getter = (context, item) => item.FileInfo.CreationTimeUtc,
-                    Setter = (context, item, value) =>
+                    Getter = (_, item) => item.FileInfo.CreationTimeUtc,
+                    Setter = (_, item, value) =>
                     {
                         item.FileInfo.CreationTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -32,26 +32,26 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new DavDisplayName<T>
                 {
-                    Getter = (context, item) => item.FileInfo.Name
+                    Getter = (_, item) => item.FileInfo.Name
                 },
                 new DavGetContentLength<T>
                 {
-                    Getter = (context, item) => item.FileInfo.Size
+                    Getter = (_, item) => item.FileInfo.Size
                 },
                 new DavGetContentType<T>
                 {
-                    Getter = (context, item) => item.DetermineContentType()
+                    Getter = (_, item) => item.DetermineContentType()
                 },
                 new DavGetEtag<T>
                 {
                     // Calculating the Etag is an expensive operation,
                     // because we need to scan the entire file.
                     IsExpensive = true,
-                    Getter = (context, item) => item.CalculateEtag()
+                    Getter = (_, item) => item.CalculateEtag()
                 },
                 new DavGetLastModified<T>
                 {
-                    Getter = (context, item) => item.FileInfo.LastWriteTimeUtc,
+                    Getter = (_, item) => item.FileInfo.LastWriteTimeUtc,
                     Setter = (context, item, value) =>
                     {
                         //item._fileInfo.LastWriteTimeUtc = value;
@@ -66,8 +66,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavLastAccessed<T>
                 {
-                    Getter = (context, collection) => collection.FileInfo.LastWriteTimeUtc,
-                    Setter = (context, collection, value) =>
+                    Getter = (_, collection) => collection.FileInfo.LastWriteTimeUtc,
+                    Setter = (_, collection, value) =>
                     {
                         collection.FileInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -76,7 +76,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 new DavGetResourceType<T>
                 {
-                    Getter = (context, item) => null
+                    Getter = (_, _) => null
                 },
 
                 // Default locking property handling via the LockingManager
@@ -87,13 +87,13 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // (although not a collection, the IsHidden property might be valuable)
                 new DavExtCollectionIsHidden<T>
                 {
-                    Getter = (context, item) => false //(item._fileInfo.Attributes & FileAttributes.Hidden) != 0
+                    Getter = (_, _) => false //(item._fileInfo.Attributes & FileAttributes.Hidden) != 0
                 },
 
                 // Win32 extensions
                 new Win32CreationTime<T>
                 {
-                    Getter = (context, item) => item.FileInfo.CreationTimeUtc,
+                    Getter = (_, item) => item.FileInfo.CreationTimeUtc,
                     Setter = (context, item, value) =>
                     {
                         //item._fileInfo.CreationTimeUtc = value;
@@ -107,8 +107,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32LastAccessTime<T>
                 {
-                    Getter = (context, item) => item.FileInfo.LastAccessTimeUtc,
-                    Setter = (context, item, value) =>
+                    Getter = (_, item) => item.FileInfo.LastAccessTimeUtc,
+                    Setter = (_, item, value) =>
                     {
                         item.FileInfo.LastAccessTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -116,8 +116,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32LastModifiedTime<T>
                 {
-                    Getter = (context, item) => item.FileInfo.LastWriteTimeUtc,
-                    Setter = (context, item, value) =>
+                    Getter = (_, item) => item.FileInfo.LastWriteTimeUtc,
+                    Setter = (_, item, value) =>
                     {
                         item.FileInfo.LastWriteTimeUtc = value;
                         return DavStatusCode.Ok;
@@ -125,15 +125,15 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 },
                 new Win32FileAttributes<T>
                 {
-                    Getter = (context, item) => FileAttributes.Normal, //item._fileInfo.Attributes,
-                    Setter = (context, item, value) => DavStatusCode.Ok
+                    Getter = (_, _) => FileAttributes.Normal, //item._fileInfo.Attributes,
+                    Setter = (_, _, _) => DavStatusCode.Ok
                 },
                 new DavSharedLink<T>
                 {
-                    Getter = (context, item) => !item.FileInfo.PublicLinks.Any() 
+                    Getter = (_, item) => !item.FileInfo.PublicLinks.Any() 
                         ? string.Empty
                         : item.FileInfo.PublicLinks.First().Uri.OriginalString,
-                    Setter = (context, item, value) => DavStatusCode.Ok
+                    Setter = (_, _, _) => DavStatusCode.Ok
                 }
             };
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Net;
 using YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types;
 using YaR.Clouds.Base.Requests;
@@ -60,14 +61,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
                 stream.WritePu32((int)Options);
 
-                stream.WriteWithLength(new byte[0]);
+                stream.WriteWithLength(Array.Empty<byte>());
 
                 var body = stream.GetBytes();
                 return body;
             }
         }
 
-        protected override RequestResponse<Result> DeserializeMessage(ResponseBodyStream data)
+        protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)
         {
             switch (data.OperationResult)
             {
@@ -200,7 +201,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
             data.ReadULong(); // dunno
 
             ulong? GetFolderSize() => (Options & Option.FolderSize) != 0
-                ? (ulong?) data.ReadULong()
+                ? data.ReadULong()
                 : null;
             void ProcessDelete()
             {

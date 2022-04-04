@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 
@@ -10,7 +11,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
         {
         }
 
-        protected override RequestResponse<ServerRequestResult> DeserializeMessage(string data)
+        protected override RequestResponse<ServerRequestResult> DeserializeMessage(NameValueCollection responseHeaders, string data)
         {
             var datas = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             var msg = new RequestResponse<ServerRequestResult>

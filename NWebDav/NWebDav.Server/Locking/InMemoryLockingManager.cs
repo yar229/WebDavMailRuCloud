@@ -197,7 +197,7 @@ namespace NWebDav.Server.Locking
             {
                 // Make sure the item is in the dictionary
                 if (!_itemLocks.TryGetValue(key, out var itemLockTypeDictionary))
-                    return new ActiveLock[0];
+                    return Array.Empty<ActiveLock>();
 
                 // Return all non-expired locks
                 return itemLockTypeDictionary.SelectMany(kv => kv.Value).Where(l => !l.IsExpired).Select(GetActiveLockInfo).ToList();

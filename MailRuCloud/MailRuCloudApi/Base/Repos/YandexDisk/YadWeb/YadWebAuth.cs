@@ -49,10 +49,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
             if (accsAuth.HasError)
                 throw new AuthenticationException($"{nameof(YadAuthAccountsRequest)} error");
 
+            var askv2 = await new YadAuthAskV2Request(_settings, this,  accsAuth.Csrf, passwdAuth.DefaultUid)
+                .MakeRequestAsync();
+            if (accsAuth.HasError)
+                throw new AuthenticationException($"{nameof(YadAuthAskV2Request)} error");
+
             var skReq = await new YadAuthDiskSkRequest(_settings, this)
                 .MakeRequestAsync();
             if (skReq.HasError)
-                throw new AuthenticationException($"{nameof(YadAuthDiskSkRequest)} error");
+                throw new AuthenticationException($"{nameof(YadAuthDiskSkRequest)} error, response: {skReq.HtmlResponse}");
             DiskSk = skReq.DiskSk;
 
             //Csrf = preAuthResult.Csrf;

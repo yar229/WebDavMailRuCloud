@@ -13,7 +13,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
         public HttpWebRequest Request { get; }
 
-        private HttpWebRequest CreateRequest(string shardUrl, IAuth authent, IWebProxy proxy, File file, string userAgent)
+        private static HttpWebRequest CreateRequest(string shardUrl, IAuth authent, IWebProxy proxy, File file, string userAgent)
         {
             var url = new Uri($"{shardUrl}?cloud_domain=2&{authent.Login}");
 

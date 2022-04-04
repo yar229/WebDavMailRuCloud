@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Specialized;
+using System.Net;
 using System.Text.RegularExpressions;
 using YaR.Clouds.Base.Requests;
 
@@ -26,7 +27,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         //    return Encoding.UTF8.GetBytes(data);
         //}
 
-        protected override RequestResponse<YadAuthPreAuthRequestResult> DeserializeMessage(string responseText)
+        protected override RequestResponse<YadAuthPreAuthRequestResult> DeserializeMessage(NameValueCollection responseHeaders, string responseText)
         {
             var matchCsrf = Regex.Match(responseText, @"""csrf"":""(?<csrf>.*?)""");
             var matchUuid = Regex.Match(responseText, @"""process_uuid"":""(?<uuid>.*?)""");  //var matchUuid = Regex.Match(responseText, @"process_uuid(?<uuid>\S+?)&quot;");
@@ -37,7 +38,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
                 Result = new YadAuthPreAuthRequestResult
                 {
                     Csrf = matchCsrf.Success ? matchCsrf.Groups["csrf"].Value : string.Empty,
-                    ProcessUUID = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty,
+                    ProcessUUID = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty
                 }
             };
 

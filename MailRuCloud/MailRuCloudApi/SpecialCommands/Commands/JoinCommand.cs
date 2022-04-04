@@ -26,7 +26,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
             }
         }
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(1, 3);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new(1, 3);
 
         private readonly Func<Task<SpecialCommandResult>> _func;
 

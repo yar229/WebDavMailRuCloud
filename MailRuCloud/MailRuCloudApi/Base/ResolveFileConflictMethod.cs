@@ -11,8 +11,8 @@ namespace YaR.Clouds.Base
             _value = value;
         }
 
-        public static ConflictResolver Rename => new ConflictResolver("rename");
-        public static ConflictResolver Rewrite => new ConflictResolver("rewrite");
+        public static ConflictResolver Rename => new("rename");
+        public static ConflictResolver Rewrite => new("rewrite");
 
         public override bool Equals(object obj)
         {

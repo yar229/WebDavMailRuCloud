@@ -4,7 +4,7 @@ namespace YaR.Clouds.Base.Streams.Cache
 {
     internal class MemoryDataCache : DataCache
     {
-        private readonly MemoryStream _ms = new MemoryStream();
+        private readonly MemoryStream _ms = new();
 
         public override string Name => nameof(MemoryDataCache);
 

@@ -31,7 +31,7 @@ namespace YaR.Clouds.MailRuCloud.TwoFA.UI
             _doDeleteFileAfter = string.IsNullOrWhiteSpace(val) || bool.Parse(val);
         }
 
-        private readonly AutoResetEvent _fileSignal = new AutoResetEvent(false);
+        private readonly AutoResetEvent _fileSignal = new(false);
         private string _code;
 
         public string Get(string login, bool isAutoRelogin)
@@ -45,7 +45,7 @@ namespace YaR.Clouds.MailRuCloud.TwoFA.UI
 
 
             var watcher = new FileSystemWatcher(_dirPath) { NotifyFilter = NotifyFilters.LastWrite };
-            watcher.Changed += (sender, args) =>
+            watcher.Changed += (_, args) =>
             {
                 if (string.Equals(Path.GetFullPath(args.FullPath), Path.GetFullPath(filepath), StringComparison.OrdinalIgnoreCase))
                 {

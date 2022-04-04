@@ -19,7 +19,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(MobileRequestRepo));
 
-        public override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public override HttpCommonSettings HttpSettings { get; } = new()
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
@@ -34,13 +34,13 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 
             Authent = auth;
 
-            _metaServer = new Cached<ServerRequestResult>(old =>
+            _metaServer = new Cached<ServerRequestResult>(_ =>
                 {
                     Logger.Debug("MetaServer expired, refreshing.");
                     var server = new MobMetaServerRequest(HttpSettings).MakeRequestAsync().Result;
                     return server;
                 },
-                value => TimeSpan.FromSeconds(MetaServerExpiresSec));
+                _ => TimeSpan.FromSeconds(MetaServerExpiresSec));
 
             //_downloadServer = new Cached<ServerRequestResult>(old =>
             //    {
@@ -59,7 +59,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
 
         //private readonly Cached<ServerRequestResult> _downloadServer;
 		private readonly int _listDepth;
-		private const int DownloadServerExpiresSec = 20 * 60;
+		//private const int DownloadServerExpiresSec = 20 * 60;
 
 
         
@@ -96,11 +96,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
         //}
 
 
-        public void BanShardInfo(ShardInfo banShard)
-        {
-            //TODO: implement
-            Logger.Warn($"{nameof(MobileRequestRepo)}.{nameof(BanShardInfo)} not implemented");
-        }
+        //public void BanShardInfo(ShardInfo banShard)
+        //{
+        //    //TODO: implement
+        //    Logger.Warn($"{nameof(MobileRequestRepo)}.{nameof(BanShardInfo)} not implemented");
+        //}
 
         public override Task<ShardInfo> GetShardInfo(ShardType shardType)
         {
@@ -145,21 +145,27 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile
                     var f = new Folder(fsFolder.Size == null ? 0 : (long)fsFolder.Size.Value, fsFolder.FullPath);
                     foreach (var fsi in fsFolder.Items)
                     {
-                        if (fsi is FsFile fsfi)
+                        switch (fsi)
                         {
-                            var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
+                            case FsFile fsfi:
                             {
-                                CreationTimeUtc = fsfi.ModifDate,
-                                LastWriteTimeUtc = fsfi.ModifDate
-                            };
-                            f.Files.Add(fi);
+                                var fi = new File(fsfi.FullPath, (long)fsfi.Size, new FileHashMrc(fsfi.Sha1))
+                                {
+                                    CreationTimeUtc = fsfi.ModifDate,
+                                    LastWriteTimeUtc = fsfi.ModifDate
+                                };
+                                f.Files.Add(fi);
+                                break;
+                            }
+                            case FsFolder fsfo:
+                            {
+                                var fo = new Folder(fsfo.Size == null ? 0 : (long) fsfo.Size.Value, fsfo.FullPath);
+                                f.Folders.Add(fo);
+                                break;
+                            }
+                            default:
+                                throw new Exception($"Unknown item type {fsi.GetType()}");
                         }
-                        else if (fsi is FsFolder fsfo)
-                        {
-                            var fo = new Folder(fsfo.Size == null ? 0 : (long) fsfo.Size.Value, fsfo.FullPath);
-                            f.Folders.Add(fo);
-                        }
-                        else throw new Exception($"Unknown item type {fsi.GetType()}");
                     }
                     return f;
                 }

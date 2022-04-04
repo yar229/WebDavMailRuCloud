@@ -41,9 +41,16 @@ namespace NWebDav.Server
         public static readonly XName DavNsStatus = DavNs + "status";
         public static readonly XName DavNsTimeout = DavNs + "timeout";
         public static readonly XName DavNsWrite = DavNs + "write";
-        
-        
-        
+        public static readonly XName DavNsCollection = DavNs + "collection";
+        public static readonly XName DavNsIsReadonly = DavNs + "isreadonly";
+        public static readonly XName DavNsSupportedLock = DavNs + "supportedlock";
+        public static readonly XName DavNsIsFolder = DavNs + "isfolder";
+        public static readonly XName DavNsIsHidden = DavNs + "ishidden";
+        public static readonly XName DavNsIsStructuredDocument = DavNs + "isstructureddocument";
+        public static readonly XName DavNsHasSubs = DavNs + "hassubs";
+        public static readonly XName DavNsNoSubs = DavNs + "nosubs";
+        public static readonly XName DavNsReserved = DavNs + "reserved";
+        public static readonly XName DavNsGetContentType = DavNs + "getcontenttype";
 
         /// <summary>
         /// Main DAV namespace prefix (<c>D</c>).
@@ -52,7 +59,7 @@ namespace NWebDav.Server
         /// perfectly legal to use a different namespace prefix, we do use it
         /// to maximize compatibility.
         /// </summary>
-        public static readonly string DavNsPrefix = "D";
+        public const string DavNsPrefix = "D";
 
         /// <summary>
         /// Win32 extension namespace (<c>urn:schemas-microsoft-com:</c>). 
@@ -62,13 +69,15 @@ namespace NWebDav.Server
         /// </summary>
         public static readonly XNamespace Win32Ns = "urn:schemas-microsoft-com:";
 
+        public static readonly XName Win32NsWin32FileAttributes = Win32Ns + "Win32FileAttributes";
+
         /// <summary>
         /// Win32 namespace prefix (<c>Z</c>). Some WebDAV clients don't parse
         /// the server generated XML properly and expect that the Win32 nodes
         /// use the <c>Z</c> prefix. Although it is perfectly legal to use a
         /// different namespace prefix, we do use it to maximize compatibility.
         /// </summary>
-        public static readonly string Win32NsPrefix = "Z";
+        public const string Win32NsPrefix = "Z";
 
         /// <summary>
         /// WebDAV replication namespace (<c>http://schemas.microsoft.com/repl</c>).

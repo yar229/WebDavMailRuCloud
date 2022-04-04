@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Specialized;
+using System.IO;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Repos;
 
@@ -15,7 +16,7 @@ namespace YaR.Clouds.Base.Requests
             return stream;
         }
 
-        protected override RequestResponse<T> DeserializeMessage(Stream stream)
+        protected override RequestResponse<T> DeserializeMessage(NameValueCollection responseHeaders, Stream stream)
         {
             var serializer = new JsonSerializer();
 

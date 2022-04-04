@@ -34,7 +34,7 @@ namespace YaR.Clouds
         /// <summary>
         /// Async tasks cancelation token.
         /// </summary>
-        public readonly CancellationTokenSource CancelToken = new CancellationTokenSource();
+        public readonly CancellationTokenSource CancelToken = new();
 
         public CloudSettings Settings { get; }
 
@@ -112,7 +112,7 @@ namespace YaR.Clouds
 
             // bad link detected, just return stub
             // cause client cannot, for example, delete it if we return NotFound for this item
-            if (ulink != null && ulink.IsBad)
+            if (ulink is { IsBad: true })
             {
                 var res = ulink.ToBadEntry();
                 _itemCache.Add(res.FullPath, res);
@@ -191,7 +191,7 @@ namespace YaR.Clouds
                 case File cfile:
                     _itemCache.Add(cfile.FullPath, cfile);
                     break;
-                case Folder cfolder when cfolder.IsChildsLoaded:
+                case Folder { IsChildsLoaded: true } cfolder:
                 {
                     _itemCache.Add(cfolder.FullPath, cfolder);
                     _itemCache.Add(cfolder.Files.Select(f => new KeyValuePair<string, IEntry>(f.FullPath, f)));
@@ -231,7 +231,7 @@ namespace YaR.Clouds
         {
             //var res = (await new UnpublishRequest(CloudApi, publicLink).MakeRequestAsync())
             var res = (await  Account.RequestRepo.Unpublish(publicLink, fullPath))
-                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Unpublish error, link = {publicLink}"));
+                .ThrowIf(r => !r.IsSuccess, _ => new Exception($"Unpublish error, link = {publicLink}"));
 
             return res.IsSuccess;
         }
@@ -250,7 +250,7 @@ namespace YaR.Clouds
         private async Task<Uri> Publish(string fullPath)
         {
             var res = (await Account.RequestRepo.Publish(fullPath))
-                .ThrowIf(r => !r.IsSuccess, r => new Exception($"Publish error, path = {fullPath}"));
+                .ThrowIf(r => !r.IsSuccess, _ => new Exception($"Publish error, path = {fullPath}"));
                 
             var uri = new Uri(res.Url, UriKind.RelativeOrAbsolute);
             if (!uri.IsAbsoluteUri)
@@ -277,7 +277,7 @@ namespace YaR.Clouds
             {
                 string path = $"{file.FullPath}{PublishInfo.SharedFilePostfix}";
                 UploadFileJson(path, info)
-                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+                    .ThrowIf(r => !r, _ => new Exception($"Cannot upload JSON file, path = {path}"));
             }
 
 
@@ -294,7 +294,7 @@ namespace YaR.Clouds
                     }
                 }
                 UploadFile(path, content.ToString())
-                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+                    .ThrowIf(r => !r, _ => new Exception($"Cannot upload JSON file, path = {path}"));
             }
 
             return info;
@@ -311,7 +311,7 @@ namespace YaR.Clouds
             {
                 string path = WebDavPath.Combine(folder.FullPath, PublishInfo.SharedFilePostfix);
                 UploadFileJson(path, info)
-                    .ThrowIf(r => !r, r => new Exception($"Cannot upload JSON file, path = {path}"));
+                    .ThrowIf(r => !r, _ => new Exception($"Cannot upload JSON file, path = {path}"));
             }
 
             return info;

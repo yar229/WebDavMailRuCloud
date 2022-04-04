@@ -104,7 +104,7 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
         }
 
         //TODO: something wrong with unused depth?
-        private async Task CopyAsync(IStoreItem source, IStoreCollection destinationCollection, string name, bool overwrite, int depth, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
+        private static async Task CopyAsync(IStoreItem source, IStoreCollection destinationCollection, string name, bool overwrite, int depth, IHttpContext httpContext, WebDavUri baseUri, UriResultCollection errors)
         {
             // Determine the new base Uri
             var newBaseUri = UriHelper.Combine(baseUri, name);

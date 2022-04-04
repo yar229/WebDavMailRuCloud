@@ -13,7 +13,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         public HttpWebRequest Request { get; }
 
-        private HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, string url, long instart, long inend,  string userAgent)
+        private static HttpWebRequest CreateRequest(IAuth authent, IWebProxy proxy, string url, long instart, long inend,  string userAgent)
         {
             var request = (HttpWebRequest) WebRequest.Create(url);
 

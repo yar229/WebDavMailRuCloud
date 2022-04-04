@@ -15,8 +15,8 @@
         public bool IsSuccess { get;}
         public string Message { get; }
 
-        public static SpecialCommandResult Success => new SpecialCommandResult(true);
-        public static SpecialCommandResult Fail => new SpecialCommandResult(false);
+        public static SpecialCommandResult Success => new(true);
+        public static SpecialCommandResult Fail => new(false);
 
     }
 }

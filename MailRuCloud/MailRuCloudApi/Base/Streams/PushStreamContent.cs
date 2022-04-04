@@ -24,7 +24,7 @@ namespace YaR.Clouds.Base.Streams
         }
 
         public PushStreamContent(Action<Stream, HttpContent, TransportContext> onStreamAvailable, string mediaType)
-          : this(PushStreamContent.Taskify(onStreamAvailable), new MediaTypeHeaderValue(mediaType))
+          : this(Taskify(onStreamAvailable), new MediaTypeHeaderValue(mediaType))
         {
         }
 
@@ -38,7 +38,7 @@ namespace YaR.Clouds.Base.Streams
         {
         }
 
-        public PushStreamContent(Func<Stream, HttpContent, TransportContext, Task> onStreamAvailable, MediaTypeHeaderValue mediaType = (MediaTypeHeaderValue)null)
+        public PushStreamContent(Func<Stream, HttpContent, TransportContext, Task> onStreamAvailable, MediaTypeHeaderValue mediaType = null)
         {
             _onStreamAvailable = onStreamAvailable ?? throw new ArgumentNullException(nameof(onStreamAvailable));
             Headers.ContentType = mediaType ?? new MediaTypeHeaderValue("application/octet-stream");

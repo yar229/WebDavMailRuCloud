@@ -171,7 +171,7 @@ namespace NWebDav.Server
                 catch (AggregateException aex) when (aex.InnerExceptions.Count == 1 &&
                                                      aex.InnerExceptions[0] is AuthenticationException auex)
                 {
-                    var status = DavStatusCode.Unauthorized;
+                    const DavStatusCode status = DavStatusCode.Unauthorized;
                     httpContext.Response.SetStatus(status);
                     httpContext.Response.StatusDescription = $"{status.GetStatusDescription()}: {auex.Message}";
                     s_log.Log(LogLevel.Error, $"Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");

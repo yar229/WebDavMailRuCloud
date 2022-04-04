@@ -21,7 +21,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
         {
             get
             {
-                var uri = $"/sdc?from={ConstSettings.CloudDomain}/home";
+                const string uri = $"/sdc?from={ConstSettings.CloudDomain}/home";
                 return uri;
             }
         }

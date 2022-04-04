@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -30,7 +31,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
             return Encoding.UTF8.GetBytes(data);
         }
 
-        protected override RequestResponse<LoginResult> DeserializeMessage(string responseText)
+        protected override RequestResponse<LoginResult> DeserializeMessage(NameValueCollection responseHeaders, string responseText)
         {
             var csrf = responseText.Contains("csrf")
                 ? new string(responseText.Split(new[] {"csrf"}, StringSplitOptions.None)[1].Split(',')[0].Where(char.IsLetterOrDigit).ToArray())

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mime;
-using System.Threading;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud.WebM1.Requests;
 using YaR.Clouds.Base.Requests;
@@ -32,7 +31,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         protected IRequestRepo AnonymousRepo => throw new NotImplementedException();
 
-        public sealed override HttpCommonSettings HttpSettings { get; } = new HttpCommonSettings
+        public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
             ClientId = "cloud-win",
             UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
@@ -48,7 +47,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             HttpSettings.Proxy = proxy;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
 
-            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(old =>
+            CachedSharedList = new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
                 {
                     var z = GetShareListInner().Result;
 
@@ -59,7 +58,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
                     return res;
                 }, 
-                value => TimeSpan.FromSeconds(30));
+                _ => TimeSpan.FromSeconds(30));
         }
 
         
@@ -224,7 +223,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         }
 
-        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue, int depth = 1)
+        public async Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1)
         {
             if (Credentials.IsAnonymous)
                 return await AnonymousRepo.FolderInfo(path, offset, limit);
@@ -267,7 +266,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
             return entry;
         }
 
-        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = Int32.MaxValue)
+        public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
             var res = req;
@@ -288,7 +287,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
             if (res.IsSuccess)
             {
-                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new PublicLinkInfo(PublicBaseUrlDefault + res.Url)};
+                CachedSharedList.Value[fullPath] = new List<PublicLinkInfo> {new(PublicBaseUrlDefault + res.Url)};
             }
 
             return res;

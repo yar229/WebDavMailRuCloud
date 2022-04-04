@@ -10,7 +10,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
         {
         }
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(1);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new(1);
 
         public override async Task<SpecialCommandResult> Execute()
         {

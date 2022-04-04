@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models.Media
 {
@@ -10,11 +9,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models.Media
             Name = "initSnapshot";
         }
 
-        public override IEnumerable<KeyValuePair<string, string>> ToKvp(int index)
-        {
-            foreach (var pair in base.ToKvp(index))
-                yield return pair;
-        }
+        //public override IEnumerable<KeyValuePair<string, string>> ToKvp(int index)
+        //{
+        //    foreach (var pair in base.ToKvp(index))
+        //        yield return pair;
+        //}
     }
 
     internal class YadInitSnapshotRequestData : YadModelDataBase

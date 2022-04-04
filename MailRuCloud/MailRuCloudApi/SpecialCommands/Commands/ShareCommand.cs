@@ -20,7 +20,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
         private readonly bool _generateDirectVideoLink;
         private readonly bool _makeM3UFile;
 
-        protected override MinMax<int> MinMaxParamsCount { get; } = new MinMax<int>(0, 2);
+        protected override MinMax<int> MinMaxParamsCount { get; } = new(0, 2);
 
         public override async Task<SpecialCommandResult> Execute()
         {

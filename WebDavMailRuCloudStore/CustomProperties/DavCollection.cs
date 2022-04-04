@@ -11,7 +11,7 @@ namespace YaR.Clouds.WebDavStore.CustomProperties
         /// Name of the property (static).
         /// </summary>
         // ReSharper disable once StaticMemberInGenericType
-        public static readonly XName PropertyName = WebDavNamespaces.DavNs + "collection";
+        public static readonly XName PropertyName = WebDavNamespaces.DavNsCollection;
 
         /// <summary>
         /// Name of the property.
