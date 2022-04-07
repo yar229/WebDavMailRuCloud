@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
@@ -28,6 +29,21 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         protected override HttpWebRequest CreateRequest(string baseDomain = null)
         {
             var request = base.CreateRequest("https://passport.yandex.ru");
+
+            request.Headers.Add("sec-ch-ua", "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\"");
+            request.Headers.Add("Accept", "application/json, text/javascript, */*; q=0.01");
+            request.Headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+            request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            request.Headers.Add("sec-ch-ua-mobile", "?0");
+            request.Headers.Add("sec-ch-ua-platform", "\"Windows\"");
+            request.Headers.Add("Origin", "https://passport.yandex.ru");
+            request.Headers.Add("Sec-Fetch-Site", "same-origin");
+            request.Headers.Add("Sec-Fetch-Mode", "cors");
+            request.Headers.Add("Sec-Fetch-Dest", "empty");
+            request.Headers.Add("Referer", "https://passport.yandex.ru/");
+            request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+            request.Headers.Add("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6");
+
             return request;
         }
 
@@ -35,10 +51,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("csrf_token", _csrf),
+                new KeyValuePair<string, string>("csrf_token", Uri.EscapeUriString(_csrf)),
                 new KeyValuePair<string, string>("track_id", _trackId),
-                new KeyValuePair<string, string>("password", _auth.Password),
-                new KeyValuePair<string, string>("retpath", "https://disk.yandex.ru/client/disk")
+                new KeyValuePair<string, string>("password", Uri.EscapeUriString(_auth.Password)),
+                new KeyValuePair<string, string>("retpath", Uri.EscapeUriString("https://disk.yandex.ru/client/disk"))
             };
             var content = new FormUrlEncodedContent(keyValues);
             var d = content.ReadAsByteArrayAsync().Result;
@@ -48,6 +64,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         protected override RequestResponse<YadAuthPasswordRequestResult> DeserializeMessage(NameValueCollection responseHeaders, Stream stream)
         {
             var res = base.DeserializeMessage(responseHeaders, stream);
+
+            if (res.Result.State == "auth_challenge")
+                throw new AuthenticationException("Browser login required to accept additional confirmations");
 
             var uid = responseHeaders["X-Default-UID"];
             if (string.IsNullOrWhiteSpace(uid))
@@ -64,6 +83,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         [JsonProperty("status")]
         public string Status { get; set; }
+
+        [JsonProperty("state")]
+        public string State { get; set; }
 
         [JsonProperty("retpath")]
         public string RetPath { get; set; }
