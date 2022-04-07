@@ -30,9 +30,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var request = base.CreateRequest("https://passport.yandex.ru");
 
+            request.Accept = "application/json, text/javascript, */*; q=0.01";
+            request.Referer = "https://passport.yandex.ru/";
+            request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+
             request.Headers.Add("sec-ch-ua", "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\"");
-            request.Headers.Add("Accept", "application/json, text/javascript, */*; q=0.01");
-            request.Headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             request.Headers.Add("sec-ch-ua-mobile", "?0");
             request.Headers.Add("sec-ch-ua-platform", "\"Windows\"");
@@ -40,7 +42,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
             request.Headers.Add("Sec-Fetch-Site", "same-origin");
             request.Headers.Add("Sec-Fetch-Mode", "cors");
             request.Headers.Add("Sec-Fetch-Dest", "empty");
-            request.Headers.Add("Referer", "https://passport.yandex.ru/");
             request.Headers.Add("Accept-Encoding", "gzip, deflate, br");
             request.Headers.Add("Accept-Language", "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6");
 
