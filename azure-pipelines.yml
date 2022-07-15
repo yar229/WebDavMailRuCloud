@@ -20,6 +20,7 @@ variables:
   artifactNetFrameworkName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
   artifactMonoName: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet48.zip'
   artifactNet5Name: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet5.zip'
+  artifactNet6Name: 'WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet6.zip'
 
 
 steps:
@@ -89,6 +90,22 @@ steps:
 
 #=============================================================================================================
 
+- task: DotNetCoreCLI@2
+  displayName: .NET 6 publish
+  inputs:
+    command: 'publish' 
+    projects: 'WDMRC.Console/WDMRC.Console.csproj'
+    publishWebProjects: false # Required when command == Publish
+    arguments: '--configuration $(BuildConfiguration) --framework net6.0'
+
+- task: Bash@3
+  displayName: .NET 6 copy artifact to WebDAVCloudMailRu-$(Build.SourceBranchName)-dotNet6.zip
+  inputs:
+    targetType: 'inline'
+    script: 'cp WDMRC.Console/bin/Release/net6.0/publish.zip ''$(Build.ArtifactStagingDirectory)''/$(artifactNet6Name)'
+
+#=============================================================================================================
+
 - task: PowerShell@2
   displayName: Making release.info.json artifact
   inputs:
@@ -121,6 +138,12 @@ steps:
           },
           "net5" : {
             "distrib" : "$(artifactNet5Name)",
+            "runner" : "dotnet",
+            "file" : "wdmrc.dll",
+            "defaultkeys" : ""
+          },
+          "net6" : {
+            "distrib" : "$(artifactNet6Name)",
             "runner" : "dotnet",
             "file" : "wdmrc.dll",
             "defaultkeys" : ""
