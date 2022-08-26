@@ -46,8 +46,7 @@ namespace YaR.Clouds.Streams
 
         private void Initialize()
         {
-            long allowedSize = _maxFileSize; //TODO: make it right //- BytesCount(_file.Name);
-            _performAsSplitted = _size > allowedSize || _cryptInfo != null;
+            _performAsSplitted = _size > _maxFileSize || _cryptInfo != null;
             _origfile = new File(_destinationPath, _size);
 
             if (!_performAsSplitted) // crypted are performed alike splitted file
@@ -64,7 +63,7 @@ namespace YaR.Clouds.Streams
                 };
 
 
-                int nfiles = (int) (_size / allowedSize + 1);
+                int nfiles = (int) (_size / _maxFileSize + 1);
                 if (nfiles > 999)
                     throw new OverflowException("Cannot upload more than 999 file parts");
 
@@ -75,7 +74,7 @@ namespace YaR.Clouds.Streams
                     sinfo.CryptInfo = i != nfiles ? null : _cryptInfo;
 
                     var f = new File($"{_origfile.FullPath}{sinfo}",
-                        i != nfiles ? allowedSize : _size % allowedSize);
+                        i != nfiles ? _maxFileSize : _size % _maxFileSize);
                     _files.Add(f);
                 }
             }

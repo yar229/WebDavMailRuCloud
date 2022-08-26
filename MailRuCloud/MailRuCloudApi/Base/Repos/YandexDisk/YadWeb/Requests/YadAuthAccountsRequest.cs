@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Requests;
 
@@ -31,8 +28,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("csrf_token", _csrf),
-                new KeyValuePair<string, string>("origin", "disk_landing2_web_signin_ru")
+                new("csrf_token", _csrf),
+                new("origin", "disk_landing2_web_signin_ru")
             };
             var content = new FormUrlEncodedContent(keyValues);
             var d = content.ReadAsByteArrayAsync().Result;

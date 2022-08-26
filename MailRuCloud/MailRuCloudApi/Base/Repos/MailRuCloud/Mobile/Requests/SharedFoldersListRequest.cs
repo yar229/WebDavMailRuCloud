@@ -14,13 +14,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            using (var stream = new RequestBodyStream())
-            {
-                stream.WritePu16((byte)Operation.SharedFoldersList);
-                //stream.WriteWithLength(new byte[0]);
-                var body = stream.GetBytes();
-                return body;
-            }
+            using var stream = new RequestBodyStream();
+
+            stream.WritePu16((byte)Operation.SharedFoldersList);
+            //stream.WriteWithLength(new byte[0]);
+            var body = stream.GetBytes();
+            return body;
         }
 
         protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)

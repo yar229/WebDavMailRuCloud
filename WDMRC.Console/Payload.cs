@@ -90,12 +90,12 @@ namespace YaR.Clouds.Console
         private static ITwoFaHandler LoadHandler(TwoFactorAuthHandlerInfo handlerInfo)
         {
             ITwoFaHandler twoFaHandler = null;
-            if (!string.IsNullOrEmpty(handlerInfo.Name))
-            {
-                twoFaHandler = TwoFaHandlers.Get(handlerInfo);
-                if (null == twoFaHandler)
-                    Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
-            }
+            if (string.IsNullOrEmpty(handlerInfo.Name)) 
+                return twoFaHandler;
+
+            twoFaHandler = TwoFaHandlers.Get(handlerInfo);
+            if (null == twoFaHandler)
+                Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
 
             return twoFaHandler;
         }
@@ -207,16 +207,15 @@ namespace YaR.Clouds.Console
 
             // detect .NET Mono
             Type type = Type.GetType("Mono.Runtime");
-            if (type != null)
-            {
-                MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-                return displayName != null
-                    ? "Mono " + displayName.Invoke(null, null)
-                    : "unknown";
-            }
+            if (type == null) 
+                return ".NET Framework " + Environment.Version;
+
+            MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+            return displayName != null
+                ? "Mono " + displayName.Invoke(null, null)
+                : "unknown";
 
             // .NET Framework, yep?
-            return ".NET Framework " + Environment.Version;
         }
     }
 }

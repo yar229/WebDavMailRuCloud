@@ -215,8 +215,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
         public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
-            var res = req;
-            return res;
+            return req;
         }
 
 

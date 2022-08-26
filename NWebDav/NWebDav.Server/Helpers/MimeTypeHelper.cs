@@ -993,7 +993,7 @@ namespace NWebDav.Server.Helpers
             { "zip", "application/zip" },
             { "zir", "application/vnd.zul" },
             { "zirz", "application/vnd.zul" },
-            { "zmm", "application/vnd.handheld-entertainment+xml" },
+            { "zmm", "application/vnd.handheld-entertainment+xml" }
         };
 
         /// <summary>

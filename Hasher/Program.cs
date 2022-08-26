@@ -32,16 +32,16 @@ namespace Hasher
 
                         foreach (string filelist in options.Filelists)
                         {
-                            if (!string.IsNullOrEmpty(filelist))
+                            if (string.IsNullOrEmpty(filelist)) 
+                                continue;
+
+                            if (!File.Exists(filelist))
+                                throw new FileNotFoundException($"List file not found {filelist}");
+                            using (TextReader reader = File.OpenText(filelist))
                             {
-                                if (!File.Exists(filelist))
-                                    throw new FileNotFoundException($"List file not found {filelist}");
-                                using (TextReader reader = File.OpenText(filelist))
-                                {
-                                    string line;
-                                    while (!string.IsNullOrEmpty(line = reader.ReadLine()))
-                                        cards.Add(line);
-                                }
+                                string line;
+                                while (!string.IsNullOrEmpty(line = reader.ReadLine()))
+                                    cards.Add(line);
                             }
                         }
 

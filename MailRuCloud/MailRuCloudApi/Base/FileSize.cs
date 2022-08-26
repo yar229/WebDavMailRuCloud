@@ -61,9 +61,8 @@ namespace YaR.Clouds.Base
         {
             if (ReferenceEquals(null, obj)) 
                 return false;
-            if (obj.GetType() != GetType()) 
-                return false;
-            return Equals((FileSize)obj);
+
+            return obj.GetType() == GetType() && Equals((FileSize)obj);
         }
 
         public override int GetHashCode()

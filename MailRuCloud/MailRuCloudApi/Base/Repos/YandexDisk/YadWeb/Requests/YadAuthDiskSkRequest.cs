@@ -33,7 +33,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 
         protected override RequestResponse<YadAuthDiskSkRequestResult> DeserializeMessage(NameValueCollection responseHeaders, string responseText)
         {
-            var matchSk = Regex.Match(responseText, _regex1);
+            var matchSk = Regex.Match(responseText, Regex1);
 
             var msg = new RequestResponse<YadAuthDiskSkRequestResult>
             {
@@ -48,7 +48,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
             return msg;
         }
 
-        private const string _regex1 = @"""sk"":""(?<sk>.+?)""";
+        private const string Regex1 = @"""sk"":""(?<sk>.+?)""";
         //private const string _regex2 = @"sk=(?<sk>.*?)&";  // не надо, значит, уже все плохо
     }
 

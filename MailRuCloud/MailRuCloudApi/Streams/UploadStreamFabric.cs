@@ -22,7 +22,7 @@ namespace YaR.Clouds.Streams
 
         public async Task<Stream> Create(File file, FileUploadedDelegate onUploaded = null, bool discardEncryption = false)
         {
-            if (!(await _cloud.GetItemAsync(file.Path, Cloud.ItemType.Folder) is Folder folder))
+            if (await _cloud.GetItemAsync(file.Path, Cloud.ItemType.Folder) is not Folder folder)
                 throw new DirectoryNotFoundException(file.Path);
 
             Stream stream;

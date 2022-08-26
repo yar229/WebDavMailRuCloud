@@ -137,14 +137,13 @@ namespace YaR.Clouds.Links
 
             var z = _itemList.Items.FirstOrDefault(f => f.MapTo == parent && f.Name == name);
 
-            if (z != null)
-            {
-                _itemList.Items.Remove(z);
-                _itemCache.Invalidate(path, parent);
-                if (doSave) Save();
-                return true;
-            }
-            return false;
+            if (z == null) 
+                return false;
+
+            _itemList.Items.Remove(z);
+            _itemCache.Invalidate(path, parent);
+            if (doSave) Save();
+            return true;
         }
 
         public void RemoveLinks(IEnumerable<Link> innerLinks, bool doSave = true)
@@ -178,29 +177,28 @@ namespace YaR.Clouds.Links
 
             _itemList.Items.RemoveAll(it => removes.Any(rem => WebDavPath.PathEquals(rem.MapPath, it.MapTo) && rem.Name == it.Name));
 
-            if (removes.Any())
+            if (!removes.Any()) 
+                return 0;
+
+            if (doWriteHistory)
             {
-                if (doWriteHistory)
+                foreach (var link in removes)
                 {
-                    foreach (var link in removes)
-                    {
-                        _itemCache.Invalidate(link.FullPath, link.MapPath);
-                    }
-
-                    string path = WebDavPath.Combine(WebDavPath.Root, HistoryContainerName);
-                    string res = await _cloud.DownloadFileAsString(path);
-                    var history = new StringBuilder(res ?? string.Empty);
-                    foreach (var link in removes)
-                    {
-                        history.Append($"{DateTime.Now} REMOVE: {link.Href} {link.Name}\r\n");
-                    }
-                    _cloud.UploadFile(path, history.ToString());
+                    _itemCache.Invalidate(link.FullPath, link.MapPath);
                 }
-                Save();
-                return removes.Count;
-            }
 
-            return 0;
+                string path = WebDavPath.Combine(WebDavPath.Root, HistoryContainerName);
+                string res = await _cloud.DownloadFileAsString(path);
+                var history = new StringBuilder(res ?? string.Empty);
+                foreach (var link in removes)
+                {
+                    history.Append($"{DateTime.Now} REMOVE: {link.Href} {link.Name}\r\n");
+                }
+                _cloud.UploadFile(path, history.ToString());
+            }
+            Save();
+            return removes.Count;
+
         }
 
         ///// <summary>
@@ -374,17 +372,18 @@ namespace YaR.Clouds.Links
             bool changed = false;
             foreach (var link in _itemList.Items)
             {
-                if (WebDavPath.IsParentOrSame(fullPath, link.MapTo))
-                {
-                    link.MapTo = WebDavPath.ModifyParent(link.MapTo, fullPath, newPath);
-                    changed = true;
-                }
+                if (!WebDavPath.IsParentOrSame(fullPath, link.MapTo)) 
+                    continue;
+
+                link.MapTo = WebDavPath.ModifyParent(link.MapTo, fullPath, newPath);
+                changed = true;
             }
-            if (changed)
-            {
-                _itemCache.Invalidate(fullPath, newPath);
-                Save();
-            }
+
+            if (!changed) 
+                return;
+
+            _itemCache.Invalidate(fullPath, newPath);
+            Save();
         }
 
         public bool RenameLink(Link link, string newName)
@@ -431,15 +430,14 @@ namespace YaR.Clouds.Links
             if (link.IsRoot)
             {
                 var rootlink = _itemList.Items.FirstOrDefault(it => WebDavPath.PathEquals(it.MapTo, link.MapPath) && it.Name == link.Name);
-                if (rootlink != null)
-                {
-                    string oldmap = rootlink.MapTo;
-                    rootlink.MapTo = destinationPath;
-                    Save();
-                    _itemCache.Invalidate(link.FullPath, oldmap, destinationPath);
-                    return true;
-                }
-                return false;
+                if (rootlink == null) 
+                    return false;
+
+                string oldmap = rootlink.MapTo;
+                rootlink.MapTo = destinationPath;
+                Save();
+                _itemCache.Invalidate(link.FullPath, oldmap, destinationPath);
+                return true;
             }
 
             // it's a link on inner item of root link, creating new link
@@ -454,11 +452,11 @@ namespace YaR.Clouds.Links
                 link.Size,
                 DateTime.Now);
 
-            if (res)
-            {
-                if (doSave) Save();
-                _itemCache.Invalidate(destinationPath);
-            }
+            if (!res) 
+                return res;
+
+            if (doSave) Save();
+            _itemCache.Invalidate(destinationPath);
 
             return res;
         }

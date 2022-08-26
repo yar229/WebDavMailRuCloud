@@ -32,12 +32,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
             _authToken = new Cached<AuthTokenResult>(_ =>
                 {
                     Logger.Debug("AuthToken expired, refreshing.");
-                    if (!creds.IsAnonymous)
-                    {
-                        var token = Auth().Result;
-                        return token;
-                    }
-                    return null;
+                    if (creds.IsAnonymous) 
+                        return null;
+
+                    var token = Auth().Result;
+                    return token;
                 },
                 _ => TimeSpan.FromSeconds(AuthTokenExpiresInSec));
 

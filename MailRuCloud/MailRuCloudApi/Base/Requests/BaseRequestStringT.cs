@@ -11,10 +11,8 @@ namespace YaR.Clouds.Base.Requests
 
         protected override string Transport(Stream stream)
         {
-            using (var sr = new StreamReader(stream))
-            {
-                return sr.ReadToEnd();
-            }
+            using var sr = new StreamReader(stream);
+            return sr.ReadToEnd();
         }
     }
 }

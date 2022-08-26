@@ -21,11 +21,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         {
             Credentials = creds;
 
-            if (!AvailDomains.Any(d => creds.Login.Contains($"@{d}.")))
-            {
-                string domains = AvailDomains.Aggregate((c, n) => c + ", @" + n);
-                Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
-            }
+            if (AvailDomains.Any(d => creds.Login.Contains($"@{d}."))) 
+                return;
+
+            string domains = AvailDomains.Aggregate((c, n) => c + ", @" + n);
+            Logger.Warn($"Missing domain part ({domains}) in login, file and folder deleting will be denied");
         }
 
         protected readonly IBasicCredentials Credentials;

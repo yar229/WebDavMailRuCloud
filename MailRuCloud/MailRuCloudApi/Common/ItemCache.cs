@@ -61,15 +61,15 @@ namespace YaR.Clouds.Common
             if (_noCache)
                 return default;
 
-            if (_items.TryGetValue(key, out var item))
+            if (!_items.TryGetValue(key, out var item)) 
+                return default;
+
+            if (IsExpired(item))
+                _items.TryRemove(key, out item);
+            else
             {
-                if (IsExpired(item))
-                    _items.TryRemove(key, out item);
-                else
-                {
-                    Logger.Debug($"Cache hit: {key}");
-                    return item.Item;
-                }
+                Logger.Debug($"Cache hit: {key}");
+                return item.Item;
             }
             return default;
         }

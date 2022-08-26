@@ -22,7 +22,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
         public override async Task<SpecialCommandResult> Execute()
         {
             string target = Parames.Count > 0 && !string.IsNullOrWhiteSpace(Parames[0])
-                ? (Parames[0].StartsWith(WebDavPath.Separator) ? Parames[0] : WebDavPath.Combine(Path, Parames[0]))
+                ? Parames[0].StartsWith(WebDavPath.Separator) ? Parames[0] : WebDavPath.Combine(Path, Parames[0])
                 : Path;
 
             var resolvedTarget = await RemotePath.Get(target, Cloud.LinkManager);

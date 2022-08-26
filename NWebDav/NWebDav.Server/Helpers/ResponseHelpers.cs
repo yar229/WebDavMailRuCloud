@@ -105,7 +105,7 @@ namespace NWebDav.Server.Helpers
 #if USE_XML_ASYNC_READWRITE
                 await xDocument.WriteToAsync(xmlWriter, cancellationToken: default);
 #else
-                xDocument.WriteTo(xmlWriter);
+                await Task.Run(() => xDocument.WriteTo(xmlWriter));
 #endif
             }
         }

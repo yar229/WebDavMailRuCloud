@@ -55,15 +55,15 @@ namespace YaR.Clouds.XTSSharp
                 offset += bytesToCopy;
                 count -= bytesToCopy;
 
-                if (_sectorBufferCount == _sectorSize)
-                {
-                    //sector filled
-                    _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
-                    _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
+                if (_sectorBufferCount != _sectorSize) 
+                    continue;
 
-                    _currentSector++;
-                    _sectorBufferCount = 0;
-                }
+                //sector filled
+                _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
+                _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
+
+                _currentSector++;
+                _sectorBufferCount = 0;
             }
         }
 

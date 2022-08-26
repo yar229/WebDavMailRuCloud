@@ -22,12 +22,10 @@ namespace YaR.Clouds.Base.Repos
         public static async Task<RemotePath> Get(string path, LinkManager lm)
         {
             var z = new RemotePath {Path = path};
-            if (lm != null)
-            {
-                var lnk = await lm.GetItemLink(path);
-                z.Link = lnk;
-            }
+            if (lm == null) 
+                return z;
 
+            z.Link = await lm.GetItemLink(path);
             return z;
         }
 

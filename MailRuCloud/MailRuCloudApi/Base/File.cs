@@ -91,7 +91,7 @@ namespace YaR.Clouds.Base
         }
         private FileSize _originalSize;
 
-        protected virtual File FileHeader { get; } = null;
+        protected virtual File FileHeader => null;
 
         /// <summary>
         /// Gets full file path with name on server.
@@ -151,36 +151,34 @@ namespace YaR.Clouds.Base
             FullPath = WebDavPath.Combine(Path, destinationName);
             if (ServiceInfo != null) ServiceInfo.CleanName = Name;
 
-            if (Files.Count > 1)
-            {
-                string path = Path;
-                foreach (var fiFile in Parts)
-                {
-                    fiFile.FullPath = WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
-                }
-            }
+            if (Files.Count <= 1) 
+                return;
+
+            string path = Path;
+            foreach (var fiFile in Parts)
+                fiFile.FullPath = WebDavPath.Combine(path, destinationName + fiFile.ServiceInfo.ToString(false)); //TODO: refact
         }
 
         //TODO : refact, bad design
         public void SetPath(string fullPath)
         {
             FullPath = WebDavPath.Combine(fullPath, Name);
-            if (Parts.Count > 1)
-                foreach (var fiFile in Parts)
-                {
-                    fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
-                }
+            if (Parts.Count <= 1) 
+                return;
+
+            foreach (var fiFile in Parts)
+                fiFile.FullPath = WebDavPath.Combine(fullPath, fiFile.Name); //TODO: refact
         }
 
 
         //TODO : refact, bad design
         public CryptoKeyInfo EnsurePublicKey(Cloud cloud)
         {
-            if (ServiceInfo.IsCrypted && null == ServiceInfo.CryptInfo.PublicKey)
-            {
-                var info = cloud.DownloadFileAsJson<HeaderFileContent>(FileHeader ?? this);
-                ServiceInfo.CryptInfo.PublicKey = info.PublicKey;
-            }
+            if (!ServiceInfo.IsCrypted || null != ServiceInfo.CryptInfo.PublicKey)
+                return ServiceInfo.CryptInfo.PublicKey;
+
+            var info = cloud.DownloadFileAsJson<HeaderFileContent>(FileHeader ?? this);
+            ServiceInfo.CryptInfo.PublicKey = info.PublicKey;
             return ServiceInfo.CryptInfo.PublicKey;
         }
 

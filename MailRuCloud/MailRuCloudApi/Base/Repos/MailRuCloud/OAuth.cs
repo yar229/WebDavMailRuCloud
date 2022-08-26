@@ -62,20 +62,20 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
             var req = await new OAuthRequest(_settings, _creds).MakeRequestAsync();
             var res = req.ToAuthTokenResult();
 
-            if (res.IsSecondStepRequired)
-            {
-                if (null == _onAuthCodeRequired)
-                    throw new Exception("No 2Factor plugin found.");
+            if (!res.IsSecondStepRequired) 
+                return res;
 
-                string code = _onAuthCodeRequired.Invoke(_creds.Login, true);
-                if (string.IsNullOrWhiteSpace(code))
-                    throw new Exception("Empty 2Factor code");
+            if (null == _onAuthCodeRequired)
+                throw new Exception("No 2Factor plugin found.");
 
-                var ssreq = await new OAuthSecondStepRequest(_settings, _creds.Login, res.TsaToken, code)
-                    .MakeRequestAsync();
+            string code = _onAuthCodeRequired.Invoke(_creds.Login, true);
+            if (string.IsNullOrWhiteSpace(code))
+                throw new Exception("Empty 2Factor code");
 
-                res = ssreq.ToAuthTokenResult();
-            }
+            var ssreq = await new OAuthSecondStepRequest(_settings, _creds.Login, res.TsaToken, code)
+                .MakeRequestAsync();
+
+            res = ssreq.ToAuthTokenResult();
 
             return res;
         }

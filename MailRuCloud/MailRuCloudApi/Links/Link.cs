@@ -70,7 +70,7 @@ namespace YaR.Clouds.Links
 
 
         public Uri Href { get; }
-        public List<PublicLinkInfo> PublicLinks => new() {new("linked", Href) };
+        public List<PublicLinkInfo> PublicLinks => new() {new PublicLinkInfo("linked", Href) };
 
 
         public FileAttributes Attributes => FileAttributes.Normal; //TODO: dunno what to do

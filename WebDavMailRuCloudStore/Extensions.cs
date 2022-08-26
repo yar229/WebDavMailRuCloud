@@ -25,7 +25,7 @@ namespace YaR.Clouds.WebDavStore
                 throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationName)) 
                 throw new ArgumentNullException(nameof(destinationName));
-            if (!(item is ILocalStoreItem storeItem)) 
+            if (item is not ILocalStoreItem storeItem) 
                 throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
             return cloud.Rename(storeItem.EntryInfo, destinationName);
@@ -37,7 +37,7 @@ namespace YaR.Clouds.WebDavStore
                 throw new ArgumentNullException(nameof(item));
             if (string.IsNullOrEmpty(destinationPath)) 
                 throw new ArgumentNullException(nameof(destinationPath));
-            if (!(item is ILocalStoreItem storeItem)) 
+            if (item is not ILocalStoreItem storeItem) 
                 throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
             return cloud.MoveAsync(storeItem.EntryInfo, destinationPath);
@@ -46,7 +46,7 @@ namespace YaR.Clouds.WebDavStore
         {
             if (item == null) 
                 throw new ArgumentNullException(nameof(item));
-            if (!(item is ILocalStoreItem storeItem)) 
+            if (item is not ILocalStoreItem storeItem) 
                 throw new ArgumentException($"{nameof(ILocalStoreItem)} required.", nameof(item));
 
             return storeItem.FullPath;

@@ -170,14 +170,14 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 // Create the item in the destination collection
                 var result = await destination.CreateItemAsync(name, overwrite, httpContext).ConfigureAwait(false);
 
-                if (result.Item != null)
+                if (result.Item == null) 
+                    return new StoreItemResult(result.Result, result.Item);
+
+                using (var sourceStream = await GetReadableStreamAsync(httpContext).ConfigureAwait(false))
                 {
-                    using (var sourceStream = await GetReadableStreamAsync(httpContext).ConfigureAwait(false))
-                    {
-                        var copyResult = await result.Item.UploadFromStreamAsync(httpContext, sourceStream).ConfigureAwait(false);
-                        if (copyResult != DavStatusCode.Ok)
-                            return new StoreItemResult(copyResult, result.Item);
-                    }
+                    var copyResult = await result.Item.UploadFromStreamAsync(httpContext, sourceStream).ConfigureAwait(false);
+                    if (copyResult != DavStatusCode.Ok)
+                        return new StoreItemResult(copyResult, result.Item);
                 }
 
                 return new StoreItemResult(result.Result, result.Item);
@@ -201,7 +201,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override bool Equals(object obj)
         {
-            if (!(obj is LocalStoreItem storeItem))
+            if (obj is not LocalStoreItem storeItem)
                 return false;
             return storeItem._fileInfo.FullPath.Equals(_fileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }

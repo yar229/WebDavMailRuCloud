@@ -6,7 +6,7 @@ using NWebDav.Server.Helpers;
 
 namespace NWebDav.Server.Locking
 {
-    public struct ActiveLock
+    public readonly struct ActiveLock
     {
         public LockType Type { get; }
         public LockScope Scope { get; }

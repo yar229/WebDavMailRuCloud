@@ -70,10 +70,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         public string DiskSk { get; set; }
         public string Uuid { get; set; }
         //public string Csrf { get; set; }
-        
 
 
-        public bool IsAnonymous { get; }
+
+        public bool IsAnonymous => false;
         public string AccessToken { get; }
         public string DownloadToken { get; }
         public CookieContainer Cookies { get; }
