@@ -296,9 +296,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override bool Equals(object obj)
         {
-            if (obj is not LocalStoreCollection storeCollection)
-                return false;
-            return storeCollection.DirectoryInfo.FullPath.Equals(DirectoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
+            return obj is LocalStoreCollection storeCollection && 
+                   storeCollection.DirectoryInfo.FullPath.Equals(DirectoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

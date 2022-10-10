@@ -17,25 +17,25 @@ using File = YaR.Clouds.Base.File;
 
 namespace YaR.Clouds.WebDavStore.StoreBase
 {
-    [DebuggerDisplay("{_fileInfo.FullPath}")]
+    [DebuggerDisplay("{FileInfo.FullPath}")]
     public class LocalStoreItem : ILocalStoreItem
     {
         private static readonly ILogger Logger = LoggerFactory.Factory.CreateLogger(typeof(LocalStoreItem));
 
 
-        private readonly File _fileInfo;
         private readonly LocalStore _store;
 
-        public File FileInfo => _fileInfo;
+        public File FileInfo { get; }
+
         public IEntry EntryInfo => FileInfo;
-        public long Length => _fileInfo.Size;
+        public long Length => FileInfo.Size;
         public bool IsReadable => true;
 
         public LocalStoreItem(File fileInfo, bool isWritable, LocalStore store)
         {
             _store = store;
 
-            _fileInfo = fileInfo;
+            FileInfo = fileInfo;
 
             IsWritable = isWritable;
         }
@@ -46,9 +46,9 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
 
         public bool IsWritable { get; }
-        public string Name => _fileInfo.Name;
-        public string UniqueKey => _fileInfo.FullPath;
-        public string FullPath => _fileInfo.FullPath;
+        public string Name => FileInfo.Name;
+        public string UniqueKey => FileInfo.FullPath;
+        public string FullPath => FileInfo.FullPath;
 
         public IPropertyManager PropertyManager => _store.ItemPropertyManager;
         public ILockingManager LockingManager => _store.LockingManager;
@@ -56,7 +56,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         private Stream OpenReadStream(Cloud cloud, long? start, long? end)
         {
-            Stream stream = cloud.GetFileDownloadStream(_fileInfo, start, end).Result;
+            Stream stream = cloud.GetFileDownloadStream(FileInfo, start, end).Result;
             return stream;
         }
 
@@ -78,16 +78,16 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             // mail.ru needs size of file, but some clients does not send it
             // so we'll cache file in memory
             // TODO: rewrite
-            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && _fileInfo.Size == 0)
+            if (httpContext.Request.GetHeaderValue("Transfer-Encoding") == "chunked" && FileInfo.Size == 0)
             {
                 Logger.Log(LogLevel.Warning, () => "Client does not send file size, caching in memory!");
                 var memStream = new MemoryStream();
                 await inputStream.CopyToAsync(memStream).ConfigureAwait(false);
 
-                _fileInfo.OriginalSize = new FileSize(memStream.Length);
+                FileInfo.OriginalSize = new FileSize(memStream.Length);
 
                 using (var outputStream = IsWritable
-                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size, null, null).ConfigureAwait(false)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(FileInfo.FullPath, FileInfo.Size, null, null).ConfigureAwait(false)
                     : null)
                 {
                     memStream.Seek(0, SeekOrigin.Begin);
@@ -130,7 +130,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                 // Copy the information to the destination stream
                 using (var outputStream = IsWritable 
-                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(_fileInfo.FullPath, _fileInfo.Size, StreamCopiedAction, ServerProcessFinishedAction).ConfigureAwait(false)
+                    ? await CloudManager.Instance(httpContext.Session.Principal.Identity).GetFileUploadStream(FileInfo.FullPath, FileInfo.Size, StreamCopiedAction, ServerProcessFinishedAction).ConfigureAwait(false)
                     : null)
                 {
 #if NET48
@@ -161,7 +161,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
                     // check if the file already exists??
 
-                    await CloudManager.Instance(httpContext.Session.Principal.Identity).Copy(_fileInfo, collection.FullPath);
+                    await CloudManager.Instance(httpContext.Session.Principal.Identity).Copy(FileInfo, collection.FullPath);
 
                     return new StoreItemResult(DavStatusCode.Created);
                 }
@@ -196,24 +196,23 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override int GetHashCode()
         {
-            return _fileInfo.FullPath.GetHashCode();
+            return FileInfo.FullPath.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is not LocalStoreItem storeItem)
-                return false;
-            return storeItem._fileInfo.FullPath.Equals(_fileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
+            return obj is LocalStoreItem storeItem && 
+                   storeItem.FileInfo.FullPath.Equals(FileInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
 
         public string DetermineContentType()
         {
-            return MimeTypeHelper.GetMimeTypeByExtension(_fileInfo.Extension);
+            return MimeTypeHelper.GetMimeTypeByExtension(FileInfo.Extension);
         }
 
         public string CalculateEtag()
         {
-            string h = _fileInfo.FullPath + _fileInfo.Size;
+            string h = FileInfo.FullPath + FileInfo.Size;
             var hash = SHA256.Create().ComputeHash(GetBytes(h));
             return BitConverter.ToString(hash).Replace("-", string.Empty);
         }

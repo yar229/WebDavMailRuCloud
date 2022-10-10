@@ -286,7 +286,7 @@ namespace NWebDav.Server.Handlers
             }
             else
             {
-                vals = new() {Dict = new Dictionary<object, XStreamingElement>() };
+                vals = new() { Dict = new Dictionary<object, XStreamingElement>() };
                 var xval = new XStreamingElement(name, value);
                 if (value == null)
                     vals.NullElement = xval;

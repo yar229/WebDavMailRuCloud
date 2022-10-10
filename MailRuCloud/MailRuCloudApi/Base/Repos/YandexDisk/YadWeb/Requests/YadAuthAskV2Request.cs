@@ -8,14 +8,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YadAuthAskV2Request : BaseRequestJson<YadAuthAskV2RequestResult>
     {
-        private readonly IAuth _auth;
         private readonly string _csrf;
         private readonly string _uid;
 
         public YadAuthAskV2Request(HttpCommonSettings settings, IAuth auth, string csrf, string uid)
             : base(settings, auth)
         {
-            _auth = auth;
             _csrf = csrf;
             _uid = uid;
         }

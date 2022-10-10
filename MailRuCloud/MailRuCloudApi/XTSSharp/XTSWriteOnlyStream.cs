@@ -112,8 +112,8 @@ namespace YaR.Clouds.XTSSharp
             throw new NotImplementedException();
         }
 
-        public override bool CanRead { get; }
-        public override bool CanSeek { get; }
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
         public override bool CanWrite => true;
         public override long Length { get; }
         public override long Position { get; set; }

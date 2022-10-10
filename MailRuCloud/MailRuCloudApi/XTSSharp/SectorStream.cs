@@ -36,25 +36,14 @@ namespace YaR.Clouds.XTSSharp
 	{
 		private readonly Stream _baseStream;
 		private readonly long _offset;
-		private ulong _currentSector;
-		
-		/// <summary>
-		/// Creates a new stream
-		/// </summary>
-		/// <param name="baseStream">The base stream to read/write from</param>
-		/// <param name="sectorSize">The size of the sectors to read/write</param>
-		public SectorStream(Stream baseStream, int sectorSize)
-			: this(baseStream, sectorSize, 0)
-		{
-		}
 
-		/// <summary>
+        /// <summary>
 		/// Creates a new stream
 		/// </summary>
 		/// <param name="baseStream">The base stream to read/write from</param>
 		/// <param name="sectorSize">The size of the sectors to read/write</param>
 		/// <param name="offset">Offset to start counting sectors</param>
-		public SectorStream(Stream baseStream, int sectorSize, long offset)
+		public SectorStream(Stream baseStream, int sectorSize, long offset = 0)
 		{
 			SectorSize = sectorSize;
 			_baseStream = baseStream;
@@ -103,14 +92,14 @@ namespace YaR.Clouds.XTSSharp
 
 				//base stream gets the non-tweaked value
 				_baseStream.Position = value + _offset;
-				_currentSector = (ulong)(value / SectorSize);
+				CurrentSector = (ulong)(value / SectorSize);
 			}
 		}
 
 		/// <summary>
 		/// The current sector this stream is at
 		/// </summary>
-		protected ulong CurrentSector => _currentSector;
+		protected ulong CurrentSector { get; private set; }
 
         /// <summary>
         /// Validates that the size is a multiple of the sector size
@@ -192,7 +181,7 @@ namespace YaR.Clouds.XTSSharp
 			ValidateSize(count);
 
 			var ret = _baseStream.Read(buffer, offset, count);
-			_currentSector++;
+			CurrentSector++;
 			return ret;
 		}
 
@@ -207,7 +196,7 @@ namespace YaR.Clouds.XTSSharp
 			ValidateSize(count);
 
 			_baseStream.Write(buffer, offset, count);
-			_currentSector++;
+			CurrentSector++;
 		}
 	}
 }

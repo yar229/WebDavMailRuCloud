@@ -32,8 +32,7 @@ namespace YaR.CloudMailRu.Client.Console
 
             using (var file = new StreamReader(listname))
             {
-                string line;
-                while ((line = file.ReadLine()) != null)
+                while (file.ReadLine() is { } line)
                 {
                     System.Console.WriteLine($"Source: {line}");
                     var fileInfo = new FileInfo(line);

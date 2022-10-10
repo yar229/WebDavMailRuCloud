@@ -8,6 +8,7 @@
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <AssemblyName>mrclient</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Client.Console</RootNamespace>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">

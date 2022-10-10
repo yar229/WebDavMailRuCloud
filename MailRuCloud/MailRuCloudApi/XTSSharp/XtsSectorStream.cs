@@ -43,23 +43,13 @@ namespace YaR.Clouds.XTSSharp
 		private XtsCryptoTransform _decryptor;
 		private XtsCryptoTransform _encryptor;
 
-		/// <summary>
-		/// Creates a new stream with the default sector size
-		/// </summary>
-		/// <param name="baseStream">The base stream</param>
-		/// <param name="xts">The xts transform</param>
-		public XtsSectorStream(Stream baseStream, Xts xts)
-			: this(baseStream, xts, DefaultSectorSize)
-		{
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Creates a new stream
 		/// </summary>
 		/// <param name="baseStream">The base stream</param>
 		/// <param name="xts">The xts transform</param>
 		/// <param name="sectorSize">Sector size</param>
-		public XtsSectorStream(Stream baseStream, Xts xts, int sectorSize)
+		public XtsSectorStream(Stream baseStream, Xts xts, int sectorSize = DefaultSectorSize)
 			: this(baseStream, xts, sectorSize, 0)
 		{
 		}

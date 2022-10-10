@@ -89,11 +89,10 @@ namespace YaR.Clouds.Console
 
         private static ITwoFaHandler LoadHandler(TwoFactorAuthHandlerInfo handlerInfo)
         {
-            ITwoFaHandler twoFaHandler = null;
             if (string.IsNullOrEmpty(handlerInfo.Name)) 
-                return twoFaHandler;
+                return null;
 
-            twoFaHandler = TwoFaHandlers.Get(handlerInfo);
+            var twoFaHandler = TwoFaHandlers.Get(handlerInfo);
             if (null == twoFaHandler)
                 Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
 
@@ -113,34 +112,33 @@ namespace YaR.Clouds.Console
 
             try
             {
-                using (var sem = new SemaphoreSlim(maxThreadCount))
+                using var sem = new SemaphoreSlim(maxThreadCount);
+
+                var semclo = sem;
+                while (!CancelToken.IsCancellationRequested)
                 {
-                    var semclo = sem;
-                    while (!CancelToken.IsCancellationRequested)
+                    var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
+                    if (httpListenerContext == null)
+                        break;
+
+                    HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity) httpListenerContext.User.Identity;
+                    IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
+
+                    await semclo.WaitAsync(CancelToken.Token);
+
+                    var _ = Task.Run(async () =>
                     {
-                        var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
-                        if (httpListenerContext == null)
-                            break;
-
-                        HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity) httpListenerContext.User.Identity;
-                        IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
-
-                        await semclo.WaitAsync(CancelToken.Token);
-
-                        var _ = Task.Run(async () =>
+                        try
                         {
-                            try
-                            {
-                                await webDavDispatcher.DispatchRequestAsync(httpContext)
-                                    .ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                semclo.Release();
-                            }
+                            await webDavDispatcher.DispatchRequestAsync(httpContext)
+                                .ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            semclo.Release();
+                        }
 
-                        }, CancelToken.Token);
-                    }
+                    }, CancelToken.Token);
                 }
             }
             catch (HttpListenerException) when (CancelToken.IsCancellationRequested)

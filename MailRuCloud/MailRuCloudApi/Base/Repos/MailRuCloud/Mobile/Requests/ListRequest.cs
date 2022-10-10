@@ -128,15 +128,10 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                         break;
 
                     case ParseOp.Pin:
-                        if (lastFolder != null)
-                        {
-                            currentFolder = lastFolder;
-	                        lvl++;
-                            parseOp = (ParseOp)data.ReadShort();
-                            continue;
-                        }
-
-                        throw new Exception("lastFolder = null");
+                        currentFolder = lastFolder ?? throw new Exception("lastFolder = null");
+                        lvl++;
+                        parseOp = (ParseOp)data.ReadShort();
+                        continue;
 
                     case ParseOp.PinUpper:
                         if (currentFolder == fakeRoot)
@@ -145,17 +140,12 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                             continue;
                         }
 
-                        if (currentFolder.Parent != null)
-                        {
-                            currentFolder = currentFolder.Parent;
-                            lvl--;
-                            parseOp = (ParseOp)data.ReadShort();
-                            if (currentFolder == null)
-                                throw new Exception("No parent folder A");
-                            continue;
-                        }
-
-                        throw new Exception("No parent folder B");
+                        currentFolder = currentFolder.Parent ?? throw new Exception("No parent folder B");
+                        lvl--;
+                        parseOp = (ParseOp)data.ReadShort();
+                        if (currentFolder == null)
+                            throw new Exception("No parent folder A");
+                        continue;
 
                     case ParseOp.Unknown15:
                         long skip = data.ReadPu32();

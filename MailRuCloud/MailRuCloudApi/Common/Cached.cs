@@ -35,16 +35,16 @@ namespace YaR.Clouds.Common
 
             lock (_refreshLock)
             {
-                if (DateTime.Now >= _expiration)
-                {
-                    T oldValue =  _value is { IsValueCreated: true } ? _value.Value : default;
-                    _value = new Lazy<T>(() => _valueFactory(oldValue));
+                if (DateTime.Now < _expiration) 
+                    return;
 
-                    var duration = _duration(_value.Value);
-                    _expiration = duration == TimeSpan.MaxValue 
-                        ? DateTime.MaxValue
-                        : DateTime.Now.Add(duration);
-                }
+                T oldValue =  _value is { IsValueCreated: true } ? _value.Value : default;
+                _value = new Lazy<T>(() => _valueFactory(oldValue));
+
+                var duration = _duration(_value.Value);
+                _expiration = duration == TimeSpan.MaxValue 
+                    ? DateTime.MaxValue
+                    : DateTime.Now.Add(duration);
             }
         }
 

@@ -15,7 +15,9 @@ namespace YaR.Clouds.Console
         static Config()
         {
             Document = new XmlDocument();
-            var configpath = Path.Combine(Path.GetDirectoryName(typeof(Config).Assembly.Location), "wdmrc.config");
+            string location = Path.GetDirectoryName(typeof(Config).Assembly.Location) 
+                ?? throw new DirectoryNotFoundException("Cannot locate assembly directory");
+            var configpath = Path.Combine(location, "wdmrc.config");
             Document.Load(File.OpenRead(configpath));
         }
 
@@ -184,10 +186,7 @@ namespace YaR.Clouds.Console
 
         public static bool IsEnabledWebDAVProperty(string propName)
         {
-            if (WebDAVProps.TryGetValue(propName, out bool enabled))
-                return enabled;
-
-            return true;
+            return !WebDAVProps.TryGetValue(propName, out bool enabled) || enabled;
         }
 
 

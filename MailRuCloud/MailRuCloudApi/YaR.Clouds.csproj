@@ -10,7 +10,7 @@
     <AssemblyVersion>1.13.6.0</AssemblyVersion>
     <FileVersion>1.13.6.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Condition="'$(TargetFramework)' == 'NET48'" Include="IndexRange" Version="1.0.2" />
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Memory" Version="4.5.5" />

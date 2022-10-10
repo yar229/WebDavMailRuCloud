@@ -26,6 +26,11 @@ namespace YaR.Clouds.Base
             _hash = hash;
         }
 
+        public File(string fullPath, long size, params PublicLinkInfo[] links) 
+            : this(fullPath, size)
+        {
+            PublicLinks.AddRange(links);
+        }
 
         private IFileHash _hash;
 

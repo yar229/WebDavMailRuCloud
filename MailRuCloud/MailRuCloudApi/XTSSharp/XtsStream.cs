@@ -33,23 +33,13 @@ namespace YaR.Clouds.XTSSharp
 	/// </summary>
 	public class XtsStream : RandomAccessSectorStream
 	{
-		/// <summary>
-		/// Creates a new stream
-		/// </summary>
-		/// <param name="baseStream">The base stream</param>
-		/// <param name="xts">Xts implementation to use</param>
-		public XtsStream(Stream baseStream, Xts xts)
-			: this(baseStream, xts, XtsSectorStream.DefaultSectorSize)
-		{
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Creates a new stream
 		/// </summary>
 		/// <param name="baseStream">The base stream</param>
 		/// <param name="xts">Xts implementation to use</param>
 		/// <param name="sectorSize">Sector size</param>
-		public XtsStream(Stream baseStream, Xts xts, int sectorSize)
+		public XtsStream(Stream baseStream, Xts xts, int sectorSize = XtsSectorStream.DefaultSectorSize)
 			: base(new XtsSectorStream(baseStream, xts, sectorSize), true)
 		{
 		}

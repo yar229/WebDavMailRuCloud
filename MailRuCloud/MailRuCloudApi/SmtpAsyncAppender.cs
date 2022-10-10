@@ -4,6 +4,7 @@ using log4net.Appender;
 
 namespace YaR.Clouds
 {
+    // ReSharper disable once UnusedType.Global
     public class SmtpAsyncAppender : SmtpAppender
     {
         protected override void SendEmail(string messageBody)

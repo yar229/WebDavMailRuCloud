@@ -453,12 +453,12 @@ namespace YaR.Clouds.Links
                 DateTime.Now);
 
             if (!res) 
-                return res;
+                return false;
 
             if (doSave) Save();
             _itemCache.Invalidate(destinationPath);
 
-            return res;
+            return true;
         }
 
 
