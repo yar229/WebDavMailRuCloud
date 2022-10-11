@@ -1,5 +1,5 @@
-﻿using System;
-using System.Text;
+﻿using System.Net.Http;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Requests;
 
@@ -12,18 +12,23 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         public OAuthRequest(HttpCommonSettings settings, IBasicCredentials creds) : base(settings, null)
         {
-            _login = Uri.EscapeDataString(creds.Login);
-            _password = Uri.EscapeDataString(creds.Password);
+            _login = creds.Login;
+            _password = creds.Password;
         }
 
         protected override string RelationalUri => "https://o2.mail.ru/token";
 
         protected override byte[] CreateHttpContent()
         {
-            var data = $"password={_password}&client_id={Settings.ClientId}&username={_login}&grant_type=password";
-            return Encoding.UTF8.GetBytes(data);
+            var keyValues = new List<KeyValuePair<string, string>>
+            {
+                new("username", _login),
+                new("password", _password),
+                new("client_id", Settings.ClientId),
+                new("grant_type", "password")
+            };
+            return new FormUrlEncodedContent(keyValues).ReadAsByteArrayAsync().Result;
         }
-
 
         public class Result
         {

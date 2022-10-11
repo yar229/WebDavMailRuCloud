@@ -29,25 +29,26 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
     {
         private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(WebBinRequestRepo));
 
+        private readonly CloudSettings _settings;
         private readonly AuthCodeRequiredDelegate _onAuthCodeRequired;
 
         protected ShardManager ShardManager => _shardManager ??= new ShardManager(this);
         private ShardManager _shardManager;
 
-        protected IRequestRepo AnonymousRepo => _anonymousRepo ??= new AnonymousRepo(HttpSettings.Proxy, Credentials,
+        protected IRequestRepo AnonymousRepo => _anonymousRepo ??= new AnonymousRepo(_settings, Credentials,
             _onAuthCodeRequired);
         private IRequestRepo _anonymousRepo;
 
 
         public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
-            ClientId = "cloud-win",
-            UserAgent = "CloudDiskOWindows 17.12.0009 beta WzBbt1Ygbm"
+            ClientId = "cloud-android"
         };
 
-        public WebBinRequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+        public WebBinRequestRepo(CloudSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
             :base(creds)
         {
+            _settings = settings;
             _onAuthCodeRequired = onAuthCodeRequired;
 
 			ServicePointManager.DefaultConnectionLimit = int.MaxValue;
@@ -55,7 +56,8 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
             // required for Windows 7 breaking connection
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;
 
-            HttpSettings.Proxy = proxy;
+            HttpSettings.Proxy = settings.Proxy;
+            HttpSettings.UserAgent = settings.UserAgent;
             Authent = new OAuth(HttpSettings, creds, onAuthCodeRequired);
         }
 

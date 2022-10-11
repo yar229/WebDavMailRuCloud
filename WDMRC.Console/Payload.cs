@@ -42,7 +42,7 @@ namespace YaR.Clouds.Console
             {
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandler),
                 Protocol = options.Protocol,
-                UserAgent = options.UserAgent,
+                UserAgent = ConstructUserAgent(options.UserAgent, Config.DefaultUserAgent),
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
@@ -86,6 +86,19 @@ namespace YaR.Clouds.Console
                 httpListener.Stop();
             }
         }
+
+        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
+        private static string ConstructUserAgent(string fromOptions, string fromConfig)
+        {
+            if (!string.IsNullOrWhiteSpace(fromOptions))
+                return fromOptions;
+            if (!string.IsNullOrWhiteSpace(fromConfig))
+                return fromConfig;
+
+            Logger.Warn($"Configuration for User-Agent not found, using '{DefaultUserAgent}'");
+            return DefaultUserAgent;
+        }
+
 
         private static ITwoFaHandler LoadHandler(TwoFactorAuthHandlerInfo handlerInfo)
         {

@@ -45,6 +45,23 @@ namespace YaR.Clouds.Console
             }
         }
 
+        public static string DefaultUserAgent
+        {
+            get
+            {
+                try
+                {
+                    var res = Document.SelectSingleNode("/config/DefaultUserAgent")?.InnerText;
+                    return res;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+
+            }
+        }
+
         public static TwoFactorAuthHandlerInfo TwoFactorAuthHandler
         {
             get

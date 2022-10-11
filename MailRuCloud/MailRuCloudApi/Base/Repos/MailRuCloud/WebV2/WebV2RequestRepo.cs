@@ -18,14 +18,14 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2
 
         public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
-            ClientId = string.Empty,
-            UserAgent = "Mozilla / 5.0(Windows; U; Windows NT 5.1; en - US; rv: 1.9.0.1) Gecko / 2008070208 Firefox / 3.0.1"
+            ClientId = string.Empty
         };
 
-        public WebV2RequestRepo(IWebProxy proxy, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
+        public WebV2RequestRepo(CloudSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
             :base(creds)
         {
-            HttpSettings.Proxy = proxy;
+            HttpSettings.Proxy = settings.Proxy;
+            HttpSettings.UserAgent = settings.UserAgent;
 
             Authent = new WebAuth(HttpSettings, creds, onAuthCodeRequired);
 

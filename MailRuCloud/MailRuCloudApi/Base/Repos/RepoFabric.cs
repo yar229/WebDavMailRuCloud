@@ -31,8 +31,8 @@ namespace YaR.Clouds.Base.Repos
             IRequestRepo repo = _settings.Protocol switch
             {
                 Protocol.YadWeb => new YadWebRequestRepo(_settings.Proxy, _credentials),
-                Protocol.WebM1Bin => new WebBinRequestRepo(_settings.Proxy, _credentials, TwoFaHandler),
-                Protocol.WebV2 => new WebV2RequestRepo(_settings.Proxy, _credentials, TwoFaHandler),
+                Protocol.WebM1Bin => new WebBinRequestRepo(_settings, _credentials, TwoFaHandler),
+                Protocol.WebV2 => new WebV2RequestRepo(_settings, _credentials, TwoFaHandler),
                 _ => throw new Exception("Unknown protocol")
             };
 
