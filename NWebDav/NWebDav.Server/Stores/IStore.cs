@@ -9,7 +9,7 @@ using NWebDav.Server.Props;
 
 namespace NWebDav.Server.Stores
 {
-    public struct StoreItemResult
+    public readonly struct StoreItemResult
     {
         public DavStatusCode Result { get; }
         public IStoreItem Item { get; }
@@ -40,7 +40,7 @@ namespace NWebDav.Server.Stores
         public override int GetHashCode() => Result.GetHashCode() ^ (Item?.GetHashCode() ?? 0);
     }
 
-    public struct StoreCollectionResult
+    public readonly struct StoreCollectionResult
     {
         public DavStatusCode Result { get; }
         public IStoreCollection Collection { get; }

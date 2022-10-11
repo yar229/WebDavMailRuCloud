@@ -22,6 +22,6 @@ namespace YaR.Clouds.Console
         }
         
         public List<string> Prefixes { get; } = new();
-        public AuthenticationSchemes AuthenticationScheme { get; } = AuthenticationSchemes.Basic;
+        public AuthenticationSchemes AuthenticationScheme => AuthenticationSchemes.Basic;
     }
 }

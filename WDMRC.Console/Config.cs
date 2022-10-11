@@ -15,7 +15,9 @@ namespace YaR.Clouds.Console
         static Config()
         {
             Document = new XmlDocument();
-            var configpath = Path.Combine(Path.GetDirectoryName(typeof(Config).Assembly.Location), "wdmrc.config");
+            string location = Path.GetDirectoryName(typeof(Config).Assembly.Location) 
+                ?? throw new DirectoryNotFoundException("Cannot locate assembly directory");
+            var configpath = Path.Combine(location, "wdmrc.config");
             Document.Load(File.OpenRead(configpath));
         }
 
@@ -28,16 +30,35 @@ namespace YaR.Clouds.Console
             {
                 var e = (XmlElement) Document.SelectSingleNode("/config/log4net");
                 var nz = e?.SelectNodes("appender/file");
-                if (nz != null)
-                    foreach (XmlNode eChildNode in nz)
-                    {
-                        var attr = eChildNode.Attributes?["value"];
-                        if (attr != null)
-                            attr.Value = attr.Value
-                                .Replace('/', Path.DirectorySeparatorChar)
-                                .Replace('\\', Path.DirectorySeparatorChar);
-                    }
+                if (nz == null) 
+                    return e;
+
+                foreach (XmlNode eChildNode in nz)
+                {
+                    var attr = eChildNode.Attributes?["value"];
+                    if (attr != null)
+                        attr.Value = attr.Value
+                            .Replace('/', Path.DirectorySeparatorChar)
+                            .Replace('\\', Path.DirectorySeparatorChar);
+                }
                 return e;
+            }
+        }
+
+        public static string DefaultUserAgent
+        {
+            get
+            {
+                try
+                {
+                    var res = Document.SelectSingleNode("/config/DefaultUserAgent")?.InnerText;
+                    return res;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+
             }
         }
 
@@ -105,24 +126,24 @@ namespace YaR.Clouds.Console
         {
             get
             {
-                if (null == _webDAVProps)
-                {
-                    try
-                    {
-                        _webDAVProps = new Dictionary<string, bool>();
+                if (null != _webDAVProps) 
+                    return _webDAVProps;
 
-                        var node = Document.SelectSingleNode("/config/WebDAVProps");
-                        foreach (XmlNode childNode in node.ChildNodes)
-                        {
-                            string pname = childNode.Attributes["name"].InnerText;
-                            bool enabled = bool.Parse(childNode.Attributes["enabled"].InnerText);
-                            _webDAVProps[pname] = enabled;
-                        }
-                    }
-                    catch (Exception)
+                try
+                {
+                    _webDAVProps = new Dictionary<string, bool>();
+
+                    var node = Document.SelectSingleNode("/config/WebDAVProps");
+                    foreach (XmlNode childNode in node.ChildNodes)
                     {
-                        // ignored
+                        string pname = childNode.Attributes["name"].InnerText;
+                        bool enabled = bool.Parse(childNode.Attributes["enabled"].InnerText);
+                        _webDAVProps[pname] = enabled;
                     }
+                }
+                catch (Exception)
+                {
+                    // ignored
                 }
 
                 return _webDAVProps;
@@ -134,44 +155,44 @@ namespace YaR.Clouds.Console
         {
             get
             {
-                if (null == _deduplicateRulesBag)
+                if (null != _deduplicateRulesBag) 
+                    return _deduplicateRulesBag;
+
+                try
                 {
-                    try
+                    _deduplicateRulesBag = new DeduplicateRulesBag
                     {
-                        _deduplicateRulesBag = new DeduplicateRulesBag
+                        Rules = new List<DeduplicateRule>(),
+                        DiskPath = Document
+                            .SelectSingleNode("/config/Deduplicate/Disk")
+                            .Attributes["Path"]
+                            .InnerText
+                    };
+
+                    if (!Directory.Exists(_deduplicateRulesBag.DiskPath))
+                        Directory.CreateDirectory(_deduplicateRulesBag.DiskPath);
+
+                    var nodes = Document.SelectNodes("/config/Deduplicate/Rules/Rule");
+                    foreach (XmlNode node in nodes)
+                    {
+                        var rule = new DeduplicateRule
                         {
-                            Rules = new List<DeduplicateRule>(),
-                            DiskPath = Document
-                                .SelectSingleNode("/config/Deduplicate/Disk")
-                                .Attributes["Path"]
-                                .InnerText
+                            CacheType = (CacheType)Enum.Parse(typeof(CacheType), node.Attributes["Cache"].InnerText),
+                            Target = node.Attributes["Target"].InnerText,
+                            MinSize = ulong.Parse(node.Attributes["MinSize"].InnerText),
+                            MaxSize = ulong.Parse(node.Attributes["MaxSize"].InnerText)
                         };
+                        if (!string.IsNullOrEmpty(rule.Target) && !VerifyRegex(rule.Target))
+                            throw new Exception("Invalid regex expression in config/Deduplicate/Rule/Target");
+                        if (rule.MaxSize > 0 && rule.MaxSize < rule.MinSize)
+                            throw new Exception("Invalid MinSize/MaxSize config/Deduplicate/Rule/");
 
-                        if (!Directory.Exists(_deduplicateRulesBag.DiskPath))
-                            Directory.CreateDirectory(_deduplicateRulesBag.DiskPath);
-
-                        var nodes = Document.SelectNodes("/config/Deduplicate/Rules/Rule");
-                        foreach (XmlNode node in nodes)
-                        {
-                            var rule = new DeduplicateRule
-                            {
-                                CacheType = (CacheType)Enum.Parse(typeof(CacheType), node.Attributes["Cache"].InnerText),
-                                Target = node.Attributes["Target"].InnerText,
-                                MinSize = ulong.Parse(node.Attributes["MinSize"].InnerText),
-                                MaxSize = ulong.Parse(node.Attributes["MaxSize"].InnerText)
-                            };
-                            if (!string.IsNullOrEmpty(rule.Target) && !VerifyRegex(rule.Target))
-                                throw new Exception("Invalid regex expression in config/Deduplicate/Rule/Target");
-                            if (rule.MaxSize > 0 && rule.MaxSize < rule.MinSize)
-                                throw new Exception("Invalid MinSize/MaxSize config/Deduplicate/Rule/");
-
-                            _deduplicateRulesBag.Rules.Add(rule);
-                        }
+                        _deduplicateRulesBag.Rules.Add(rule);
                     }
-                    catch (Exception)
-                    {
-                        // ignored
-                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
                 }
 
                 return _deduplicateRulesBag;
@@ -182,10 +203,7 @@ namespace YaR.Clouds.Console
 
         public static bool IsEnabledWebDAVProperty(string propName)
         {
-            if (WebDAVProps.TryGetValue(propName, out bool enabled))
-                return enabled;
-
-            return true;
+            return !WebDAVProps.TryGetValue(propName, out bool enabled) || enabled;
         }
 
 

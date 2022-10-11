@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using YaR.Clouds.Base.Requests;
@@ -10,14 +8,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
 {
     class YadAuthAskV2Request : BaseRequestJson<YadAuthAskV2RequestResult>
     {
-        private readonly IAuth _auth;
         private readonly string _csrf;
         private readonly string _uid;
 
         public YadAuthAskV2Request(HttpCommonSettings settings, IAuth auth, string csrf, string uid)
             : base(settings, auth)
         {
-            _auth = auth;
             _csrf = csrf;
             _uid = uid;
         }
@@ -38,8 +34,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("csrf_token", _csrf),
-                new KeyValuePair<string, string>("uid", _uid),
+                new("csrf_token", _csrf),
+                new("uid", _uid)
             };
             FormUrlEncodedContent z = new FormUrlEncodedContent(keyValues);
             var d = z.ReadAsByteArrayAsync().Result;

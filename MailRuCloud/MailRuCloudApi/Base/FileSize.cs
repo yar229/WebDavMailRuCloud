@@ -11,19 +11,14 @@ namespace YaR.Clouds.Base
     {
         public FileSize(long defaultValue) : this()
         {
-            _defValue = defaultValue;
+            DefaultValue = defaultValue;
         }
-
-        /// <summary>
-        /// Private variable for default value.
-        /// </summary>
-        private readonly long _defValue;
 
         /// <summary>
         /// Gets default size in bytes.
         /// </summary>
         /// <value>File size.</value>
-        public long DefaultValue => _defValue; //TODO: make it ulong
+        public long DefaultValue { get; } //TODO: make it ulong
 
 
         #region == Equality ===================================================================================================================
@@ -54,21 +49,20 @@ namespace YaR.Clouds.Base
 
         public bool Equals(FileSize other)
         {
-            return _defValue == other._defValue;
+            return DefaultValue == other.DefaultValue;
         }
 
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) 
                 return false;
-            if (obj.GetType() != GetType()) 
-                return false;
-            return Equals((FileSize)obj);
+
+            return obj.GetType() == GetType() && Equals((FileSize)obj);
         }
 
         public override int GetHashCode()
         {
-            return _defValue.GetHashCode();
+            return DefaultValue.GetHashCode();
         }
         #endregion == Equality ===================================================================================================================
     }

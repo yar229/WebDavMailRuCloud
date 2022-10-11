@@ -219,7 +219,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private async Task<IEntry> MediaFolderInfo(string path)
         {
-            if (!(await MediaFolderRootInfo() is Folder root))
+            if (await MediaFolderRootInfo() is not Folder root)
                 return null;
             
             if (WebDavPath.PathEquals(path, YadMediaPath))
@@ -460,9 +460,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public IEnumerable<PublicLinkInfo> GetShareLinks(string path)
         {
-            if (CachedSharedList.Value.TryGetValue(path, out var links))
-                foreach (var link in links)
-                    yield return link;
+            if (!CachedSharedList.Value.TryGetValue(path, out var links)) 
+                yield break;
+
+            foreach (var link in links)
+                yield return link;
         }
 
         

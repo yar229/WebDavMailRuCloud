@@ -32,32 +32,31 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            using (var stream = new RequestBodyStream())
+            using var stream = new RequestBodyStream();
+
+            stream.WritePu16((byte)Operation.AddFile);
+            stream.WritePu16(Revision);
+            stream.WriteString(_fullPath);
+            stream.WritePu64(_size);
+
+            stream.WritePu64(_dateTime.ToUnix());
+            stream.WritePu32(00);
+
+            stream.Write(_hash);
+
+            long mask = ConflictResolver.Rename == _conflictResolver  // 1 = overwrite, 55 = don't add if not changed, add with rename if changed
+                ? 55
+                : 1;
+            stream.WritePu32(mask);
+
+            if ((mask & 32) != 0)
             {
-                stream.WritePu16((byte)Operation.AddFile);
-                stream.WritePu16(Revision);
-                stream.WriteString(_fullPath);
-                stream.WritePu64(_size);
-
-                stream.WritePu64(_dateTime.ToUnix());
-                stream.WritePu32(00);
-
                 stream.Write(_hash);
-
-                long mask = ConflictResolver.Rename == _conflictResolver  // 1 = overwrite, 55 = don't add if not changed, add with rename if changed
-                    ? 55
-                    : 1;
-                stream.WritePu32(mask);
-
-                if ((mask & 32) != 0)
-                {
-                    stream.Write(_hash);
-                    stream.WritePu64(_size);
-                }
-
-                var body = stream.GetBytes();
-                return body;
+                stream.WritePu64(_size);
             }
+
+            var body = stream.GetBytes();
+            return body;
         }
 
         private static readonly OpResult[] SuccessCodes = { OpResult.Ok, OpResult.NotModified, OpResult.Dunno04, OpResult.Dunno09};

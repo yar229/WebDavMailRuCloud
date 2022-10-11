@@ -48,16 +48,16 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         {
             get
             {
-                if (null == _hashSha256 || null == _hashMd5)
-                {
-                    AppendFinalBuffer();
+                if (null != _hashSha256 && null != _hashMd5) 
+                    return new FileHashYad(_hashSha256, _hashMd5);
 
-                    _sha256.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                    _md5.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                    _hashSha256 = _sha256.Hash;
-                    _hashMd5 = _md5.Hash;
-                    _isClosed = true;
-                }
+                AppendFinalBuffer();
+
+                _sha256.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                _md5.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                _hashSha256 = _sha256.Hash;
+                _hashMd5 = _md5.Hash;
+                _isClosed = true;
                 return new FileHashYad(_hashSha256, _hashMd5);
             }
         }

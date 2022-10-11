@@ -286,7 +286,7 @@ namespace NWebDav.Server.Handlers
             }
             else
             {
-                vals = new() {Dict = new Dictionary<object, XStreamingElement>() };
+                vals = new() { Dict = new Dictionary<object, XStreamingElement>() };
                 var xval = new XStreamingElement(name, value);
                 if (value == null)
                     vals.NullElement = xval;
@@ -321,7 +321,7 @@ namespace NWebDav.Server.Handlers
         {
             // Create an XML document from the stream
             var xDocument = await request.LoadXmlDocumentAsync().ConfigureAwait(false);
-            if (xDocument == null || xDocument?.Root == null || xDocument.Root.Name != WebDavNamespaces.DavNsPropFind)
+            if (xDocument?.Root == null || xDocument.Root.Name != WebDavNamespaces.DavNsPropFind)
                 return PropertyMode.AllProperties;
 
             // Obtain the propfind node

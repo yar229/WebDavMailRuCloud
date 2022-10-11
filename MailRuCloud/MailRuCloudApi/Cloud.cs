@@ -164,17 +164,13 @@ namespace YaR.Clouds
                         folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
                     else
                     {
-                        if (folder.Files.All(inf => inf.FullPath != linkpath))
-                        {
-                            var newfile = new File(linkpath, flink.Size);
-                            {
-                                newfile.PublicLinks.Add(new PublicLinkInfo(flink.Href)); 
-                            }
-                            
-                            if (flink.CreationDate != null)
-                                newfile.LastWriteTimeUtc = flink.CreationDate.Value;
-                            folder.Files.Add(newfile);
-                        }
+                        if (folder.Files.Any(inf => inf.FullPath == linkpath)) 
+                            continue;
+
+                        var newfile = new File(linkpath, flink.Size, new PublicLinkInfo(flink.Href));
+                        if (flink.CreationDate != null)
+                            newfile.LastWriteTimeUtc = flink.CreationDate.Value;
+                        folder.Files.Add(newfile);
                     }
                 }
             }
@@ -307,12 +303,12 @@ namespace YaR.Clouds
             folder.PublicLinks.Add(new PublicLinkInfo(url));
             var info = folder.ToPublishInfo();
 
-            if (makeShareFile)
-            {
-                string path = WebDavPath.Combine(folder.FullPath, PublishInfo.SharedFilePostfix);
-                UploadFileJson(path, info)
-                    .ThrowIf(r => !r, _ => new Exception($"Cannot upload JSON file, path = {path}"));
-            }
+            if (!makeShareFile) 
+                return info;
+
+            string path = WebDavPath.Combine(folder.FullPath, PublishInfo.SharedFilePostfix);
+            UploadFileJson(path, info)
+                .ThrowIf(r => !r, _ => new Exception($"Cannot upload JSON file, path = {path}"));
 
             return info;
         }
@@ -347,12 +343,10 @@ namespace YaR.Clouds
             if (link != null)
             {
                 var cloneres = await CloneItem(destinationPath, link.Href.OriginalString);
-                if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != link.Name)
-                {
-                    var renRes = await Rename(cloneres.Path, link.Name);
-                    return renRes;
-                }
-                return cloneres.IsSuccess;
+                if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == link.Name) 
+                    return cloneres.IsSuccess;
+                var renRes = await Rename(cloneres.Path, link.Name);
+                return renRes;
             }
 
             //var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath).MakeRequestAsync();
@@ -365,15 +359,14 @@ namespace YaR.Clouds
             {
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
                 var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
-                if (cloneres.IsSuccess && WebDavPath.Name(cloneres.Path) != linka.Name)
-                {
-                    var renRes = await Rename(cloneres.Path, linka.Name);
-                    if (!renRes)
-                    {
-                        _itemCache.Invalidate(destinationPath);
-                        return false;
-                    }
-                }
+                if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == linka.Name) 
+                    continue;
+
+                if (await Rename(cloneres.Path, linka.Name)) 
+                    continue;
+
+                _itemCache.Invalidate(destinationPath);
+                return false;
             }
 
             _itemCache.Invalidate(destinationPath);
@@ -451,13 +444,11 @@ namespace YaR.Clouds
                         var copyRes = await Account.RequestRepo.Copy(pfile.FullPath, destPath, ConflictResolver.Rewrite);
                         if (!copyRes.IsSuccess) return false;
 
-                        if (doRename || WebDavPath.Name(copyRes.NewName) != newname)
-                        {
-                            string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.NewName));
-                            var renameRes = await Rename(newFullPath, pfile.Name.Replace(file.Name, newname));
-                            if (!renameRes) return false;
-                        }
-                        return true;
+                        if (!doRename && WebDavPath.Name(copyRes.NewName) == newname) 
+                            return true;
+
+                        string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(copyRes.NewName));
+                        return await Rename(newFullPath, pfile.Name.Replace(file.Name, newname));
                     });
 
             _itemCache.Invalidate(destinationPath);
@@ -509,13 +500,13 @@ namespace YaR.Clouds
         {
             var result = await Rename(file.FullPath, newFileName).ConfigureAwait(false);
 
-            if (file.Files.Count > 1)
+            if (file.Files.Count <= 1) 
+                return result;
+
+            foreach (var splitFile in file.Parts)
             {
-                foreach (var splitFile in file.Parts)
-                {
-                    string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false);
-                    await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
-                }
+                string newSplitName = newFileName + splitFile.ServiceInfo.ToString(false);
+                await Rename(splitFile.FullPath, newSplitName).ConfigureAwait(false);
             }
 
             return result;
@@ -536,11 +527,11 @@ namespace YaR.Clouds
             {
                 var data = await Account.RequestRepo.Rename(fullPath, newName);
 
-                if (data.IsSuccess)
-                {
-                    LinkManager.ProcessRename(fullPath, newName);
-                    _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
-                }
+                if (!data.IsSuccess) 
+                    return data.IsSuccess;
+
+                LinkManager.ProcessRename(fullPath, newName);
+                _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
 
                 return data.IsSuccess;
             }
@@ -621,14 +612,14 @@ namespace YaR.Clouds
 
                 var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
                 var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
-                if (cloneres.IsSuccess )
+                if (!cloneres.IsSuccess) 
+                    continue;
+
+                _itemCache.Invalidate(destinationPath);
+                if (WebDavPath.Name(cloneres.Path) != linka.Name)
                 {
-                    _itemCache.Invalidate(destinationPath);
-                    if (WebDavPath.Name(cloneres.Path) != linka.Name)
-                    {
-                        var renRes = await Rename(cloneres.Path, linka.Name);
-                        if (!renRes) return false;
-                    }
+                    var renRes = await Rename(cloneres.Path, linka.Name);
+                    if (!renRes) return false;
                 }
             }
             if (links.Any()) LinkManager.Save();
@@ -749,9 +740,6 @@ namespace YaR.Clouds
 
             }
 
-            //if (doInvalidateCache)
-            //    _itemCache.Invalidate(file.Path, file.FullPath);
-
             return res;
         }
 
@@ -776,14 +764,14 @@ namespace YaR.Clouds
             }
 
             var res = await Account.RequestRepo.Remove(fullPath);
-            if (res.IsSuccess)
-            {
-                //remove inner links
-                var innerLinks = LinkManager.GetChilds(fullPath);
-                LinkManager.RemoveLinks(innerLinks);
+            if (!res.IsSuccess) 
+                return res.IsSuccess;
+            
+            //remove inner links
+            var innerLinks = LinkManager.GetChilds(fullPath);
+            LinkManager.RemoveLinks(innerLinks);
 
-                _itemCache.Forget(WebDavPath.Parent(fullPath), fullPath); //_itemCache.Invalidate(WebDavPath.Parent(fullPath));
-            }
+            _itemCache.Forget(WebDavPath.Parent(fullPath), fullPath); //_itemCache.Invalidate(WebDavPath.Parent(fullPath));
             return res.IsSuccess;
         }
 
@@ -904,23 +892,21 @@ namespace YaR.Clouds
 
         public T DownloadFileAsJson<T>(File file)
         {
-            using (var stream = Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
-            using (var reader = new StreamReader(stream))
-            using (var jsonReader = new JsonTextReader(reader))
-            {
-                var ser = new JsonSerializer();
-                return ser.Deserialize<T>(jsonReader);
-            }
+            using var stream = Account.RequestRepo.GetDownloadStream(file);
+            using var reader = new StreamReader(stream);
+            using var jsonReader = new JsonTextReader(reader);
+
+            var ser = new JsonSerializer();
+            return ser.Deserialize<T>(jsonReader);
         }
 
         public string DownloadFileAsString(File file)
         {
-            using (var stream = Account.RequestRepo.GetDownloadStream(file))  //new DownloadStream(file, CloudApi))
-            using (var reader = new StreamReader(stream))
-            {
-                string res = reader.ReadToEnd();
-                return res;
-            }
+            using var stream = Account.RequestRepo.GetDownloadStream(file);
+            using var reader = new StreamReader(stream);
+
+            string res = reader.ReadToEnd();
+            return res;
         }
 
         /// <summary>
@@ -978,14 +964,12 @@ namespace YaR.Clouds
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!_disposedValue)
+            if (_disposedValue) return;
+            if (disposing)
             {
-                if (disposing)
-                {
-                    CancelToken.Dispose();
-                }
-                _disposedValue = true;
+                CancelToken.Dispose();
             }
+            _disposedValue = true;
         }
 
         public void Dispose()

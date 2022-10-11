@@ -88,22 +88,22 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         {
             var res = new UploadFileResult { HttpStatusCode = response.StatusCode, HasReturnedData = false };
 
-            if (response.IsSuccessStatusCode)
-            {
-                var strres = response.Content.ReadAsStringAsync().Result;
+            if (!response.IsSuccessStatusCode) 
+                return res;
 
-                if (string.IsNullOrEmpty(strres))
-                    return res;
+            var strres = response.Content.ReadAsStringAsync().Result;
+
+            if (string.IsNullOrEmpty(strres))
+                return res;
                 
-                res.HasReturnedData = true;
+            res.HasReturnedData = true;
 
-                var resp = strres.Split(';');
+            var resp = strres.Split(';');
 
-                res.Hash = new FileHashMrc(resp[0]);
-                res.Size = resp.Length > 1
-                    ? long.Parse(resp[1].Trim('\r', '\n', ' '))
-                    : 0;
-            }
+            res.Hash = new FileHashMrc(resp[0]);
+            res.Size = resp.Length > 1
+                ? long.Parse(resp[1].Trim('\r', '\n', ' '))
+                : 0;
 
             return res;
         }
@@ -289,11 +289,9 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
                 cmpname = WebDavPath.Name(ulink.PublicLinks.First().Uri.OriginalString);
             }
 
-            var groupedFile = z?
-                .ToGroupedFiles();
+            var groupedFile = z?.ToGroupedFiles();
 
-
-            var res = groupedFile.First(it => string.IsNullOrEmpty(cmpname) || it.Name == cmpname);
+            var res = groupedFile?.First(it => string.IsNullOrEmpty(cmpname) || it.Name == cmpname);
 
             return res;
         }

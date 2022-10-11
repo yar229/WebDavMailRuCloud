@@ -56,7 +56,7 @@ namespace NWebDav.Server.Helpers
 #if DEBUG
         private static readonly NWebDav.Server.Logging.ILogger s_log = NWebDav.Server.Logging.LoggerFactory.CreateLogger(typeof(ResponseHelper));
 #endif
-        private static readonly Regex s_rangeRegex = new Regex("bytes\\=(?<start>[0-9]*)-(?<end>[0-9]*)");
+        private static readonly Regex s_rangeRegex = new("bytes\\=(?<start>[0-9]*)-(?<end>[0-9]*)");
 
         /// <summary>
         /// Split an URI into a collection and name part.
@@ -320,7 +320,7 @@ namespace NWebDav.Server.Helpers
 #if USE_XML_ASYNC_READWRITE
             var xDocument = await XDocument.LoadAsync(request.Stream, LoadOptions.None, cancellationToken: default);
 #else
-            var xDocument = XDocument.Load(request.Stream);
+            var xDocument = await Task.Run(() => XDocument.Load(request.Stream));
 #endif
 #if DEBUG
             // Dump the XML document to the logging
@@ -333,7 +333,7 @@ namespace NWebDav.Server.Helpers
                     {
                         OmitXmlDeclaration = false,
                         Indent = true,
-                        Encoding = System.Text.Encoding.UTF8,
+                        Encoding = System.Text.Encoding.UTF8
                     }))
                     {
                         // Write the XML document to the stream

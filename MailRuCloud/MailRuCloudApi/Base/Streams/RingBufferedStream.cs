@@ -72,11 +72,11 @@ namespace YaR.Clouds.Base.Streams
         /// <inheritdoc/>
         public override void Flush()
         {
-            if (!_disposed)
-            {
-                _flushed.Set();
-                _cancellationTokenSource?.Cancel();
-            }
+            if (_disposed) 
+                return;
+
+            _flushed.Set();
+            _cancellationTokenSource?.Cancel();
         }
 
         /// <summary>

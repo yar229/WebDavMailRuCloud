@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
@@ -38,12 +36,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("csrf_token", _csrf),
-                new KeyValuePair<string, string>("login", _auth.Login),
-                new KeyValuePair<string, string>("process_uuid", _uuid),
-                new KeyValuePair<string, string>("retpath", "https://disk.yandex.ru/client/disk"),
-                new KeyValuePair<string, string>("origin", "disk_landing2_web_signin_ru"),
-                new KeyValuePair<string, string>("service", "cloud")
+                new("csrf_token", _csrf),
+                new("login", _auth.Login),
+                new("process_uuid", _uuid),
+                new("retpath", "https://disk.yandex.ru/client/disk"),
+                new("origin", "disk_landing2_web_signin_ru"),
+                new("service", "cloud")
             };
             FormUrlEncodedContent z = new FormUrlEncodedContent(keyValues);
             var d = z.ReadAsByteArrayAsync().Result;

@@ -16,14 +16,14 @@ namespace YaR.Clouds.XTSSharp
             _currentSector = startSector;
             Length = baseStream.Length - trimStart - trimEnd;
 
-            if (trimStart > 0)
-            {
-                int read = ReadExactly(_baseStream, _tempBuffer, sectorSize);
-                _decryptor.TransformBlock(_tempBuffer, 0, SectorSize, _tempBuffer, 0, _currentSector);
-                _tempBufferCount = read;
-                _tempBufferPos = trimStart;
-                _currentSector++;
-            }
+            if (trimStart <= 0) 
+                return;
+
+            int read = ReadExactly(_baseStream, _tempBuffer, sectorSize);
+            _decryptor.TransformBlock(_tempBuffer, 0, SectorSize, _tempBuffer, 0, _currentSector);
+            _tempBufferCount = read;
+            _tempBufferPos = trimStart;
+            _currentSector++;
         }
 
         private long _position;
@@ -75,11 +75,11 @@ namespace YaR.Clouds.XTSSharp
                 totalread += tocopy;
                 _position += tocopy;
 
-                if (_tempBufferPos == _tempBufferCount)
-                {
-                    _tempBufferPos = 0;
-                    _tempBufferCount = 0;
-                }
+                if (_tempBufferPos != _tempBufferCount) 
+                    continue;
+
+                _tempBufferPos = 0;
+                _tempBufferCount = 0;
             }
 
             return totalread;

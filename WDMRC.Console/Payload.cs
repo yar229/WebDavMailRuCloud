@@ -42,7 +42,7 @@ namespace YaR.Clouds.Console
             {
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandler),
                 Protocol = options.Protocol,
-                UserAgent = options.UserAgent,
+                UserAgent = ConstructUserAgent(options.UserAgent, Config.DefaultUserAgent),
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
@@ -87,15 +87,27 @@ namespace YaR.Clouds.Console
             }
         }
 
+        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
+        private static string ConstructUserAgent(string fromOptions, string fromConfig)
+        {
+            if (!string.IsNullOrWhiteSpace(fromOptions))
+                return fromOptions;
+            if (!string.IsNullOrWhiteSpace(fromConfig))
+                return fromConfig;
+
+            Logger.Warn($"Configuration for User-Agent not found, using '{DefaultUserAgent}'");
+            return DefaultUserAgent;
+        }
+
+
         private static ITwoFaHandler LoadHandler(TwoFactorAuthHandlerInfo handlerInfo)
         {
-            ITwoFaHandler twoFaHandler = null;
-            if (!string.IsNullOrEmpty(handlerInfo.Name))
-            {
-                twoFaHandler = TwoFaHandlers.Get(handlerInfo);
-                if (null == twoFaHandler)
-                    Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
-            }
+            if (string.IsNullOrEmpty(handlerInfo.Name)) 
+                return null;
+
+            var twoFaHandler = TwoFaHandlers.Get(handlerInfo);
+            if (null == twoFaHandler)
+                Logger.Error($"Cannot load two-factor auth handler {handlerInfo.Name}");
 
             return twoFaHandler;
         }
@@ -113,34 +125,33 @@ namespace YaR.Clouds.Console
 
             try
             {
-                using (var sem = new SemaphoreSlim(maxThreadCount))
+                using var sem = new SemaphoreSlim(maxThreadCount);
+
+                var semclo = sem;
+                while (!CancelToken.IsCancellationRequested)
                 {
-                    var semclo = sem;
-                    while (!CancelToken.IsCancellationRequested)
+                    var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
+                    if (httpListenerContext == null)
+                        break;
+
+                    HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity) httpListenerContext.User.Identity;
+                    IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
+
+                    await semclo.WaitAsync(CancelToken.Token);
+
+                    var _ = Task.Run(async () =>
                     {
-                        var httpListenerContext = await httpListener.GetContextAsync().ConfigureAwait(false);
-                        if (httpListenerContext == null)
-                            break;
-
-                        HttpListenerBasicIdentity identity = (HttpListenerBasicIdentity) httpListenerContext.User.Identity;
-                        IHttpContext httpContext = new HttpBasicContext(httpListenerContext, i => i.Name == identity.Name && i.Password == identity.Password);
-
-                        await semclo.WaitAsync(CancelToken.Token);
-
-                        var _ = Task.Run(async () =>
+                        try
                         {
-                            try
-                            {
-                                await webDavDispatcher.DispatchRequestAsync(httpContext)
-                                    .ConfigureAwait(false);
-                            }
-                            finally
-                            {
-                                semclo.Release();
-                            }
+                            await webDavDispatcher.DispatchRequestAsync(httpContext)
+                                .ConfigureAwait(false);
+                        }
+                        finally
+                        {
+                            semclo.Release();
+                        }
 
-                        }, CancelToken.Token);
-                    }
+                    }, CancelToken.Token);
                 }
             }
             catch (HttpListenerException) when (CancelToken.IsCancellationRequested)
@@ -207,16 +218,15 @@ namespace YaR.Clouds.Console
 
             // detect .NET Mono
             Type type = Type.GetType("Mono.Runtime");
-            if (type != null)
-            {
-                MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
-                return displayName != null
-                    ? "Mono " + displayName.Invoke(null, null)
-                    : "unknown";
-            }
+            if (type == null) 
+                return ".NET Framework " + Environment.Version;
+
+            MethodInfo displayName = type.GetMethod("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+            return displayName != null
+                ? "Mono " + displayName.Invoke(null, null)
+                : "unknown";
 
             // .NET Framework, yep?
-            return ".NET Framework " + Environment.Version;
         }
     }
 }

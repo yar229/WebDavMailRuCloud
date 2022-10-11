@@ -269,8 +269,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
         public async Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue)
         {
             var req = await new ItemInfoRequest(HttpSettings, Authent, path, offset, limit).MakeRequestAsync();
-            var res = req;
-            return res;
+            return req;
         }
 
         public async Task<AccountInfoResult> AccountInfo()
@@ -347,9 +346,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
 
         public IEnumerable<PublicLinkInfo> GetShareLinks(string path)
         {
-            if (CachedSharedList.Value.TryGetValue(path, out var links))
-                foreach (var link in links)
-                    yield return link;
+            if (!CachedSharedList.Value.TryGetValue(path, out var links)) 
+                yield break;
+
+            foreach (var link in links)
+                yield return link;
         }
 
         public void CleanTrash()
@@ -366,7 +367,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebM1
                 .ToCreateFolderResult();
         }
 
-        public async Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
+        public Task<AddFileResult> AddFile(string fileFullPath, IFileHash fileHash, FileSize fileSize, DateTime dateTime, ConflictResolver? conflictResolver)
         {
             throw new NotImplementedException();
         }

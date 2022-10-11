@@ -4,7 +4,7 @@ using NWebDav.Server.Helpers;
 
 namespace NWebDav.Server.Locking
 {
-    public struct LockEntry
+    public readonly struct LockEntry
     {
         public LockScope Scope { get; }
         public LockType Type { get; }

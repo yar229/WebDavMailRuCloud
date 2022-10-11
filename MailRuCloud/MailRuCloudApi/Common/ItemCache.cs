@@ -43,13 +43,10 @@ namespace YaR.Clouds.Common
 
             int removedCount = 0;
             foreach (var item in _items)
-            {
                 if (DateTime.Now - item.Value.Created > TimeSpan.FromMinutes(5))
-                {
-                    bool removed = _items.TryRemove(item.Key, out _);
-                    if (removed) removedCount++;
-                }
-            }
+                    if (_items.TryRemove(item.Key, out _)) 
+                        removedCount++;
+
             if (removedCount > 0)
                 Logger.Debug($"Items cache clean: removed {removedCount} expired items");
 
@@ -61,15 +58,15 @@ namespace YaR.Clouds.Common
             if (_noCache)
                 return default;
 
-            if (_items.TryGetValue(key, out var item))
+            if (!_items.TryGetValue(key, out var item)) 
+                return default;
+
+            if (IsExpired(item))
+                _items.TryRemove(key, out item);
+            else
             {
-                if (IsExpired(item))
-                    _items.TryRemove(key, out item);
-                else
-                {
-                    Logger.Debug($"Cache hit: {key}");
-                    return item.Item;
-                }
+                Logger.Debug($"Cache hit: {key}");
+                return item.Item;
             }
             return default;
         }

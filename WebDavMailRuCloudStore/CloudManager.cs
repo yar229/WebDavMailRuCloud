@@ -23,13 +23,13 @@ namespace YaR.Clouds.WebDavStore
 
             lock (Locker)
             {
-                if (!CloudCache.TryGetValue(key, out cloud))
-                {
-                    cloud = CreateCloud(identity);
+                if (CloudCache.TryGetValue(key, out cloud)) 
+                    return cloud;
 
-                    if (!CloudCache.TryAdd(key, cloud))
-                        CloudCache.TryGetValue(key, out cloud);
-                }
+                cloud = CreateCloud(identity);
+
+                if (!CloudCache.TryAdd(key, cloud))
+                    CloudCache.TryGetValue(key, out cloud);
             }
 
             return cloud;

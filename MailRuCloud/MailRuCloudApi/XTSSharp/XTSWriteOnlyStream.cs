@@ -55,15 +55,15 @@ namespace YaR.Clouds.XTSSharp
                 offset += bytesToCopy;
                 count -= bytesToCopy;
 
-                if (_sectorBufferCount == _sectorSize)
-                {
-                    //sector filled
-                    _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
-                    _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
+                if (_sectorBufferCount != _sectorSize) 
+                    continue;
 
-                    _currentSector++;
-                    _sectorBufferCount = 0;
-                }
+                //sector filled
+                _encryptor.TransformBlock(_sectorBuffer, 0, _sectorSize, _encriptedBuffer, 0, _currentSector);
+                _baseStream.Write(_encriptedBuffer, 0, _sectorSize);
+
+                _currentSector++;
+                _sectorBufferCount = 0;
             }
         }
 
@@ -112,8 +112,8 @@ namespace YaR.Clouds.XTSSharp
             throw new NotImplementedException();
         }
 
-        public override bool CanRead { get; }
-        public override bool CanSeek { get; }
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
         public override bool CanWrite => true;
         public override long Length { get; }
         public override long Position { get; set; }

@@ -42,21 +42,12 @@ namespace YaR.Clouds.XTSSharp
 		private bool _bufferLoaded;
 		private int _bufferPos;
 
-		/// <summary>
-		/// Creates a new stream
-		/// </summary>
-		/// <param name="s">Base stream</param>
-		public RandomAccessSectorStream(SectorStream s)
-			: this(s, false)
-		{
-		}
-
-		/// <summary>
+        /// <summary>
 		/// Creates a new stream
 		/// </summary>
 		/// <param name="s">Base stream</param>
 		/// <param name="isStreamOwned">Does this stream own the base stream? i.e. should it be automatically disposed?</param>
-		public RandomAccessSectorStream(SectorStream s, bool isStreamOwned)
+		public RandomAccessSectorStream(SectorStream s, bool isStreamOwned = false)
 		{
 			_s = s;
 			_isStreamOwned = isStreamOwned;

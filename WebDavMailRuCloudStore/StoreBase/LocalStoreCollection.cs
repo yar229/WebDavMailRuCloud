@@ -66,12 +66,12 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             get
             {
-                if (null == _items)
+                if (null != _items) 
+                    return _items;
+
+                lock (_itemsLocker)
                 {
-                    lock (_itemsLocker)
-                    {
-                        _items ??= GetItemsAsync(_context).Result;
-                    }
+                    _items ??= GetItemsAsync(_context).Result;
                 }
                 return _items;
             }
@@ -248,7 +248,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             {
                 // Attempt to copy the item to the destination collection
                 var result = await item.CopyAsync(destinationCollection, destinationName, overwrite, httpContext);
-                if (result.Result == DavStatusCode.Created || result.Result == DavStatusCode.NoContent)
+                if (result.Result is DavStatusCode.Created or DavStatusCode.NoContent)
                     await DeleteItemAsync(sourceName, httpContext);
 
                 return result;
@@ -285,7 +285,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             }
         }
 
-        public InfiniteDepthMode InfiniteDepthMode { get; } = InfiniteDepthMode.Allowed;
+        public InfiniteDepthMode InfiniteDepthMode => InfiniteDepthMode.Allowed;
         public bool IsValid => !string.IsNullOrEmpty(DirectoryInfo?.FullPath);
 
 
@@ -296,9 +296,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
 
         public override bool Equals(object obj)
         {
-            if (!(obj is LocalStoreCollection storeCollection))
-                return false;
-            return storeCollection.DirectoryInfo.FullPath.Equals(DirectoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
+            return obj is LocalStoreCollection storeCollection && 
+                   storeCollection.DirectoryInfo.FullPath.Equals(DirectoryInfo.FullPath, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

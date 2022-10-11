@@ -76,41 +76,40 @@ namespace YaR.Clouds.Base.Requests
             }
             try
             {
-                using (var response = (HttpWebResponse)await httprequest.GetResponseAsync())
-                {
-                    if ((int) response.StatusCode >= 500)
-                        throw new RequestException("Server fault")
-                        {
-                            StatusCode = response.StatusCode
-                        };
+                using var response = (HttpWebResponse)await httprequest.GetResponseAsync();
 
-                    RequestResponse<T> result;
+                if ((int) response.StatusCode >= 500)
+                    throw new RequestException("Server fault")
+                    {
+                        StatusCode = response.StatusCode
+                    };
+
+                RequestResponse<T> result;
 #if NET48
-                    using (var responseStream = response.GetResponseStream())
+                using (var responseStream = response.GetResponseStream())
 #else
-                    await using (var responseStream = response.GetResponseStream())
+                await using (var responseStream = response.GetResponseStream())
 #endif
 
-                    {
-                        result = DeserializeMessage(response.Headers, Transport(responseStream));
-                    }
-
-                    if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
-                    {
-                        var exceptionMessage =
-                            $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
-                        throw new RequestException(exceptionMessage)
-                        {
-                            StatusCode = response.StatusCode,
-                            ResponseBody = string.Empty,
-                            Description = result.Description,
-                            ErrorCode = result.ErrorCode
-                        };
-                    }
-                    var retVal = result.Result;
-
-                    return retVal;
+                {
+                    result = DeserializeMessage(response.Headers, Transport(responseStream));
                 }
+
+                if (!result.Ok || response.StatusCode != HttpStatusCode.OK)
+                {
+                    var exceptionMessage =
+                        $"Request failed (status code {(int) response.StatusCode}): {result.Description}";
+                    throw new RequestException(exceptionMessage)
+                    {
+                        StatusCode = response.StatusCode,
+                        ResponseBody = string.Empty,
+                        Description = result.Description,
+                        ErrorCode = result.ErrorCode
+                    };
+                }
+                var retVal = result.Result;
+
+                return retVal;
             }
             // ReSharper disable once RedundantCatchClause
             #pragma warning disable 168

@@ -17,7 +17,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
         {
             var buffer = stream.ReadNBytes(12);
 
-            if (null == buffer || buffer.Length != 12)
+            if (buffer is not { Length: 12 })
                 throw new Exception("Cannot read TreeId");
 
             return new TreeId(buffer);

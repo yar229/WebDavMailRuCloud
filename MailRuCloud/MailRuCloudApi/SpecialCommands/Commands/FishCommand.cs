@@ -56,13 +56,11 @@ namespace YaR.Clouds.SpecialCommands.Commands
                 string content = string.Empty;
                 try
                 {
-                    using (WebClient client = new WebClient())
-                    {
-                        string htmlCode = client.DownloadString("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
-                        content = Regex.Match(htmlCode,
-                                @"</FORM>\s*</TD>\s*<TD\s*ALIGN=""center""\s*WIDTH=\d+\s*BGCOLOR="".DCDCFF""\s*>\s*(?<phrase>.*?)<P>\s*(?<phraseeng>.*?)\s*<P>")
-                            .Groups["phraseeng"].Value;
-                    }
+                    using WebClient client = new WebClient();
+                    string htmlCode = client.DownloadString("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
+                    content = Regex.Match(htmlCode,
+                            @"</FORM>\s*</TD>\s*<TD\s*ALIGN=""center""\s*WIDTH=\d+\s*BGCOLOR="".DCDCFF""\s*>\s*(?<phrase>.*?)<P>\s*(?<phraseeng>.*?)\s*<P>")
+                        .Groups["phraseeng"].Value;
                 }
                 catch (Exception)
                 {

@@ -52,20 +52,18 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            
-            using (var stream = new RequestBodyStream())
-            {
-                stream.WritePu16((byte)Operation.FolderList);
-                stream.WriteString(_fullPath);
-                stream.WritePu32(Depth);
+            using var stream = new RequestBodyStream();
 
-                stream.WritePu32((int)Options);
+            stream.WritePu16((byte)Operation.FolderList);
+            stream.WriteString(_fullPath);
+            stream.WritePu32(Depth);
 
-                stream.WriteWithLength(Array.Empty<byte>());
+            stream.WritePu32((int)Options);
 
-                var body = stream.GetBytes();
-                return body;
-            }
+            stream.WriteWithLength(Array.Empty<byte>());
+
+            var body = stream.GetBytes();
+            return body;
         }
 
         protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)
@@ -130,15 +128,10 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                         break;
 
                     case ParseOp.Pin:
-                        if (lastFolder != null)
-                        {
-                            currentFolder = lastFolder;
-	                        lvl++;
-                            parseOp = (ParseOp)data.ReadShort();
-                            continue;
-                        }
-                        else
-                            throw new Exception("lastFolder = null");
+                        currentFolder = lastFolder ?? throw new Exception("lastFolder = null");
+                        lvl++;
+                        parseOp = (ParseOp)data.ReadShort();
+                        continue;
 
                     case ParseOp.PinUpper:
                         if (currentFolder == fakeRoot)
@@ -146,17 +139,13 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                             parseOp = (ParseOp)data.ReadShort();
                             continue;
                         }
-                        else if (currentFolder.Parent != null)
-						{
-                            currentFolder = currentFolder.Parent;
-							lvl--;
-							parseOp = (ParseOp)data.ReadShort();
-							if (currentFolder == null)
-                                throw new Exception("No parent folder A");
-                            continue;
-                        }
-                        else
-                            throw new Exception("No parent folder B");
+
+                        currentFolder = currentFolder.Parent ?? throw new Exception("No parent folder B");
+                        lvl--;
+                        parseOp = (ParseOp)data.ReadShort();
+                        if (currentFolder == null)
+                            throw new Exception("No parent folder A");
+                        continue;
 
                     case ParseOp.Unknown15:
                         long skip = data.ReadPu32();
@@ -205,11 +194,11 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
                 : null;
             void ProcessDelete()
             {
-                if ((Options & Option.Delete) != 0)
-                {
-                    data.ReadPu32();  // dunno
-                    data.ReadPu32();  // dunno
-                }
+                if ((Options & Option.Delete) == 0) 
+                    return;
+
+                data.ReadPu32();  // dunno
+                data.ReadPu32();  // dunno
             }
 
             int opresult = head & 3;

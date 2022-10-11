@@ -156,6 +156,9 @@ Parameters with spaces must be screened by quotes.
       `480p`    ~ 858 x 480
       `720p`    ~ 1280 x 720
       `1080p`   ~ 1920 x 1080
+* Default User-Agent <br/>
+	`<config><DefaultUserAgent>` <br/>
+	Default user-agent for web requests to cloud.
 * Special command prefix <br/>
 	`<config><AdditionalSpecialCommandPrefix>` <br/>
 	custom special command prefix instead of `>>`. Make possible to use special commands if client doesn't allow `>>`.

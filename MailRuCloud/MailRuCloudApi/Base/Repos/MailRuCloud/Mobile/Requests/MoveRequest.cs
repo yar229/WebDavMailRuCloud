@@ -19,21 +19,17 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            using (var stream = new RequestBodyStream())
-            {
-                stream.WritePu16((byte)Operation.Rename);
+            using var stream = new RequestBodyStream();
 
-                stream.WritePu32(00); // old revision
-                stream.WriteString(_fromPath);
+            stream.WritePu16((byte)Operation.Rename);
+            stream.WritePu32(00); // old revision
+            stream.WriteString(_fromPath);
+            stream.WritePu32(00); // new revision
+            stream.WriteString(_toPath);
+            stream.WritePu32(00); //dunno
 
-                stream.WritePu32(00); // new revision
-                stream.WriteString(_toPath);
-
-                stream.WritePu32(00); //dunno
-
-                var body = stream.GetBytes();
-                return body;
-            }
+            var body = stream.GetBytes();
+            return body;
         }
 
         protected override RequestResponse<Result> DeserializeMessage(NameValueCollection responseHeaders, ResponseBodyStream data)

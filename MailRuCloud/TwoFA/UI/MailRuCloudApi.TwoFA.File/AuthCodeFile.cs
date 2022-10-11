@@ -47,22 +47,22 @@ namespace YaR.Clouds.MailRuCloud.TwoFA.UI
             var watcher = new FileSystemWatcher(_dirPath) { NotifyFilter = NotifyFilters.LastWrite };
             watcher.Changed += (_, args) =>
             {
-                if (string.Equals(Path.GetFullPath(args.FullPath), Path.GetFullPath(filepath), StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(Path.GetFullPath(args.FullPath), Path.GetFullPath(filepath), StringComparison.OrdinalIgnoreCase)) 
+                    return;
+
+                watcher.EnableRaisingEvents = false;
+                Thread.Sleep(500);
+                _code = File.ReadAllText(filepath);
+                try
                 {
-                    watcher.EnableRaisingEvents = false;
-                    Thread.Sleep(500);
-                    _code = File.ReadAllText(filepath);
-                    try
-                    {
-                        if (_doDeleteFileAfter)
-                            File.Delete(filepath);
-                    }
-                    catch (Exception)
-                    {
-                        // ignore
-                    }
-                    _fileSignal.Set();
+                    if (_doDeleteFileAfter)
+                        File.Delete(filepath);
                 }
+                catch (Exception)
+                {
+                    // ignore
+                }
+                _fileSignal.Set();
             };
             watcher.EnableRaisingEvents = true;
 

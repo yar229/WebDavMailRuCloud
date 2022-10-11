@@ -6,7 +6,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 {
     class RequestBodyStream : IDisposable
     {
-        private readonly MemoryStream _stream = new MemoryStream();
+        private readonly MemoryStream _stream = new();
 
         public void WritePu16(int value)
         {
@@ -18,7 +18,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 
         public void WritePu32(long value)
         {
-            if (value < 0 || value > 4294967295L)
+            if (value is < 0 or > 4294967295L)
                 throw new Exception("Invalid PU32 " + value);
 
             do
@@ -31,7 +31,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
             } while (value > 0);
         }
 
-        public void WriteString(String value)
+        public void WriteString(string value)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(value);
             WritePu32(bytes.Length + 1);
@@ -46,7 +46,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.Mobile.Requests.Types
 
             int intValue;
             do {
-                int high = ((int)value) & 127;
+                int high = (int)value & 127;
                 value >>= 7;
                 intValue = (int)value;
                 if (intValue != 0) 

@@ -66,16 +66,14 @@ namespace YaR.Clouds.Extensions
 
         public static void ReadAsByte(this WebResponse resp, CancellationToken token, Stream outputStream = null)
         {
-            using (Stream responseStream = resp.GetResponseStream())
-            {
-                var buffer = new byte[65536];
-                int bytesRead;
+            using Stream responseStream = resp.GetResponseStream();
+            var buffer = new byte[65536];
+            int bytesRead;
 
-                while (responseStream != null && (bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)
-                {
-                    token.ThrowIfCancellationRequested();
-                    outputStream?.Write(buffer, 0, bytesRead);
-                }
+            while (responseStream != null && (bytesRead = responseStream.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                outputStream?.Write(buffer, 0, bytesRead);
             }
         }
 

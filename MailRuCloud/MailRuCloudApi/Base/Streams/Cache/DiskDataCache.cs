@@ -19,10 +19,8 @@ namespace YaR.Clouds.Base.Streams.Cache
 
         public override void FillFrom(Stream sourceStream)
         {
-            using (var fs = new FileStream(_filename, FileMode.Create, FileAccess.Write))
-            {
-                sourceStream.CopyTo(fs);
-            }
+            using var fs = new FileStream(_filename, FileMode.Create, FileAccess.Write);
+            sourceStream.CopyTo(fs);
         }
 
         public override void Dispose()

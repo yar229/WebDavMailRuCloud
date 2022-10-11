@@ -16,7 +16,7 @@ namespace YaR.Clouds.SpecialCommands.Commands
         {
             string path = Parames[0].Replace("\\", WebDavPath.Separator);
 
-            if (!(await Cloud.GetItemAsync(path) is File entry))
+            if (await Cloud.GetItemAsync(path) is not File entry)
                 return SpecialCommandResult.Fail;
 
             //var auth = await new OAuthRequest(Cloud.CloudApi).MakeRequestAsync();

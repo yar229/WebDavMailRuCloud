@@ -51,19 +51,19 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud
         {
             get
             {
-                if (null == _hash)
-                {
-                    if (_length <= 20)
-                        _hash = _smallContent;
-                    else
-                    {
-                        AppendFinalBuffer();
+                if (null != _hash) 
+                    return new FileHashMrc(_hash);
 
-                        _sha1.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
-                        _hash = _sha1.Hash;
-                    }
-                    _isClosed = true;
+                if (_length <= 20)
+                    _hash = _smallContent;
+                else
+                {
+                    AppendFinalBuffer();
+
+                    _sha1.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                    _hash = _sha1.Hash;
                 }
+                _isClosed = true;
                 return new FileHashMrc(_hash);
             }
         }

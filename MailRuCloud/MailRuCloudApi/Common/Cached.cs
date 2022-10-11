@@ -30,21 +30,21 @@ namespace YaR.Clouds.Common
 
         private void RefreshValueIfNeeded()
         {
-            if (DateTime.Now >= _expiration)
-            {
-                lock (_refreshLock)
-                {
-                    if (DateTime.Now >= _expiration)
-                    {
-                        T oldValue =  _value is { IsValueCreated: true } ? _value.Value : default;
-                        _value = new Lazy<T>(() => _valueFactory(oldValue));
+            if (DateTime.Now < _expiration) 
+                return;
 
-                        var duration = _duration(_value.Value);
-                        _expiration = duration == TimeSpan.MaxValue 
-                            ? DateTime.MaxValue
-                            : DateTime.Now.Add(duration);
-                    }
-                }
+            lock (_refreshLock)
+            {
+                if (DateTime.Now < _expiration) 
+                    return;
+
+                T oldValue =  _value is { IsValueCreated: true } ? _value.Value : default;
+                _value = new Lazy<T>(() => _valueFactory(oldValue));
+
+                var duration = _duration(_value.Value);
+                _expiration = duration == TimeSpan.MaxValue 
+                    ? DateTime.MaxValue
+                    : DateTime.Now.Add(duration);
             }
         }
 

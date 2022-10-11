@@ -65,7 +65,7 @@ namespace YaR.Clouds.Base
             if (!hasDigits) 
                 return res;
 
-            res.CleanName = fns.Slice(0, startpos).ToString();
+            res.CleanName = fns[..startpos].ToString();
             
             res.SplitInfo.IsHeader = false;
             #if NET48

@@ -66,20 +66,18 @@ namespace YaR.Clouds.Base.Streams
 
             foreach (var file in _files)
             {
-                var clofile = file;
-
-                fileEnd += clofile.OriginalSize;
+                fileEnd += file.OriginalSize;
 
                 if (glostart >= fileEnd || gloend <= fileStart)
                 {
-                    fileStart += clofile.OriginalSize;
+                    fileStart += file.OriginalSize;
                     continue;
                 }
                 
                 long clostart = Math.Max(0, glostart - fileStart);
                 long cloend = gloend - fileStart - 1;
 
-                await Download(clostart, cloend, clofile, _cancellationTokenSource.Token).ConfigureAwait(false);
+                await Download(clostart, cloend, file, _cancellationTokenSource.Token).ConfigureAwait(false);
 
                 //_currentDownload = Download(clostart, cloend, clofile).;
                 //await _currentDownload.ConfigureAwait(false);
@@ -96,11 +94,9 @@ namespace YaR.Clouds.Base.Streams
 
         private async Task Download(long start, long end, File file, CancellationToken cancellationToken)
         {
-            using (var httpweb = _responseGenerator(start, end, file))
-            using (var responseStream = httpweb.Value.GetResponseStream())
-            {
-                await responseStream.CopyToAsync(_innerStream, 81920, cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
+            using var httpweb = _responseGenerator(start, end, file);
+            using var responseStream = httpweb.Value.GetResponseStream();
+            await responseStream.CopyToAsync(_innerStream, 81920, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         protected override void Dispose(bool disposing)
@@ -146,9 +142,9 @@ namespace YaR.Clouds.Base.Streams
             throw new NotImplementedException();
         }
 
-        public override bool CanRead { get; } = true;
-        public override bool CanSeek { get; } = true;
-        public override bool CanWrite { get; } = false;
+        public override bool CanRead => true;
+        public override bool CanSeek => true;
+        public override bool CanWrite => false;
 
         public override long Length { get; }
 

@@ -7,25 +7,21 @@ namespace YaR.Clouds.Base
     {
         public static byte[] GetCryptoKey(string password, byte[] salt)
         {
-            using (var keygen = new Rfc2898DeriveBytes(password, salt, 4002))
-            {
-                var key = keygen.GetBytes(32);
-                return key;
-            }
+            using var keygen = new Rfc2898DeriveBytes(password, salt, 4002);
+            var key = keygen.GetBytes(32);
+            return key;
         }
 
         public static KeyAndSalt GetCryptoKeyAndSalt(string password, int saltSize = SaltSizeInBytes)
         {
-            using (var keygen = new Rfc2898DeriveBytes(password, saltSize, 4002))
+            using var keygen = new Rfc2898DeriveBytes(password, saltSize, 4002);
+            var res = new KeyAndSalt
             {
-                var res = new KeyAndSalt
-                {
-                    Salt = keygen.Salt,
-                    Key = keygen.GetBytes(32),
-                    IV = keygen.GetBytes(32)
-                };
-                return res;
-            }
+                Salt = keygen.Salt,
+                Key = keygen.GetBytes(32),
+                IV = keygen.GetBytes(32)
+            };
+            return res;
         }
 
         public static CryptoKeyInfo GetCryptoPublicInfo(Cloud cloud, File file)

@@ -57,7 +57,7 @@ namespace YaR.Clouds.Console
                         Payload.Run(options);
                         return 0;
                     },
-                    errors => 1);
+                    _ => 1);
 
             if (exitCode > 0) Environment.Exit(exitCode);
         }
