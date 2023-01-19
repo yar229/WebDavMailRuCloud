@@ -13,8 +13,6 @@
 * [Linux](#linux) - Mono 6.8 / [.NET 3.1 / 5.0 / 6.0](https://dotnet.microsoft.com/download?initial-os=linux)
 * [OS X](#mac-os-x) - Mono 6.8 / [.NET 3.1 / 5.0 / 6.0](https://dotnet.microsoft.com/download?initial-os=macos)
 
-`WebDAVCloudMailRu-*-dotNet48.zip` / `WebDAVCloudMailRu-*-dotNetCore30.zip` respectively
-
 #### Usage
 ```
 	-p, --port         	  (Default: 801) WebDAV server port or several ports separated by `,`
