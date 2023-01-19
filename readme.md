@@ -3,9 +3,10 @@
 <a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social&logo=dotnet"></a>
 <img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right" target="_blank">
 
-
-* UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
-
+```diff
+! Если получаете ошибку `Unauthorized: OAuth: Error Code=3, Value=invalid username or password` 
+! нужно предварительно зайти с этим логином-паролем через официальный мобильный клиент
+```
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
 * [Windows](#windows)  - .NET Framework 4.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=windows) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=windows)
