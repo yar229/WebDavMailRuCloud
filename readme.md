@@ -1,6 +1,6 @@
 ﻿## **WebDAV emulator for Cloud.mail.ru / Yandex.Disk**<br>
 
-<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://img.shields.io/github/v/release/yar229/WebDavMailRuCloud?include_prereleases"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://img.shields.io/github/v/release/yar229/WebDavMailRuCloud?include_prereleases"></a>  <img src="https://img.shields.io/github/last-commit/yar229/WebDavMailRuCloud" target="_blank">
 <img src="https://img.shields.io/github/downloads/yar229/WebDavMailRuCloud/total" align="right" target="_blank">
 
 ```diff
