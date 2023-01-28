@@ -1,18 +1,17 @@
 ﻿## **WebDAV emulator for Cloud.mail.ru / Yandex.Disk**<br>
 
-<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://mybadges.herokuapp.com/github/release/yar229/WebDavMailRuCloud.svg?label=download%20latest%20binaries%20%20%20%20&style=social"></a>
-<a href="http://www.somsubhra.com/github-release-stats/?username=yar229&repository=WebDavMailRuCloud"><img src="https://mybadges.herokuapp.com/github/downloads/yar229/WebDavMailRuCloud/total.svg" align="right" target="_blank"></a>
+<a href="https://github.com/yar229/WebDavMailRuCloud/releases/latest"><img src="https://img.shields.io/github/v/release/yar229/WebDavMailRuCloud?include_prereleases"></a>  <img src="https://img.shields.io/github/last-commit/yar229/WebDavMailRuCloud" target="_blank">
+<img src="https://img.shields.io/github/downloads/yar229/WebDavMailRuCloud/total" align="right" target="_blank">
 
-
-* UA users! Mail.Ru заблокирован в вашей стране, используйте, например, эти [инструкции](https://zaborona.help)
-
+```diff
+! Если получаете ошибку `Unauthorized: OAuth: Error Code=3, Value=invalid username or password` 
+! нужно предварительно зайти с этим логином-паролем через официальный мобильный клиент
+```
 
 #### Requirements <img src="https://habrastorage.org/files/72e/83b/159/72e83b159c2446b9adcdaa03b9bb5c55.png" width=200 align="right"/>
-* [Windows](#windows)  - .NET Framework 4.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=windows) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=windows)
-* [Linux](#linux) - Mono 6.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=linux) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=linux)
-* [OS X](#mac-os-x) - Mono 6.8 / [.NET Core 3.1](https://dotnet.microsoft.com/download?initial-os=macos) / [.NET 5.0](https://dotnet.microsoft.com/download?initial-os=macos)
-
-`WebDAVCloudMailRu-*-dotNet48.zip` / `WebDAVCloudMailRu-*-dotNetCore30.zip` respectively
+* [Windows](#windows)  - .NET Framework 4.8 / [.NET 3.1 / 5.0 / 6.0](https://dotnet.microsoft.com/download?initial-os=windows)
+* [Linux](#linux) - Mono 6.8 / [.NET 3.1 / 5.0 / 6.0](https://dotnet.microsoft.com/download?initial-os=linux)
+* [OS X](#mac-os-x) - Mono 6.8 / [.NET 3.1 / 5.0 / 6.0](https://dotnet.microsoft.com/download?initial-os=macos)
 
 #### Usage
 ```
