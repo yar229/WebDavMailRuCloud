@@ -7,14 +7,22 @@ namespace YaR.Clouds.Base
     {
         public static byte[] GetCryptoKey(string password, byte[] salt)
         {
+#if NET7_0_OR_GREATER
+            using var keygen = new Rfc2898DeriveBytes(password, salt, 4002, HashAlgorithmName.SHA512);
+#else
             using var keygen = new Rfc2898DeriveBytes(password, salt, 4002);
+#endif
             var key = keygen.GetBytes(32);
             return key;
         }
 
         public static KeyAndSalt GetCryptoKeyAndSalt(string password, int saltSize = SaltSizeInBytes)
         {
+#if NET7_0_OR_GREATER
+            using var keygen = new Rfc2898DeriveBytes(password, saltSize, 4002, HashAlgorithmName.SHA512);
+#else
             using var keygen = new Rfc2898DeriveBytes(password, saltSize, 4002);
+#endif
             var res = new KeyAndSalt
             {
                 Salt = keygen.Salt,
