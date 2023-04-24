@@ -32,6 +32,9 @@ namespace YaR.Clouds.Console
         [Option("user-agent", HelpText = "\"browser\" user-agent")]
         public string UserAgent { get; set; }
 
+        [Option("sec-ch-ua", HelpText = "\"browser\" sec-ch-ua")]
+        public string SecChUa { get; set; }
+
         [Option("install", Required = false, HelpText = "install as Windows service with name")]
         public string ServiceInstall { get; set; }
 

@@ -43,6 +43,7 @@ namespace YaR.Clouds.Console
                 TwoFaHandler = LoadHandler(Config.TwoFactorAuthHandler),
                 Protocol = options.Protocol,
                 UserAgent = ConstructUserAgent(options.UserAgent, Config.DefaultUserAgent),
+                SecChUa = ConstructSecChUa( options.SecChUa, Config.DefaultSecChUa),
                 CacheListingSec = options.CacheListingSec,
 	            ListDepth = options.CacheListingDepth,
                 AdditionalSpecialCommandPrefix = Config.AdditionalSpecialCommandPrefix,
@@ -52,7 +53,11 @@ namespace YaR.Clouds.Console
                 UseDeduplicate = options.UseDeduplicate,
                 DeduplicateRules = Config.DeduplicateRules,
 
-                Proxy = ProxyFabric.Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword)
+                Proxy = ProxyFabric.Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword),
+
+                BrowserAuthenticatorUrl = Config.BrowserAuthenticator?.Url,
+                BrowserAuthenticatorstringPassword = Config.BrowserAuthenticator?.Password,
+                BrowserAuthenticatorstringCacheDir = Config.BrowserAuthenticator?.CacheDir,
             };
 
             ShowInfo(options);
@@ -87,7 +92,7 @@ namespace YaR.Clouds.Console
             }
         }
 
-        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36";
+        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
         private static string ConstructUserAgent(string fromOptions, string fromConfig)
         {
             if (!string.IsNullOrWhiteSpace(fromOptions))
@@ -96,6 +101,18 @@ namespace YaR.Clouds.Console
                 return fromConfig;
 
             Logger.Warn($"Configuration for User-Agent not found, using '{DefaultUserAgent}'");
+            return DefaultUserAgent;
+        }
+
+        private const string DefaultSecChUa = "\"Chromium\";v=\"112\", \"Google Chrome\";v=\"112\", \"Not:A-Brand\";v=\"99\"";
+        private static string ConstructSecChUa(string fromOptions, string fromConfig)
+        {
+            if(!string.IsNullOrWhiteSpace(fromOptions))
+                return fromOptions;
+            if(!string.IsNullOrWhiteSpace(fromConfig))
+                return fromConfig;
+
+            Logger.Warn($"Configuration for sec-ch-ua not found, using '{DefaultSecChUa}'");
             return DefaultUserAgent;
         }
 
@@ -205,7 +222,8 @@ namespace YaR.Clouds.Console
         {
             // detect .NET Core & .NET 5
             var assembly = typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly;
-            var assemblyPath = assembly.CodeBase.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            var assemblyPath = assembly.Location.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            //var assemblyPath = assembly.CodeBase.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             int netCoreAppIndex = Array.IndexOf(assemblyPath, "Microsoft.NETCore.App");
             if (netCoreAppIndex > 0 && netCoreAppIndex < assemblyPath.Length - 2)
             {

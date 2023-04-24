@@ -10,6 +10,7 @@ namespace YaR.Clouds
 	    public ITwoFaHandler TwoFaHandler { get; set; }
 
         public string UserAgent { get; set; }
+        public string SecChUa { get; set; }
 
         public Protocol Protocol { get; set; }
 
@@ -33,8 +34,15 @@ namespace YaR.Clouds
 
         public DeduplicateRulesBag DeduplicateRules { get; set; }
 
+
+        #region BrowserAuthenticator
+
+        public string BrowserAuthenticatorUrl { get; set; }
+
+        public string BrowserAuthenticatorstringPassword { get; set; }
+
+        public string BrowserAuthenticatorstringCacheDir { get; set; }
+
+        #endregion
     }
-
-
-
 }
