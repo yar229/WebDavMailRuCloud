@@ -4,6 +4,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
+		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
@@ -11,6 +12,10 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+		<DefineConstants>$(DefineConstants);USE_XML_ASYNC_READWRITE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
 		<DefineConstants>$(DefineConstants);USE_XML_ASYNC_READWRITE</DefineConstants>
 	</PropertyGroup>
 

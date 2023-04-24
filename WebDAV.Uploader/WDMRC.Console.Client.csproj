@@ -6,6 +6,7 @@
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <AssemblyName>mrclient</AssemblyName>
     <RootNamespace>YaR.CloudMailRu.Client.Console</RootNamespace>
     <LangVersion>$(CommonLangVersion)</LangVersion>
