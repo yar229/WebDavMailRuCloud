@@ -55,7 +55,6 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\..\MailRuCloudApi\YaR.Clouds.csproj" AdditionalProperties="TargetFramework=net48">
       <Project>{b9238166-0cec-45f2-afa2-caa8f7eba067}</Project>
