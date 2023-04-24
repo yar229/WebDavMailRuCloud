@@ -25,7 +25,7 @@ namespace YandexAuthBrowser
             DesiredLogin = desiredLogin;
             Response = response;
 
-            if(!string.IsNullOrEmpty(DesiredLogin))
+            if (!string.IsNullOrEmpty(DesiredLogin))
             {
                 this.Text += $"   Требуемая учетная запись: {DesiredLogin}";
             }
@@ -56,7 +56,7 @@ namespace YandexAuthBrowser
         }
         private void DelayTimer_Tick(object sender, EventArgs e)
         {
-            if(WeAreFinished)
+            if (WeAreFinished)
                 return;
 
             DelayTimer.Enabled = false;
@@ -72,14 +72,14 @@ namespace YandexAuthBrowser
             // Если по какой-то причине произошла ошибка,
             // повторяем 5 раз. Ну, а вдруг сработает на какой-то.
             // Наиболее вероятная причина - вызов не в том потоке.
-            for(int retry = 5; retry > 0; retry--)
+            for (int retry = 5; retry > 0; retry--)
             {
                 try
                 {
                     _ = InitializeAsync();
                     retry = 0;
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                 }
             }
@@ -98,7 +98,7 @@ namespace YandexAuthBrowser
 
         private async void WebView_NavigationCompleted(object sender, Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs e)
         {
-            if(e.IsSuccess && WebView.CoreWebView2.Source.StartsWith("https://disk.yandex.ru/client/disk"))
+            if (e.IsSuccess && WebView.CoreWebView2.Source.StartsWith("https://disk.yandex.ru/client/disk"))
             {
                 var htmlEncoded = await WebView.CoreWebView2.ExecuteScriptAsync("document.body.outerHTML");
                 var html = JsonDocument.Parse(htmlEncoded).RootElement.ToString();
@@ -114,7 +114,7 @@ namespace YandexAuthBrowser
                 // Если в одном месте указан логин вида Ivan а в другом Ivan@yandex.ru,
                 // то приводим все к одному виду, обрезая все, начиная с @
 
-                if(!string.IsNullOrEmpty(sk) && !string.IsNullOrEmpty(uuid) &&
+                if (!string.IsNullOrEmpty(sk) && !string.IsNullOrEmpty(uuid) &&
                     !string.IsNullOrEmpty(login) &&
                     GetNameOnly(login).Equals(GetNameOnly(DesiredLogin), StringComparison.OrdinalIgnoreCase))
                 {
@@ -124,7 +124,7 @@ namespace YandexAuthBrowser
                     Response.Cookies = new List<BrowserAppCookieResponse>();
 
                     var list = await WebView.CoreWebView2.CookieManager.GetCookiesAsync("https://disk.yandex.ru/client/disk");
-                    foreach(var item in list)
+                    foreach (var item in list)
                     {
                         BrowserAppCookieResponse cookie = new BrowserAppCookieResponse()
                         {
@@ -137,7 +137,7 @@ namespace YandexAuthBrowser
                     }
 
                     WeAreFinished = true;
-                    if(this.InvokeRequired)
+                    if (this.InvokeRequired)
                     {
                         this.Invoke((MethodInvoker)delegate
                         {
@@ -158,12 +158,12 @@ namespace YandexAuthBrowser
 
         private static string GetNameOnly(string? value)
         {
-            if(string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(value))
                 return string.Empty;
             int pos = value.IndexOf('@');
-            if(pos == 0)
+            if (pos == 0)
                 return string.Empty;
-            if(pos > 0)
+            if (pos > 0)
                 return value.Substring(0, pos);
             return value;
         }
@@ -180,7 +180,7 @@ namespace YandexAuthBrowser
         private void NobodyHomeTimer_Tick(object sender, EventArgs e)
         {
             WeAreFinished = true;
-            if(this.InvokeRequired)
+            if (this.InvokeRequired)
             {
                 this.Invoke((MethodInvoker)delegate
                 {

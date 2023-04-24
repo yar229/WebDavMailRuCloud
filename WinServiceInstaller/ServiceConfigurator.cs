@@ -70,10 +70,10 @@ namespace WinServiceInstaller
             var serviceKey = GetRegistryKey();
 
             // Если ключа реестра нет, значит сначала надо программу прописать сервисом, а только потом править параметры запуска
-            if(serviceKey == null)
+            if (serviceKey == null)
             {
                 string consoleText = RunSc("create", _name, "start=", "auto", "binPath=", exePath);
-                if(!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
+                if (!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("success", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("PENDING", StringComparison.OrdinalIgnoreCase)
                     ))
@@ -87,7 +87,7 @@ namespace WinServiceInstaller
                 // На случай, если сервис уже установлен и запущен, пытаемся его остановить
                 string consoleText = RunSc("stop", _name);
 
-                if(!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
+                if (!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("success", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("PENDING", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("1060:" /*ERROR_SERVICE_DOES_NOT_EXIST*/, StringComparison.OrdinalIgnoreCase)
@@ -102,7 +102,7 @@ namespace WinServiceInstaller
             SetCommandLine(cmd);
 
             int counter = 120;
-            while(counter-- > 0 && NeedWaitSc(_name))
+            while (counter-- > 0 && NeedWaitSc(_name))
                 System.Threading.Thread.Sleep(500);
 
 
@@ -110,7 +110,7 @@ namespace WinServiceInstaller
                 // Запуск сервиса
                 string consoleText = RunSc("start", _name);
 
-                if(!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
+                if (!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("success", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("PENDING", StringComparison.OrdinalIgnoreCase)
                     ))
@@ -147,7 +147,7 @@ namespace WinServiceInstaller
             {
                 // In case the service is running let's stop it
                 string consoleText = RunSc("stop", _name);
-                if(!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
+                if (!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("success", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("PENDING", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("1060:" /*ERROR_SERVICE_DOES_NOT_EXIST*/, StringComparison.OrdinalIgnoreCase)
@@ -157,13 +157,13 @@ namespace WinServiceInstaller
             }
 
             int counter = 120;
-            while(counter-- > 0 && NeedWaitSc(_name))
+            while (counter-- > 0 && NeedWaitSc(_name))
                 System.Threading.Thread.Sleep(500);
 
             {
                 // Then let's delete it
                 string consoleText = RunSc("delete", _name);
-                if(!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
+                if (!(consoleText.Contains("успех", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("success", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("PENDING", StringComparison.OrdinalIgnoreCase)
                     || consoleText.Contains("1060:" /*ERROR_SERVICE_DOES_NOT_EXIST*/, StringComparison.OrdinalIgnoreCase)
@@ -195,7 +195,7 @@ namespace WinServiceInstaller
         private string RunSc(params string[] args)
         {
             StringBuilder sb = new StringBuilder();
-            foreach(var item in args)
+            foreach (var item in args)
             {
                 sb.Append('"');
                 sb.Append(item);
@@ -222,7 +222,7 @@ namespace WinServiceInstaller
             string standardError = proc.StandardError.ReadToEnd();
 
             proc.WaitForExit(20 * 1000 /* 20 seconds */ );
-            if(!proc.HasExited)
+            if (!proc.HasExited)
             {
                 proc.Kill();
             }
@@ -246,7 +246,7 @@ namespace WinServiceInstaller
                     $"SYSTEM\\CurrentControlSet\\Services",
                     true);
             }
-            catch(SecurityException)
+            catch (SecurityException)
             {
                 throw new Exception(
                     "Not enough rights to complete the operation.\r\n" +

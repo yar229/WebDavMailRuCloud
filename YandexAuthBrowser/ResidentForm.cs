@@ -46,17 +46,17 @@ namespace YandexAuthBrowser
                     ConfigurationUserLevel.None);
 
             string? value = config.AppSettings?.Settings?["port"]?.Value;
-            if( !string.IsNullOrWhiteSpace(value) && int.TryParse(value, out _) )
+            if (!string.IsNullOrWhiteSpace(value) && int.TryParse(value, out _))
                 Port.Text = value;
             value = config.AppSettings?.Settings?["password"]?.Value;
-            if( !string.IsNullOrWhiteSpace(value) )
+            if (!string.IsNullOrWhiteSpace(value))
                 Password.Text = value;
 
             value = config.AppSettings?.Settings?["Top"]?.Value;
-            if( !string.IsNullOrWhiteSpace(value) && int.TryParse(value, out int top) )
+            if (!string.IsNullOrWhiteSpace(value) && int.TryParse(value, out int top))
                 SavedTop = top;
             value = config.AppSettings?.Settings?["Left"]?.Value;
-            if( !string.IsNullOrWhiteSpace(value) && int.TryParse(value, out int left) )
+            if (!string.IsNullOrWhiteSpace(value) && int.TryParse(value, out int left))
                 SavedLeft = left;
 
 
@@ -90,15 +90,15 @@ namespace YandexAuthBrowser
 
         private void HideShow(bool show)
         {
-            if( show )
+            if (show)
             {
-                if( !ShowInTaskbar )
+                if (!ShowInTaskbar)
                 {
                     var screen = Screen.GetWorkingArea(this);
 
-                    if( SavedTop.HasValue && SavedLeft.HasValue &&
+                    if (SavedTop.HasValue && SavedLeft.HasValue &&
                         SavedTop.Value >= 0 && SavedTop.Value + Height < screen.Height &&
-                        SavedLeft.Value >= 0 && SavedLeft.Value + Width < screen.Width )
+                        SavedLeft.Value >= 0 && SavedLeft.Value + Width < screen.Width)
 
                     {
                         Top = SavedTop.Value;
@@ -120,7 +120,7 @@ namespace YandexAuthBrowser
         }
         private void ResidentForm_Move(object sender, EventArgs e)
         {
-            if( Visible )
+            if (Visible)
             {
                 SaveConfigTimer.Interval = 1000;
                 SaveConfigTimer.Enabled = true;
@@ -150,11 +150,11 @@ namespace YandexAuthBrowser
         }
 
         /*
-		 * Метод
-		 * ResidentForm_FormClosed( object? sender, FormClosingEventArgs e )
-		 * здесь не использовать, т.к. событие перекрывается и обрабатывается
-		 * в HiddenContent. См. там.
-		 */
+         * Метод
+         * ResidentForm_FormClosed( object? sender, FormClosingEventArgs e )
+         * здесь не использовать, т.к. событие перекрывается и обрабатывается
+         * в HiddenContent. См. там.
+         */
 
         private void ResidentForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
@@ -196,7 +196,7 @@ namespace YandexAuthBrowser
         private void Port_TextChanged(object sender, EventArgs e)
         {
             SaveConfig();
-            if( RunServer )
+            if (RunServer)
             {
                 StopServer();
                 StartServer();
@@ -206,7 +206,7 @@ namespace YandexAuthBrowser
         private void Password_TextChanged(object sender, EventArgs e)
         {
             SaveConfig();
-            if( RunServer )
+            if (RunServer)
             {
                 StopServer();
                 StartServer();
@@ -214,13 +214,13 @@ namespace YandexAuthBrowser
         }
         private void GeneratePassword_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            if( Lock.Checked )
+            if (Lock.Checked)
                 return;
             Password.Text = Guid.NewGuid().ToString();
         }
         private void Port_Validating(object sender, CancelEventArgs e)
         {
-            if( !int.TryParse(Port.Text, out int value) || value < 1 || value > ushort.MaxValue )
+            if (!int.TryParse(Port.Text, out int value) || value < 1 || value > ushort.MaxValue)
             {
                 e.Cancel = true;
                 Port.Text = PreviousPort;
@@ -239,7 +239,7 @@ namespace YandexAuthBrowser
 
         private void CopyPasswordPic_Click(object sender, EventArgs e)
         {
-            if( string.IsNullOrEmpty(Password.Text) )
+            if (string.IsNullOrEmpty(Password.Text))
                 Password.Text = Guid.NewGuid().ToString();
 
             Clipboard.SetText(Password.Text);
@@ -258,7 +258,7 @@ namespace YandexAuthBrowser
             Port.Text = "54322";
             Password.Text = "adb4bcd5-b4b6-45b7-bb7d-b38470917448";
 #endif
-            if( !int.TryParse(Port.Text, out int port) )
+            if (!int.TryParse(Port.Text, out int port))
             {
                 Port.Text = "54321";
                 port = 54321;
@@ -274,7 +274,7 @@ namespace YandexAuthBrowser
                 // Handle requests
                 _ = Task.Run(HandleIncomingConnections);
             }
-            catch( Exception ex )
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message,
                     "Ошибка инициализации сервера аутентификации Яндекс.Диска", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -303,7 +303,7 @@ namespace YandexAuthBrowser
             //}, null );
             new AuthForm(desiredLogin, response).ShowDialog();
 
-            if( response.Cookies != null )
+            if (response.Cookies != null)
                 AuthenticationOkCounter++;
             else
                 AuthenticationFailCounter++;
@@ -315,11 +315,11 @@ namespace YandexAuthBrowser
         {
             string passwordToCompre = Password.Text;
 
-            while( RunServer )
+            while (RunServer)
             {
                 try
                 {
-                    if( Listener == null )
+                    if (Listener == null)
                         throw new NullReferenceException("Listener is null");
 
                     // Will wait here until we hear from a connection
@@ -336,19 +336,19 @@ namespace YandexAuthBrowser
 
                     BrowserAppResponse response = new BrowserAppResponse();
 
-                    if( string.IsNullOrEmpty(login) )
+                    if (string.IsNullOrEmpty(login))
                         response.ErrorMessage = "Login is not provided";
                     else
-                    if( string.IsNullOrEmpty(password) )
+                    if (string.IsNullOrEmpty(password))
                         response.ErrorMessage = "Password is not provided";
                     else
-                    if( password != passwordToCompre )
+                    if (password != passwordToCompre)
                         response.ErrorMessage = "Password is wrong";
                     else
                     {
                         Sema.Wait();
                         // Окно с браузером нужно открыть в потоке, обрабатывающем UI
-                        if( AuthButton.InvokeRequired )
+                        if (AuthButton.InvokeRequired)
                             AuthButton.Invoke(AuthExecuteDelegate, login, response);
                         else
                             AuthExecuteDelegate(login, response);
@@ -365,14 +365,14 @@ namespace YandexAuthBrowser
                     await resp.OutputStream.WriteAsync(data);
                     resp.Close();
                 }
-                catch( ObjectDisposedException )
+                catch (ObjectDisposedException)
                 {
                     // Такое исключение при Listener.Abort(), значит работа закончена
                     return;
                 }
-                catch( HttpListenerException )
+                catch (HttpListenerException)
                 {
-                    if( !RunServer )
+                    if (!RunServer)
                         return;
                 }
             }
