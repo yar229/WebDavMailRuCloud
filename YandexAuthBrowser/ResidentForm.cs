@@ -24,6 +24,7 @@ namespace YandexAuthBrowser
         public Execute AuthExecuteDelegate;
         private readonly int? SavedTop = null;
         private readonly int? SavedLeft = null;
+        private SemaphoreSlim Sema = new SemaphoreSlim(1, 1);
 
         private int AuthenticationOkCounter = 0;
         private int AuthenticationFailCounter = 0;
@@ -330,8 +331,8 @@ namespace YandexAuthBrowser
 
                     var match = UrlRegex().Match(req.Url?.AbsoluteUri ?? "");
 
-                    var login = match.Success ? match.Groups["login"].Value : string.Empty;
-                    var password = match.Success ? match.Groups["password"].Value : string.Empty;
+                    var login = Uri.UnescapeDataString(match.Success ? match.Groups["login"].Value : string.Empty);
+                    var password = Uri.UnescapeDataString(match.Success ? match.Groups["password"].Value : string.Empty);
 
                     BrowserAppResponse response = new BrowserAppResponse();
 
@@ -345,12 +346,13 @@ namespace YandexAuthBrowser
                         response.ErrorMessage = "Password is wrong";
                     else
                     {
-
+                        Sema.Wait();
                         // Окно с браузером нужно открыть в потоке, обрабатывающем UI
                         if( AuthButton.InvokeRequired )
                             AuthButton.Invoke(AuthExecuteDelegate, login, response);
                         else
                             AuthExecuteDelegate(login, response);
+                        Sema.Release();
                     }
 
                     string text = response.Serialize();

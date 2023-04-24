@@ -70,7 +70,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 !string.IsNullOrEmpty(response.Sk) &&
                 !string.IsNullOrEmpty(response.Uuid) &&
                 !string.IsNullOrEmpty(response.Login) &&
-                response.Login.Equals(Login, StringComparison.OrdinalIgnoreCase) &&
+                YadWebAuth.GetNameOnly(response.Login)
+                    .Equals(YadWebAuth.GetNameOnly(Login), StringComparison.OrdinalIgnoreCase) &&
                 string.IsNullOrEmpty(response.ErrorMessage)
                 )
             {
@@ -111,13 +112,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             }
             else
             {
-                if( string.IsNullOrEmpty(response?.ErrorMessage) )
+                if(string.IsNullOrEmpty(response?.ErrorMessage))
                     throw new AuthenticationException("OAuth: Authentication using YandexAuthBrowser is failed!");
                 else
                     throw new AuthenticationException(
                         string.Concat(
                             "OAuth: Authentication using YandexAuthBrowser is failed! ",
-                            response.ErrorMessage )
+                            response.ErrorMessage)
                         );
             }
         }
@@ -171,7 +172,19 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             public string Domain { get; set; }
         }
 
-        private async Task<(BrowserAppResponse,string)> ConnectToBrowserApp()
+        private static string GetNameOnly(string value)
+        {
+            if(string.IsNullOrEmpty(value))
+                return value;
+            int pos = value.IndexOf('@');
+            if(pos==0)
+                return "";
+            if(pos>0)
+                return value.Substring(0, pos);
+            return value;
+        }
+
+        private async Task<(BrowserAppResponse, string)> ConnectToBrowserApp()
         {
             // Login для подключения содержит название логина Диска, не email, затем | и номер порта программы с браузером.
             // Password - пароль в программе с браузером.

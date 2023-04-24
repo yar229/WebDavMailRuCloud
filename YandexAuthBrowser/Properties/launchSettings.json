@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "YandexAuthBrowser": {
-      "commandName": "Project",
-      "commandLineArgs": "c:\\temp\\tmp login@yandex.ru"
-    }
-  }
-}

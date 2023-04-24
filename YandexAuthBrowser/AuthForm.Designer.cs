@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AuthForm));
             WebView= new Microsoft.Web.WebView2.WinForms.WebView2() ;
             DelayTimer= new System.Windows.Forms.Timer(components) ;
+            NobodyHomeTimer= new System.Windows.Forms.Timer(components) ;
             ( (System.ComponentModel.ISupportInitialize) WebView  ).BeginInit();
             SuspendLayout();
             // 
@@ -53,6 +54,11 @@
             DelayTimer.Interval= 3000 ;
             DelayTimer.Tick+= DelayTimer_Tick ;
             // 
+            // NobodyHomeTimer
+            // 
+            NobodyHomeTimer.Interval= 3000 ;
+            NobodyHomeTimer.Tick+= NobodyHomeTimer_Tick ;
+            // 
             // AuthForm
             // 
             AutoScaleDimensions= new SizeF(12F, 30F) ;
@@ -71,5 +77,6 @@
         #endregion
         private Microsoft.Web.WebView2.WinForms.WebView2 WebView;
         private System.Windows.Forms.Timer DelayTimer;
+        private System.Windows.Forms.Timer NobodyHomeTimer;
     }
 }

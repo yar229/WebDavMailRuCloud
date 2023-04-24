@@ -49,6 +49,8 @@ namespace YandexAuthBrowser
             var screen = Screen.GetWorkingArea(this);
             Top = screen.Height + 100;
             ShowInTaskbar = false;
+            NobodyHomeTimer.Interval = 4 * 60_000; // 4 minutes to login
+            NobodyHomeTimer.Enabled = true;
             DelayTimer.Interval = 3000;
             DelayTimer.Enabled = true;
         }
@@ -75,6 +77,7 @@ namespace YandexAuthBrowser
                 try
                 {
                     _ = InitializeAsync();
+                    retry = 0;
                 }
                 catch(Exception)
                 {
@@ -108,8 +111,12 @@ namespace YandexAuthBrowser
                 var uuid = matchUuid.Success ? matchUuid.Groups["uuid"].Value : string.Empty;
                 var login = matchLogin.Success ? matchLogin.Groups["login"].Value : string.Empty;
 
+                // Если в одном месте указан логин вида Ivan а в другом Ivan@yandex.ru,
+                // то приводим все к одному виду, обрезая все, начиная с @
+
                 if(!string.IsNullOrEmpty(sk) && !string.IsNullOrEmpty(uuid) &&
-                    !string.IsNullOrEmpty(login) && login.Equals(DesiredLogin, StringComparison.OrdinalIgnoreCase))
+                    !string.IsNullOrEmpty(login) &&
+                    GetNameOnly(login).Equals(GetNameOnly(DesiredLogin), StringComparison.OrdinalIgnoreCase))
                 {
                     Response.Login = login;
                     Response.Sk = sk;
@@ -149,6 +156,18 @@ namespace YandexAuthBrowser
             }
         }
 
+        private static string GetNameOnly(string? value)
+        {
+            if(string.IsNullOrEmpty(value))
+                return string.Empty;
+            int pos = value.IndexOf('@');
+            if(pos == 0)
+                return string.Empty;
+            if(pos > 0)
+                return value.Substring(0, pos);
+            return value;
+        }
+
         private void AuthForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             try
@@ -156,6 +175,26 @@ namespace YandexAuthBrowser
                 WebView?.Dispose();
             }
             catch { }
+        }
+
+        private void NobodyHomeTimer_Tick(object sender, EventArgs e)
+        {
+            WeAreFinished = true;
+            if(this.InvokeRequired)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    // Running on the UI thread
+                    DelayTimer.Enabled = false;
+                    this.Close();
+                });
+            }
+            else
+            {
+                // Running on the UI thread
+                DelayTimer.Enabled = false;
+                this.Close();
+            }
         }
     }
 }
