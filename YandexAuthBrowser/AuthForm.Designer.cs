@@ -11,13 +11,13 @@
         ///  Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose( bool disposing )
+        protected override void Dispose(bool disposing)
         {
             if( disposing && ( components != null ) )
             {
                 components.Dispose();
             }
-            base.Dispose( disposing );
+            base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
@@ -28,44 +28,44 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            components= new System.ComponentModel.Container() ;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AuthForm));
-            this.WebView = new Microsoft.Web.WebView2.WinForms.WebView2();
-            this.DelayTimer = new System.Windows.Forms.Timer(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).BeginInit();
-            this.SuspendLayout();
+            WebView= new Microsoft.Web.WebView2.WinForms.WebView2() ;
+            DelayTimer= new System.Windows.Forms.Timer(components) ;
+            ( (System.ComponentModel.ISupportInitialize) WebView  ).BeginInit();
+            SuspendLayout();
             // 
             // WebView
             // 
-            this.WebView.AllowExternalDrop = true;
-            this.WebView.CreationProperties = null;
-            this.WebView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.WebView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WebView.Location = new System.Drawing.Point(0, 0);
-            this.WebView.Name = "WebView";
-            this.WebView.Size = new System.Drawing.Size(1165, 895);
-            this.WebView.TabIndex = 1;
-            this.WebView.ZoomFactor = 1D;
-            this.WebView.NavigationCompleted += new System.EventHandler<Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>(this.WebView_NavigationCompleted);
+            WebView.AllowExternalDrop= true ;
+            WebView.CreationProperties= null ;
+            WebView.DefaultBackgroundColor= Color.White ;
+            WebView.Dock= DockStyle.Fill ;
+            WebView.Location= new Point(0, 0) ;
+            WebView.Name= "WebView" ;
+            WebView.Size= new Size(1165, 895) ;
+            WebView.TabIndex= 1 ;
+            WebView.ZoomFactor= 1D ;
+            WebView.NavigationCompleted+= WebView_NavigationCompleted ;
             // 
             // DelayTimer
             // 
-            this.DelayTimer.Interval = 3000;
-            this.DelayTimer.Tick += new System.EventHandler(this.DelayTimer_Tick);
+            DelayTimer.Interval= 3000 ;
+            DelayTimer.Tick+= DelayTimer_Tick ;
             // 
             // AuthForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 30F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1165, 895);
-            this.Controls.Add(this.WebView);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "AuthForm";
-            this.Text = "Авторизация на Яндекс.Диск";
-            this.Load += new System.EventHandler(this.AuthForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.WebView)).EndInit();
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions= new SizeF(12F, 30F) ;
+            AutoScaleMode= AutoScaleMode.Font ;
+            ClientSize= new Size(1165, 895) ;
+            Controls.Add(WebView);
+            Icon= (Icon) resources.GetObject("$this.Icon")  ;
+            Name= "AuthForm" ;
+            Text= "Авторизация на Яндекс.Диск" ;
+            FormClosed+= AuthForm_FormClosed ;
+            Load+= AuthForm_Load ;
+            ( (System.ComponentModel.ISupportInitialize) WebView  ).EndInit();
+            ResumeLayout(false);
         }
 
         #endregion

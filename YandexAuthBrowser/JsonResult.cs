@@ -10,35 +10,38 @@ namespace YandexAuthBrowser
 {
     public class BrowserAppResponse
     {
-        [JsonProperty( "Login" )]
+        [JsonProperty("ErrorMessage")]
+        public string? ErrorMessage { get; set; }
+
+        [JsonProperty("Login")]
         public string? Login { get; set; }
 
-        [JsonProperty( "Uuid" )]
+        [JsonProperty("Uuid")]
         public string? Uuid { get; set; }
 
-        [JsonProperty( "Sk" )]
+        [JsonProperty("Sk")]
         public string? Sk { get; set; }
 
-        [JsonProperty( "Cookies" )]
+        [JsonProperty("Cookies")]
         public List<BrowserAppCookieResponse>? Cookies { get; set; }
 
         public string Serialize()
         {
-            return JsonConvert.SerializeObject( this );
+            return JsonConvert.SerializeObject(this);
         }
     }
     public class BrowserAppCookieResponse
     {
-        [JsonProperty( "name" )]
+        [JsonProperty("name")]
         public string? Name { get; set; }
 
-        [JsonProperty( "Value" )]
+        [JsonProperty("Value")]
         public string? Value { get; set; }
 
-        [JsonProperty( "Path" )]
+        [JsonProperty("Path")]
         public string? Path { get; set; }
 
-        [JsonProperty( "Domain" )]
+        [JsonProperty("Domain")]
         public string? Domain { get; set; }
     }
 }
