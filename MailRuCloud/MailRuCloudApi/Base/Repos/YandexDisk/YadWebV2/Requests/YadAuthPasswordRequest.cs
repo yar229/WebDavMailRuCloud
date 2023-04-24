@@ -16,12 +16,16 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
         private readonly string _csrf;
         private readonly string _trackId;
 
+        private string secChUa;
+
         public YadAuthPasswordRequest(HttpCommonSettings settings, IAuth auth, string csrf, string trackId) 
             : base(settings, auth)
         {
             _auth = auth;
             _csrf = csrf;
             _trackId = trackId;
+
+            secChUa = settings.CloudSettings.SecChUa;
         }
 
         protected override string RelationalUri => "/registration-validations/auth/multi_step/commit_password";
@@ -34,7 +38,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
             request.Referer = "https://passport.yandex.ru/";
             request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
 
-            request.Headers.Add("sec-ch-ua", "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\"");
+            // Строка вида "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\""
+            request.Headers.Add("sec-ch-ua", secChUa);
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             request.Headers.Add("sec-ch-ua-mobile", "?0");
             request.Headers.Add("sec-ch-ua-platform", "\"Windows\"");
@@ -52,10 +57,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new("csrf_token", Uri.EscapeUriString(_csrf)),
+                new("csrf_token", Uri.EscapeDataString(_csrf)),
                 new("track_id", _trackId),
-                new("password", Uri.EscapeUriString(_auth.Password)),
-                new("retpath", Uri.EscapeUriString("https://disk.yandex.ru/client/disk"))
+                new("password", Uri.EscapeDataString(_auth.Password)),
+                new("retpath", Uri.EscapeDataString("https://disk.yandex.ru/client/disk"))
             };
             var content = new FormUrlEncodedContent(keyValues);
             var d = content.ReadAsByteArrayAsync().Result;

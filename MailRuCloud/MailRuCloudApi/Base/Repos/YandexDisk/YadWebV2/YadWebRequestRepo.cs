@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Authentication;
 using System.Threading.Tasks;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
@@ -27,9 +28,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
         private readonly IBasicCredentials _creds;
 
-        public YadWebRequestRepo( IWebProxy proxy, IBasicCredentials creds)
+        public YadWebRequestRepo(CloudSettings settings, IWebProxy proxy, IBasicCredentials creds)
         {
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+
+            HttpSettings = new()
+            {
+                UserAgent = settings.UserAgent,
+                CloudSettings = settings,
+            };
 
             HttpSettings.Proxy = proxy;
             _creds = creds;
@@ -53,7 +60,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
         public IAuth Authent => CachedAuth.Value;
 
-        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??=
+            new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
         public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
@@ -65,10 +73,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
-        public HttpCommonSettings HttpSettings { get; } = new()
-        {
-            UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-        };
+        public HttpCommonSettings HttpSettings { get; private set; }
 
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
@@ -281,13 +286,69 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         {
             //var req = await new YadAccountInfoRequest(HttpSettings, (YadWebAuth)Authent).MakeRequestAsync();
 
-            await new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
-                .With(new YadAccountInfoPostModel(),
-                    out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
-                .MakeRequestAsync();
+            if(_cachedAuth == null &&
+                !string.IsNullOrEmpty(HttpSettings.CloudSettings.BrowserAuthenticatorstringCacheDir))
+            {
+                string path = YadWebAuth.GetCache(HttpSettings, _creds);
+                if(path != null)
+                {
+                    // Если в кеше аутентификации пустой, пытаемся загрузить куки из кеша
+                    try
+                    {
+                        _cachedAuth =
+                                    new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds, path), _ => TimeSpan.FromHours(23));
 
-            var res = itemInfo.ToAccountInfo();
-            return res;
+                        await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
+                            .With(new YadAccountInfoPostModel(),
+                                out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                            .MakeRequestAsync();
+
+                        if(itemInfo!=null && (itemInfo.Data==null || itemInfo.Error!=null))
+                            throw new AuthenticationException(
+                                string.Concat(
+                                    "OAuth: Authentication using YandexAuthBrowser is failed! ",
+                                    itemInfo.Error)
+                                );
+
+                        var res = itemInfo.ToAccountInfo();
+                        return res;
+                    }
+                    catch(Exception)
+                    {
+                        // Если попытка чтения информации об учетной записи с данными из кеша дала ошибку,
+                        // делается сброс кеша и удаление файла кеша.
+                        _cachedAuth = null;
+                        try
+                        {
+                            System.IO.File.Delete(path);
+                        }
+                        catch(Exception) { }
+                    }
+                }
+            }
+            try
+            {
+                await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
+                    .With(new YadAccountInfoPostModel(),
+                        out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                    .MakeRequestAsync();
+
+                if(itemInfo!=null && (itemInfo.Data==null || itemInfo.Error!=null))
+                    throw new AuthenticationException(
+                        string.Concat(
+                            "OAuth: Authentication using YandexAuthBrowser is failed! ",
+                            itemInfo.Error)
+                        );
+
+                var res = itemInfo.ToAccountInfo();
+                return res;
+            }
+            catch (Exception)
+            {
+                // Если попытка чтения информации об учетной записи дала ошибку, делается сброс кеша
+                _cachedAuth = null;
+                throw;
+            }
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

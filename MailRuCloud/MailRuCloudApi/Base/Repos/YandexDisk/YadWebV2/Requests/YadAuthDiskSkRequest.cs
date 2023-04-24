@@ -7,8 +7,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
 {
     class YadAuthDiskSkRequest : BaseRequestString<YadAuthDiskSkRequestResult>
     {
+
+        private string secChUa;
         public YadAuthDiskSkRequest(HttpCommonSettings settings, YadWebAuth auth) : base(settings, auth)
         {
+            secChUa = settings.CloudSettings.SecChUa;
         }
 
         protected override string RelationalUri => "/client/disk";
@@ -19,7 +22,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
             request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
             request.Headers["Accept-Encoding"] = "gzip, deflate, br";
             request.Headers["Accept-Language"] = "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7,es;q=0.6";
-            request.Headers["sec-ch-ua"] = "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\"";
+            // Строка вида "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\""
+            request.Headers["sec-ch-ua"] = secChUa;
             request.Headers["sec-ch-ua-mobile"] = "?0";
             request.Headers["sec-ch-ua-platform"] = "\"Windows\"";
             request.Headers["Sec-Fetch-Dest"] = "document";

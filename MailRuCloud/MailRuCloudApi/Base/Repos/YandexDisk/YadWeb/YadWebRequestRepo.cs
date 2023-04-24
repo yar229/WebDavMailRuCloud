@@ -27,9 +27,15 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private readonly IBasicCredentials _creds;
 
-        public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
+        public YadWebRequestRepo(CloudSettings settings, IWebProxy proxy, IBasicCredentials creds)
         {
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+
+            HttpSettings = new()
+            {
+                UserAgent = settings.UserAgent,
+                CloudSettings = settings,
+            };
 
             HttpSettings.Proxy = proxy;
             _creds = creds;
@@ -65,10 +71,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
-        public HttpCommonSettings HttpSettings { get; } = new()
-        {
-            UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-        };
+        public HttpCommonSettings HttpSettings { get; private set; }
 
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {
