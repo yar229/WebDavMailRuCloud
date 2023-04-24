@@ -19,7 +19,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"csrf={_csrf}&Login={Uri.EscapeUriString(Auth.Login)}&AuthCode={_authCode}";
+            string data = $"csrf={_csrf}&Login={Uri.EscapeDataString(Auth.Login)}&AuthCode={_authCode}";
 
             return Encoding.UTF8.GetBytes(data);
         }

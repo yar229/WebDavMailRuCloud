@@ -52,10 +52,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Requests
         {
             var keyValues = new List<KeyValuePair<string, string>>
             {
-                new("csrf_token", Uri.EscapeUriString(_csrf)),
+                new("csrf_token", Uri.EscapeDataString(_csrf)),
                 new("track_id", _trackId),
-                new("password", Uri.EscapeUriString(_auth.Password)),
-                new("retpath", Uri.EscapeUriString("https://disk.yandex.ru/client/disk"))
+                new("password", Uri.EscapeDataString(_auth.Password)),
+                new("retpath", Uri.EscapeDataString("https://disk.yandex.ru/client/disk"))
             };
             var content = new FormUrlEncodedContent(keyValues);
             var d = content.ReadAsByteArrayAsync().Result;
