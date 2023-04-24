@@ -7,7 +7,6 @@
     <OutputType>library</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <PackageId></PackageId>
     <AssemblyVersion>1.10.0.5</AssemblyVersion>
     <FileVersion>1.10.0.5</FileVersion>
@@ -16,15 +15,39 @@
     <StartupObject></StartupObject>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='net7.0-windows'">
+    <DefineConstants>$(DefineConstants);NET7_0_WINDOWS</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='netcoreapp3.0|AnyCPU'">
+    <DefineConstants>$(DefineConstants);NETCOREAPP3_0</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net7|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
+  
+ 
+  <ItemGroup Condition="'$(TargetFramework)'=='net7.0-windows'">
+    <PackageReference Include="Core.System.Configuration.Install" Version="1.1.0" />
+    <PackageReference Include="Core.System.ServiceProcess" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.0" />
+  </ItemGroup>
   
   <ItemGroup>
     <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Configuration.Install" />
@@ -32,9 +55,5 @@
     <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="System.Xml.Linq" />
     <Reference Condition="'$(TargetFramework)' == 'NET48'" Include="Microsoft.CSharp" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>  
 
 </Project>

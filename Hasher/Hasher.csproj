@@ -7,7 +7,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
