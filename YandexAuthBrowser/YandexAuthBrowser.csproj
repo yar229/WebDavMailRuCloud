@@ -7,10 +7,23 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>cloud.ico</ApplicationIcon>
+    <AssemblyVersion>1.13.6.2</AssemblyVersion>
+    <FileVersion>1.13.6.2</FileVersion>
+    <Version>$(AssemblyVersion)</Version>
+    <Company>ZZZConsulting</Company>
+    <PackageProjectUrl>https://github.com/ZZZConsulting/WebDavMailRuCloud</PackageProjectUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="cloud.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

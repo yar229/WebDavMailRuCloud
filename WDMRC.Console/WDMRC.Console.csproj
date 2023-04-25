@@ -16,13 +16,15 @@
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.13.6.1</AssemblyVersion>
-    <FileVersion>1.13.6.1</FileVersion>
+    <AssemblyVersion>1.13.6.2</AssemblyVersion>
+    <FileVersion>1.13.6.2</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.Clouds.Console</RootNamespace>
     <StartupObject></StartupObject>
     <ApplicationIcon>cloud.ico</ApplicationIcon>
+    <PackageProjectUrl>https://github.com/yar229/WebDavMailRuCloud</PackageProjectUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
