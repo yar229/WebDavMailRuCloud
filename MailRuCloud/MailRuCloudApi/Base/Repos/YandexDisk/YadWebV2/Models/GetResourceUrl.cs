@@ -17,8 +17,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
         {
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
-            
-            yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk", Path));
+
+            //yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk", Path));
+            // 08.07.2023 в браузере при скачивании: "idResource.0"
+            yield return new KeyValuePair<string, string>($"idResource.{index}", WebDavPath.Combine("/disk", Path));
         }
     }
 
@@ -33,7 +35,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
 
     internal class ResourceUrlParams
     {
-        [JsonProperty("id")]
+        //[JsonProperty("id")]
+        // 08.07.2023 в браузере при скачивании: "idResource"
+        [JsonProperty("idResource")]
         public string Id { get; set; }
     }
 }
