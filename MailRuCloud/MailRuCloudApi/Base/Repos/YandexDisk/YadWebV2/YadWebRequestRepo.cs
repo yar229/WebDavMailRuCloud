@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models.Media;
@@ -83,10 +85,24 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 //    .MakeRequestAsync()
                 //    .Result;
 
-                var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth) Authent)
+                var _ = new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
                     .With(new YadGetResourceUrlPostModel(file.FullPath),
                         out YadResponseModel<ResourceUrlData, ResourceUrlParams> itemInfo)
                     .MakeRequestAsync().Result;
+
+                if (itemInfo == null ||
+                    itemInfo.Error != null ||
+                    itemInfo.Data == null ||
+                    itemInfo.Data.Error != null ||
+                    itemInfo?.Data?.File == null)
+                {
+                    throw new FileNotFoundException(string.Concat(
+                        "File reading error ", itemInfo?.Error?.Message,
+                        " ",
+                        itemInfo?.Data?.Error?.Message,
+                        " ",
+                        itemInfo?.Data?.Error?.Body?.Title));
+                }
 
                 var url = "https:" + itemInfo.Data.File;
                 HttpWebRequest request = new YadDownloadRequest(HttpSettings, (YadWebAuth)Authent, url, instart, inend);
@@ -303,13 +319,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                                 out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
                             .MakeRequestAsync();
 
-                        if(itemInfo!=null && (itemInfo.Data==null || itemInfo.Error!=null))
-                            throw new AuthenticationException(
-                                string.Concat(
-                                    "OAuth: Authentication using YandexAuthBrowser is failed! ",
-                                    itemInfo.Error)
-                                );
-
                         var res = itemInfo.ToAccountInfo();
                         return res;
                     }
@@ -332,13 +341,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                     .With(new YadAccountInfoPostModel(),
                         out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
                     .MakeRequestAsync();
-
-                if(itemInfo!=null && (itemInfo.Data==null || itemInfo.Error!=null))
-                    throw new AuthenticationException(
-                        string.Concat(
-                            "OAuth: Authentication using YandexAuthBrowser is failed! ",
-                            itemInfo.Error)
-                        );
 
                 var res = itemInfo.ToAccountInfo();
                 return res;

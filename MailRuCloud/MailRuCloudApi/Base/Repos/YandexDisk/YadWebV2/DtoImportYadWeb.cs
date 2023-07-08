@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Authentication;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
 using YaR.Clouds.Base.Requests.Types;
 
@@ -11,10 +12,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
         public static AccountInfoResult ToAccountInfo(this YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> data)
         {
+            if (data?.Data == null || data.Error != null)
+                throw new AuthenticationException(string.Concat("OAuth: Authentication using YandexAuthBrowser is failed! ", data?.Error?.Message));
+
             var info = data.Data;
             var res = new AccountInfoResult
             {
-                
                 FileSizeLimit = info.FilesizeLimit,
 
                 DiskUsage = new DiskUsage
