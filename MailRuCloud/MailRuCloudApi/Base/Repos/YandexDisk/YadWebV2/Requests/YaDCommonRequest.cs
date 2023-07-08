@@ -11,7 +11,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
 {
     class YaDCommonRequest : BaseRequestJson<YadResponceResult>
     {
-        //private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YaDCommonRequest));
 
         private readonly YadPostData _postData = new();
 
@@ -53,7 +53,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
                                                        .Select(m => m.Name)
                                                        .Aggregate((current, next) => current + "," + next);
 
-        protected override RequestResponse<YadResponceResult> DeserializeMessage(NameValueCollection responseHeaders, System.IO.Stream stream)
+        protected override RequestResponse<YadResponceResult> DeserializeMessage(
+            NameValueCollection responseHeaders, System.IO.Stream stream)
         {
             using var sr = new StreamReader(stream);
 
@@ -63,8 +64,18 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
             var msg = new RequestResponse<YadResponceResult>
             {
                 Ok = true,
-                Result = JsonConvert.DeserializeObject<YadResponceResult>(text, new KnownYadModelConverter(_outData))
+                Result = JsonConvert.DeserializeObject<YadResponceResult>(
+                    text, new KnownYadModelConverter(_outData))
             };
+            if (msg.Result.Models != null &&
+                msg.Result.Models.Any(m => m.Error != null))
+            {
+                Logger.Debug(text);
+            }
+            if (msg.Result.Version != "315.1.0")
+            {
+                Logger.Warn($"Yandex has new API version {msg.Result.Version}");
+            }
             return msg;
         }
     }
