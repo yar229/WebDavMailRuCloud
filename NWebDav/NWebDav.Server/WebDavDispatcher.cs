@@ -152,12 +152,12 @@ namespace NWebDav.Server
                 {
                     s_log.Log(LogLevel.Error, $"Operation aborted at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
                 }
-                // happens when client cancel operation, usially nothing to scare
+                // happens when client cancel operation, usually nothing to scare
                 catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_CONNECTION_INVALID)
                 {
                     s_log.Log(LogLevel.Error, $"An operation was attempted on a nonexistent network connection at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
                 }
-                // happens when client cancel operation, usially nothing to scare
+                // happens when client cancel operation, usually nothing to scare
                 catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_NETNAME_DELETED)
                 {
                     s_log.Log(LogLevel.Error, $"The specified network name is no longer available at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
