@@ -203,7 +203,7 @@ namespace NWebDav.Server
                     catch
                     {
                         // We might not be able to send the response, because a response
-                        // was already initiated by the the request handler.
+                        // was already initiated by the request handler.
                     }
                 }
                 finally
