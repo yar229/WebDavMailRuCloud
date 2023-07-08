@@ -29,7 +29,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         }
 
 
-        public static IEntry ToFolder(this YadFolderInfoRequestData data, YadItemInfoRequestData itemInfo, YadResourceStatsRequestData resStats, string path, string publicBaseUrl)
+        public static IEntry ToFolder(this YadFolderInfoRequestData data,
+            YadItemInfoRequestData itemInfo, YadResourceStatsRequestData resStats, string path)
         {
             var fi = data.Resources;
 
@@ -39,7 +40,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
             res.Files.AddRange(fi
                 .Where(it => it.Type == "file")
-                .Select(f => f.ToFile(publicBaseUrl))
+                .Select(f => f.ToFile())
                 .ToGroupedFiles()
             );
 
@@ -51,7 +52,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             return res;
         }
 
-        public static File ToFile(this FolderInfoDataResource data, string publicBaseUrl)
+        public static File ToFile(this FolderInfoDataResource data)
         {
             var path = data.Path.Remove(0, "/disk".Length);
 
@@ -66,7 +67,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             return res;
         }
 
-        public static File ToFile(this YadItemInfoRequestData data, string publicBaseUrl)
+        public static File ToFile(this YadItemInfoRequestData data)
         {
             var path = data.Path.Remove(0, 5); // remove "/disk"
 
@@ -207,7 +208,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             {
                 // Unix timestamp is seconds past epoch
                 var dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                dtDateTime = dtDateTime.AddSeconds(unixTimeStamp); //.ToLocalTime(); - doesn't need, clients usially convert to localtime by itself
+                dtDateTime = dtDateTime.AddSeconds(unixTimeStamp); //.ToLocalTime(); - doesn't need, clients usually convert to local time by itself
                 return dtDateTime;
             }
             catch (Exception e)
