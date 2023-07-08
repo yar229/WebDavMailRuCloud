@@ -177,6 +177,19 @@ namespace NWebDav.Server
                     s_log.Log(LogLevel.Error, $"Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");
                 }
 
+                catch (AggregateException aex) when (aex.InnerExceptions.Count == 3 &&
+                                                     /* An error occurred while sending the request. */
+                                                     aex.InnerExceptions[0] is System.Net.WebException &&
+                                                     /* An error occurred while sending the request. */
+                                                     /*aex.InnerExceptions[1] is System.Net.Http.HttpRequestException &&*/
+                                                     /* The response ended prematurely. */
+                                                     aex.InnerExceptions[2] is System.Net.WebException
+                                                     )
+                {
+                    // If client didn't wait for operation completion, just do nothing
+                    //s_log.Log(LogLevel.Error, $"Client disconnected. Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");
+                }
+
                 catch (Exception exc)
                 {
                     s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
