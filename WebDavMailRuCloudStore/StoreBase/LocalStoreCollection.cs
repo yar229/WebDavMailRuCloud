@@ -97,8 +97,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
         {
             var list = DirectoryInfo.Entries
                 .Select(entry => entry.IsFile
-                    ? (IStoreItem) new LocalStoreItem((File) entry, IsWritable, _store)
-                    : new LocalStoreCollection(httpContext, (Folder) entry, IsWritable, _store))
+                    ? (IStoreItem)new LocalStoreItem((File)entry, IsWritable, _store)
+                    : new LocalStoreCollection(httpContext, (Folder)entry, IsWritable, _store))
                 .ToList();
 
             return Task.FromResult<IEnumerable<IStoreItem>>(list);
@@ -160,7 +160,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result, new LocalStoreCollection(httpContext, new Folder(destinationPath), IsWritable, _store)));
+            return Task.FromResult(new StoreCollectionResult(result,
+                new LocalStoreCollection(httpContext, new Folder(destinationPath), IsWritable, _store)));
         }
 
         public bool SupportsFastMove(IStoreCollection destination, string destinationName, bool overwrite, IHttpContext httpContext)

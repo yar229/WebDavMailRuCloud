@@ -60,7 +60,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             var item = await CloudManager.Instance(httpContext.Session.Principal.Identity)
                 .GetItemAsync(path, Cloud.ItemType.Folder);
 
-            return new LocalStoreCollection(httpContext, (Folder)item, IsWritable, this);
+            return item == null ? null : new LocalStoreCollection(httpContext, (Folder)item, IsWritable, this);
         }
     }
 }
