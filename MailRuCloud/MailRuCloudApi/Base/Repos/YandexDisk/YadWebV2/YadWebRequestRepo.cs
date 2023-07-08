@@ -212,10 +212,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 case null:
                     return null;
                 case "file":
-                    return itdata.ToFile(PublicBaseUrlDefault);
+                    return itdata.ToFile();
                 default:
                 {
-                    var entry = folderInfo.Data.ToFolder(itemInfo.Data, resourceStats.Data, path.Path, PublicBaseUrlDefault);
+                    var entry = folderInfo.Data.ToFolder(itemInfo.Data, resourceStats.Data, path.Path);
                     return entry;
                 }
             }
@@ -241,7 +241,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 .MakeRequestAsync()
                 .Result;
 
-            var entry = folderInfo.Data.ToFolder(null, null, path, PublicBaseUrlDefault);
+            var entry = folderInfo.Data.ToFolder(null, null, path);
 
             return entry;
         }
@@ -542,7 +542,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
         public IEnumerable<string> PublicBaseUrls { get; set; } = new[]
         {
-            "https://yadi.sk"
+            "https://disk.yandex.ru"
         };
         public string PublicBaseUrlDefault => PublicBaseUrls.First();
 
