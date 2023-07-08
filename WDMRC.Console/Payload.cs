@@ -92,7 +92,7 @@ namespace YaR.Clouds.Console
             }
         }
 
-        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36";
+        private const string DefaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36";
         private static string ConstructUserAgent(string fromOptions, string fromConfig)
         {
             if (!string.IsNullOrWhiteSpace(fromOptions))
@@ -104,7 +104,7 @@ namespace YaR.Clouds.Console
             return DefaultUserAgent;
         }
 
-        private const string DefaultSecChUa = "\"Chromium\";v=\"112\", \"Google Chrome\";v=\"112\", \"Not:A-Brand\";v=\"99\"";
+        private const string DefaultSecChUa = "Not.A/Brand\";v=\"8\", \"Chromium\";v=\"114\", \"Google Chrome\";v=\"114\"";
         private static string ConstructSecChUa(string fromOptions, string fromConfig)
         {
             if(!string.IsNullOrWhiteSpace(fromOptions))
