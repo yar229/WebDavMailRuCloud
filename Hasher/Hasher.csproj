@@ -13,6 +13,7 @@
     <Product>WebDAVCloudMailRu</Product>
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>Hash calculator</Description>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>

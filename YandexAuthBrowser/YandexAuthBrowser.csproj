@@ -15,6 +15,7 @@
     <Company>ZZZConsulting</Company>
     <PackageProjectUrl>https://github.com/ZZZConsulting/WebDavMailRuCloud</PackageProjectUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>
