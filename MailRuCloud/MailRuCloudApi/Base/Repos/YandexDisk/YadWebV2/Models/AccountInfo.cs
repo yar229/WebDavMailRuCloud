@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Xml.Linq;
+using Newtonsoft.Json;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
 {
@@ -36,7 +37,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
 
     public class YadAccountInfoRequestParams
     {
-        [JsonProperty("locale")]
-        public string Locale { get; set; }
+        // С июля 2023 отсутствует в возвращаемых данных при запросе размера диска
+        //[JsonProperty("locale")]
+        //public string Locale { get; set; }
     }
 }
