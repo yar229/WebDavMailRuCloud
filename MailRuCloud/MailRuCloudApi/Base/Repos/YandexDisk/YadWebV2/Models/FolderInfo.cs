@@ -15,7 +15,18 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
         }
 
         public string Path { get; set; }
+        /// <summary>
+        /// <para>0 - сортировка возвращаемого результата по убыванию.</para>
+        /// <para>1 - сортировка возвращаемого результата по возрастанию.</para>
+        /// </summary>
         public int Order { get; set; } = 1;
+        /// <summary>
+        /// <para>Поле сортировки возвращаемого результата.</para>
+        /// <para>name - по названию файла.</para>
+        /// <para>mtime - по времени изменения.</para>
+        /// <para>size - по размеру.</para>
+        /// <para>type - по типу.</para>
+        /// </summary>
         public string SortBy { get; set; } = "name";
         public int Offset { get; set; } = 0;
         public int Amount { get; set; } = int.MaxValue;
