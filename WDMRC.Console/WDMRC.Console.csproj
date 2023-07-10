@@ -13,11 +13,11 @@
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
-    <Copyright>yar229@yandex.ru</Copyright>
+    <Copyright>yar229@yandex.ru;ZZZConsulting@internet.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.13.6.3</AssemblyVersion>
-    <FileVersion>1.13.6.3</FileVersion>
+    <AssemblyVersion>1.13.6.4</AssemblyVersion>
+    <FileVersion>1.13.6.4</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.Clouds.Console</RootNamespace>
