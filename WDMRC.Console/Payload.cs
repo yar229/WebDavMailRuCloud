@@ -55,9 +55,11 @@ namespace YaR.Clouds.Console
 
                 Proxy = ProxyFabric.Get(options.ProxyAddress, options.ProxyUser, options.ProxyPassword),
 
+                UseLinkManager = options.UseLinkManager,
+
                 BrowserAuthenticatorUrl = Config.BrowserAuthenticator?.Url,
-                BrowserAuthenticatorstringPassword = Config.BrowserAuthenticator?.Password,
-                BrowserAuthenticatorstringCacheDir = Config.BrowserAuthenticator?.CacheDir,
+                BrowserAuthenticatorPassword = Config.BrowserAuthenticator?.Password,
+                BrowserAuthenticatorCacheDir = Config.BrowserAuthenticator?.CacheDir,
             };
 
             ShowInfo(options);

@@ -26,7 +26,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             bool doRegularLogin = true;
 
             // if local cookie cache on disk is enabled
-            if (!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorstringCacheDir))
+            if (!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorCacheDir))
             {
                 string path = null;
 
@@ -35,7 +35,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 {
                     // Check file with cookies is created
                     path = System.IO.Path.Combine(
-                        settings.CloudSettings.BrowserAuthenticatorstringCacheDir,
+                        settings.CloudSettings.BrowserAuthenticatorCacheDir,
                         creds.Login
                     );
                     if (System.IO.File.Exists(path))
@@ -101,11 +101,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         public static string GetCache(HttpCommonSettings settings, IBasicCredentials creds)
         {
             // Проверяем кеш в файле и читаем, если он есть
-            if(string.IsNullOrEmpty(settings.CloudSettings.BrowserAuthenticatorstringCacheDir))
+            if(string.IsNullOrEmpty(settings.CloudSettings.BrowserAuthenticatorCacheDir))
                 return null;
 
             string path = System.IO.Path.Combine(
-                settings.CloudSettings.BrowserAuthenticatorstringCacheDir,
+                settings.CloudSettings.BrowserAuthenticatorCacheDir,
                 creds.Login
                 );
             if(!System.IO.File.Exists(path))
@@ -140,10 +140,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 }
 
                 // Если аутентификация прошла успешно, сохраняем результат в кеш в файл
-                if(!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorstringCacheDir))
+                if(!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorCacheDir))
                 {
                     string path = System.IO.Path.Combine(
-                        _settings.CloudSettings.BrowserAuthenticatorstringCacheDir,
+                        _settings.CloudSettings.BrowserAuthenticatorCacheDir,
                         _creds.Login
                         );
 
@@ -246,7 +246,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
             string url = _settings.CloudSettings.BrowserAuthenticatorUrl;
             string password = string.IsNullOrWhiteSpace(Password)
-                ? _settings.CloudSettings.BrowserAuthenticatorstringPassword
+                ? _settings.CloudSettings.BrowserAuthenticatorPassword
                 : Password;
 
             if(string.IsNullOrEmpty(url))

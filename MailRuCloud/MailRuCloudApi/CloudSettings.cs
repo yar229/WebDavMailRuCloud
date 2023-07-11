@@ -34,14 +34,15 @@ namespace YaR.Clouds
 
         public DeduplicateRulesBag DeduplicateRules { get; set; }
 
+        public bool UseLinkManager { get; set; }
 
         #region BrowserAuthenticator
 
         public string BrowserAuthenticatorUrl { get; set; }
 
-        public string BrowserAuthenticatorstringPassword { get; set; }
+        public string BrowserAuthenticatorPassword { get; set; }
 
-        public string BrowserAuthenticatorstringCacheDir { get; set; }
+        public string BrowserAuthenticatorCacheDir { get; set; }
 
         #endregion
     }
