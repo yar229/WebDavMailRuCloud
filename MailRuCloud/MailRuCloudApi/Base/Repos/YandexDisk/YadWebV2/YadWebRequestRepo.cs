@@ -302,55 +302,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         {
             //var req = await new YadAccountInfoRequest(HttpSettings, (YadWebAuth)Authent).MakeRequestAsync();
 
-            if(_cachedAuth == null &&
-                !string.IsNullOrEmpty(HttpSettings.CloudSettings.BrowserAuthenticatorstringCacheDir))
-            {
-                string path = YadWebAuth.GetCache(HttpSettings, _creds);
-                if(path != null)
-                {
-                    // Если в кеше аутентификации пустой, пытаемся загрузить куки из кеша
-                    try
-                    {
-                        _cachedAuth =
-                            new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds, path), _ => TimeSpan.FromHours(23));
+            await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
+                .With(new YadAccountInfoPostModel(),
+                    out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                .MakeRequestAsync();
 
-                        await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
-                            .With(new YadAccountInfoPostModel(),
-                                out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
-                            .MakeRequestAsync();
-
-                        var res = itemInfo.ToAccountInfo();
-                        return res;
-                    }
-                    catch(Exception)
-                    {
-                        // Если попытка чтения информации об учетной записи с данными из кеша дала ошибку,
-                        // делается сброс кеша и удаление файла кеша.
-                        _cachedAuth = null;
-                        try
-                        {
-                            System.IO.File.Delete(path);
-                        }
-                        catch(Exception) { }
-                    }
-                }
-            }
-            try
-            {
-                await new YaDCommonRequest(HttpSettings, (YadWebAuth)Authent)
-                    .With(new YadAccountInfoPostModel(),
-                        out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
-                    .MakeRequestAsync();
-
-                var res = itemInfo.ToAccountInfo();
-                return res;
-            }
-            catch (Exception)
-            {
-                // Если попытка чтения информации об учетной записи дала ошибку, делается сброс кеша
-                _cachedAuth = null;
-                throw;
-            }
+            var res = itemInfo.ToAccountInfo();
+            return res;
         }
 
         public async Task<CreateFolderResult> CreateFolder(string path)

@@ -9,6 +9,8 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
+using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests;
 using YaR.Clouds.Base.Requests;
 
 namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
@@ -20,8 +22,56 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
             _settings = settings;
             _creds = creds;
             Cookies = new CookieContainer();
+            bool doRegularLogin = true;
 
-            MakeLogin().Wait();
+            // if local cookie cache on disk is enabled
+            if (!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorstringCacheDir))
+            {
+                string path = null;
+
+                // Если в кеше аутентификации пустой, пытаемся загрузить куки из кеша
+                try
+                {
+                    // Check file with cookies is created
+                    path = System.IO.Path.Combine(
+                        settings.CloudSettings.BrowserAuthenticatorstringCacheDir,
+                        creds.Login
+                    );
+                    if (System.IO.File.Exists(path))
+                    {
+                        YadWebAuth testAuthent = new YadWebAuth(_settings, _creds, path);
+                        // Try to get user info using cached cookie
+                        new YaDCommonRequest(_settings, testAuthent)
+                            .With(new YadAccountInfoPostModel(),
+                                out YadResponseModel<YadAccountInfoRequestData, YadAccountInfoRequestParams> itemInfo)
+                            .MakeRequestAsync().Wait();
+
+                        var res = itemInfo.ToAccountInfo();
+
+                        // Request for user info using cached cookie finished successfully
+                        Cookies = testAuthent.Cookies;
+                        DiskSk = testAuthent.DiskSk;
+                        Uuid = testAuthent.Uuid;
+                        doRegularLogin = false;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Request for user info using cached cookie failed
+
+                    // Delete file with cache first
+                    try
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                    catch (Exception) { }
+                    // Then make regular login
+                    doRegularLogin = true;
+                }
+            }
+
+            if( doRegularLogin)
+                MakeLogin().Wait();
         }
 
         public YadWebAuth(HttpCommonSettings settings, IBasicCredentials creds, string path)
