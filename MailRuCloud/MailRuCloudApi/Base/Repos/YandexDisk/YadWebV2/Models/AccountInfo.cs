@@ -37,8 +37,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models
 
     public class YadAccountInfoRequestParams
     {
-        // С июля 2023 отсутствует в возвращаемых данных при запросе размера диска
-        //[JsonProperty("locale")]
-        //public string Locale { get; set; }
+        [JsonProperty("locale")]
+        public string Locale { get; set; }
     }
 }
