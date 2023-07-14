@@ -4,9 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Security.Authentication;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using YaR.Clouds.Base.Repos.MailRuCloud;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models.Media;
@@ -63,10 +61,12 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         public IAuth Authent => CachedAuth.Value;
 
         private Cached<YadWebAuth> CachedAuth => _cachedAuth ??=
-            new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
+                new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList
+            => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(
+                _ =>
                     {
                         var res = GetShareListInner().Result;
                         return res;
