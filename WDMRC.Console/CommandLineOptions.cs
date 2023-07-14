@@ -53,7 +53,7 @@ namespace YaR.Clouds.Console
         [Option("cache-listing", Default = 30, HelpText = "Cache folders listing, sec")]
         public int CacheListingSec { get; set; }
 
-		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth")]
+		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth, always equals 1 when cache-listing>0")]
 		public int CacheListingDepth { get; set; }
 
         [Option("proxy-address", Default = "", HelpText = "Proxy address i.e. http://192.168.1.1:8080")]
