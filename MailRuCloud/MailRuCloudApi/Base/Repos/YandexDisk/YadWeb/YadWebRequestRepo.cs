@@ -59,10 +59,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public IAuth Authent => CachedAuth.Value;
 
-        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??=
+                new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList
+            => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(
+                _ =>
                     {
                         var res = GetShareListInner().Result;
                         return res;
