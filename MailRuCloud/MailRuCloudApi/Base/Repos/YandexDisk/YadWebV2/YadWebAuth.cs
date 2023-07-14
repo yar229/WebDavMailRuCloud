@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
-using System.Text;
 using System.Threading.Tasks;
+using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests;
@@ -17,8 +15,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 {
     class YadWebAuth : IAuth
     {
+        private static readonly log4net.ILog Logger = log4net.LogManager.GetLogger(typeof(YadWebAuth));
+
         public YadWebAuth(HttpCommonSettings settings, IBasicCredentials creds)
         {
+       
             _settings = settings;
             _creds = creds;
             Cookies = new CookieContainer();
@@ -53,6 +54,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                         DiskSk = testAuthent.DiskSk;
                         Uuid = testAuthent.Uuid;
                         doRegularLogin = false;
+                        Logger.Info($"Authentication refreshed using cached cookie");
                     }
                 }
                 catch (Exception)
@@ -70,8 +72,11 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 }
             }
 
-            if( doRegularLogin)
+            if (doRegularLogin)
+            {
                 MakeLogin().Wait();
+                Logger.Info($"Authentication successful");
+            }
         }
 
         public YadWebAuth(HttpCommonSettings settings, IBasicCredentials creds, string path)
