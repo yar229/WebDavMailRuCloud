@@ -153,24 +153,27 @@ namespace YaR.Clouds
         {
             if (!folder.IsChildsLoaded) return;
 
-            var flinks = LinkManager?.GetItems(folder.FullPath);
-            if (flinks != null && flinks.Any())
+            if (LinkManager != null)
             {
-                foreach (var flink in flinks)
+                var flinks = LinkManager.GetItems(folder.FullPath);
+                if (flinks != null && flinks.Any())
                 {
-                    string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
-
-                    if (!flink.IsFile)
-                        folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
-                    else
+                    foreach (var flink in flinks)
                     {
-                        if (folder.Files.Any(inf => inf.FullPath == linkpath))
-                            continue;
+                        string linkpath = WebDavPath.Combine(folder.FullPath, flink.Name);
 
-                        var newfile = new File(linkpath, flink.Size, new PublicLinkInfo(flink.Href));
-                        if (flink.CreationDate != null)
-                            newfile.LastWriteTimeUtc = flink.CreationDate.Value;
-                        folder.Files.Add(newfile);
+                        if (!flink.IsFile)
+                            folder.Folders.Add(new Folder(0, linkpath) { CreationTimeUtc = flink.CreationDate ?? DateTime.MinValue });
+                        else
+                        {
+                            if (folder.Files.Any(inf => inf.FullPath == linkpath))
+                                continue;
+
+                            var newfile = new File(linkpath, flink.Size, new PublicLinkInfo(flink.Href));
+                            if (flink.CreationDate != null)
+                                newfile.LastWriteTimeUtc = flink.CreationDate.Value;
+                            folder.Files.Add(newfile);
+                        }
                     }
                 }
             }
@@ -359,14 +362,17 @@ namespace YaR.Clouds
             destinationPath = WebDavPath.Clean(destinationPath);
 
             // if it linked - just clone
-            var link = await LinkManager?.GetItemLink(folder.FullPath, false);
-            if (link != null)
+            if (LinkManager != null)
             {
-                var cloneres = await CloneItem(destinationPath, link.Href.OriginalString);
-                if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == link.Name) 
-                    return cloneres.IsSuccess;
-                var renRes = await Rename(cloneres.Path, link.Name);
-                return renRes;
+                var link = await LinkManager.GetItemLink(folder.FullPath, false);
+                if (link != null)
+                {
+                    var cloneres = await CloneItem(destinationPath, link.Href.OriginalString);
+                    if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == link.Name)
+                        return cloneres.IsSuccess;
+                    var renRes = await Rename(cloneres.Path, link.Name);
+                    return renRes;
+                }
             }
 
             //var copyRes = await new CopyRequest(CloudApi, folder.FullPath, destinationPath).MakeRequestAsync();
@@ -374,21 +380,24 @@ namespace YaR.Clouds
             if (!copyRes.IsSuccess) return false;
 
             //clone all inner links
-            var links = LinkManager?.GetChilds(folder.FullPath);
-            if (links != null)
+            if (LinkManager != null)
             {
-                foreach (var linka in links)
+                var links = LinkManager.GetChilds(folder.FullPath);
+                if (links != null)
                 {
-                    var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
-                    var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
-                    if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == linka.Name)
-                        continue;
+                    foreach (var linka in links)
+                    {
+                        var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
+                        var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
+                        if (!cloneres.IsSuccess || WebDavPath.Name(cloneres.Path) == linka.Name)
+                            continue;
 
-                    if (await Rename(cloneres.Path, linka.Name))
-                        continue;
+                        if (await Rename(cloneres.Path, linka.Name))
+                            continue;
 
-                    _itemCache.Invalidate(destinationPath);
-                    return false;
+                        _itemCache.Invalidate(destinationPath);
+                        return false;
+                    }
                 }
             }
 
@@ -443,19 +452,22 @@ namespace YaR.Clouds
             newname = string.IsNullOrEmpty(newname) ? file.Name : newname;
             bool doRename = file.Name != newname;
 
-            var link = await LinkManager?.GetItemLink(file.FullPath, false);
-            // копируем не саму ссылку, а её содержимое
-            if (link != null)
+            if (LinkManager != null)
             {
-                var cloneRes = await CloneItem(destPath, link.Href.OriginalString);
-                if (doRename || WebDavPath.Name(cloneRes.Path) != newname)
+                var link = await LinkManager.GetItemLink(file.FullPath, false);
+                // копируем не саму ссылку, а её содержимое
+                if (link != null)
                 {
-                    string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(cloneRes.Path));
-                    var renameRes = await Rename(newFullPath, link.Name);
-                    if (!renameRes) return false;
+                    var cloneRes = await CloneItem(destPath, link.Href.OriginalString);
+                    if (doRename || WebDavPath.Name(cloneRes.Path) != newname)
+                    {
+                        string newFullPath = WebDavPath.Combine(destPath, WebDavPath.Name(cloneRes.Path));
+                        var renameRes = await Rename(newFullPath, link.Name);
+                        if (!renameRes) return false;
+                    }
+                    if (cloneRes.IsSuccess) _itemCache.Invalidate(destinationPath);
+                    return cloneRes.IsSuccess;
                 }
-                if (cloneRes.IsSuccess) _itemCache.Invalidate(destinationPath);
-                return cloneRes.IsSuccess;
             }
 
             var qry = file.Files
@@ -543,7 +555,7 @@ namespace YaR.Clouds
         /// <returns>True or false result operation.</returns>
         private async Task<bool> Rename(string fullPath, string newName)
         {
-            var link = await LinkManager?.GetItemLink(fullPath, false);
+            var link = LinkManager==null? null : await LinkManager.GetItemLink(fullPath, false);
 
             //rename item
             if (link == null)
@@ -553,7 +565,7 @@ namespace YaR.Clouds
                 if (!data.IsSuccess) 
                     return data.IsSuccess;
 
-                LinkManager?.ProcessRename(fullPath, newName);
+                LinkManager.ProcessRename(fullPath, newName);
                 _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
 
                 return data.IsSuccess;
@@ -616,7 +628,7 @@ namespace YaR.Clouds
         /// <returns>True or false operation result.</returns>
         public async Task<bool> MoveAsync(Folder folder, string destinationPath)
         {
-            var link = await LinkManager?.GetItemLink(folder.FullPath, false);
+            var link = LinkManager == null ? null : await LinkManager.GetItemLink(folder.FullPath, false);
             if (link != null)
             {
                 var remapped = await LinkManager.RemapLink(link, destinationPath);
@@ -630,27 +642,31 @@ namespace YaR.Clouds
             if (!res.IsSuccess) return false;
 
             //clone all inner links
-            var links = LinkManager?.GetChilds(folder.FullPath).ToList();
-            foreach (var linka in links)
+            if (LinkManager != null)
             {
-                // некоторые клиенты сначала делают структуру каталогов, а потом по одному переносят файлы
-                // в таких условиях на каждый файл получится свой собственный линк, если делать правильно, т.е. в итоге расплодится миллион линков
-                // поэтому делаем неправильно - копируем содержимое линков
-
-                var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
-                var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
-                if (!cloneres.IsSuccess) 
-                    continue;
-
-                _itemCache.Invalidate(destinationPath);
-                if (WebDavPath.Name(cloneres.Path) != linka.Name)
+                var links = LinkManager.GetChilds(folder.FullPath).ToList();
+                foreach (var linka in links)
                 {
-                    var renRes = await Rename(cloneres.Path, linka.Name);
-                    if (!renRes) return false;
+                    // некоторые клиенты сначала делают структуру каталогов, а потом по одному переносят файлы
+                    // в таких условиях на каждый файл получится свой собственный линк,
+                    // если делать правильно, т.е. в итоге расплодится миллион линков
+                    // поэтому делаем неправильно - копируем содержимое линков
+
+                    var linkdest = WebDavPath.ModifyParent(linka.MapPath, WebDavPath.Parent(folder.FullPath), destinationPath);
+                    var cloneres = await CloneItem(linkdest, linka.Href.OriginalString);
+                    if (!cloneres.IsSuccess)
+                        continue;
+
+                    _itemCache.Invalidate(destinationPath);
+                    if (WebDavPath.Name(cloneres.Path) != linka.Name)
+                    {
+                        var renRes = await Rename(cloneres.Path, linka.Name);
+                        if (!renRes) return false;
+                    }
                 }
+                if (links.Any())
+                    LinkManager.Save();
             }
-            if (links.Any())
-                LinkManager?.Save();
 
             return true;
         }
@@ -663,7 +679,7 @@ namespace YaR.Clouds
         /// <returns>True or false operation result.</returns>
         public async Task<bool> MoveAsync(File file, string destinationPath)
         {
-            var link = await LinkManager?.GetItemLink(file.FullPath, false);
+            var link = LinkManager == null ? null : await LinkManager.GetItemLink(file.FullPath, false);
             if (link != null)
             {
                 var remapped = await LinkManager.RemapLink(link, destinationPath);
@@ -779,7 +795,7 @@ namespace YaR.Clouds
         private async Task<bool> Remove(string fullPath)
         {
             //TODO: refact
-            var link = await LinkManager?.GetItemLink(fullPath, false);
+            var link = LinkManager == null ? null : await LinkManager.GetItemLink(fullPath, false);
 
             if (link != null)
             {
