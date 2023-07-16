@@ -39,10 +39,10 @@ namespace YaR.Clouds
         public CloudSettings Settings { get; }
 
         /// <summary>
-		/// Gets or sets account to connect with cloud.
-		/// </summary>
-		/// <value>Account info.</value>
-		public Account Account { get; }
+        /// Gets or sets account to connect with cloud.
+        /// </summary>
+        /// <value>Account info.</value>
+        public Account Account { get; }
 
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace YaR.Clouds
         /// </summary>
         public Cloud(CloudSettings settings, Credentials credentials)
         {
-	        Settings = settings;
+            Settings = settings;
             Account = new Account(settings, credentials);
             if (!Account.Login())
             {
@@ -100,14 +100,14 @@ namespace YaR.Clouds
 
             path = WebDavPath.Clean(path);
 
-	        if (Settings.CacheListingSec > 0)
-	        {
-		        var cached = CacheGetEntry(path);
-		        if (cached != null)
-			        return cached;
-	        }
+            if (Settings.CacheListingSec > 0)
+            {
+                var cached = CacheGetEntry(path);
+                if (cached != null)
+                    return cached;
+            }
 
-	        //TODO: subject to refact!!!
+            //TODO: subject to refact!!!
             var ulink = resolveLinks ? await LinkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
@@ -144,9 +144,9 @@ namespace YaR.Clouds
                 FillWithULinks(folder);
 
             if (Settings.CacheListingSec > 0)
-		        CacheAddEntry(entry);
+                CacheAddEntry(entry);
 
-	        return entry;
+            return entry;
         }
 
         private void FillWithULinks(Folder folder)
@@ -199,24 +199,44 @@ namespace YaR.Clouds
             }
         }
 
-	    private IEntry CacheGetEntry(string path)
-	    {
-		    var cached = _itemCache.Get(path);
+        private IEntry CacheGetEntry(string path)
+        {
+            var cached = _itemCache.Get(path);
             return cached;
         }
 
-	    public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
+        public virtual IEntry GetItem(string path, ItemType itemType = ItemType.Unknown, bool resolveLinks = true)
         {
             return GetItemAsync(path, itemType, resolveLinks).Result;
         }
 
         public IEnumerable<File> IsFileExists(string filename, IList<string> folderPaths)
         {
-            var files = folderPaths
+            if (folderPaths == null)
+            {
+#if DEBUG
+                // This case should not be happened, let's find out why we are here.
+                System.Diagnostics.Debugger.Break();
+#endif
+                return Enumerable.Empty<File>();
+            }
+
+            var folder = folderPaths
                 .AsParallel()
                 .WithDegreeOfParallelism(Math.Min(MaxInnerParallelRequests, folderPaths.Count))
-                .Select(async path => (Folder) await GetItemAsync(path, ItemType.Folder, false))
-                .SelectMany(fld => fld.Result.Files.Where(file =>  WebDavPath.PathEquals(file.Name, filename)));
+                .Select(async path => (Folder)await GetItemAsync(path, ItemType.Folder, false));
+
+            if (folder == null)
+            {
+#if DEBUG
+                // This case should not be happened, let's find out why we are here.
+                System.Diagnostics.Debugger.Break();
+#endif
+                return Enumerable.Empty<File>();
+            }
+
+            var files = folder
+                .SelectMany(fld => (fld.Result?.Files ?? new List<File>()).Where(file => WebDavPath.PathEquals(file.Name, filename)));
 
             return files;
         }
