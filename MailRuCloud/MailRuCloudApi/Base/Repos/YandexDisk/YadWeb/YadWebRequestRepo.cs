@@ -33,7 +33,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
             HttpSettings = new()
             {
-                UserAgent = settings.UserAgent,
+                /*
+                 * Оригинальная версия содержит именно такую инициализацию.
+                 * Есть вероятность, что для этого user-agent Яндекс не выпендривается
+                 * и не начинает принудительно переводить на вход по СМС.
+                 */
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
+                //UserAgent = settings.UserAgent,
                 CloudSettings = settings,
             };
 
