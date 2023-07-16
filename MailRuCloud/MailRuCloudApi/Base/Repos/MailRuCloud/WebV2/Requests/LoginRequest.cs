@@ -26,7 +26,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebV2.Requests
 
         protected override byte[] CreateHttpContent()
         {
-            string data = $"Login={Uri.EscapeDataString(Auth.Login)}&Domain={CommonSettings.Domain}&Password={Uri.EscapeDataString(Auth.Password)}";
+            string data = $"Login={Uri.EscapeUriString(Auth.Login)}&Domain={CommonSettings.Domain}&Password={Uri.EscapeUriString(Auth.Password)}";
 
             return Encoding.UTF8.GetBytes(data);
         }
