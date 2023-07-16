@@ -64,7 +64,7 @@ namespace YaR.Clouds
 
             //TODO: wow very dummy linking, refact cache realization globally!
             _itemCache = new ItemCache<string, IEntry>(TimeSpan.FromSeconds(settings.CacheListingSec)) { CleanUpPeriod = TimeSpan.FromMinutes(5) };
-            LinkManager = settings.UseLinkManager ? new LinkManager(this) : null;
+            LinkManager = settings.DisableLinkManager ? null : new LinkManager(this);
         }
 
         public enum ItemType

@@ -34,7 +34,7 @@ namespace YaR.Clouds
 
         public DeduplicateRulesBag DeduplicateRules { get; set; }
 
-        public bool UseLinkManager { get; set; }
+        public bool DisableLinkManager { get; set; }
 
         #region BrowserAuthenticator
 
