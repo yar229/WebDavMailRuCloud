@@ -560,11 +560,14 @@ namespace YaR.Clouds
             }
 
             //rename link
-            var res = LinkManager?.RenameLink(link, newName);
-            if (res==true)
-                _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
-
-            return res==true;
+            if (LinkManager != null)
+            {
+                bool res = LinkManager.RenameLink(link, newName);
+                if (res)
+                    _itemCache.Invalidate(fullPath, WebDavPath.Parent(fullPath));
+                return res;
+            }
+            return false;
         }
 
         #endregion == Rename ========================================================================================================================
