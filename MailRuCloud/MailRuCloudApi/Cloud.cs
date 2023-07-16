@@ -108,7 +108,7 @@ namespace YaR.Clouds
             }
 
             //TODO: subject to refact!!!
-            var ulink = resolveLinks ? await LinkManager?.GetItemLink(path) : null;
+            Link ulink = resolveLinks && LinkManager != null ? await LinkManager.GetItemLink(path) : null;
 
             // bad link detected, just return stub
             // cause client cannot, for example, delete it if we return NotFound for this item
@@ -341,7 +341,7 @@ namespace YaR.Clouds
                 null => throw new ArgumentNullException(nameof(entry)),
                 File file => await Publish(file, makeShareFile, generateDirectVideoLink, makeM3UFile, videoResolution),
                 Folder folder => await Publish(folder, makeShareFile),
-                _ => throw new Exception($"Unknow entry type, type = {entry.GetType()},path = {entry.FullPath}")
+                _ => throw new Exception($"Unknown entry type, type = {entry.GetType()},path = {entry.FullPath}")
             };
         }
         #endregion == Publish =======================================================================================================================

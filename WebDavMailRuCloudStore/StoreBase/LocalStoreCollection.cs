@@ -31,7 +31,7 @@ namespace YaR.Clouds.WebDavStore.StoreBase
             LocalStore store)
         {
             _context = context;
-            DirectoryInfo = directoryInfo;
+            DirectoryInfo = directoryInfo ?? throw new ArgumentNullException(nameof(directoryInfo));
             _store = store;
 
             IsWritable = isWritable;

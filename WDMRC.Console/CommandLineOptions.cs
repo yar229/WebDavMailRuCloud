@@ -69,7 +69,7 @@ namespace YaR.Clouds.Console
         [Option("use-deduplicate", Required = false, Default = false, HelpText = "Use cloud deduplicate feature to minimize traffic")]
         public bool UseDeduplicate { get; set; }
 
-        [Option("use-linkmanager", Required = false, Default = true, HelpText = "Support links for shared folder stored in /item.links.wdmrc")]
+        [Option("use-linkmanager", Required = false, Default = false, HelpText = "Support links for shared folder stored in /item.links.wdmrc")]
         public bool UseLinkManager { get; set; }
     }
 }
