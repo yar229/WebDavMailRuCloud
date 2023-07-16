@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <CommonLangVersion>latest</CommonLangVersion>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
     <TargetFrameworks>net7.0-windows</TargetFrameworks>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>

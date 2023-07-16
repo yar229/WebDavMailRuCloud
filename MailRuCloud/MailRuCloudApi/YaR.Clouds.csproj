@@ -11,7 +11,7 @@
     <AssemblyVersion>1.13.6.1</AssemblyVersion>
     <FileVersion>1.13.6.1</FileVersion>
     <Version>$(AssemblyVersion)</Version>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 

@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
     <DefineConstants>$(DefineConstants);TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />

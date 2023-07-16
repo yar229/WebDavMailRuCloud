@@ -160,7 +160,8 @@ namespace YaR.Clouds.WebDavStore.StoreBase
                 return null;
             }
 
-            return Task.FromResult(new StoreCollectionResult(result,
+            return Task.FromResult(
+                new StoreCollectionResult(result,
                 new LocalStoreCollection(httpContext, new Folder(destinationPath), IsWritable, _store)));
         }
 

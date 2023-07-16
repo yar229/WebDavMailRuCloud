@@ -8,7 +8,7 @@
 	<CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.File</AssemblyName>
-	  <LangVersion>latest</LangVersion>
+	  <LangVersion>$(CommonLangVersion)</LangVersion>
 	  <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 

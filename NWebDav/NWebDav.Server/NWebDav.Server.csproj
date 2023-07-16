@@ -20,7 +20,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>$(CommonLangVersion)</LangVersion>
 		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 	</PropertyGroup>
 

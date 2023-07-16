@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <Import Project="..\Common.targets" />
   
@@ -8,7 +8,7 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
     <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>	
   </PropertyGroup>
 
