@@ -4,6 +4,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
+		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
@@ -14,8 +15,13 @@
 		<DefineConstants>$(DefineConstants);USE_XML_ASYNC_READWRITE</DefineConstants>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+		<DefineConstants>$(DefineConstants);USE_XML_ASYNC_READWRITE</DefineConstants>
+	</PropertyGroup>
+
 	<PropertyGroup>
-		<LangVersion>latest</LangVersion>
+		<LangVersion>$(CommonLangVersion)</LangVersion>
+		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">

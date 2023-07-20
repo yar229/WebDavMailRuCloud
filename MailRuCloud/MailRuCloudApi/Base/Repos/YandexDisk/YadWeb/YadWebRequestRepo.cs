@@ -27,9 +27,21 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         private readonly IBasicCredentials _creds;
 
-        public YadWebRequestRepo(IWebProxy proxy, IBasicCredentials creds)
+        public YadWebRequestRepo(CloudSettings settings, IWebProxy proxy, IBasicCredentials creds)
         {
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
+
+            HttpSettings = new()
+            {
+                /*
+                 * Оригинальная версия содержит именно такую инициализацию.
+                 * Есть вероятность, что для этого user-agent Яндекс не выпендривается
+                 * и не начинает принудительно переводить на вход по СМС.
+                 */
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36",
+                //UserAgent = settings.UserAgent,
+                CloudSettings = settings,
+            };
 
             HttpSettings.Proxy = proxy;
             _creds = creds;
@@ -53,10 +65,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
 
         public IAuth Authent => CachedAuth.Value;
 
-        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??= new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
+        private Cached<YadWebAuth> CachedAuth => _cachedAuth ??=
+                new Cached<YadWebAuth>(_ => new YadWebAuth(HttpSettings, _creds), _ => TimeSpan.FromHours(23));
         private Cached<YadWebAuth> _cachedAuth;
 
-        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(_ =>
+        public Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> CachedSharedList
+            => _cachedSharedList ??= new Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>>(
+                _ =>
                     {
                         var res = GetShareListInner().Result;
                         return res;
@@ -65,10 +80,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         private Cached<Dictionary<string, IEnumerable<PublicLinkInfo>>> _cachedSharedList;
 
 
-        public HttpCommonSettings HttpSettings { get; } = new()
-        {
-            UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
-        };
+        public HttpCommonSettings HttpSettings { get; private set; }
 
         public Stream GetDownloadStream(File afile, long? start = null, long? end = null)
         {

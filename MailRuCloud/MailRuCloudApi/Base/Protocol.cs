@@ -4,6 +4,7 @@
     {
         WebM1Bin,
         WebV2,
-        YadWeb
+        YadWeb,
+        YadWebV2
     }
 }

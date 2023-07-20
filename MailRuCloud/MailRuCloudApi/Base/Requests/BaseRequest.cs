@@ -72,6 +72,10 @@ namespace YaR.Clouds.Base.Requests
             {
                 httprequest.Method = "POST";
                 var stream = httprequest.GetRequestStream();
+                /*
+                 * For debug add to Watch:
+                 *      System.Text.Encoding.UTF8.GetString(content)
+                 */
                 await stream.WriteAsync(content, 0, content.Length);
             }
             try

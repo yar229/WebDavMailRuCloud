@@ -155,13 +155,18 @@ namespace YaR.Clouds.WebDavStore.CustomHandlers
                     {
                         await CopyToAsync(stream, response.Stream, 0, stream.Length - 1).ConfigureAwait(false);
                     }
+                    catch(System.Net.HttpListenerException)
+                    {
+                        // Client is disconnected, we can not write to the stream any more
+                        response.Abort();
+                        // Do not throw an exception
+                    }
                     catch (Exception)
                     {
                         // if error occurred when copying streams client will hang till timed out so we need to abort connection
                         response.Abort();
                         throw;
                     }
-
                 }
                 else
                 {

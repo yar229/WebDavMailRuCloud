@@ -1,4 +1,4 @@
-﻿#if NET48
+﻿#if NET48 || NET7_0_WINDOWS
 using System;
 using System.ServiceProcess;
 using System.Threading.Tasks;

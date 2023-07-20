@@ -293,7 +293,7 @@ namespace NWebDav.Server.Handlers
                 else
                     vals.Dict.Add(value, xval);
 
-                PropertyCache.Add(name, vals);
+                PropertyCache[name] = vals;
 
                 return xval;
             }

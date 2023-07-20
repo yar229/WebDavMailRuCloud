@@ -25,10 +25,10 @@ namespace YaR.Clouds.Base.Streams
             Initialize();
         }
 
-        public Action FileStreamSent;
+        public Action FileStreamSent = null;
         private void OnFileStreamSent() => FileStreamSent?.Invoke();
 
-        public Action ServerFileProcessed;
+        public Action ServerFileProcessed = null;
         private void OnServerFileProcessed() => ServerFileProcessed?.Invoke();
 
 
