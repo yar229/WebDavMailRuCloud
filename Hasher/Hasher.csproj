@@ -6,12 +6,14 @@
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
     <Copyright>yar229@yandex.ru</Copyright>
     <Description>Hash calculator</Description>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>

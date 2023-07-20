@@ -54,7 +54,24 @@ namespace YaR.Clouds.Console
                     var res = Document.SelectSingleNode("/config/DefaultUserAgent")?.InnerText;
                     return res;
                 }
-                catch (Exception)
+                catch(Exception)
+                {
+                    return null;
+                }
+
+            }
+        }
+
+        public static string DefaultSecChUa
+        {
+            get
+            {
+                try
+                {
+                    var res = Document.SelectSingleNode("/config/DefaultSecChUa")?.InnerText;
+                    return res;
+                }
+                catch(Exception)
                 {
                     return null;
                 }
@@ -82,6 +99,43 @@ namespace YaR.Clouds.Console
 
 
                 return info;
+            }
+        }
+
+
+        public static BrowserAuthenticatorInfo BrowserAuthenticator
+        {
+            get
+            {
+                try
+                {
+                    string url = null;
+                    string password = null;
+                    string dir = null;
+                    var node = Document.SelectSingleNode("/config/BrowserAuthenticator");
+                    foreach(XmlAttribute attr in node.Attributes)
+                    {
+                        if(attr.LocalName.Equals("Url", StringComparison.OrdinalIgnoreCase))
+                            url = attr.Value;
+                        if(attr.LocalName.Equals("password", StringComparison.OrdinalIgnoreCase))
+                            password = attr.Value;
+                        if(attr.LocalName.Equals("CacheDir", StringComparison.OrdinalIgnoreCase))
+                            dir = attr.Value;
+                    }
+                    if(url!=null || dir!=null)
+                    {
+                        YaR.Clouds.WebDavStore.BrowserAuthenticator.Instance = new BrowserAuthenticatorInfo(
+                            url,
+                            password,
+                            dir
+                            );
+                    }
+                }
+                catch(Exception)
+                {
+                    // ignored
+                }
+                return YaR.Clouds.WebDavStore.BrowserAuthenticator.Instance;
             }
         }
 

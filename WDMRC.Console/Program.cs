@@ -37,14 +37,30 @@ namespace YaR.Clouds.Console
                             options.ServiceInstall = null;
                             _c.CommandLine = Parser.Default.FormatCommandLine(options);
 
-                            _c.Install();
-                            return 0;
+                            try
+                            {
+                                _c.Install();
+                                return 0;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.Error.WriteLine(ex.Message);
+                                return 1;
+                            }
                         }
 
                         if (options.ServiceUninstall != null)
                         {
-                            _c.Uninstall();
-                            return 0;
+                            try
+                            {
+                                _c.Uninstall();
+                                return 0;
+                            }
+                            catch (Exception ex)
+                            {
+                                System.Console.Error.WriteLine(ex.Message);
+                                return 1;
+                            }
                         }
 
                         if (options.ServiceRun)

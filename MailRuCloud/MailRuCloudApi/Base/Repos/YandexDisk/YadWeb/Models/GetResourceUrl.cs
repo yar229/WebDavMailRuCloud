@@ -17,8 +17,10 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb.Models
         {
             foreach (var pair in base.ToKvp(index))
                 yield return pair;
-            
-            yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk", Path));
+
+            //yield return new KeyValuePair<string, string>($"id.{index}", WebDavPath.Combine("/disk", Path));
+            // 08.07.2023 в браузере при скачивании: "idResource.0"
+            yield return new KeyValuePair<string, string>($"idResource.{index}", WebDavPath.Combine("/disk", Path));
         }
     }
 

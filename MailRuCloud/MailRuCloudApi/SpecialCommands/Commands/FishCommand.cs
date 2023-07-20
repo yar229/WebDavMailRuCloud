@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using YaR.Clouds.Base;
@@ -56,8 +57,13 @@ namespace YaR.Clouds.SpecialCommands.Commands
                 string content = string.Empty;
                 try
                 {
-                    using WebClient client = new WebClient();
-                    string htmlCode = client.DownloadString("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
+                    // Replace obsolete methods
+                    //using WebClient client = new WebClient();
+                    //string htmlCode = client.DownloadString("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
+                    using HttpClient client = new HttpClient();
+                    HttpResponseMessage response = await client.GetAsync("http://www.smartphrase.com/cgi-bin/randomphrase.cgi?spanish&humorous&normal&15&2&12&16&1&5");
+                    response.EnsureSuccessStatusCode();
+                    string htmlCode = await response.Content.ReadAsStringAsync();
                     content = Regex.Match(htmlCode,
                             @"</FORM>\s*</TD>\s*<TD\s*ALIGN=""center""\s*WIDTH=\d+\s*BGCOLOR="".DCDCFF""\s*>\s*(?<phrase>.*?)<P>\s*(?<phraseeng>.*?)\s*<P>")
                         .Groups["phraseeng"].Value;

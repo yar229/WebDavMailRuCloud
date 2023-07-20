@@ -5,8 +5,10 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
+	<CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RootNamespace>YaR.Clouds.MailRuCloud.TwoFA.UI</RootNamespace>
     <AssemblyName>MailRuCloud.TwoFA.UI.Console</AssemblyName>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.0|AnyCPU'">

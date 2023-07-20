@@ -17,7 +17,8 @@ namespace YaR.Clouds.Common
 
             long cleanPeriod = (long)CleanUpPeriod.TotalMilliseconds;
 
-            _cleanTimer = new Timer(_ => RemoveExpired(), null, cleanPeriod, cleanPeriod);
+            // if there is no cache, we don't need clean up timer
+            _cleanTimer = _noCache? null : new Timer(_ => RemoveExpired(), null, cleanPeriod, cleanPeriod);
         }
 
         private readonly bool _noCache;
@@ -31,9 +32,14 @@ namespace YaR.Clouds.Common
             get => _cleanUpPeriod;
             set
             {
-                _cleanUpPeriod = value;
-                long cleanPreiod = (long)value.TotalMilliseconds;
-                _cleanTimer.Change(cleanPreiod, cleanPreiod);
+                // Clean up period should not be shorter then cache expiration period
+                _cleanUpPeriod = value < _expirePeriod ? value : _expirePeriod;
+
+                if (!_noCache)
+                {
+                    long cleanPreiod = (long)_cleanUpPeriod.TotalMilliseconds;
+                    _cleanTimer.Change(cleanPreiod, cleanPreiod);
+                }
             }
         }
 
@@ -62,7 +68,7 @@ namespace YaR.Clouds.Common
                 return default;
 
             if (IsExpired(item))
-                _items.TryRemove(key, out item);
+                _items.TryRemove(key, out _);
             else
             {
                 Logger.Debug($"Cache hit: {key}");

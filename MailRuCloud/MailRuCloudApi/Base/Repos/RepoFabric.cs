@@ -1,7 +1,6 @@
 ﻿using System;
 using YaR.Clouds.Base.Repos.MailRuCloud.WebBin;
 using YaR.Clouds.Base.Repos.MailRuCloud.WebV2;
-using YaR.Clouds.Base.Repos.YandexDisk.YadWeb;
 
 namespace YaR.Clouds.Base.Repos
 {
@@ -30,7 +29,8 @@ namespace YaR.Clouds.Base.Repos
 
             IRequestRepo repo = _settings.Protocol switch
             {
-                Protocol.YadWeb => new YadWebRequestRepo(_settings.Proxy, _credentials),
+                Protocol.YadWebV2 => new YandexDisk.YadWebV2.YadWebRequestRepo(_settings, _settings.Proxy, _credentials),
+                Protocol.YadWeb => new YandexDisk.YadWeb.YadWebRequestRepo(_settings, _settings.Proxy, _credentials),
                 Protocol.WebM1Bin => new WebBinRequestRepo(_settings, _credentials, TwoFaHandler),
                 Protocol.WebV2 => new WebV2RequestRepo(_settings, _credentials, TwoFaHandler),
                 _ => throw new Exception("Unknown protocol")

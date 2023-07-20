@@ -152,12 +152,12 @@ namespace NWebDav.Server
                 {
                     s_log.Log(LogLevel.Error, $"Operation aborted at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
                 }
-                // happens when client cancel operation, usially nothing to scare
+                // happens when client cancel operation, usually nothing to scare
                 catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_CONNECTION_INVALID)
                 {
                     s_log.Log(LogLevel.Error, $"An operation was attempted on a nonexistent network connection at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
                 }
-                // happens when client cancel operation, usially nothing to scare
+                // happens when client cancel operation, usually nothing to scare
                 catch (HttpListenerException hle) when (hle.ErrorCode == ERROR_NETNAME_DELETED)
                 {
                     s_log.Log(LogLevel.Error, $"The specified network name is no longer available at (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}");
@@ -177,6 +177,19 @@ namespace NWebDav.Server
                     s_log.Log(LogLevel.Error, $"Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");
                 }
 
+                catch (AggregateException aex) when (aex.InnerExceptions.Count == 3 &&
+                                                     /* An error occurred while sending the request. */
+                                                     aex.InnerExceptions[0] is System.Net.WebException &&
+                                                     /* An error occurred while sending the request. */
+                                                     /*aex.InnerExceptions[1] is System.Net.Http.HttpRequestException &&*/
+                                                     /* The response ended prematurely. */
+                                                     aex.InnerExceptions[2] is System.Net.WebException
+                                                     )
+                {
+                    // If client didn't wait for operation completion, just do nothing
+                    //s_log.Log(LogLevel.Error, $"Client disconnected. Error while handling request (method={request.HttpMethod}, url={request.Url} {httpContext.Response.StatusDescription}");
+                }
+
                 catch (Exception exc)
                 {
                     s_log.Log(LogLevel.Error, $"Unexpected exception while handling request (method={request.HttpMethod}, url={request.Url}, source={request.RemoteEndPoint}", exc);
@@ -190,7 +203,7 @@ namespace NWebDav.Server
                     catch
                     {
                         // We might not be able to send the response, because a response
-                        // was already initiated by the the request handler.
+                        // was already initiated by the request handler.
                     }
                 }
                 finally
