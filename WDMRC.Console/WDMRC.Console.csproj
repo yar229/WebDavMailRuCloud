@@ -7,21 +7,25 @@
     
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
-    <DefineConstants>TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    <LangVersion>$(CommonLangVersion)</LangVersion>
+    <DefineConstants>$(DefineConstants);TRACE;RELEASE;NETCOREAPP3_0</DefineConstants>
     <Authors>YaR</Authors>
     <Company />
     <Product>WebDAVCloudMailRu</Product>
-    <Copyright>yar229@yandex.ru</Copyright>
+    <Copyright>yar229@yandex.ru;ZZZConsulting@internet.ru</Copyright>
     <Description>WebDAV emulator for Cloud.mail.ru</Description>
     <PackageId>WebDAVCloudMailRu</PackageId>
-    <AssemblyVersion>1.13.6.1</AssemblyVersion>
-    <FileVersion>1.13.6.1</FileVersion>
+    <AssemblyVersion>1.13.6.5</AssemblyVersion>
+    <FileVersion>1.13.6.5</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <AssemblyName>wdmrc</AssemblyName>
     <RootNamespace>YaR.Clouds.Console</RootNamespace>
     <StartupObject></StartupObject>
     <ApplicationIcon>cloud.ico</ApplicationIcon>
+    <PackageProjectUrl>https://github.com/yar229/WebDavMailRuCloud</PackageProjectUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -30,7 +34,6 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
-
 
   <ItemGroup>
     <Content Include="cloud.ico" />
@@ -46,12 +49,13 @@
     <ProjectReference Include="..\MailRuCloud\MailRuCloudApi\YaR.Clouds.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Console\MailRuCloudApi.TwoFA.Console.csproj" />
     <ProjectReference Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.File\MailRuCloudApi.TwoFA.File.csproj" />
-    <ProjectReference Condition="'$(TargetFramework)' == 'NET48'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server.HttpListener\NWebDav.Server.HttpListener.csproj" />
     <ProjectReference Include="..\NWebDav\NWebDav.Server\NWebDav.Server.csproj" />
     <ProjectReference Include="..\WebDAV.Uploader\WDMRC.Console.Client.csproj" />
     <ProjectReference Include="..\WebDavMailRuCloudStore\WebDavStore.csproj" />
     <ProjectReference Include="..\WinServiceInstaller\WinServiceInstaller.csproj" />
+
+    <ProjectReference Condition="'$(TargetFramework)' == 'never NET48'" Include="..\MailRuCloud\TwoFA\UI\MailRuCloudApi.TwoFA.Dialog\MailRuCloudApi.TwoFA.Dialog.csproj" />
   </ItemGroup>
 
   <ItemGroup>

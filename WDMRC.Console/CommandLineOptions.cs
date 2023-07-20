@@ -32,6 +32,9 @@ namespace YaR.Clouds.Console
         [Option("user-agent", HelpText = "\"browser\" user-agent")]
         public string UserAgent { get; set; }
 
+        [Option("sec-ch-ua", HelpText = "\"browser\" sec-ch-ua")]
+        public string SecChUa { get; set; }
+
         [Option("install", Required = false, HelpText = "install as Windows service with name")]
         public string ServiceInstall { get; set; }
 
@@ -50,7 +53,7 @@ namespace YaR.Clouds.Console
         [Option("cache-listing", Default = 30, HelpText = "Cache folders listing, sec")]
         public int CacheListingSec { get; set; }
 
-		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth")]
+		[Option("cache-listing-depth", Default = 1, HelpText = "List query folder depth, always equals 1 when cache-listing>0")]
 		public int CacheListingDepth { get; set; }
 
         [Option("proxy-address", Default = "", HelpText = "Proxy address i.e. http://192.168.1.1:8080")]
@@ -65,5 +68,8 @@ namespace YaR.Clouds.Console
 
         [Option("use-deduplicate", Required = false, Default = false, HelpText = "Use cloud deduplicate feature to minimize traffic")]
         public bool UseDeduplicate { get; set; }
+
+        [Option("disable-links", Required = false, Default = false, HelpText = "Disable support for shared folder and stop using /item.links.wdmrc")]
+        public bool DisableLinkManager { get; set; }
     }
 }

@@ -1,13 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <Import Project="..\Common.targets" />
   
   <PropertyGroup>
     <NoWarn>$(NoWarn);NU1605</NoWarn>
     <TargetFrameworks>$(CommonTargetFrameworks)</TargetFrameworks>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RootNamespace>YaR.Clouds.WebDavStore</RootNamespace>
     <AssemblyName>YaR.Clouds.WebDavStore</AssemblyName>
-    <LangVersion>preview</LangVersion>	
+    <LangVersion>$(CommonLangVersion)</LangVersion>
+    <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>	
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
