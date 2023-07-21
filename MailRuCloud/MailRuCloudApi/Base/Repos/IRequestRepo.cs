@@ -7,45 +7,9 @@ using YaR.Clouds.Base.Requests;
 using YaR.Clouds.Base.Requests.Types;
 using YaR.Clouds.Base.Streams;
 using YaR.Clouds.Common;
-using YaR.Clouds.Links;
 
 namespace YaR.Clouds.Base.Repos
 {
-    public class RemotePath
-    {
-        private RemotePath()
-        {}
-
-        public static RemotePath Get(string path) => new() {Path = path};
-        public static RemotePath Get(Link link) => new() {Link = link};
-
-        public static async Task<RemotePath> Get(string path, LinkManager lm)
-        {
-            var z = new RemotePath {Path = path};
-            if (lm == null) 
-                return z;
-
-            z.Link = await lm.GetItemLink(path);
-            return z;
-        }
-
-        //public static RemotePath Get(string path, Link link)
-        //{
-        //    if (string.IsNullOrEmpty(path) && null == link)
-        //        throw new ArgumentException("cannot create empty RemotePath");
-        //    if (!string.IsNullOrEmpty(path) && null != link)
-        //        throw new ArgumentException("cannot create RemotePath with path and link");
-
-        //    return new RemotePath {Link = link, Path = path};
-        //}
-
-
-        public string Path { get; private set; }
-        public Link Link { get; private set;}
-
-        public bool IsLink => Link != null;
-    }
-
     public interface IRequestRepo
     {
         IAuth Authent { get; }
@@ -54,20 +18,13 @@ namespace YaR.Clouds.Base.Repos
 
         Stream GetDownloadStream(File file, long? start = null, long? end = null);
 
-        //HttpWebRequest UploadRequest(ShardInfo shard, File file, UploadMultipartBoundary boundary);
-        //[Obsolete] HttpWebRequest UploadRequest(File file, UploadMultipartBoundary boundary);
-        //HttpRequestMessage UploadClientRequest(PushStreamContent content, File file);
         Task<UploadFileResult> DoUpload(HttpClient client, PushStreamContent content, File file);
 
         Task<IEntry> FolderInfo(RemotePath path, int offset = 0, int limit = int.MaxValue, int depth = 1);
 
-        //Task<FolderInfoResult> ItemInfo(string path, double z, byte k, int offset = 0, int limit = int.MaxValue);
-        //Task<FolderInfoResult> ItemInfo(Uri url, int offset = 0, int limit = int.MaxValue);
         Task<FolderInfoResult> ItemInfo(RemotePath path, int offset = 0, int limit = int.MaxValue);
 
         Task<AccountInfoResult> AccountInfo();
-
-
 
         Task<CreateFolderResult> CreateFolder(string path);
 
@@ -92,21 +49,15 @@ namespace YaR.Clouds.Base.Repos
 
         IEnumerable<PublicLinkInfo> GetShareLinks(string path);
 
-
         void CleanTrash();
-
 
         //TODO: bad quick patch
         string ConvertToVideoLink(Uri publicLink, SharedVideoResolution videoResolution);
 
-
-
         ICloudHasher GetHasher();
-
 
         bool SupportsAddSmallFileByHash { get; }
         bool SupportsDeduplicate { get; }
-
 
         string PublicBaseUrlDefault { get; }
     }

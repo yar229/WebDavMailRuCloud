@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Authentication;
 using System.Threading.Tasks;
-using log4net.Repository.Hierarchy;
 using Newtonsoft.Json;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Models;
 using YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests;
@@ -34,13 +33,13 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 try
                 {
                     // Check file with cookies is created
-                    path = System.IO.Path.Combine(
+                    path = Path.Combine(
                         settings.CloudSettings.BrowserAuthenticatorCacheDir,
-                        creds.Login
-                    );
+                        creds.Login);
+
                     if (System.IO.File.Exists(path))
                     {
-                        YadWebAuth testAuthent = new YadWebAuth(_settings, _creds, path);
+                        var testAuthent = new YadWebAuth(_settings, _creds, path);
                         // Try to get user info using cached cookie
                         new YaDCommonRequest(_settings, testAuthent)
                             .With(new YadAccountInfoPostModel(),
@@ -93,25 +92,9 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
             foreach(var item in response.Cookies)
             {
-                Cookie cookie = new Cookie(item.Name, item.Value, item.Path, item.Domain);
+                var cookie = new Cookie(item.Name, item.Value, item.Path, item.Domain);
                 Cookies.Add(cookie);
             }
-        }
-
-        public static string GetCache(HttpCommonSettings settings, IBasicCredentials creds)
-        {
-            // Проверяем кеш в файле и читаем, если он есть
-            if(string.IsNullOrEmpty(settings.CloudSettings.BrowserAuthenticatorCacheDir))
-                return null;
-
-            string path = System.IO.Path.Combine(
-                settings.CloudSettings.BrowserAuthenticatorCacheDir,
-                creds.Login
-                );
-            if(!System.IO.File.Exists(path))
-                return null;
-
-            return path;
         }
 
         private readonly IBasicCredentials _creds;
@@ -125,8 +108,8 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                 !string.IsNullOrEmpty(response.Sk) &&
                 !string.IsNullOrEmpty(response.Uuid) &&
                 !string.IsNullOrEmpty(response.Login) &&
-                YadWebAuth.GetNameOnly(response.Login)
-                    .Equals(YadWebAuth.GetNameOnly(Login), StringComparison.OrdinalIgnoreCase) &&
+                GetNameOnly(response.Login)
+                    .Equals(GetNameOnly(Login), StringComparison.OrdinalIgnoreCase) &&
                 string.IsNullOrEmpty(response.ErrorMessage)
                 )
             {
@@ -135,21 +118,20 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
 
                 foreach(var item in response.Cookies)
                 {
-                    Cookie cookie = new Cookie(item.Name, item.Value, item.Path, item.Domain);
+                    var cookie = new Cookie(item.Name, item.Value, item.Path, item.Domain);
                     Cookies.Add(cookie);
                 }
 
                 // Если аутентификация прошла успешно, сохраняем результат в кеш в файл
                 if(!string.IsNullOrEmpty(_settings.CloudSettings.BrowserAuthenticatorCacheDir))
                 {
-                    string path = System.IO.Path.Combine(
+                    string path = Path.Combine(
                         _settings.CloudSettings.BrowserAuthenticatorCacheDir,
-                        _creds.Login
-                        );
+                        _creds.Login);
 
                     try
                     {
-                        string dir = System.IO.Path.GetDirectoryName(path);
+                        string dir = Path.GetDirectoryName(path);
                         if(!Directory.Exists(dir))
                             Directory.CreateDirectory(dir);
                     }
@@ -160,21 +142,24 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
                     }
                     try
                     {
+#if NET48
                         System.IO.File.WriteAllText(path, responseHtml);
+#else
+                        await System.IO.File.WriteAllTextAsync(path, responseHtml);
+#endif
                     }
-                    catch(Exception) { }
+                    catch (Exception) { }
                 }
             }
             else
             {
                 if(string.IsNullOrEmpty(response?.ErrorMessage))
                     throw new AuthenticationException("OAuth: Authentication using YandexAuthBrowser is failed!");
-                else
-                    throw new AuthenticationException(
-                        string.Concat(
-                            "OAuth: Authentication using YandexAuthBrowser is failed! ",
-                            response.ErrorMessage)
-                        );
+                
+                throw new AuthenticationException(
+                    string.Concat(
+                        "OAuth: Authentication using YandexAuthBrowser is failed! ",
+                        response.ErrorMessage));
             }
         }
 
@@ -182,9 +167,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2
         public string Password => _creds.Password;
         public string DiskSk { get; set; }
         public string Uuid { get; set; }
-        //public string Csrf { get; set; }
-
-
 
         public bool IsAnonymous => false;
         public string AccessToken { get; }

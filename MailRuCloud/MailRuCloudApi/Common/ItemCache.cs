@@ -93,9 +93,7 @@ namespace YaR.Clouds.Common
         public void Add(IEnumerable<KeyValuePair<TKey, TValue>> items)
         {
             foreach (var item in items)
-            {
                 Add(item.Key, item.Value);
-            }
         }
 
         public TValue Invalidate(TKey key)
@@ -117,9 +115,7 @@ namespace YaR.Clouds.Common
         internal void Invalidate(IEnumerable<TKey> keys)
         {
             foreach (var key in keys)
-            {
                 _items.TryRemove(key, out _);
-            }
         }
 
         public void Forget(TKey whoKey, TKey whomKey)
@@ -129,19 +125,6 @@ namespace YaR.Clouds.Common
             var who = Get(whoKey) as ICanForget;
             who?.Forget(whomKey);
         }
-
-        //public TValue Invalidate(TValue item)
-        //{
-        //    return Invalidate(item.FullPath);
-        //}
-
-        //public void Invalidate(IEnumerable<IEntry> items)
-        //{
-        //    foreach (var item in items)
-        //    {
-        //        _items.TryRemove(item.FullPath, out _);
-        //    }
-        //}
 
         private bool IsExpired(TimedItem<TValue> item)
         {

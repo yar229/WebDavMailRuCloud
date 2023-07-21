@@ -60,8 +60,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
                 throw new AuthenticationException($"{nameof(YadAuthDiskSkRequest)} error, response: {skReq.HtmlResponse}");
             DiskSk = skReq.DiskSk;
 
-            //Csrf = preAuthResult.Csrf;
-
             return true;
         }
 
@@ -69,9 +67,6 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWeb
         public string Password => _creds.Password;
         public string DiskSk { get; set; }
         public string Uuid { get; set; }
-        //public string Csrf { get; set; }
-
-
 
         public bool IsAnonymous => false;
         public string AccessToken { get; }
