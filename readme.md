@@ -234,6 +234,7 @@ Parameters with spaces must be screened by quotes.
 * Logging <br/>
 	`<config><log4net>` <br/>
 	It's standard [Apache log4net](https://logging.apache.org/log4net/) configurations, take a look for [examples](https://logging.apache.org/log4net/release/config-examples.html)
+    Additionally you can use `protocol` and `port` properties taken from command-line parameters.
 * Default video resolution for generated m3u playlists
     `<config><DefaultSharedVideoResolution>` <br/>
     Values:

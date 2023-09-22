@@ -15,8 +15,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
         private readonly IAuth _auth;
         private readonly string _csrf;
         private readonly string _trackId;
-
-        private string secChUa;
+        private readonly string _secChUa;
 
         public YadAuthPasswordRequest(HttpCommonSettings settings, IAuth auth, string csrf, string trackId) 
             : base(settings, auth)
@@ -25,7 +24,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
             _csrf = csrf;
             _trackId = trackId;
 
-            secChUa = settings.CloudSettings.SecChUa;
+            _secChUa = settings.CloudSettings.SecChUa;
         }
 
         protected override string RelationalUri => "/registration-validations/auth/multi_step/commit_password";
@@ -39,7 +38,7 @@ namespace YaR.Clouds.Base.Repos.YandexDisk.YadWebV2.Requests
             request.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
 
             // Строка вида "\" Not A; Brand\";v=\"99\", \"Chromium\";v=\"99\", \"Google Chrome\";v=\"99\""
-            request.Headers.Add("sec-ch-ua", secChUa);
+            request.Headers.Add("sec-ch-ua", _secChUa);
             request.Headers.Add("X-Requested-With", "XMLHttpRequest");
             request.Headers.Add("sec-ch-ua-mobile", "?0");
             request.Headers.Add("sec-ch-ua-platform", "\"Windows\"");
