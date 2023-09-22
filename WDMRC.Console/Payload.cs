@@ -33,6 +33,10 @@ namespace YaR.Clouds.Console
             // .Net Core 2.0.0
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-us");
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-us");
+
+            log4net.GlobalContext.Properties["protocol"] = options.Protocol;
+            log4net.GlobalContext.Properties["port"] = options.Port;
+
             var repo = log4net.LogManager.CreateRepository(Assembly.GetEntryAssembly(), typeof(log4net.Repository.Hierarchy.Hierarchy));
             log4net.Config.XmlConfigurator.Configure(repo, Config.Log4Net);
 
