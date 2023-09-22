@@ -8,8 +8,8 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
     <RootNamespace>YaR.Clouds</RootNamespace>
     <AssemblyName>YaR.Clouds</AssemblyName>
-    <AssemblyVersion>1.14.0.0</AssemblyVersion>
-    <FileVersion>1.14.0.0</FileVersion>
+    <AssemblyVersion>1.14.1.0</AssemblyVersion>
+    <FileVersion>1.14.1.0</FileVersion>
     <Version>$(AssemblyVersion)</Version>
     <LangVersion>$(CommonLangVersion)</LangVersion>
     <RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
