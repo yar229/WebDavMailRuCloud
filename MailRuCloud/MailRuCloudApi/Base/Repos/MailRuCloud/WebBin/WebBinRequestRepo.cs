@@ -42,7 +42,7 @@ namespace YaR.Clouds.Base.Repos.MailRuCloud.WebBin
 
         public sealed override HttpCommonSettings HttpSettings { get; } = new()
         {
-            ClientId = "cloud-android"
+            ClientId = "cloud-win"
         };
 
         public WebBinRequestRepo(CloudSettings settings, IBasicCredentials creds, AuthCodeRequiredDelegate onAuthCodeRequired)
