@@ -408,8 +408,3 @@ Use any client supports webdav.
 *  Official client [Disk-O:](https://disk-o.cloud/)
 *  [Total Commander plugin for cloud.mail.ru service](https://github.com/pozitronik/CloudMailRu)<br>
 *  [MARC-FS - FUSE filesystem attempt for Mail.Ru Cloud](https://gitlab.com/Kanedias/MARC-FS)<br>
-
-
-
-
-<a href="https://www.donationalerts.com/r/yar229"><img src="https://hangoverbarandgrill.com/files/2019/12/002-beer.png" height="20"></a> [Buy me a beer](https://www.donationalerts.com/r/yar229)
